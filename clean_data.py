@@ -14,13 +14,13 @@ Output:
     CSI_data_combined.csv   (overwritten with all changes applied)
 
 Dependencies:
-    pip install pandas geopy
+    pip install pandas
 """
 
 import re
 import os
+import math
 import pandas as pd
-from geopy.distance import geodesic
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -29,6 +29,20 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 FILE_2024 = os.path.join(BASE, "CSI_data_2024.csv")
 FILE_2025 = os.path.join(BASE, "CSI_data_2025.csv")
 OUTPUT    = os.path.join(BASE, "CSI_data_combined.csv")
+DUPLICATE_REVIEW_OUTPUT = os.path.join(BASE, "duplicate_project_review.csv")
+
+
+def _distance_miles(lat1, lon1, lat2, lon2):
+    """Great-circle distance in miles; avoids requiring geopy for this script."""
+    radius_miles = 3958.8
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = (
+        math.sin(dphi / 2) ** 2
+        + math.cos(p1) * math.cos(p2) * math.sin(dlambda / 2) ** 2
+    )
+    return 2 * radius_miles * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 # ===========================================================================
@@ -218,7 +232,7 @@ def add_location_flag(df):
         if row["County"] not in centroids.index:
             return "no_centroid"
         c = centroids.loc[row["County"]]
-        dist = geodesic((row["_lat"], row["_lon"]), (c["c_lat"], c["c_lon"])).miles
+        dist = _distance_miles(row["_lat"], row["_lon"], c["c_lat"], c["c_lon"])
         return "review" if dist > 75 else "ok"
 
     df["location_flag"] = df.apply(_flag, axis=1)
@@ -246,42 +260,223 @@ def split_project_location(df):
 
 
 # ===========================================================================
-# CHANGE 10 — Extract csi_job_id and state_project_id from PROJECT
+# CHANGE 10 — Extract typed project identifiers from PROJECT
 # ===========================================================================
-def extract_identifiers(df):
-    def extract_csi_job_id(text):
-        if pd.isnull(text): return None
-        m = re.search(r'\bJOB\s+(\d{5})\b', str(text), re.IGNORECASE)
-        return m.group(1) if m else None
+STATE_FEDERAL_PREFIX = (
+    r"BRO-B|BRO|BRF-B|BRF|BRJ|BRP-BRC|BRC|BW|ARP|ER\d{2}|"
+    r"NHU|NH|IM|PT|SS|SC|SU|UGP|TAC|TAU|AC-NHU|HEU-CPU|"
+    r"SFP|FSX|TWP|HES|RAI-HES|RBD-XA-SS|RON|EM|P-PH|PH|P"
+)
 
-    def extract_state_project_id(text):
-        if pd.isnull(text): return None
-        t = str(text)
-        patterns = [
-            r'SAP\s+[\d]+[\d\-]+[\d](?:(?:,\s*&?\s*SAP\s+[\d]+[\d\-]+[\d])*)?',
-            r'CONTRACT\s+ID\s+\d+',
-            r'\bSP\s+[\d]{3}-[\d][\d\-]+',
-            r'\bIM[-\s][A-Z]?\s*[\d]+[\w\-\(\)]+',
-            r'\bNH[-\s][A-Z]?\s*[\d]+[\w\-\(\)]+',
-            r'\bBRJ[-\s][\w\-\(\)]+',
-            r'\bBW-[\w\-\.]+',
-            r'\bER\d{2}-[\w\-]+',
-            r'\bARP[-\s][\w\-\(\)]+',
-            r'\bPCN\s+[\w,\s]+?(?=\s+-|\s+ITEM|\s+COLD|\s+ASPH|\s+STRUCT|\s+LOW|$)',
-        ]
-        for pat in patterns:
-            m = re.search(pat, t, re.IGNORECASE)
-            if m:
-                return m.group(0).strip().rstrip('-').strip()
+ID_PATTERNS = [
+    ("CSI_JOB", "csi_job_id", re.compile(r"\bJOB\s*#?\s*(\d{5})\b", re.IGNORECASE)),
+    ("STATE_FEDERAL", "state_federal_project_id", re.compile(r"\b((?:SAP|SP)\s*#?\s*\d{2,4}\s*-\s*\d{1,4}(?:\s*-\s*\d{1,4})?)\b", re.IGNORECASE)),
+    ("STATE_FEDERAL", "state_federal_project_id", re.compile(r"\b(SAP'?S?\s+\d{2,4}\s*-\s*\d{1,4}(?:\s*-\s*\d{1,4})?)\b", re.IGNORECASE)),
+    ("STATE_FEDERAL", "state_federal_project_id", re.compile(r"\b(SP\s+[A-Z]\d{4,}-\d{1,4}(?:\s*&\s*\d{1,4})?)\b", re.IGNORECASE)),
+    ("STATE_FEDERAL", "state_federal_project_id", re.compile(r"\b((?:" + STATE_FEDERAL_PREFIX + r")(?:-[A-Z]{1,5})*\s*[- ]?\s*\d[-A-Z0-9(), ]*)\b", re.IGNORECASE)),
+    ("CONTRACT_ID", "contract_id", re.compile(r"\bCONT(?:RACT)?\s*ID\s*#?\s*(\d{5,6})\b", re.IGNORECASE)),
+    ("CONTRACT_ID", "contract_id", re.compile(r"\bCONT(?:RACT)?\s+NO\.?\s*([A-Z0-9-]{4,})\b", re.IGNORECASE)),
+    ("PCN", "state_federal_project_id", re.compile(r"\b(PCN\s+[A-Z0-9]{3,5})\b", re.IGNORECASE)),
+    ("COUNTY_PROJECT", "local_project_id", re.compile(r"\b(CP\s*-?\s*(?:\d{2,4}(?:[-(][A-Z0-9).]+)+|[A-Z]{2,}\d+[A-Z0-9.-]*))\b", re.IGNORECASE)),
+    ("COUNTY_PROJECT", "local_project_id", re.compile(r"\b(CP\s*#?\s*\d{2,5}[A-Z0-9:-]*(?:,\s*CP\s*\d{2,5}[A-Z0-9:-]*)*)\b", re.IGNORECASE)),
+    ("AIP", "local_project_id", re.compile(r"\bAIP\s*(?:NO\.?\s*)?#?\s*([0-9][-0-9/]+(?:-\d{4})?)\b", re.IGNORECASE)),
+    ("AIP", "local_project_id", re.compile(r"\bAIG\s*(?:NO\.?\s*)?#?\s*([0-9][-0-9/ &]+(?:-\d{4})?)\b", re.IGNORECASE)),
+    ("IOWA_CALL", "local_project_id", re.compile(r"\b(CALL\s+\d+\s+\d{2,3}-[A-Z0-9-]+)\b", re.IGNORECASE)),
+    ("IOWA_CALL", "local_project_id", re.compile(r"\b(CALL\s+(?:NO\.?\s*)?\d+\s+(?:\d{2,3}-[A-Z0-9-]+|[A-Z]{1,6}-?[A-Z0-9]*\d[A-Z0-9().-]*(?:--?\d{1,3})?))\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b(ID\s+\d{2,3}-[A-Z0-9-]+)\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b(P\.?I\.?\s*NO\.?\s*[A-Z0-9.-]*\d[A-Z0-9.-]*)\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b(PROJ(?:ECT)?\.?\s*(?:(?:NO\.?|#)\s*)?[A-Z0-9][A-Z0-9.-]*(?:\s+[A-Z0-9][A-Z0-9.-]*){0,2}\s*\d[A-Z0-9.-]*)\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b((?:BMI|MBI)\s*(?:PROJ(?:ECT)?\s*)?(?:NO\.?|#)?\s*[A-Z0-9.]+\d[A-Z0-9.]*)\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b((?:CIP|ST|BR|NR|PH|PN|PR|WC|EC)\d{0,2}-[A-Z0-9][A-Z0-9-]*|WC\d{2}-[A-Z0-9]+|EC\d{2}-\d+)\b", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"(?<!ITEM )(?<!ITEM #)(#\d{3,6}\b|\b[A-Z]{2,6}\d{2,}[A-Z0-9.-]*\b|\b[A-Z]{2,6}-\d{2,}[A-Z0-9().-]*\b)", re.IGNORECASE)),
+]
+
+ID_PRIORITY = {
+    "CSI_JOB": 1,
+    "STATE_FEDERAL": 2,
+    "CONTRACT_ID": 3,
+    "PCN": 4,
+    "COUNTY_PROJECT": 5,
+    "AIP": 6,
+    "IOWA_CALL": 7,
+    "LOCAL_OWNER_CODE": 8,
+}
+
+
+def _normalize_project_id(value):
+    value = re.sub(r"\s+", " ", str(value)).strip(" -,.")
+    value = re.sub(r"\s*-\s*", "-", value)
+    value = re.split(
+        r"\s+(?:GRADING|STRUCTURE|REMOVE|BIT|HMA|ASPHALT|MILL|PCC|"
+        r"SURFACING|RECONSTRUCTION|RECONST|SD|ND|US|I\b|CR\b|"
+        r"CSAH\b|TH\b)",
+        value,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0].strip(" -,.")
+    return value.upper()
+
+
+def _overlaps(span, spans):
+    start, end = span
+    return any(start < used_end and end > used_start for used_start, used_end in spans)
+
+
+def _extract_project_ids(text):
+    if pd.isnull(text):
+        return []
+
+    project = str(text)
+    matches = []
+    used_spans = []
+
+    for project_id_type, target_field, pattern in ID_PATTERNS:
+        for m in pattern.finditer(project):
+            if _overlaps(m.span(), used_spans):
+                continue
+
+            raw = m.group(0).strip()
+            value = m.group(1).strip() if m.lastindex else raw
+            normalized = _normalize_project_id(value)
+            if len(normalized) < 3:
+                continue
+
+            matches.append({
+                "type": project_id_type,
+                "field": target_field,
+                "raw": raw,
+                "value": normalized,
+                "priority": ID_PRIORITY[project_id_type],
+                "span": m.span(),
+            })
+            used_spans.append(m.span())
+
+    unique = []
+    seen = set()
+    for match in sorted(matches, key=lambda x: (x["priority"], x["span"][0])):
+        key = (match["type"], match["value"])
+        if key not in seen:
+            unique.append(match)
+            seen.add(key)
+    return unique
+
+
+def _ids_for_field(matches, field):
+    values = [m["value"] for m in matches if m["field"] == field]
+    return "; ".join(values) if values else None
+
+
+def _primary_id(matches):
+    if not matches:
         return None
+    return matches[0]
 
-    df["csi_job_id"]       = df["PROJECT"].apply(extract_csi_job_id)
-    df["state_project_id"] = df["PROJECT"].apply(extract_state_project_id)
+
+def extract_identifiers(df):
+    extracted = df["PROJECT"].apply(_extract_project_ids)
+    primary = extracted.apply(_primary_id)
+
+    df["csi_job_id"] = extracted.apply(lambda ids: _ids_for_field(ids, "csi_job_id"))
+    df["state_federal_project_id"] = extracted.apply(lambda ids: _ids_for_field(ids, "state_federal_project_id"))
+    df["contract_id"] = extracted.apply(lambda ids: _ids_for_field(ids, "contract_id"))
+    df["local_project_id"] = extracted.apply(lambda ids: _ids_for_field(ids, "local_project_id"))
+
+    # Backward-compatible alias used by earlier analysis files.
+    df["state_project_id"] = df["state_federal_project_id"]
+
+    df["project_id_type"] = primary.apply(lambda x: x["type"] if x else None)
+    df["project_id_raw"] = primary.apply(lambda x: x["raw"] if x else None)
+    df["primary_project_id"] = primary.apply(lambda x: x["value"] if x else None)
+    df["secondary_project_ids"] = extracted.apply(
+        lambda ids: "; ".join(f'{m["type"]}:{m["value"]}' for m in ids[1:]) if len(ids) > 1 else None
+    )
     return df
 
 
 # ===========================================================================
-# CHANGE 11 — Convert PREVAILING WAGES YES/NO → 1/0
+# CHANGE 11 — Add composite keys and duplicate review flags
+# ===========================================================================
+def _normalize_key_text(value):
+    if pd.isnull(value):
+        return ""
+    text = str(value).upper()
+    text = re.sub(r"\(MOVED FROM[^)]*\)", " ", text)
+    text = re.sub(r"[^A-Z0-9]+", " ", text)
+    text = re.sub(
+        r"\b(PROJECT|PROJ|IMPROVEMENTS|IMPROVEMENT|CONSTRUCTION|"
+        r"RECONSTRUCTION|REHABILITATION|REPAIR|THE|AND)\b",
+        " ",
+        text,
+    )
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _normalize_duplicate_text(value):
+    text = _normalize_key_text(value)
+    text = re.sub(r"\b20\d{2}\b", " YEAR ", text)
+    text = re.sub(r"\bITEM\s*#?\s*\d+\b", " ITEM ", text)
+    text = re.sub(r"\bPHASE\s*\d+\b", " PHASE ", text)
+    text = re.sub(r"\bPART\s+[A-Z]\b", " PART ", text)
+    text = re.sub(r"\b(NO|DIST|DISTRICT|ETC)\b", " ", text)
+    tokens = [t for t in re.sub(r"\s+", " ", text).strip().split(" ") if len(t) > 2]
+    return " ".join(tokens[:10])
+
+
+def add_composite_keys(df):
+    location_part = (
+        df["State"].fillna("").astype(str).str.upper().str.strip()
+        + "|"
+        + df["County"].fillna("").astype(str).str.upper().str.strip()
+        + "|"
+        + df["City"].fillna("").astype(str).str.upper().str.strip()
+    )
+    project_part = df["PROJECT"].apply(_normalize_key_text)
+
+    df["strict_key"] = (
+        df["DATE"].fillna("").astype(str).str.strip()
+        + "|"
+        + location_part
+        + "|"
+        + project_part
+    )
+    df["project_group_key"] = location_part + "|" + project_part
+    df["duplicate_match_key"] = location_part + "|" + df["PROJECT"].apply(_normalize_duplicate_text)
+
+    group_sizes = df.groupby("duplicate_match_key")["PROJECT"].transform("size")
+    date_counts = df.groupby("duplicate_match_key")["DATE"].transform("nunique")
+    year_counts = df.groupby("duplicate_match_key")["bid_year"].transform("nunique")
+    id_counts = df.groupby("primary_project_id", dropna=True)["PROJECT"].transform("size")
+
+    df["duplicate_candidate"] = (
+        (df["duplicate_match_key"].str.len() > 5)
+        & (group_sizes > 1)
+        & ((date_counts > 1) | (year_counts > 1) | (id_counts > 1))
+    )
+    df["duplicate_match_reason"] = None
+    df.loc[df["duplicate_candidate"] & (year_counts > 1), "duplicate_match_reason"] = "same project_group_key across bid years"
+    df.loc[df["duplicate_candidate"] & (year_counts <= 1), "duplicate_match_reason"] = "same project_group_key across dates"
+    df.loc[df["duplicate_candidate"] & (id_counts > 1), "duplicate_match_reason"] = "same extracted ID or loose project key"
+    return df
+
+
+def write_duplicate_review(df):
+    review_cols = [
+        "bid_year", "DATE", "LOCATION", "PROJECT", "primary_project_id",
+        "project_id_type", "project_id_raw", "project_group_key",
+        "duplicate_match_key", "duplicate_match_reason"
+    ]
+    review = df[df["duplicate_candidate"]].copy()
+    review.insert(0, "record_id", review.index)
+    review = review[["record_id"] + review_cols].sort_values(
+        ["project_group_key", "DATE", "record_id"]
+    )
+    review["decision"] = ""
+    review.to_csv(DUPLICATE_REVIEW_OUTPUT, index=False)
+    return df
+
+
+# ===========================================================================
+# CHANGE 12 — Convert PREVAILING WAGES YES/NO → 1/0
 # ===========================================================================
 def clean_prevailing_wages(df):
     mapping = {"YES": 1, "NO": 0}
@@ -290,7 +485,7 @@ def clean_prevailing_wages(df):
 
 
 # ===========================================================================
-# CHANGE 12 — Convert material columns from string to float
+# CHANGE 13 — Convert material columns from string to float
 # ===========================================================================
 MATERIAL_COLS = ["MIX TN", "GRADE CY", "BASE TN", "SHLDR TN", "MILL SY", "CRUSH TN", "STOCK TN"]
 
@@ -308,7 +503,7 @@ def clean_material_columns(df):
 
 
 # ===========================================================================
-# CHANGE 13 — Convert BOX from X/null → 1/0
+# CHANGE 14 — Convert BOX from X/null → 1/0
 # ===========================================================================
 def clean_box(df):
     df["BOX"] = df["BOX"].apply(lambda x: 1 if str(x).strip().upper() == "X" else 0)
@@ -341,20 +536,25 @@ def main():
     print("Step 9: Splitting PROJECT LOCATION into Latitude / Longitude...")
     df = split_project_location(df)
 
-    print("Step 10: Extracting csi_job_id and state_project_id...")
+    print("Step 10: Extracting typed project identifiers...")
     df = extract_identifiers(df)
 
-    print("Step 11: Converting PREVAILING WAGES to 1/0...")
+    print("Step 11: Adding composite keys and duplicate flags...")
+    df = add_composite_keys(df)
+    df = write_duplicate_review(df)
+
+    print("Step 12: Converting PREVAILING WAGES to 1/0...")
     df = clean_prevailing_wages(df)
 
-    print("Step 12: Converting material columns to float...")
+    print("Step 13: Converting material columns to float...")
     df = clean_material_columns(df)
 
-    print("Step 13: Converting BOX to 1/0...")
+    print("Step 14: Converting BOX to 1/0...")
     df = clean_box(df)
 
     df.to_csv(OUTPUT, index=False)
     print(f"\nDone. Output saved to: {OUTPUT}")
+    print(f"Duplicate review table saved to: {DUPLICATE_REVIEW_OUTPUT}")
     print(f"Final shape: {df.shape[0]} rows × {df.shape[1]} columns")
 
 

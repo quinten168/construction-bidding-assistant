@@ -110,4 +110,74 @@ All changes made to the raw source data are recorded here for client transparenc
 
 ---
 
+## Cleaning Pass 2 — 2026-06-07
+
+### Changes Applied
+
+1. **Expanded project ID extraction with typed identifier fields**
+   - Replaced the earlier two-field-only extraction logic with a typed extractor that preserves both normalized and raw ID values.
+   - Existing compatibility fields are still present:
+     - `csi_job_id`
+     - `state_project_id` (now an alias of `state_federal_project_id`)
+   - New ID fields added:
+     - `state_federal_project_id`
+     - `contract_id`
+     - `local_project_id`
+     - `project_id_type`
+     - `project_id_raw`
+     - `primary_project_id`
+     - `secondary_project_ids`
+   - Extraction priority is: `CSI_JOB` → `STATE_FEDERAL` → `CONTRACT_ID` → `PCN` → `COUNTY_PROJECT` → `AIP` → `IOWA_CALL` → `LOCAL_OWNER_CODE`.
+
+2. **Added regex coverage for previously missed ID formats**
+   - Added support for CSI job IDs with optional hash marks, e.g. `JOB #23347`.
+   - Added abbreviated contract IDs, e.g. `CONT ID #240081` and `CONT NO 05R24`.
+   - Added spaced and variant state/federal IDs, e.g. `SP 4310- 95`, `SAP'S 047-602-014`, `BRO-B 8006(56)`, `BRF 6293(12)`, `NH-TA0037(157)`, `IM-EM 0908(97)362`, and `PH 0044(238)172`.
+   - Added PCN IDs, e.g. `PCN 08N8` and `PCN X06L`.
+   - Added county/local/airport formats, e.g. `CP-13(24)01`, `CP #23-16DEF`, `CP 25:71`, `AIP 3-38-0021-0018-2024`, and `AIG NO. 3-38-0068-023 & 24-2024`.
+   - Added Iowa letting formats, e.g. `CALL 155 60-C060-130` and `CALL 105 DPS-S12A(107)`.
+   - Added local owner/project-code formats, e.g. `PROJ 2024-10827`, `BMI NO 0W1.131187`, `ST23-279`, `BR-24-A1`, and `SW-311`.
+
+3. **Improved missing-ID coverage**
+   - Previous output had 1,120 rows with both `csi_job_id` and `state_project_id` missing.
+   - After this pass, 774 of those 1,120 rows now have a machine-extracted `primary_project_id`.
+   - 346 rows remain without a machine-extracted project ID and should use composite-key logic or targeted review.
+   - Across all 1,661 rows, 1,315 rows now have `primary_project_id`; 346 rows remain without any extracted ID.
+   - ID type counts by primary ID:
+     - `STATE_FEDERAL`: 671
+     - `LOCAL_OWNER_CODE`: 279
+     - `CSI_JOB`: 151
+     - `COUNTY_PROJECT`: 90
+     - `IOWA_CALL`: 71
+     - `PCN`: 35
+     - `AIP`: 16
+     - `CONTRACT_ID`: 2
+
+4. **Added composite keys for local/municipal projects**
+   - Added `strict_key`: `DATE + State + County + City + normalized PROJECT`.
+   - Added `project_group_key`: `State + County + City + normalized PROJECT`.
+   - Purpose:
+     - `strict_key` identifies a specific bid event.
+     - `project_group_key` groups likely same-project records across date changes, rebids, or year carryover.
+
+5. **Added duplicate candidate review output**
+   - Added `duplicate_candidate`, `duplicate_match_key`, and `duplicate_match_reason` fields.
+   - Generated `duplicate_project_review.csv` for rows that should be manually reviewed as possible duplicates, rebids, phases, add-ons, or reused local IDs.
+   - Current review table contains 17 rows.
+   - The `decision` column is intentionally blank for analyst review.
+
+6. **Removed unnecessary `geopy` dependency**
+   - Replaced `geopy.distance.geodesic` with an internal haversine distance function.
+   - The `location_flag` method still uses the same 75-mile county-centroid threshold.
+
+### Data Integrity Notes
+
+- No source rows were dropped.
+- Raw source files `CSI_data_2024.csv` and `CSI_data_2025.csv` were not modified.
+- `project_id_raw` preserves the matched original text for auditability.
+- Regex type counts can overlap through `secondary_project_ids`; do not sum type counts to infer unique recovered rows.
+- The official recovery metric for this pass is: 774 of the prior 1,120 missing-ID rows now have `primary_project_id`.
+
+---
+
 *Future changes should be appended below this line with date, description, and analyst name.*
