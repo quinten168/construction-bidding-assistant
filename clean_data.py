@@ -288,7 +288,7 @@ ID_PATTERNS = [
     ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b(PROJ(?:ECT)?\.?\s*(?:(?:NO\.?|#)\s*)?[A-Z0-9][A-Z0-9.-]*(?:\s+[A-Z0-9][A-Z0-9.-]*){0,2}\s*\d[A-Z0-9.-]*)\b", re.IGNORECASE)),
     ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b((?:BMI|MBI)\s*(?:PROJ(?:ECT)?\s*)?(?:NO\.?|#)?\s*[A-Z0-9.]+\d[A-Z0-9.]*)\b", re.IGNORECASE)),
     ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"\b((?:CIP|ST|BR|NR|PH|PN|PR|WC|EC)\d{0,2}-[A-Z0-9][A-Z0-9-]*|WC\d{2}-[A-Z0-9]+|EC\d{2}-\d+)\b", re.IGNORECASE)),
-    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"(?<!ITEM )(?<!ITEM #)(#\d{3,6}\b|\b[A-Z]{2,6}\d{2,}[A-Z0-9.-]*\b|\b[A-Z]{2,6}-\d{2,}[A-Z0-9().-]*\b)", re.IGNORECASE)),
+    ("LOCAL_OWNER_CODE", "local_project_id", re.compile(r"(?<!ITEM )(?<!ITEM #)(#\d{3,6}\b|\b(?!(?:US|TH|ND|SD|IA|MN|CR|CSAH|HWY)\d)[A-Z]{2,6}\d{2,}[A-Z0-9.-]*\b|\b(?!(?:US|TH|ND|SD|IA|MN|CR|CSAH|HWY)-)[A-Z]{2,6}-\d{2,}[A-Z0-9().-]*\b)", re.IGNORECASE)),
 ]
 
 ID_PRIORITY = {
@@ -305,15 +305,16 @@ ID_PRIORITY = {
 
 def _normalize_project_id(value):
     value = re.sub(r"\s+", " ", str(value)).strip(" -,.")
-    value = re.sub(r"\s*-\s*", "-", value)
     value = re.split(
-        r"\s+(?:GRADING|STRUCTURE|REMOVE|BIT|HMA|ASPHALT|MILL|PCC|"
-        r"SURFACING|RECONSTRUCTION|RECONST|SD|ND|US|I\b|CR\b|"
-        r"CSAH\b|TH\b)",
+        r"\s+-\s+|\s+(?:GRADING|GRADE|STRUCTURE|REMOVE|REMOVAL|BIT|HMA|"
+        r"ASPHALT|MILL|PCC|SURFACING|RECONSTRUCTION|RECONST|COLD|BOX|"
+        r"CURB|FIELD|APPROACH|INTERSECTION|PIPE|SHARED|ROADWAY|BRIDGE|"
+        r"SD\b|ND\b|US\b|I\b|CR\b|CSAH\b|TH\b|HWY\b)",
         value,
         maxsplit=1,
         flags=re.IGNORECASE,
     )[0].strip(" -,.")
+    value = re.sub(r"\s*-\s*", "-", value)
     return value.upper()
 
 
@@ -337,6 +338,9 @@ def _extract_project_ids(text):
 
             raw = m.group(0).strip()
             value = m.group(1).strip() if m.lastindex else raw
+            if value.count("(") > value.count(")") and m.end() < len(project) and project[m.end()] == ")":
+                raw += ")"
+                value += ")"
             normalized = _normalize_project_id(value)
             if len(normalized) < 3:
                 continue
