@@ -140,14 +140,14 @@ All changes made to the raw source data are recorded here for client transparenc
 
 3. **Improved missing-ID coverage**
    - Previous output had 1,120 rows with both `csi_job_id` and `state_project_id` missing.
-   - After this pass, 774 of those 1,120 rows now have a machine-extracted `primary_project_id`.
-   - 346 rows remain without a machine-extracted project ID and should use composite-key logic or targeted review.
-   - Across all 1,661 rows, 1,315 rows now have `primary_project_id`; 346 rows remain without any extracted ID.
+   - After validation refinements, 771 of those 1,120 rows now have a machine-extracted `primary_project_id`.
+   - 349 rows remain without a machine-extracted project ID and should use composite-key logic or targeted review.
+   - Across all 1,661 rows, 1,312 rows now have `primary_project_id`; 349 rows remain without any extracted ID.
    - ID type counts by primary ID:
-     - `STATE_FEDERAL`: 671
-     - `LOCAL_OWNER_CODE`: 279
+     - `STATE_FEDERAL`: 670
+     - `LOCAL_OWNER_CODE`: 278
      - `CSI_JOB`: 151
-     - `COUNTY_PROJECT`: 90
+     - `COUNTY_PROJECT`: 89
      - `IOWA_CALL`: 71
      - `PCN`: 35
      - `AIP`: 16
@@ -176,7 +176,46 @@ All changes made to the raw source data are recorded here for client transparenc
 - Raw source files `CSI_data_2024.csv` and `CSI_data_2025.csv` were not modified.
 - `project_id_raw` preserves the matched original text for auditability.
 - Regex type counts can overlap through `secondary_project_ids`; do not sum type counts to infer unique recovered rows.
-- The official recovery metric for this pass is: 774 of the prior 1,120 missing-ID rows now have `primary_project_id`.
+- The official recovery metric for this pass is: 771 of the prior 1,120 missing-ID rows now have `primary_project_id`.
+
+---
+
+## Validation Pass — 2026-06-07
+
+### Stratified ID Extraction QA
+
+- Created `qa_project_id_validation_sample.csv` from the 771 rows that were previously missing both `csi_job_id` and `state_project_id` but now have `primary_project_id`.
+- Stratified sample size: 117 rows.
+- Sample mix:
+  - `LOCAL_OWNER_CODE`: 40 rows
+  - `STATE_FEDERAL`: 20 rows
+  - `CSI_JOB`: 12 rows
+  - `COUNTY_PROJECT`: 12 rows
+  - `IOWA_CALL`: 12 rows
+  - `PCN`: 10 rows
+  - `AIP`: 10 rows
+  - `CONTRACT_ID`: 1 row
+- QA focus:
+  - Checked whether road numbers such as `US-183`, `TH87`, and `TH94` were being incorrectly captured as local project IDs.
+  - Checked whether parentheses were preserved in IDs such as `CP-2800(023)` and `CALL 600 DPS-183-3(125)`.
+  - Checked whether leading zeros and letters were preserved in `PCN`, `AIP`, `SP`, and `CALL` identifiers.
+  - Checked whether `project_id_raw` points back to the original matched text.
+  - Checked whether `secondary_project_ids` captured lower-priority IDs without overriding the primary ID.
+
+### Validation Findings
+
+- 114 of 117 sampled rows passed the automated/visual QA checks.
+- 3 sampled rows were flagged for manual review, all in `LOCAL_OWNER_CODE`:
+  - `#157`
+  - `#23141`
+  - `#22288`
+- These are not confirmed false positives; they are weak numeric/hash identifiers that may be owner/bid numbers rather than stable project IDs.
+
+### Fixes Applied From QA
+
+- Preserved missing closing parentheses in extracted IDs, e.g. `CP-2800(023)` and `CALL 600 DPS-183-3(125)`.
+- Tightened ID normalization so description words such as `COLD`, `BOX`, and `PIPE` do not remain in `primary_project_id`.
+- Excluded common road-number forms from `LOCAL_OWNER_CODE`, including `US-183`, `TH87`, and `TH94`.
 
 ---
 
