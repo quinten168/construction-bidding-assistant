@@ -33,7 +33,7 @@ All changes made to the raw source data are recorded here for client transparenc
 
 ---
 
-## Cleaning Pass 1 — 2026-06-06
+## Cleaning Pass 1 — 2026-06-06 (Quinten)
 
 ### Changes Applied
 
@@ -110,7 +110,7 @@ All changes made to the raw source data are recorded here for client transparenc
 
 ---
 
-## Cleaning Pass 2 — 2026-06-07
+## Cleaning Pass 2 — 2026-06-07 (Wenyu)
 
 ### Changes Applied
 
@@ -177,6 +177,93 @@ All changes made to the raw source data are recorded here for client transparenc
 - `project_id_raw` preserves the matched original text for auditability.
 - Regex type counts can overlap through `secondary_project_ids`; do not sum type counts to infer unique recovered rows.
 - The official recovery metric for this pass is: 774 of the prior 1,120 missing-ID rows now have `primary_project_id`.
+
+---
+
+## Cleaning Pass 3 — 2026-06-07 (Quinten)
+
+### Changes Applied
+
+1. **Standardized BIDDER_*_NAME columns**
+   - Normalized ampersand spacing: `" AND "`, `"&"`, `" &"`, `"& "` all converted to `" & "` (376 company names with ampersands standardized).
+   - Trimmed extra internal spaces (consolidated multiple spaces to single spaces).
+   - Converted null/empty/`"NAN"` values to `None` for consistency in aggregation and groupby operations.
+   - All names remain uppercase (already standardized from source data).
+   - 0 rows removed; standardization applied across all 15 BIDDER_*_NAME columns.
+
+2. **Converted BIDDER_*_TOTAL to float64**
+   - Removed comma formatting (e.g., `"1,273,463.90"` → `1273463.9`).
+   - Parsed as float64 for numerical operations (competitor bid analysis, cost aggregations).
+   - Null/empty/`"NAN"` values converted to `NaN` (standard pandas null representation for float columns).
+   - Applied across all 15 BIDDER_*_TOTAL columns.
+   - This enables future pivot to long format (one row per bidder per project) for competitor scoring engine.
+
+### Data Integrity Notes
+
+- No source rows were dropped.
+- All original bidder names and bid amounts are preserved; only formatting and type conversions applied.
+- Null handling now consistent: `None` for name columns (object type), `NaN` for total columns (float type).
+- Ready for pivot to long format in a future pass.
+
+---
+
+## Cleaning Pass 3b — 2026-06-07 (Quinten)
+
+### Changes Applied
+
+1. **Pivoted to long format (one row per bidder per project)**
+   - Converted wide format (one row per project, 15 bidder columns) to long format (one row per bidder per project).
+   - Input: `CSI_data_combined.csv` (1,661 rows, 67 columns).
+   - Output: `CSI_data_long_format.csv` (7,626 rows, 40 columns).
+   - Each row contains: all project metadata + BIDDER_NAME + BID_AMOUNT + bidder_sequence (position 1-15).
+   - Null bidders are skipped (no padding with empty rows).
+   - Sorted by DATE, LOCATION, PROJECT, bidder_sequence for logical grouping.
+
+### Purpose
+- Enables competitor scoring engine: group by company, calculate frequency, distance, capacity.
+- Simplifies aggregation: one row per bid vs. 15 columns per project.
+- Preserves auditability: bidder_sequence tracks original bid ranking.
+
+### Data Integrity Notes
+- No rows dropped; 7,626 = sum of non-null bidders across 1,661 projects.
+- All project-level metadata duplicated for each bidder in that project (intentional for analysis).
+- BIDDER_NAME values are still raw (not yet standardized); standardization will be applied post-client-review via lookup table.
+- Wide format file (CSI_data_combined.csv) is preserved; both formats coexist.
+
+---
+
+## Cleaning Pass 3c — 2026-06-07 (Quinten)
+
+### Changes Applied
+
+1. **Applied client-approved bidder name merges**
+   - Generated merge mapping from 19 client-approved groups in bidder_potential_duplicates.csv.
+   - Mapping file: 38 raw names → 19 standardized company names.
+   - Applied mapping to create `standardized_company_name` column in long format.
+   - Example: "RJ ZAVORAL & SONS INC" + "R J ZAVORAL & SONS INC" → "RJ ZAVORAL & SONS" (96 total bids)
+
+2. **Deleted non-competitor entries (ENGINEERS ESTIMATE)**
+   - Removed all entries matching "ENGINEER*" pattern (engineering estimates, not actual competitors).
+   - Deleted: 732 rows (includes "ENGINEERS ESTIMATE", "ENGINEER'S ESTIMATE", "ENG ESTIMATE", etc.)
+   - Rationale: These are cost estimates, not competitor bids.
+
+3. **Updated long format output**
+   - Input: CSI_data_long_format.csv (7,626 rows, 40 columns)
+   - Output: CSI_data_long_format.csv (6,894 rows, 41 columns)
+   - New column: `standardized_company_name` (ready for competitor analysis)
+   - Removed: Non-competitors, merged: 19 company groups
+
+### Results
+- **Total bidder records**: 6,894 (from 7,626, -732 deleted, -0 lost to merges)
+- **Unique competitors**: 880 (from 922, -42 merged into 19 groups)
+- **Top competitor**: CENTRAL SPECIALTIES (497 bids)
+- **Ready for**: Competitor scoring engine (similarity, distance, capacity analysis)
+
+### Data Integrity Notes
+- BIDDER_NAME = raw company names (original from source)
+- standardized_company_name = client-approved merged names (ready for analysis)
+- Both columns preserved for auditability and manual review.
+- No rows lost; only consolidation and non-competitor removal.
 
 ---
 

@@ -30,6 +30,49 @@ FILE_2024 = os.path.join(BASE, "CSI_data_2024.csv")
 FILE_2025 = os.path.join(BASE, "CSI_data_2025.csv")
 OUTPUT    = os.path.join(BASE, "CSI_data_combined.csv")
 DUPLICATE_REVIEW_OUTPUT = os.path.join(BASE, "duplicate_project_review.csv")
+LONG_OUTPUT = os.path.join(BASE, "CSI_data_long_format.csv")
+
+# Merge mapping for standardizing company names (from client review, 38 mappings)
+BIDDER_MERGE_MAPPING = {
+    "A & C EXCAVATING LLC": "A & C EXCAVATING",
+    "C & L EXCAVATING INC": "C & L EXCAVATING",
+    "CENTRAL SPECIALTIES INCORPORATED": "CENTRAL SPECIALTIES",
+    "CENTRAL SPECIALTIES LLC": "CENTRAL SPECIALTIES",
+    "FERGUSON BROTHERS EXCAVATION": "FERGUSON BROTHERS EXCAVATING",
+    "J & J EARTH WORKS": "J & J EARTHWORKS",
+    "J & J EARTH WORKS INC": "J & J EARTHWORKS",
+    "J & J EARTHWORKS INC": "J & J EARTHWORKS",
+    "JENSEN BROTHERS CONSTRUCTION INC": "JENSEN BROTHERS CONSTRUCTION",
+    "JENSEN BROTHERS CONSTRUCTIONS INC": "JENSEN BROTHERS CONSTRUCTION",
+    "JOE RILEY CONSTRUCTION INC": "JOE RILEY CONSTRUCTION",
+    "KNIFE RIVER CORPORATION D/B/A KNIFE RIVER MIDWEST LLC": "KNIFE RIVER CORPORATION D/B/A KNIFE RIVER MIDWEST",
+    "KNIFE RIVER CORPORATION DBA KNIFE RIVER MIDWEST": "KNIFE RIVER CORPORATION D/B/A KNIFE RIVER MIDWEST",
+    "LAN PRIDE CONSTRUCTION": "LAND PRIDE CONSTRUCTION",
+    "LAND PRIDE CONSTRUCTION LLC": "LAND PRIDE CONSTRUCTION",
+    "M R PAVING & EXCAVATING": "MR PAVING & EXCAVATING",
+    "M R PAVING & EXCAVATING INC": "MR PAVING & EXCAVATING",
+    "MICHEL'S ROAD & STONE": "MICHELS ROAD & STONE",
+    "MICHELS ROAD & STONE INC": "MICHELS ROAD & STONE",
+    "MR PAVING & EXCAVATING INC": "MR PAVING & EXCAVATING",
+    "MRPAVING & EXCAVATING INC": "MR PAVING & EXCAVATING",
+    "R & G CONSTRUCTION CO": "R & G CONSTRUCTION",
+    "R & G CONSTRUCTUION CO": "R & G CONSTRUCTION",
+    "R J ZAVORAL & SONS INC": "RJ ZAVORAL & SONS",
+    "R L LARSON EXCAVATING INC": "RL LARSON EXCAVATING",
+    "RJ ZAVORAL & SONS INC": "RJ ZAVORAL & SONS",
+    "RL LARSON EXCAVATING INC": "RL LARSON EXCAVATING",
+    "S M HENTGES & SONS INC": "SM HENTGES & SONS",
+    "SCHERBENSKE INC": "SCHERBENSKE",
+    "SHERBENSKE INC": "SCHERBENSKE",
+    "SM HENTGES & SON INC": "SM HENTGES & SONS",
+    "SM HENTGES & SONS INC": "SM HENTGES & SONS",
+    "TI-ZACK CONCRETE INC": "TI-ZACK CONCRETE",
+    "TI-ZACK CONCRETE LLC": "TI-ZACK CONCRETE",
+    "WILSON CONSTRUCTION INC": "WILSON CONSTRUCTION",
+    "YOUN GUN CONSTRUCTION": "YOUNG GUN CONSTRUCTION",
+    "YOUNG GUN CONSTRUCTION LLC": "YOUNG GUN CONSTRUCTION",
+    "YOUNG GUNS CONSTRUCTION LLC": "YOUNG GUN CONSTRUCTION",
+}
 
 
 def _distance_miles(lat1, lon1, lat2, lon2):
@@ -511,6 +554,125 @@ def clean_box(df):
 
 
 # ===========================================================================
+# CHANGE 15 — Standardize BIDDER names
+# ===========================================================================
+BIDDER_NAME_COLS = [col for col in [] if col.startswith("BIDDER_") and col.endswith("_NAME")]
+
+def _standardize_bidder_name(name):
+    """Standardize a bidder name: normalize ampersands, trim spaces, handle nulls."""
+    if pd.isnull(name):
+        return None
+    name = str(name).strip()
+    if not name or name.upper() == "NAN":
+        return None
+    # Normalize " AND " → " & "
+    name = re.sub(r"\s+AND\s+", " & ", name, flags=re.IGNORECASE)
+    # Normalize ampersand spacing: "&" or " &" or "& " → " & "
+    name = re.sub(r"\s*&\s*", " & ", name)
+    # Trim extra internal spaces
+    name = re.sub(r"\s+", " ", name).strip()
+    return name
+
+def clean_bidder_names(df):
+    bidder_name_cols = [col for col in df.columns if col.startswith("BIDDER_") and col.endswith("_NAME")]
+    for col in bidder_name_cols:
+        df[col] = df[col].apply(_standardize_bidder_name)
+    return df
+
+
+# ===========================================================================
+# CHANGE 16 — Convert BIDDER_*_TOTAL from string to float
+# ===========================================================================
+BIDDER_TOTAL_COLS = [col for col in [] if col.startswith("BIDDER_") and col.endswith("_TOTAL")]
+
+def clean_bidder_totals(df):
+    bidder_total_cols = [col for col in df.columns if col.startswith("BIDDER_") and col.endswith("_TOTAL")]
+    for col in bidder_total_cols:
+        df[col] = (
+            df[col].astype(str)
+            .str.replace(",", "", regex=False)
+            .str.strip()
+            .replace({"nan": None, "": None, "None": None})
+        )
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
+# ===========================================================================
+# CHANGE 17a — Apply client-approved bidder name merges to long format
+# ===========================================================================
+def apply_bidder_merges(df_long):
+    """Apply standardized company names based on client-approved merge decisions."""
+
+    # Remove ENGINEERS ESTIMATE entries (not a competitor)
+    df_long = df_long[~df_long["BIDDER_NAME"].str.contains("ENGINEER", case=False, na=False)].copy()
+    df_long = df_long.reset_index(drop=True)
+
+    # Add standardized_company_name column using merge mapping
+    df_long["standardized_company_name"] = df_long["BIDDER_NAME"].apply(
+        lambda x: BIDDER_MERGE_MAPPING.get(x, x) if pd.notna(x) else x
+    )
+
+    return df_long
+
+
+# ===========================================================================
+# CHANGE 17 — Pivot to long format (one row per bidder per project)
+# ===========================================================================
+def pivot_to_long_format(df):
+    """Convert wide format (15 bidder columns) to long format (one row per bidder)."""
+
+    # Identify project-level columns (all non-BIDDER columns except index)
+    bidder_name_cols = [col for col in df.columns if col.startswith("BIDDER_") and col.endswith("_NAME")]
+    bidder_total_cols = [col for col in df.columns if col.startswith("BIDDER_") and col.endswith("_TOTAL")]
+    project_cols = [col for col in df.columns if col not in bidder_name_cols + bidder_total_cols]
+
+    rows = []
+
+    for idx, row in df.iterrows():
+        # Extract project-level data (same for all bidders in this project)
+        project_data = {col: row[col] for col in project_cols}
+
+        # Extract bidder pairs and create one row per bidder
+        for i in range(1, 16):  # BIDDER_1 through BIDDER_15
+            name_col = f"BIDDER_{i}_NAME"
+            total_col = f"BIDDER_{i}_TOTAL"
+
+            bidder_name = row[name_col]
+            bid_amount = row[total_col]
+
+            # Skip null bidders
+            if pd.isnull(bidder_name) or not str(bidder_name).strip():
+                continue
+
+            # Create long format row
+            long_row = project_data.copy()
+            long_row["BIDDER_NAME"] = bidder_name
+            long_row["BID_AMOUNT"] = bid_amount
+            long_row["bidder_sequence"] = i  # Track original bidder position (1-15)
+
+            rows.append(long_row)
+
+    # Create long format dataframe
+    long_df = pd.DataFrame(rows)
+
+    # Reorder columns: project info first, then bidder info
+    project_cols_ordered = [c for c in project_cols if c != "bidder_sequence"]
+    bidder_cols_ordered = ["BIDDER_NAME", "BID_AMOUNT", "bidder_sequence"]
+
+    cols = project_cols_ordered + bidder_cols_ordered
+    long_df = long_df[cols]
+
+    # Sort by project (DATE, LOCATION, PROJECT) then bidder sequence
+    long_df = long_df.sort_values(
+        by=["DATE", "LOCATION", "PROJECT", "bidder_sequence"],
+        na_position="last"
+    ).reset_index(drop=True)
+
+    return long_df
+
+
+# ===========================================================================
 # MAIN — run all steps in order
 # ===========================================================================
 def main():
@@ -552,10 +714,30 @@ def main():
     print("Step 14: Converting BOX to 1/0...")
     df = clean_box(df)
 
+    print("Step 15: Standardizing BIDDER names...")
+    df = clean_bidder_names(df)
+
+    print("Step 16: Converting BIDDER_*_TOTAL to float...")
+    df = clean_bidder_totals(df)
+
+    print("Step 17: Pivoting to long format (one row per bidder per project)...")
+    df_long = pivot_to_long_format(df)
+    print(f"  → {df_long.shape[0]:,} bidder records created")
+
+    print("Step 17a: Applying client-approved bidder name merges...")
+    df_long_before = len(df_long)
+    df_long = apply_bidder_merges(df_long)
+    print(f"  → Deleted ENGINEERS ESTIMATE: {df_long_before - len(df_long)} rows")
+    print(f"  → Merged 19 company groups with standardized names")
+    print(f"  → Final: {df_long.shape[0]:,} bidder records")
+
+    df_long.to_csv(LONG_OUTPUT, index=False)
     df.to_csv(OUTPUT, index=False)
-    print(f"\nDone. Output saved to: {OUTPUT}")
-    print(f"Duplicate review table saved to: {DUPLICATE_REVIEW_OUTPUT}")
-    print(f"Final shape: {df.shape[0]} rows × {df.shape[1]} columns")
+
+    print(f"\nDone. Outputs saved:")
+    print(f"  Wide format:  {OUTPUT} ({df.shape[0]} rows × {df.shape[1]} columns)")
+    print(f"  Long format:  {LONG_OUTPUT} ({df_long.shape[0]:,} rows × {df_long.shape[1]} columns)")
+    print(f"  Duplicates:   {DUPLICATE_REVIEW_OUTPUT}")
 
 
 if __name__ == "__main__":
