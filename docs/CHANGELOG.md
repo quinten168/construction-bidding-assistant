@@ -347,3 +347,30 @@ All changes made to the raw source data are recorded here for client transparenc
 - The standardization is one-way (variation → core_name); raw names can be recovered from git history if needed.
 - Ready for: Competitor scoring engine, bid aggregation by company, market analysis.
 
+
+## Long Format Regeneration — 2026-06-08
+
+### Purpose
+Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cleaning Pass 4.
+
+### Changes Applied
+
+1. **Re-pivoted from updated wide format**
+   - Source: `CSI_data_combined.csv` (with Cleaning Pass 4 standardized names)
+   - Output: `CSI_data_long_format.csv` (6894 rows)
+   - One row per bidder per project (from 1,661 projects with up to 15 bidders each)
+
+2. **Removed non-competitor entries**
+   - Deleted 732 ENGINEERS ESTIMATE entries (same pattern as prior pass)
+
+3. **Results**
+   - Total bidder records: 6894
+   - Unique competitors: 833
+   - Ready for: Competitor scoring engine (similarity, distance, capacity analysis)
+
+### Data Integrity Notes
+- All standardized company names from Cleaning Pass 4 are now reflected in long format.
+- Original wide format preserved for auditability.
+- Bidder sequence (1-15) preserved to track bid ranking within each project.
+- No rows lost; consolidation only.
+
