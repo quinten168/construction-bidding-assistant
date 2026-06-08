@@ -374,3 +374,68 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 - Bidder sequence (1-15) preserved to track bid ranking within each project.
 - No rows lost; consolidation only.
 
+
+## Cleaning Pass 5 — 2026-06-08 (Quinten)
+
+### Changes Applied
+
+1. **Applied additional client-approved bidder name merges**
+   - Source: `additional_bidder_merges_review.csv` (client-reviewed and approved list)
+   - Created standardization mapping from 14 variations → 14 canonical names
+   - Applied mapping to all BIDDER_*_NAME columns in wide format
+   - Total impact: Corrected 14 naming inconsistencies across multiple projects
+
+2. **Merged company name variations**
+   - Categories of merges:
+     - Spelling errors: 4 merges (CENTRAL SPECIALITES, DUINICK, SEVLIN, etc.)
+     - Data artifacts: 1 merge (removed "600%" suffix from MARTIN CONSTRUCTION)
+     - Spacing issues: 1 merge (NORTHSTAR vs NORTH STAR)
+     - Abbreviation inconsistencies: 2 merges (MINNESOTA vs MN, DBA missing)
+     - Suffix variations: 5 merges (COMPANY vs CO INC, -ING vs -TION, etc.)
+     - Ampersand formatting: 1 merge (& vs space only)
+
+### Detailed Merges Applied
+
+  - **CENTRAL SPECIALTIES** ← CENTRAL SPECIALITES
+    (Spelling error (SPECIALITES vs SPECIALTIES))
+  - **MARTIN CONSTRUCTION INC** ← MARTIN CONSTRUCTION INC 600%
+    (Data entry artifact - 600% appears to be pricing note)
+  - **DUININCK INC** ← DUINICK INC
+    (Missing letter N in name)
+  - **SELLIN BROTHERS INC** ← SEVLIN BROTHERS INC
+    (Spelling error (SELLIN vs SEVLIN))
+  - **NORTHSTAR MATERIALS INC DBA KNIFE RIVER MATERIALS** ← NORTH STAR MATERIALS DBA KNIFE RIVER MATERIALS
+    (Spacing difference (NORTHSTAR vs NORTH STAR))
+  - **DAKOTA UNDERGROUND COMPANY** ← DAKOTA UNDERGROUND CO INC
+    (Different legal entity suffixes (COMPANY vs CO INC))
+  - **NORTHDALE CONSTRUCTION COMPANY INC** ← NORTHDALE CONSTRUCTION CO INC
+    (Abbreviation difference (COMPANY INC vs CO INC))
+  - **OMG MIDWEST DBA MINNESOTA PAVING** ← OMG MIDWEST MINNESOTA PAVING
+    (Missing DBA text in one variation)
+  - **KNIFE RIVER MATERIALS-NORTHERN MINNESOTA** ← KNIFE RIVER MATERIALS-NORTHERN MN
+    (State abbreviation (MINNESOTA vs MN))
+  - **MARK LEE EXCAVATING** ← MARK LEE EXCAVATION
+    (Gerund vs noun form (-ING vs -TION))
+  - **HOFFMAN CONSTRUCTION COMPANY** ← HOFFMAN CONSTRUCTION CO LLC
+    (Different legal entity types)
+  - **FIRST RATE EXCAVATE INC** ← FIRST RATE EXCAVATING INC
+    (Gerund difference (-ATE vs -ATING))
+  - **J & J EARTHWORKS** ← J J EARTHWORKS
+    (Ampersand formatting (& vs space))
+  - **MENNING EXCAVATING INC** ← MENNING EXCAVATION INC
+    (Gerund vs noun form (-ING vs -TION))
+
+### Results
+
+- **Total bidder records**: 6894 (after removing 732 ENGINEERS ESTIMATE entries)
+- **Unique competitors**: 819 (down from 833 after previous pass)
+- **Impact**: 14 company groups consolidated, improving data consistency
+- **Ready for**: Final competitor analysis and scoring engine
+
+### Data Integrity Notes
+
+- No source rows were dropped from wide-format file.
+- Bidder names now standardized across all variations (spellings, spacing, suffixes, abbreviations).
+- Raw names can be recovered from git history if needed.
+- All data files updated consistently: wide format, long format, and company list.
+
