@@ -1,0 +1,15 @@
+priority,category,recommended_core_name,current_variation,core_name_bids,variation_bids,total_bids,issue_type,confidence,notes,your_decision
+HIGH,Typo,CENTRAL SPECIALTIES,CENTRAL SPECIALITES,497,3,500,Spelling error (SPECIALITES vs SPECIALTIES),Very High,Obvious typo in company name,Merge
+HIGH,Data Artifact,MARTIN CONSTRUCTION INC,MARTIN CONSTRUCTION INC 600%,28,44,72,Data entry artifact - 600% appears to be pricing note,Very High,The 600% suffix is likely a pricing notation that got included in the company name,Merge
+HIGH,Typo,DUININCK INC,DUINICK INC,268,1,269,Missing letter N in name,Very High,Simple typo - missing N,Merge
+HIGH,Typo,SELLIN BROTHERS INC,SEVLIN BROTHERS INC,54,2,56,Spelling error (SELLIN vs SEVLIN),Very High,Clear misspelling,Merge
+HIGH,Spacing,NORTHSTAR MATERIALS INC DBA KNIFE RIVER MATERIALS,NORTH STAR MATERIALS DBA KNIFE RIVER MATERIALS,120,1,121,Spacing difference (NORTHSTAR vs NORTH STAR),High,Inconsistent spacing - same company,Merge
+HIGH,Suffix Variation,DAKOTA UNDERGROUND COMPANY,DAKOTA UNDERGROUND CO INC,29,2,31,Different legal entity suffixes (COMPANY vs CO INC),High,Different ways of writing the same company,Merge
+HIGH,Suffix Variation,NORTHDALE CONSTRUCTION COMPANY INC,NORTHDALE CONSTRUCTION CO INC,30,1,31,Abbreviation difference (COMPANY INC vs CO INC),High,Inconsistent abbreviation,Merge
+HIGH,Missing Text,OMG MIDWEST DBA MINNESOTA PAVING,OMG MIDWEST MINNESOTA PAVING,29,1,30,Missing DBA text in one variation,High,DBA (Doing Business As) omitted in one version,Merge
+HIGH,Abbreviation,KNIFE RIVER MATERIALS-NORTHERN MINNESOTA,KNIFE RIVER MATERIALS-NORTHERN MN,29,1,30,State abbreviation (MINNESOTA vs MN),High,Same company with abbreviated vs full state name,Merge
+HIGH,Suffix Variation,MARK LEE EXCAVATING,MARK LEE EXCAVATION,21,1,22,Gerund vs noun form (-ING vs -TION),Medium,Both refer to the same activity,Merge
+HIGH,Suffix Variation,HOFFMAN CONSTRUCTION COMPANY,HOFFMAN CONSTRUCTION CO LLC,20,1,21,Different legal entity types,Medium,Likely same company with different entity type,Merge
+HIGH,Suffix Variation,FIRST RATE EXCAVATE INC,FIRST RATE EXCAVATING INC,13,2,15,Gerund difference (-ATE vs -ATING),Medium,Same activity described differently,Merge
+HIGH,Ampersand,J & J EARTHWORKS,J J EARTHWORKS,13,1,14,Ampersand formatting (& vs space),Medium,Missing ampersand in one version,Merge
+HIGH,Suffix Variation,MENNING EXCAVATING INC,MENNING EXCAVATION INC,7,4,11,Gerund vs noun form (-ING vs -TION),Medium,Both refer to same type of work,Merge
