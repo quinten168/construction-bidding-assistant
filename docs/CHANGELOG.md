@@ -307,3 +307,43 @@ All changes made to the raw source data are recorded here for client transparenc
 ---
 
 *Future changes should be appended below this line with date, description, and analyst name.*
+
+## Cleaning Pass 4 — 2026-06-08 (Quinten)
+
+### Changes Applied
+
+1. **Standardized bidder names based on client review**
+   - Source: `bidder_potential_duplicates.csv` (client-approved decision log)
+   - Created standardization mapping from 134 variations → 58 canonical names
+   - Applied mapping to all BIDDER_*_NAME columns (15 columns across 134 variation rows)
+   - Total bidder records affected: 2087 replacements across 1105 project rows
+
+2. **Deleted non-competitor entries**
+   - Deleted 3 company variations matching non-competitor patterns
+   - Pattern: Companies marked as "ENGINEERS ESTIMATE" and similar (total 1089 bids removed from analysis)
+   - These are engineering cost estimates, not actual competitor bids, so are excluded from competitor analysis
+
+### Standardization Details
+
+- **Companies merged**: 58
+- **Variations consolidated**: 134
+- **Examples**:
+  - A & C EXCAVATING: A & C EXCAVATING, A & C EXCAVATING LLC
+  - ASTECH: ASTECH, ASTECH CORP
+  - B & B CONTRACTING: B & B CONTRACTING, B & B CONTRACTING INC
+  - BLACKTOP SERVICE CO & SUBSIDIARY: BLACKTOP SERVICE CO & SUBSIDARY, BLACKTOP SERVICE CO & SUBSIDIARY, BLACKTOP SERVICES CO & SUBSIDIARY
+  - BLUESTONE CONSTRUCTION: BLUE STONE CONSTRUCTION, BLUESTONE CONSTRUCTION INC
+  - BREITBACH CONSTRUCTION: BREITBACH CONSTRUCTION CO, BREITHBACH CONSTRUCTION
+  - BROUWER CONSTRUCTION: BROUWER CONSTRUCTION, BROUWER CONSTRUCTION LLC
+  - C & L EXCAVATING: C & L EXCAVATING, C & L EXCAVATING INC
+  - CENTRAL SPECIALTIES: CENTRAL SPECIALTIES INCORPORATED, CENTRAL SPECIALTIES LLC
+  - CIVIL SPECIALTIES: CIVIL SPECIALITIES INC, CIVIL SPECIALTIES, CIVIL SPECIALTIES INC
+  - ... and 48 more company groups
+
+### Data Integrity Notes
+
+- No source rows were dropped from the wide-format file.
+- Bidder names in BIDDER_*_NAME columns are now standardized and ready for competitor analysis.
+- The standardization is one-way (variation → core_name); raw names can be recovered from git history if needed.
+- Ready for: Competitor scoring engine, bid aggregation by company, market analysis.
+
