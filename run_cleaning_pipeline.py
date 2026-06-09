@@ -594,6 +594,204 @@ def build_company_list(long_df):
 
 
 # ===========================================================================
+# City fill — county seat lookup
+# ===========================================================================
+_COUNTY_SEATS = {
+    # Iowa
+    ("BUENA VISTA", "Iowa"): "Storm Lake",   ("BUTLER",    "Iowa"): "Allison",
+    ("CARROLL",     "Iowa"): "Carroll",       ("CASS",      "Iowa"): "Atlantic",
+    ("CERRO GORDO", "Iowa"): "Mason City",    ("CHEROKEE",  "Iowa"): "Cherokee",
+    ("CLARKE",      "Iowa"): "Osceola",       ("CLAY",      "Iowa"): "Spencer",
+    ("CRAWFORD",    "Iowa"): "Denison",       ("DALLAS",    "Iowa"): "Adel",
+    ("EMMET",       "Iowa"): "Estherville",   ("FAYETTE",   "Iowa"): "West Union",
+    ("FLOYD",       "Iowa"): "Charles City",  ("FRANKLIN",  "Iowa"): "Hampton",
+    ("GREENE",      "Iowa"): "Jefferson",     ("GRUNDY",    "Iowa"): "Grundy Center",
+    ("HAMILTON",    "Iowa"): "Webster City",  ("HANCOCK",   "Iowa"): "Garner",
+    ("HARDIN",      "Iowa"): "Eldora",        ("HARRISON",  "Iowa"): "Logan",
+    ("HUMBOLDT",    "Iowa"): "Dakota City",   ("KOSSUTH",   "Iowa"): "Algona",
+    ("LYON",        "Iowa"): "Rock Rapids",   ("MADISON",   "Iowa"): "Winterset",
+    ("MAHASKA",     "Iowa"): "Oskaloosa",     ("MARION",    "Iowa"): "Knoxville",
+    ("MARSHALL",    "Iowa"): "Marshalltown",  ("MONONA",    "Iowa"): "Onawa",
+    ("OBRIEN",      "Iowa"): "Primghar",      ("O'BRIEN",   "Iowa"): "Primghar",
+    ("OSCEOLA",     "Iowa"): "Sibley",        ("PALO ALTO", "Iowa"): "Emmetsburg",
+    ("PLYMOUTH",    "Iowa"): "Le Mars",       ("POCAHONTAS","Iowa"): "Pocahontas",
+    ("POLK",        "Iowa"): "Des Moines",    ("POWESHIEK", "Iowa"): "Montezuma",
+    ("SAC",         "Iowa"): "Sac City",      ("SHELBY",    "Iowa"): "Harlan",
+    ("SIOUX",       "Iowa"): "Orange City",   ("STORY",     "Iowa"): "Nevada",
+    ("TAMA",        "Iowa"): "Toledo",        ("WEBSTER",   "Iowa"): "Fort Dodge",
+    ("WINNEBAGO",   "Iowa"): "Forest City",   ("WOODBURY",  "Iowa"): "Sioux City",
+    ("WORTH",       "Iowa"): "Northwood",     ("WRIGHT",    "Iowa"): "Clarion",
+    # Minnesota
+    ("AITKIN",        "Minnesota"): "Aitkin",       ("BECKER",      "Minnesota"): "Detroit Lakes",
+    ("BELTRAMI",      "Minnesota"): "Bemidji",      ("BENTON",      "Minnesota"): "Foley",
+    ("BIG STONE",     "Minnesota"): "Ortonville",   ("BLUE EARTH",  "Minnesota"): "Mankato",
+    ("BROWN",         "Minnesota"): "New Ulm",      ("CARLTON",     "Minnesota"): "Carlton",
+    ("CARVER",        "Minnesota"): "Chaska",       ("CASS",        "Minnesota"): "Walker",
+    ("CHIPPEWA",      "Minnesota"): "Montevideo",   ("CHISAGO",     "Minnesota"): "Center City",
+    ("CLAY",          "Minnesota"): "Moorhead",     ("CLEARWATER",  "Minnesota"): "Bagley",
+    ("COTTONWOOD",    "Minnesota"): "Windom",       ("CROW WING",   "Minnesota"): "Brainerd",
+    ("DOUGLAS",       "Minnesota"): "Alexandria",   ("FARIBAULT",   "Minnesota"): "Blue Earth",
+    ("FREEBORN",      "Minnesota"): "Albert Lea",   ("GRANT",       "Minnesota"): "Elbow Lake",
+    ("HUBBARD",       "Minnesota"): "Park Rapids",  ("ISANTI",      "Minnesota"): "Cambridge",
+    ("ITASCA",        "Minnesota"): "Grand Rapids", ("JACKSON",     "Minnesota"): "Jackson",
+    ("KANABEC",       "Minnesota"): "Mora",         ("KANDIYOHI",   "Minnesota"): "Willmar",
+    ("KITTSON",       "Minnesota"): "Hallock",      ("KOOCHICHING", "Minnesota"): "International Falls",
+    ("LAC QUI PARLE", "Minnesota"): "Madison",      ("LE SUEUR",    "Minnesota"): "Le Center",
+    ("LINCOLN",       "Minnesota"): "Ivanhoe",      ("LYON",        "Minnesota"): "Marshall",
+    ("MAHNOMEN",      "Minnesota"): "Mahnomen",     ("MARSHALL",    "Minnesota"): "Warren",
+    ("MARTIN",        "Minnesota"): "Fairmont",     ("MCLEOD",      "Minnesota"): "Glencoe",
+    ("MEEKER",        "Minnesota"): "Litchfield",   ("MILLE LACS",  "Minnesota"): "Milaca",
+    ("MORRISON",      "Minnesota"): "Little Falls", ("MURRAY",      "Minnesota"): "Slayton",
+    ("NICOLLET",      "Minnesota"): "St. Peter",    ("NOBLES",      "Minnesota"): "Worthington",
+    ("NORMAN",        "Minnesota"): "Ada",          ("OTTER TAIL",  "Minnesota"): "Fergus Falls",
+    ("PENNINGTON",    "Minnesota"): "Thief River Falls", ("PINE",   "Minnesota"): "Pine City",
+    ("PIPESTONE",     "Minnesota"): "Pipestone",    ("POLK",        "Minnesota"): "Crookston",
+    ("POPE",          "Minnesota"): "Glenwood",     ("RED LAKE",    "Minnesota"): "Red Lake Falls",
+    ("REDWOOD",       "Minnesota"): "Redwood Falls",("RENVILLE",    "Minnesota"): "Olivia",
+    ("RICE",          "Minnesota"): "Faribault",    ("ROCK",        "Minnesota"): "Luverne",
+    ("ROSEAU",        "Minnesota"): "Roseau",       ("SCOTT",       "Minnesota"): "Shakopee",
+    ("SHERBURNE",     "Minnesota"): "Elk River",    ("SIBLEY",      "Minnesota"): "Gaylord",
+    ("STEARNS",       "Minnesota"): "St. Cloud",    ("STEELE",      "Minnesota"): "Owatonna",
+    ("STEVENS",       "Minnesota"): "Morris",       ("SWIFT",       "Minnesota"): "Benson",
+    ("TODD",          "Minnesota"): "Long Prairie",  ("TRAVERSE",   "Minnesota"): "Wheaton",
+    ("WABASHA",       "Minnesota"): "Wabasha",      ("WADENA",      "Minnesota"): "Wadena",
+    ("WASECA",        "Minnesota"): "Waseca",       ("WATONWAN",    "Minnesota"): "St. James",
+    ("WILKIN",        "Minnesota"): "Breckenridge", ("WRIGHT",      "Minnesota"): "Buffalo",
+    ("YELLOW MEDICINE","Minnesota"): "Granite Falls",
+    # Montana
+    ("BIG HORN",    "Montana"): "Hardin",      ("CUSTER",      "Montana"): "Miles City",
+    ("DAWSON",      "Montana"): "Glendive",    ("FALLON",      "Montana"): "Baker",
+    ("GARFIELD",    "Montana"): "Jordan",      ("MCCONE",      "Montana"): "Circle",
+    ("PONDERA",     "Montana"): "Conrad",      ("PRAIRIE",     "Montana"): "Terry",
+    ("RICHLAND",    "Montana"): "Sidney",      ("ROSEBUD",     "Montana"): "Forsyth",
+    ("SHERIDAN",    "Montana"): "Plentywood",  ("YELLOWSTONE", "Montana"): "Billings",
+    # Nebraska
+    ("BOYD",      "Nebraska"): "Butte",        ("BURT",      "Nebraska"): "Tekamah",
+    ("BUTLER",    "Nebraska"): "David City",   ("CASS",      "Nebraska"): "Plattsmouth",
+    ("CEDAR",     "Nebraska"): "Hartington",   ("CUMING",    "Nebraska"): "West Point",
+    ("CUSTER",    "Nebraska"): "Broken Bow",   ("DAKOTA",    "Nebraska"): "Dakota City",
+    ("DAWSON",    "Nebraska"): "Lexington",    ("DIXON",     "Nebraska"): "Ponca",
+    ("DODGE",     "Nebraska"): "Fremont",      ("DOUGLAS",   "Nebraska"): "Omaha",
+    ("HOLT",      "Nebraska"): "O'Neill",      ("HOWARD",    "Nebraska"): "St. Paul",
+    ("KEYA PAHA", "Nebraska"): "Springview",  ("KNOX",      "Nebraska"): "Center",
+    ("LANCASTER", "Nebraska"): "Lincoln",      ("MADISON",   "Nebraska"): "Madison",
+    ("MERRICK",   "Nebraska"): "Central City", ("NANCE",     "Nebraska"): "Fullerton",
+    ("PLATTE",    "Nebraska"): "Columbus",     ("POLK",      "Nebraska"): "Osceola",
+    ("SANDERS",   "Nebraska"): "Wahoo",        ("SAUNDERS",  "Nebraska"): "Wahoo",
+    ("SARPY",     "Nebraska"): "Papillion",    ("STANTON",   "Nebraska"): "Stanton",
+    ("THURSTON",  "Nebraska"): "Pender",
+    # North Dakota
+    ("ADAMS",         "North Dakota"): "Hettinger",   ("BARNES",    "North Dakota"): "Valley City",
+    ("BENSON",        "North Dakota"): "Minnewaukan", ("BILLINGS",  "North Dakota"): "Medora",
+    ("BOTTINEAU",     "North Dakota"): "Bottineau",   ("BOWMAN",    "North Dakota"): "Bowman",
+    ("BURKE",         "North Dakota"): "Bowbells",    ("BURLEIGH",  "North Dakota"): "Bismarck",
+    ("BURLIEGH",      "North Dakota"): "Bismarck",    # typo variant
+    ("CASS",          "North Dakota"): "Fargo",       ("CAVALIER",  "North Dakota"): "Langdon",
+    ("DICKEY",        "North Dakota"): "Ellendale",   ("DIVIDE",    "North Dakota"): "Crosby",
+    ("DUNN",          "North Dakota"): "Manning",     ("EDDY",      "North Dakota"): "New Rockford",
+    ("EMMONS",        "North Dakota"): "Linton",      ("FOSTER",    "North Dakota"): "Carrington",
+    ("GOLDEN VALLEY", "North Dakota"): "Beach",       ("GRAND FORKS","North Dakota"): "Grand Forks",
+    ("GRANT",         "North Dakota"): "Carson",      ("GRIGGS",    "North Dakota"): "Cooperstown",
+    ("HETTINGER",     "North Dakota"): "Mott",        ("KIDDER",    "North Dakota"): "Steele",
+    ("LAMOURE",       "North Dakota"): "LaMoure",     ("LOGAN",     "North Dakota"): "Napoleon",
+    ("MCHENRY",       "North Dakota"): "Towner",      ("MCINTOSH",  "North Dakota"): "Ashley",
+    ("MCKENZIE",      "North Dakota"): "Watford City",("MCLEAN",    "North Dakota"): "Washburn",
+    ("MERCER",        "North Dakota"): "Stanton",     ("MORTON",    "North Dakota"): "Mandan",
+    ("MOUNTRAIL",     "North Dakota"): "Stanley",     ("NELSON",    "North Dakota"): "Lakota",
+    ("PEMBINA",       "North Dakota"): "Cavalier",    ("PIERCE",    "North Dakota"): "Rugby",
+    ("RAMSEY",        "North Dakota"): "Devils Lake",  ("RANSOM",   "North Dakota"): "Lisbon",
+    ("RENVILLE",      "North Dakota"): "Mohall",      ("RICHLAND",  "North Dakota"): "Wahpeton",
+    ("ROLETTE",       "North Dakota"): "Rolla",       ("SARGENT",   "North Dakota"): "Forman",
+    ("SEARGENT",      "North Dakota"): "Forman",      # typo variant
+    ("SHERIDAN",      "North Dakota"): "McClusky",    ("SHERDIAN",  "North Dakota"): "McClusky",  # typo
+    ("SIOUX",         "North Dakota"): "Fort Yates",  ("SLOPE",     "North Dakota"): "Amidon",
+    ("STARK",         "North Dakota"): "Dickinson",   ("STEELE",    "North Dakota"): "Finley",
+    ("STUTSMAN",      "North Dakota"): "Jamestown",   ("TOWNER",    "North Dakota"): "Cando",
+    ("TRAILL",        "North Dakota"): "Hillsboro",   ("WALSH",     "North Dakota"): "Grafton",
+    ("WARD",          "North Dakota"): "Minot",       ("WELLS",     "North Dakota"): "Fessenden",
+    ("WILLIAMS",      "North Dakota"): "Williston",
+    # South Dakota
+    ("AURORA",        "South Dakota"): "Plankinton",  ("BEADLE",    "South Dakota"): "Huron",
+    ("BENNETT",       "South Dakota"): "Martin",      ("BON HOMME", "South Dakota"): "Tyndall",
+    ("BROOKINGS",     "South Dakota"): "Brookings",   ("BROWN",     "South Dakota"): "Aberdeen",
+    ("BRULE",         "South Dakota"): "Chamberlain", ("BUFFALO",   "South Dakota"): "Gann Valley",
+    ("BUTTE",         "South Dakota"): "Belle Fourche",("CHARLES MIX","South Dakota"): "Lake Andes",
+    ("CLARK",         "South Dakota"): "Clark",       ("CLAY",      "South Dakota"): "Vermillion",
+    ("CODINGTON",     "South Dakota"): "Watertown",   ("CORSON",    "South Dakota"): "McIntosh",
+    ("CUSTER",        "South Dakota"): "Custer",      ("DAVISON",   "South Dakota"): "Mitchell",
+    ("DAY",           "South Dakota"): "Webster",     ("DEUEL",     "South Dakota"): "Clear Lake",
+    ("DEWEY",         "South Dakota"): "Timber Lake", ("DOUGLAS",   "South Dakota"): "Armour",
+    ("EDMUNDS",       "South Dakota"): "Ipswich",     ("FALL RIVER","South Dakota"): "Hot Springs",
+    ("FAULK",         "South Dakota"): "Faulkton",    ("GRANT",     "South Dakota"): "Milbank",
+    ("GREGORY",       "South Dakota"): "Burke",       ("HAAKON",    "South Dakota"): "Philip",
+    ("HAMLIN",        "South Dakota"): "Hayti",       ("HAND",      "South Dakota"): "Miller",
+    ("HANSON",        "South Dakota"): "Alexandria",  ("HARDING",   "South Dakota"): "Buffalo",
+    ("HUGHES",        "South Dakota"): "Pierre",      ("HUTCHINSON","South Dakota"): "Olivet",
+    ("HYDE",          "South Dakota"): "Highmore",    ("JACKSON",   "South Dakota"): "Kadoka",
+    ("JERAULD",       "South Dakota"): "Wessington Springs", ("JONES","South Dakota"): "Murdo",
+    ("KINGSBURY",     "South Dakota"): "De Smet",     ("LAKE",      "South Dakota"): "Madison",
+    ("LAWRENCE",      "South Dakota"): "Deadwood",    ("LINCOLN",   "South Dakota"): "Canton",
+    ("LYMAN",         "South Dakota"): "Kennebec",    ("MARSHALL",  "South Dakota"): "Britton",
+    ("MCCOOK",        "South Dakota"): "Salem",       ("MEADE",     "South Dakota"): "Sturgis",
+    ("MELLETTE",      "South Dakota"): "White River", ("MINER",     "South Dakota"): "Howard",
+    ("MINNEHAHA",     "South Dakota"): "Sioux Falls", ("MOODY",     "South Dakota"): "Flandreau",
+    ("OGLALA LAKOTA", "South Dakota"): "Pine Ridge",  ("PENNINGTON","South Dakota"): "Rapid City",
+    ("PERKINS",       "South Dakota"): "Bison",       ("POTTER",    "South Dakota"): "Gettysburg",
+    ("ROBERTS",       "South Dakota"): "Sisseton",    ("SANBORN",   "South Dakota"): "Woonsocket",
+    ("SPINK",         "South Dakota"): "Redfield",    ("STANLEY",   "South Dakota"): "Fort Pierre",
+    ("SULLY",         "South Dakota"): "Onida",       ("TODD",      "South Dakota"): "Winner",
+    ("TRIPP",         "South Dakota"): "Winner",      ("UNION",     "South Dakota"): "Elk Point",
+    ("WALWORTH",      "South Dakota"): "Selby",       ("YANKTON",   "South Dakota"): "Yankton",
+    ("ZIEBACH",       "South Dakota"): "Dupree",
+}
+
+
+def _county_seat_for_row(county_str, state_str):
+    """Return county seat city for a County+State row, or None."""
+    if pd.isna(county_str) or pd.isna(state_str):
+        return None
+
+    # Check for explicit 'CITY OF X' in the county field first
+    m = re.search(r'CITY OF\s+(.+?)(?:\s*$)', str(county_str), re.IGNORECASE)
+    if m:
+        city = m.group(1).strip().rstrip('"').strip()
+        if not re.search(r'\d|DOT\s|DIST\b|AWARD|STATUS|REJECT', city, re.IGNORECASE):
+            return city.title()
+
+    # Extract primary (first) county name
+    s = str(county_str).strip().upper()
+    s = re.sub(r'\b(MN|ND|SD|IA|NE|MT)\b', '', s).strip()
+    primary = re.split(r'[&,]', s)[0].strip()
+    primary = re.sub(r'\s+(?:COS?|COUNTY)\b.*$', '', primary, flags=re.IGNORECASE).strip()
+    primary = re.sub(r'\s*-\s*.*$', '', primary).strip()
+
+    state = str(state_str).strip()
+
+    # Try primary county against the row's state
+    seat = _COUNTY_SEATS.get((primary, state))
+    if seat:
+        return seat
+
+    # Fallback: try all states (handles cross-state county entries)
+    for (c, _s), v in _COUNTY_SEATS.items():
+        if c == primary:
+            return v
+
+    return None
+
+
+def fill_city_from_county_seat(df):
+    """Fill null City values using county seat lookup (county-only rows have no parsed city)."""
+    null_mask = df["City"].isna()
+    df = df.copy()
+    for idx in df[null_mask].index:
+        city = _county_seat_for_row(df.at[idx, "County"], df.at[idx, "State"])
+        if city:
+            df.at[idx, "City"] = city
+    return df
+
+
+# ===========================================================================
 # MAIN
 # ===========================================================================
 def main():
@@ -628,6 +826,10 @@ def main():
     print("\n[Pass 1c] LOCATION → County / City / State")
     df = parse_location(df)
     print(f"  County nulls: {df['County'].isna().sum()}, State nulls: {df['State'].isna().sum()}")
+
+    print("\n[Pass 1c+] Fill null City values from county seat lookup")
+    df = fill_city_from_county_seat(df)
+    print(f"  City nulls remaining: {df['City'].isna().sum()}")
 
     print("\n[Pass 1d] location_flag (county centroid, 75-mile threshold)")
     df = add_location_flag(df)
