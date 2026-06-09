@@ -44,15 +44,19 @@ All changes made to the raw source data are recorded here for client transparenc
 2. **Reformatted `TIME` column**
    - Converted from 12-hour AM/PM strings to 24-hour `HH:MM` format (e.g. `10:00 AM` → `10:00`, `2:00 PM` → `14:00`).
    - 72 values had extra timezone labels (`MDT`, `MST`, `MT`, `MTD`) and/or extra seconds (`10:00:00 AM`) — all stripped and parsed correctly.
-   - 1 value (`2:00 MT`) had no AM/PM indicator — interpreted as `14:00 PM` based on context.
+   - Some values had parenthetical timezone labels (e.g. `10:20:00 AM (MT)`) — parentheticals stripped before parsing.
+   - 1 value (`2:00 MT`) had no AM/PM indicator — interpreted as `14:00` based on context (hour ≤ 8 → PM).
    - 0 nulls after conversion.
 
 ---
 
 4. **Parsed `LOCATION` into `County`, `City`, and `State` columns**
    - `County`: Extracted county name(s). Multi-county rows (e.g. "BROOKINGS, HAMLIN, KINGSBURY CO SD") stored as comma-separated list.
-   - `City`: Extracted from "CITY OF X", "- CITY", or trailing comma segments. Null when no city was specified (1,237 rows — expected, most LOCATIONs are county-level only).
-   - `State`: Converted 2-letter abbreviation to full name (e.g. `MN` → `Minnesota`). 3 rows were missing state abbreviations in the raw LOCATION string and were manually resolved using geographic context (Kenmare → North Dakota, Collegeville → Minnesota, Alexander → North Dakota).
+   - `City`: Extracted from "CITY OF X", "- CITY", or trailing comma/dash segments. Null when no city was specified (1,245 rows — expected, most LOCATIONs are county-level only).
+   - `State`: Converted 2-letter abbreviation to full name (e.g. `MN` → `Minnesota`). Two extraction strategies are used in priority order:
+     1. State abbreviation at end of string (e.g. `STEARNS CO MN` → `Minnesota`)
+     2. State abbreviation embedded after city (e.g. `STEARNS CO MN, MELROSE` → city extracted first, then `MN` found in remaining text)
+   - 3 rows were missing state abbreviations entirely and were resolved by geographic keyword matching (Kenmare → North Dakota, Collegeville → Minnesota, Alexander → North Dakota).
    - Parenthetical notes (e.g. `(MOVED FROM 08/03/23)`) stripped before parsing.
    - 0 nulls in County and State after fix.
 
@@ -64,19 +68,42 @@ All changes made to the raw source data are recorded here for client transparenc
    - Purpose: Flags rows where the `PROJECT LOCATION` coordinates may not match the stated county, to allow analysts to exclude suspect rows during modeling.
    - Method: Computed each county's centroid (median lat/lon of all projects in that county) then measured the distance in miles from each project's coordinates to its county centroid. Rows > 75 miles from centroid are flagged — the 99th percentile of all distances is only 44 miles, so 75 miles is a conservative but defensible threshold.
    - Flag values:
-     - `ok` — coordinates within 75 miles of county centroid (1,552 rows)
-     - `review` — coordinates more than 75 miles from county centroid, or confirmed label error (8 rows)
-     - `multi_county` — row spans multiple counties; single centroid verification not possible (94 rows)
-     - `no_centroid` — county appeared too rarely to compute a reliable centroid (7 rows)
-   - `review` rows detail:
-     - RICHLAND CO MT (555 mi off) — coordinates appear completely wrong
-     - HAND CO SD, MILLER (276 mi off) — coordinates appear completely wrong
-     - BROWN CO SD, ABERDEEN (209 mi off) — coordinates appear completely wrong
-     - HUGHES CO SD - YANKTON (176 mi off) — Yankton is in Yankton County, not Hughes County
-     - DUNN CO ND row 242 (369 mi off) — coordinates appear completely wrong
-     - DUNN CO ND row 7 (154 mi off) — coordinates appear completely wrong
-     - CASS CO, WEST FARGO MN (113 mi off) — West Fargo is in ND, not MN; state label likely wrong
-     - MORTON CO MN, CITY OF MANDAN — Mandan is in Morton County ND, not MN; state label likely wrong
+     - `ok` — coordinates within 75 miles of county centroid (1,541 rows)
+     - `review` — coordinates more than 75 miles from county centroid (88 rows)
+     - `multi_county` — row spans multiple counties; single centroid verification not possible (32 rows)
+   - The higher `review` count relative to earlier estimates reflects improved location parsing: better city/state extraction reduces false `multi_county` rows, so more rows are verified against county centroids and more coordinate anomalies are detected.
+   - `review` rows cluster around counties with systematically mismatched coordinates. Key groups (sorted by maximum distance):
+     - **POLK CO MN** (6 rows, ~433–468 mi off) — coordinates appear to be in North Dakota range
+     - **MARSHALL CO IA** (1 row, ~465 mi off) — coordinates appear completely wrong
+     - **PENNINGTON CO MN** (1 row, ~423 mi off) — coordinates appear completely wrong
+     - **RENVILLE CO ND** (4 rows, ~410–422 mi off) — coordinates appear completely wrong
+     - **CASS CO IA** (3 rows, ~395–403 mi off) — coordinates appear completely wrong
+     - **RICHLAND CO MT** (3 rows, ~196–388 mi off) — coordinates appear completely wrong
+     - **DUNN CO ND row 242** (~369 mi off) — coordinates appear completely wrong
+     - **TODD CO SD** (2 rows, ~350–354 mi off) — coordinates appear completely wrong
+     - **JACKSON CO SD** (2 rows, ~323–327 mi off) — coordinates appear completely wrong
+     - **DOUGLAS CO NE** (1 row, ~322 mi off) — coordinates appear completely wrong
+     - **STEELE CO ND** (3 rows, ~302–321 mi off) — coordinates appear completely wrong
+     - **SIOUX CO ND** (3 rows, ~289–299 mi off) — coordinates appear completely wrong
+     - **CLAY CO SD, VERMILLION** (1 row, ~284 mi off) — coordinates appear completely wrong
+     - **HAND CO SD, MILLER** (1 row, ~276 mi off) — coordinates appear completely wrong
+     - **CLAY CO IA** (3 rows, ~271–277 mi off) — coordinates appear completely wrong
+     - **STANLEY CO ND** (1 row, ~261 mi off) — coordinates appear completely wrong
+     - **GRANT CO ND** (1 row, ~255 mi off) — coordinates appear completely wrong
+     - **CUSTER CO NE** (6 rows, ~211–257 mi off) — coordinates appear completely wrong
+     - **CUSTER CO MT** (2 rows, ~228–241 mi off) — coordinates appear completely wrong
+     - **DOUGLAS CO SD** (1 row, ~229 mi off) — coordinates appear completely wrong
+     - **BUTLER CO NE** (1 row, ~229 mi off) — coordinates appear completely wrong
+     - **BROWN CO SD** (8 rows, ~185–218 mi off) — coordinates appear completely wrong
+     - **HUGHES CO SD - YANKTON** (1 row, ~176 mi off) — Yankton is in Yankton County, not Hughes County; label likely wrong
+     - **WRIGHT CO IA** (2 rows, ~166–174 mi off) — coordinates appear completely wrong
+     - **MARSHALL CO SD** (4 rows, ~159–170 mi off) — coordinates appear completely wrong
+     - **DUNN CO ND row 7** (~155 mi off) — coordinates appear completely wrong
+     - **CASS CO MN** (12 rows, ~103–139 mi off) — coordinates in North Dakota range; state label likely wrong (should be ND)
+     - **SHERIDAN CO ND / SHERIDAN CO MT** (2 rows, ~101 mi off each) — coordinates appear completely wrong
+     - **LINCOLN CO MN** (3 rows, ~80–99 mi off) — coordinates appear completely wrong
+     - **MADISON CO IA / MADISON CO NE** (2 rows, ~94 mi off each) — coordinates appear completely wrong
+     - **LYON CO IA** (4 rows, ~78–88 mi off) — coordinates appear completely wrong
 
 ---
 
@@ -163,7 +190,7 @@ All changes made to the raw source data are recorded here for client transparenc
 5. **Added duplicate candidate review output**
    - Added `duplicate_candidate`, `duplicate_match_key`, and `duplicate_match_reason` fields.
    - Generated `duplicate_project_review.csv` for rows that should be manually reviewed as possible duplicates, rebids, phases, add-ons, or reused local IDs.
-   - Current review table contains 17 rows.
+   - Current review table contains 24 rows.
    - The `decision` column is intentionally blank for analyst review.
 
 6. **Removed unnecessary `geopy` dependency**
@@ -232,9 +259,16 @@ All changes made to the raw source data are recorded here for client transparenc
 
 2. **Converted BIDDER_*_TOTAL to float64**
    - Removed comma formatting (e.g., `"1,273,463.90"` → `1273463.9`).
+   - Removed leading `$` signs from 2025 source data (e.g., `"$1,566,633.52 "` → `1566633.52`). The 2025 raw file uses `$` prefix with trailing spaces; the 2024 file does not — both formats are handled.
+   - Multi-component cells (e.g., `"$543,789.55 $ 160,972.51 $8,634.80 $713,396.86"`) resolved by: taking the last amount when it equals the sum of the preceding amounts (grand total pattern); otherwise taking the first amount (primary/base bid). 18 cells across 4 projects had this format.
    - Parsed as float64 for numerical operations (competitor bid analysis, cost aggregations).
    - Null/empty/`"NAN"` values converted to `NaN` (standard pandas null representation for float columns).
    - Applied across all 15 BIDDER_*_TOTAL columns.
+   - 4 source-level mismatches remain (name present, total null) — all are legitimate source data anomalies:
+     - HOULE EXCAVATING NOT OPENED NO LAST PAGE ENGINEERS EST (bid not opened, annotation in name field)
+     - ENGINEER'S ESTIMATE $42454020 (Sherburne CO MN — estimate amount embedded in name field)
+     - MICHELS ROAD & STONE (Davison CO SD — total genuinely missing from source)
+     - PICARD EXCAVATING (Stark CO ND — total field contains `"addendum not acknowledged"`, not a number)
    - This enables future pivot to long format (one row per bidder per project) for competitor scoring engine.
 
 ### Data Integrity Notes
@@ -266,7 +300,6 @@ All changes made to the raw source data are recorded here for client transparenc
 ### Data Integrity Notes
 - No rows dropped; 7,626 = sum of non-null bidders across 1,661 projects.
 - All project-level metadata duplicated for each bidder in that project (intentional for analysis).
-- BIDDER_NAME values are still raw (not yet standardized); standardization will be applied post-client-review via lookup table.
 - Wide format file (CSI_data_combined.csv) is preserved; both formats coexist.
 
 ---
@@ -276,33 +309,23 @@ All changes made to the raw source data are recorded here for client transparenc
 ### Changes Applied
 
 1. **Applied client-approved bidder name merges**
-   - Generated merge mapping from 19 client-approved groups in bidder_potential_duplicates.csv.
-   - Mapping file: 38 raw names → 19 standardized company names.
-   - Applied mapping to create `standardized_company_name` column in long format.
-   - Example: "RJ ZAVORAL & SONS INC" + "R J ZAVORAL & SONS INC" → "RJ ZAVORAL & SONS" (96 total bids)
+   - Mapping file: 38 raw name variations → 19 standardized company names.
+   - Applied mapping to all BIDDER_*_NAME columns in wide format (1,152 replacements across 15 columns).
+   - Example: "RJ ZAVORAL & SONS INC" + "R J ZAVORAL & SONS INC" → "RJ ZAVORAL & SONS"
 
 2. **Deleted non-competitor entries (ENGINEERS ESTIMATE)**
-   - Removed all entries matching "ENGINEER*" pattern (engineering estimates, not actual competitors).
+   - Removed all entries matching "ENGINEER*" pattern from long format (engineering estimates, not actual competitors).
    - Deleted: 732 rows (includes "ENGINEERS ESTIMATE", "ENGINEER'S ESTIMATE", "ENG ESTIMATE", etc.)
    - Rationale: These are cost estimates, not competitor bids.
 
 3. **Updated long format output**
    - Input: CSI_data_long_format.csv (7,626 rows, 40 columns)
-   - Output: CSI_data_long_format.csv (6,894 rows, 41 columns)
-   - New column: `standardized_company_name` (ready for competitor analysis)
-   - Removed: Non-competitors, merged: 19 company groups
-
-### Results
-- **Total bidder records**: 6,894 (from 7,626, -732 deleted, -0 lost to merges)
-- **Unique competitors**: 880 (from 922, -42 merged into 19 groups)
-- **Top competitor**: CENTRAL SPECIALTIES (497 bids)
-- **Ready for**: Competitor scoring engine (similarity, distance, capacity analysis)
+   - Output: CSI_data_long_format.csv (6,894 rows, 40 columns)
+   - Removed: Non-competitors (732 rows)
 
 ### Data Integrity Notes
-- BIDDER_NAME = raw company names (original from source)
-- standardized_company_name = client-approved merged names (ready for analysis)
-- Both columns preserved for auditability and manual review.
-- No rows lost; only consolidation and non-competitor removal.
+- BIDDER_*_NAME columns in wide format are now standardized with the v1 merge mapping.
+- No rows lost from wide format; only ENGINEERS ESTIMATE entries removed from long format.
 
 ---
 
@@ -313,10 +336,10 @@ All changes made to the raw source data are recorded here for client transparenc
 ### Changes Applied
 
 1. **Standardized bidder names based on client review**
-   - Source: `bidder_potential_duplicates.csv` (client-approved decision log)
+   - Source: `bidder_standardization_v2.csv` (client-approved decision log)
    - Created standardization mapping from 134 variations → 58 canonical names
    - Applied mapping to all BIDDER_*_NAME columns (15 columns across 134 variation rows)
-   - Total bidder records affected: 2087 replacements across 1105 project rows
+   - Total bidder records affected: 853 replacements (net of Pass 3c mappings already applied)
 
 2. **Deleted non-competitor entries**
    - Deleted 3 company variations matching non-competitor patterns
@@ -365,7 +388,6 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 
 3. **Results**
    - Total bidder records: 6894
-   - Unique competitors: 833
    - Ready for: Competitor scoring engine (similarity, distance, capacity analysis)
 
 ### Data Integrity Notes
@@ -380,9 +402,9 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 ### Changes Applied
 
 1. **Applied additional client-approved bidder name merges**
-   - Source: `additional_bidder_merges_review.csv` (client-reviewed and approved list)
+   - Source: `bidder_standardization_v3.csv` (client-reviewed and approved list)
    - Created standardization mapping from 14 variations → 14 canonical names
-   - Applied mapping to all BIDDER_*_NAME columns in wide format
+   - Applied mapping to all BIDDER_*_NAME columns in wide format (65 replacements)
    - Total impact: Corrected 14 naming inconsistencies across multiple projects
 
 2. **Merged company name variations**
@@ -427,8 +449,9 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 
 ### Results
 
-- **Total bidder records**: 6894 (after removing 732 ENGINEERS ESTIMATE entries)
-- **Unique competitors**: 819 (down from 833 after previous pass)
+- **Total bidder records**: 6,894 (after removing 732 ENGINEERS ESTIMATE entries)
+- **Unique competitors**: 819
+- **Total name replacements across all passes**: 2,070 (Pass 3c: 1,152 + Pass 4: 853 + Pass 5: 65)
 - **Impact**: 14 company groups consolidated, improving data consistency
 - **Ready for**: Final competitor analysis and scoring engine
 
@@ -438,4 +461,3 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 - Bidder names now standardized across all variations (spellings, spacing, suffixes, abbreviations).
 - Raw names can be recovered from git history if needed.
 - All data files updated consistently: wide format, long format, and company list.
-
