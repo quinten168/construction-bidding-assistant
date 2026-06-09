@@ -1,0 +1,33 @@
+standardized_company_name,suspected_current_name,current_bid_frequency,recommended_action,reason,confidence,review_note
+CENTRAL SPECIALTIES,RIDGEWAY DRIVE CENTRAL SPECIALTIES,109,MERGE,Project/road text appears attached to company name,Very High,
+CENTRAL SPECIALTIES,BID CENTRAL SPECIALTIES INC,1,MERGE,Extra BID text plus legal suffix,High,
+CENTRAL SPECIALTIES,BRADFORD BAY CENTRAL SPECIALTIES,1,MERGE,Project/location text appears attached to company name,High,
+CENTRAL SPECIALTIES,LAKESIDE DRIVE CENTRAL SPECIALTIES,1,MERGE,Project/road text appears attached to company name,High,
+CENTRAL SPECIALTIES,CENTRAL SPECIALTIES INC 600%,1,MERGE,Percent artifact plus legal suffix,Very High,
+DELETE - NOT A COMPETITOR,ENG ESTIMATE,8,DELETE/REVIEW,"Engineer estimate, not competitor",High,
+DELETE - NOT A COMPETITOR,EST VALUE,1,DELETE/REVIEW,"Estimate/value row, not competitor",High,
+DELETE - NOT A COMPETITOR,JAG CRUSHING - PRICE PER TON $260,1,DELETE/REVIEW,"Price-per-ton note, not a company name",High,
+DELETE - NOT A COMPETITOR,RECHNAGLE CONST MANAGEMENT - PRICE PER TON $279,1,DELETE/REVIEW,Price-per-ton note attached to name; needs review,High,
+GLADEN CONSTRUCTION INC,GLADEN'S CONST,1,MERGE,Abbreviated/possessive form of Gladen Construction,Medium,
+HAWKINS CONSTRUCTION COMPANY,HAWKINS CONST CO,1,MERGE,CONST CO abbreviation of Construction Company,Medium,
+HOFFMAN CONSTRUCTION COMPANY,HOFFMAN CONST CO,1,MERGE,CONST CO abbreviation of Construction Company,High,
+JENSEN BROTHERS CONSTRUCTION,JENSEN BROS CONST,1,MERGE,BROS/CONST abbreviations,High,
+KNIFE RIVER - BILLINGS,KNIFE RIVER - BILLINGS,1,MERGE,Billings division abbreviation variation,High,Keep as division unless client wants parent-level Knife River rollup.
+KNIFE RIVER - BILLINGS,KNIFE RIVER CORPORATION - BLGS,1,MERGE,Billings division abbreviation variation,High,Keep as division unless client wants parent-level Knife River rollup.
+KNIFE RIVER - BILLINGS,KNIFE RIVER CORP - BLGS,1,MERGE,Billings division abbreviation variation,High,Keep as division unless client wants parent-level Knife River rollup.
+KNIFE RIVER - CENTRAL ND DIVISION,KNIFE RIVER - CENTRAL ND DIVISION,2,MERGE,Central ND division spacing variation,High,Keep as division unless client wants parent-level Knife River rollup.
+KNIFE RIVER - CENTRAL ND DIVISION,KNIFE RIVER CENTRAL ND DIVISION,1,MERGE,Central ND division spacing variation,High,Keep as division unless client wants parent-level Knife River rollup.
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER - NORTH CENTRAL,3,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER - N CENTRAL,1,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER CORP -NORTH CENTRAL,1,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER CORP Â€“ NORTH CENTRAL,1,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER MATERALS - NORTH CENTRAL,1,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KNIFE RIVER MATERIALS - NORTH CENTRAL,1,MERGE,North Central division spelling/spacing/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER MATERIALS,KNIFE RIVER MATERIALS 600%,1,MERGE,Percent artifact attached to company name,Very High,Client may prefer retaining Knife River divisions separately; this only removes artifact.
+KNIFE RIVER MATERIALS - NORTHERN MN DIVISION,KNIFE RIVER - NORTHERN MN DIV,1,MERGE,Northern MN division abbreviation/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+KNIFE RIVER MATERIALS - NORTHERN MN DIVISION,KNIFE RIVER MATLS Â€“ NORTHERN MN,1,MERGE,Northern MN division abbreviation/encoding variation,High,"This is division-level standardization, not parent-level Knife River merge."
+MICHELS ROAD & STONE,MICHELS ROAD & STONE INC 636%,7,MERGE,Percent artifact and legal suffix variation,Very High,
+NORTHERN IMPROVEMENT COMPANY,NORTHERN IMPROVEMENTS,2,MERGE,Plural/singular naming variation,Medium,Confirm whether this should map to parent or a division.
+NORTHERN IMPROVEMENT COMPANY,NORTHERN IMPROVEMENT COMPANY 672%,1,MERGE,Percent artifact attached to company name,Very High,Separately confirm whether Fargo/Bismarck divisions should stay separate.
+REEDE CONSTRUCTION INC,REEDE CONSTRUCTION INC 603%,15,MERGE,Percent artifact attached to company name,Very High,
+THE MATHIOWETZ CONSTRUCTION COMPANY,THE MATHIOWETZ CONST CO,1,MERGE,CONST CO abbreviation of Construction Company,High,
