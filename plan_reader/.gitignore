@@ -1,0 +1,12 @@
+# Plan Reader — keep the corpus, vector DB, caches, and secrets OUT of git (regenerable / private).
+# (This module was added as a subfolder; these rules are relative to plan_reader/.)
+00_input/plans/**/*.pdf
+00_input/plans/**/*.md
+00_input/plans/**/*.json
+00_input/_md_cache/
+06_chroma/
+02_outputs/per_plan/
+02_outputs/scorecards/*.json
+.env
+__pycache__/
+*.pyc

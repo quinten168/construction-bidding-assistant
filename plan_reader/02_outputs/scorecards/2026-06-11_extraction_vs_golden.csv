@@ -1,0 +1,161 @@
+plan_id,field,golden,extracted,verdict,page,confidence
+2025_STUTSMAN-CO-ND_CR-68_NOBID,state,ND,ND,match,1,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,county,Stutsman County,Stutsman,match,1,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,project_location,STUTSMAN CO ND,"County Road 68, Stutsman County, North Dakota",match,3,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,sp_number,,EC25-00-058,n/a,1,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,project_type,,Earthwork Heavy,review,19,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,hot_mix_tons,,,n/a,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,base_tons,"6,546",6546,match,19,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,grading_quantity,"49,229",48894,match,19,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,shoulder_tons,,,n/a,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,milling_sy,,,n/a,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,crushing_tons,,,n/a,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,stockpile_tons,,,n/a,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,box_culvert,,False,n/a,,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,prevailing_wages,NO,False,match,,medium
+2025_STUTSMAN-CO-ND_CR-68_NOBID,construction_start,,,review,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,construction_end,,2025-11-15,n/a,8,high
+2025_STUTSMAN-CO-ND_CR-68_NOBID,traffic_level,,,review,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,phasing_requirements,,,review,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,special_requirements,,,review,,
+2025_STUTSMAN-CO-ND_CR-68_NOBID,gotchas,,,review,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,state,MN,MN,match,1,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,county,Watonwan County,Watonwan,match,1,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,project_location,WATONWAN CO MN,"Watonwan County, MN – Bituminous Trail between Long Lake Park and Ormsby",match,1,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,sp_number,,SAP 083-090-007,n/a,1,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,project_type,,Complex/Messy,review,1,medium
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,hot_mix_tons,"3,983",,miss,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,base_tons,"8,068",,miss,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,grading_quantity,"19,042",19042,match,2,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,shoulder_tons,,,n/a,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,milling_sy,,,n/a,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,crushing_tons,,,n/a,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,stockpile_tons,,,n/a,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,box_culvert,,False,n/a,2,medium
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,prevailing_wages,YES,True,match,3,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,construction_start,,2025-09-15,review,1,medium
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,construction_end,,2026-06-15,n/a,1,high
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,traffic_level,,,review,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,phasing_requirements,,,review,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,special_requirements,,,review,,
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,gotchas,,,review,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,state,MN,MN,match,1,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,county,Douglas County,,miss,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,project_location,"DOUGLAS CO MN, MILTONA TOWNSHIP","Vermont Access Road NE, Miltona Township, Minnesota",miss,1,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,sp_number,,SAP 021-600-023,n/a,1,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,project_type,,Standard Paving,review,5,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,hot_mix_tons,"6,296",6300,match,5,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,base_tons,,,n/a,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,grading_quantity,"4,063",,miss,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,shoulder_tons,,,n/a,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,milling_sy,,,n/a,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,crushing_tons,,,n/a,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,stockpile_tons,,,n/a,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,box_culvert,,False,n/a,,medium
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,prevailing_wages,YES,True,match,3,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,construction_start,,,review,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,construction_end,,2025-10-10,n/a,28,high
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,traffic_level,,,review,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,phasing_requirements,,,review,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,special_requirements,,,review,,
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,gotchas,,traffic_control; incidental_scope; utility_conflict; missing_survey_data; liquidated_damages; prevailing_wage; night_work; qc_inspection; material_source; phasing_staging,review,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,state,MN,MN,match,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,county,Watonwan,Watonwan,match,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,project_location,,In Watonwan County on TH 15/TH 30 from County Road 54 to the South Interchange of TH 15/TH 60 and on TH 15/TH 60 from 1380 Feet West of E JCT of County Road 110 to E JCT of County Road 110,n/a,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,sp_number,SP 8303-48,SP 8303-48,match,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,project_type,,Complex/Messy,review,1,medium
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,hot_mix_tons,,56097,n/a,386,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,base_tons,,,n/a,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,grading_quantity,,8659,n/a,385,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,shoulder_tons,,,n/a,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,milling_sy,,185188,n/a,385,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,crushing_tons,,,n/a,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,stockpile_tons,,,n/a,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,box_culvert,,True,n/a,387,medium
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,prevailing_wages,,True,n/a,9,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,construction_start,,2023-07-10,review,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,construction_end,,2024-06-01,n/a,1,high
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,traffic_level,,,review,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,phasing_requirements,,,review,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,special_requirements,,,review,,
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,gotchas,,,review,,
+2023_DUNN-CO-ND_CP-13_WON,state,ND,ND,match,1,high
+2023_DUNN-CO-ND_CP-13_WON,county,Dunn,Dunn,match,1,high
+2023_DUNN-CO-ND_CP-13_WON,project_location,,"Dunn County, North Dakota (CP-13(23)01)",n/a,1,high
+2023_DUNN-CO-ND_CP-13_WON,sp_number,CP-13(23)01,CP-13(23)01,match,1,high
+2023_DUNN-CO-ND_CP-13_WON,project_type,,Complex/Messy,review,2,medium
+2023_DUNN-CO-ND_CP-13_WON,hot_mix_tons,,40877,n/a,18,high
+2023_DUNN-CO-ND_CP-13_WON,base_tons,,19689,n/a,18,high
+2023_DUNN-CO-ND_CP-13_WON,grading_quantity,,,n/a,,
+2023_DUNN-CO-ND_CP-13_WON,shoulder_tons,,,n/a,,
+2023_DUNN-CO-ND_CP-13_WON,milling_sy,,51929,n/a,18,high
+2023_DUNN-CO-ND_CP-13_WON,crushing_tons,,,n/a,,
+2023_DUNN-CO-ND_CP-13_WON,stockpile_tons,,,n/a,,
+2023_DUNN-CO-ND_CP-13_WON,box_culvert,,False,n/a,,medium
+2023_DUNN-CO-ND_CP-13_WON,prevailing_wages,,False,n/a,,low
+2023_DUNN-CO-ND_CP-13_WON,construction_start,,,review,,
+2023_DUNN-CO-ND_CP-13_WON,construction_end,,2023-10-14,n/a,4,high
+2023_DUNN-CO-ND_CP-13_WON,traffic_level,,Superpave FAA 45,review,131,high
+2023_DUNN-CO-ND_CP-13_WON,phasing_requirements,,,review,,
+2023_DUNN-CO-ND_CP-13_WON,special_requirements,,,review,,
+2023_DUNN-CO-ND_CP-13_WON,gotchas,,seasonal_window; tight_schedule; traffic_control; night_work; earthwork_imbalance; incidental_scope; water_permit_dewatering; coordination; qc_inspection; material_source; utility_conflict; phasing_staging,review,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,state,MN,MN,match,1,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,county,Otter Tail,Otter Tail,match,1,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,project_location,,"Private Road from CSAH 83 to 630 feet South, Otter Tail County, Minnesota, approximately 0.119 miles",n/a,1,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,sp_number,CP 4069-304,4069-304,miss,1,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,project_type,,Standard Paving,review,,medium
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,hot_mix_tons,,324,n/a,33,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,base_tons,,40,n/a,33,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,grading_quantity,,,n/a,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,shoulder_tons,,,n/a,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,milling_sy,,,n/a,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,crushing_tons,,,n/a,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,stockpile_tons,,,n/a,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,box_culvert,,False,n/a,,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,prevailing_wages,,False,n/a,,medium
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,construction_start,,,review,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,construction_end,,2023-10-13,n/a,1,high
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,traffic_level,,,review,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,phasing_requirements,,,review,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,special_requirements,,,review,,
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,gotchas,,,review,,
+2023_WALSH-CO-ND_HWY-9_LOST,state,ND,ND,match,1,high
+2023_WALSH-CO-ND_HWY-9_LOST,county,Walsh,Walsh,match,1,high
+2023_WALSH-CO-ND_HWY-9_LOST,project_location,,"Walsh County Highway 9, Walsh County, North Dakota, Grafton, ND",n/a,3,high
+2023_WALSH-CO-ND_HWY-9_LOST,sp_number,Cty Hwy 9,2003-00613,miss,1,high
+2023_WALSH-CO-ND_HWY-9_LOST,project_type,,Standard Paving,review,3,high
+2023_WALSH-CO-ND_HWY-9_LOST,hot_mix_tons,,33869,n/a,17,medium
+2023_WALSH-CO-ND_HWY-9_LOST,base_tons,,2671,n/a,17,high
+2023_WALSH-CO-ND_HWY-9_LOST,grading_quantity,,1643,n/a,17,high
+2023_WALSH-CO-ND_HWY-9_LOST,shoulder_tons,,,n/a,,
+2023_WALSH-CO-ND_HWY-9_LOST,milling_sy,,154218,n/a,17,high
+2023_WALSH-CO-ND_HWY-9_LOST,crushing_tons,,,n/a,,
+2023_WALSH-CO-ND_HWY-9_LOST,stockpile_tons,,,n/a,,
+2023_WALSH-CO-ND_HWY-9_LOST,box_culvert,,False,n/a,,medium
+2023_WALSH-CO-ND_HWY-9_LOST,prevailing_wages,,False,n/a,,low
+2023_WALSH-CO-ND_HWY-9_LOST,construction_start,,,review,,
+2023_WALSH-CO-ND_HWY-9_LOST,construction_end,,2023-09-30,n/a,4,high
+2023_WALSH-CO-ND_HWY-9_LOST,traffic_level,,,review,,
+2023_WALSH-CO-ND_HWY-9_LOST,phasing_requirements,,,review,,
+2023_WALSH-CO-ND_HWY-9_LOST,special_requirements,,,review,,
+2023_WALSH-CO-ND_HWY-9_LOST,gotchas,,,review,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,state,SD,SD,match,17,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,county,Brookings,Brookings,match,17,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,project_location,,"Brookings County 38, Brookings County, South Dakota (+/- 7 miles)",n/a,20,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,sp_number,2023 Surfacing,23000659,miss,17,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,project_type,,Standard Paving,review,20,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,hot_mix_tons,,17432.3,n/a,35,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,base_tons,,,n/a,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,grading_quantity,,,n/a,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,shoulder_tons,,,n/a,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,milling_sy,,1981,n/a,35,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,crushing_tons,,,n/a,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,stockpile_tons,,,n/a,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,box_culvert,,False,n/a,,medium
+2023_BROOKINGS-CO-SD_SURFACING_LOST,prevailing_wages,,False,n/a,,medium
+2023_BROOKINGS-CO-SD_SURFACING_LOST,construction_start,,2023-08-01,review,45,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,construction_end,,2023-10-15,n/a,45,high
+2023_BROOKINGS-CO-SD_SURFACING_LOST,traffic_level,,,review,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,phasing_requirements,,,review,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,special_requirements,,,review,,
+2023_BROOKINGS-CO-SD_SURFACING_LOST,gotchas,,,review,,
