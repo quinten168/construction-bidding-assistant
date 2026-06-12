@@ -1,0 +1,11 @@
+question,top_distance,mean_distance,worst_distance,n_docs_hit,docs_hit,sections_hit,answer_not_found,answer
+What are the prevailing wage or Davis-Bacon wage requirements?,0.356,0.369,0.383,2,00 Prosoal.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf,contract_front; prevailing_wage,,
+Are there construction phasing or staging requirements?,0.411,0.454,0.47,5,2023_BROOKINGS-CO-SD_SURFACING.pdf; 2023_DUNN-CO-ND_CP-13.pdf; 2023_WALSH-CO-ND_HWY-9.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf; 9804001.pdf,bid_schedule; contract_front,,
+Is there a box culvert in the project scope?,0.481,0.492,0.499,3,08MQ_NonSection.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf; SAP 032-629-048 Plan.pdf,general_notes; traffic_staging,,
+Is dewatering or groundwater control required?,0.424,0.45,0.48,3,08MQ_NonSection.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf,special_provisions; title_index; traffic_staging; unknown,,
+"Are there historic bridge, Section 4(f), or MOA cultural resource requirements?",0.494,0.502,0.513,3,00 Prosoal.pdf; 08MQ_NonSection.pdf; 2023_BROOKINGS-CO-SD_SURFACING.pdf,general_notes; special_provisions; specifications; unknown,,
+Is there a high pressure gas line or utility conflict in the project area?,0.606,0.616,0.625,4,2023_DUNN-CO-ND_CP-13.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf; 9758035.pdf,contract_front; special_provisions; traffic_staging,,
+Are there seasonal work restrictions for endangered species like the NLEB or whooping crane?,0.464,0.507,0.538,3,00 Prosoal.pdf; 08MQ_NonSection.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf,contract_front; unknown,,
+What is the total tonnage of hot mix asphalt (HMA / mix)?,0.309,0.367,0.392,2,2023_WATONWAN-CO-MN_SP-8303-48.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf,bid_schedule; special_provisions; title_index,,
+What earthwork or grading excavation quantity in cubic yards is required?,0.366,0.407,0.423,4,08MQ_NonSection.pdf; 2023_DUNN-CO-ND_CP-13.pdf; 2023_WATONWAN-CO-MN_SP-8303-48.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf,title_index; unknown,,
+What is the marketing budget and social media advertising plan for this project?,0.708,0.728,0.74,3,2023_WATONWAN-CO-MN_SP-8303-48.pdf; 2023_YANKTON-CO-SD_P-PH-0052.pdf; 9758035.pdf,bid_schedule; contract_front; unknown,,

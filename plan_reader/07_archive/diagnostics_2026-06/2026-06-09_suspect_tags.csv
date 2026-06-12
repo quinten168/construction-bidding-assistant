@@ -1,0 +1,49 @@
+plan,page,info_type,tagged_section,correct_section,error_type,distance,verdict,notes
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,1,,proposal_front,,cross_ref_false_positive,,,"line references 'special_provisions': ""FOR SPECIAL PROVISIONS, SEE ATTACHED SHEETS"""
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,2,,contract_front,,cross_ref_false_positive,,,"line references 'contract_front': ""Attached: Notice to Bidders (Advertisement for Bids)"""
+2023_WALSH-CO-ND_HWY-9_LOST,27,,contract_front,,cross_ref_false_positive,,,"line references 'contract_front': ""Agreement and are not attached hereto:"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,118,,contract_front,,cross_ref_false_positive,,,"line references 'contract_front': ""Construction Contracts, is attached."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,187,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""See S-60 (2563) TRAFFIC CONTROL."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,299,,special_provisions,,cross_ref_false_positive,,,"line references 'special_provisions': ""Provisions to use. See Special Provisions."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,487,,general_notes,,cross_ref_false_positive,,,"line references 'special_provisions': ""CFS. SEE SPECIAL PROVISIONS."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,487,,general_notes,,cross_ref_false_positive,,,"line references 'special_provisions': ""CFS. SEE SPECIAL PROVISIONS. C"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,548,,general_notes,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE TRAFFIC CONTROL PLAN FOR STAGING AND TRAFFIC"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,548,,general_notes,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE SHEETS 173-174 FOR PILOT CAR TRAFFIC CONTROL LAYOUTS."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,549,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE TRAFFIC CONTROL PLAN"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,549,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE SHEETS 173-174 FOR PILOT CAR TRAFFIC CONTROL LAYOUTS."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,550,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE TRAFFIC CONTROL PLAN"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,550,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE SHEETS 173-174 FOR PILOT CAR TRAFFIC CONTROL LAYOUTS."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,551,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE TRAFFIC CONTROL PLAN"""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,551,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""SEE SHEETS 173-174 FOR PILOT CAR TRAFFIC CONTROL LAYOUTS."""
+2023_WATONWAN-CO-MN_SP-8303-48_LOST,608,,traffic_staging,,cross_ref_false_positive,,,"line references 'special_provisions': ""(BREAKAWAY) SEE SPECIAL PROVISIONS"""
+2023_YANKTON-CO-SD_P-PH-0052_WON,20,,title_index,,cross_ref_false_positive,,,"line references 'special_provisions': ""(See Special Provision for Contractor Staking)"""
+2023_YANKTON-CO-SD_P-PH-0052_WON,90,,traffic_staging,,cross_ref_false_positive,,,"line references 'title_index': ""► 5.3 (3a): Project Description (See Title Sheet)"""
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,30,,contract_front,,cross_ref_false_positive,,,"line references 'title_index': ""6. Drawings listed on the attached sheet index."""
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,34,,contract_front,,cross_ref_false_positive,,,"line references 'contract_front': ""In accordance with the Agreement:"""
+2025_HAND-CO-SD_08MQ_NOBID,8,,traffic_staging,,cross_ref_false_positive,,,"line references 'special_provisions': ""(See Special Provisions for Contractor Staking)"""
+2025_HAND-CO-SD_08MQ_NOBID,9,,traffic_staging,,cross_ref_false_positive,,,"line references 'traffic_staging': ""Install traffic control signs as shown on the plans."""
+2025_HAND-CO-SD_08MQ_NOBID,23,,general_notes,,cross_ref_false_positive,,,"line references 'general_notes': ""DETAIL B (See General Notes)"""
+2025_HAND-CO-SD_08MQ_NOBID,23,,general_notes,,cross_ref_false_positive,,,"line references 'general_notes': ""GENERAL NOTE: be the same as shown above. 4% 75 SECTION A-A"""
+2025_STUTSMAN-CO-ND_CR-68_NOBID,17,,contract_front,,cross_ref_false_positive,,,"line references 'contract_front': ""as shown in the Advertisement for Bids."""
+2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,195,,contract_front,,cross_ref_false_positive,,,"line references 'prevailing_wage': ""wage determination may contain, pursuant to § 1.3(f), wage"""
+2023_BROOKINGS-CO-SD_SURFACING_LOST,164,prevailing_wages,title_index,,weak_retrieval,0.679,,top hit dist 0.679 > 0.65 — field likely absent/unreliable
+2023_DUNN-CO-ND_CP-13_WON,44,prevailing_wages,contract_front,,weak_retrieval,0.678,,top hit dist 0.678 > 0.65 — field likely absent/unreliable
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,28,prevailing_wages,bid_schedule,,weak_retrieval,0.697,,top hit dist 0.697 > 0.65 — field likely absent/unreliable
+2023_WALSH-CO-ND_HWY-9_LOST,95,prevailing_wages,contract_front,,weak_retrieval,0.674,,top hit dist 0.674 > 0.65 — field likely absent/unreliable
+2023_YANKTON-CO-SD_P-PH-0052_WON,72,prevailing_wages,traffic_staging,,weak_retrieval,0.731,,top hit dist 0.731 > 0.65 — field likely absent/unreliable
+2025_HAND-CO-SD_08MQ_NOBID,30,prevailing_wages,general_notes,,weak_retrieval,0.701,,top hit dist 0.701 > 0.65 — field likely absent/unreliable
+2025_JACKSON-CO-MN_SAP-032-629-048_NOBID,56,prevailing_wages,general_notes,,weak_retrieval,0.727,,top hit dist 0.727 > 0.65 — field likely absent/unreliable
+2025_STUTSMAN-CO-ND_CR-68_NOBID,37,prevailing_wages,contract_front,,weak_retrieval,0.698,,top hit dist 0.698 > 0.65 — field likely absent/unreliable
+2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,237,traffic_control,traffic_staging,,weak_retrieval,0.689,,top hit dist 0.689 > 0.65 — field likely absent/unreliable
+2025_HAND-CO-SD_08MQ_NOBID,9,traffic_control,traffic_staging,,weak_retrieval,0.688,,top hit dist 0.688 > 0.65 — field likely absent/unreliable
+2025_STUTSMAN-CO-ND_CR-68_NOBID,135,traffic_control,specifications,,weak_retrieval,0.724,,top hit dist 0.724 > 0.65 — field likely absent/unreliable
+2023_DUNN-CO-ND_CP-13_WON,130,environmental,title_index,,weak_retrieval,0.699,,top hit dist 0.699 > 0.65 — field likely absent/unreliable
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,22,environmental,traffic_staging,,weak_retrieval,0.693,,top hit dist 0.693 > 0.65 — field likely absent/unreliable
+2023_WALSH-CO-ND_HWY-9_LOST,120,environmental,contract_front,,weak_retrieval,0.696,,top hit dist 0.696 > 0.65 — field likely absent/unreliable
+2025_JACKSON-CO-MN_SAP-032-629-048_NOBID,72,environmental,general_notes,,weak_retrieval,0.675,,top hit dist 0.675 > 0.65 — field likely absent/unreliable
+2025_STUTSMAN-CO-ND_CR-68_NOBID,62,environmental,specifications,,weak_retrieval,0.674,,top hit dist 0.674 > 0.65 — field likely absent/unreliable
+2023_BROOKINGS-CO-SD_SURFACING_LOST,55,structure,contract_front,,weak_retrieval,0.66,,top hit dist 0.660 > 0.65 — field likely absent/unreliable
+2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,18,structure,bid_schedule,,weak_retrieval,0.712,,top hit dist 0.712 > 0.65 — field likely absent/unreliable
+2023_WALSH-CO-ND_HWY-9_LOST,42,structure,contract_front,,weak_retrieval,0.697,,top hit dist 0.697 > 0.65 — field likely absent/unreliable
+2023_BROOKINGS-CO-SD_SURFACING_LOST,166,,specifications,,single_page_section,,,section spans exactly one page — possible stray match
+2025_JACKSON-CO-MN_SAP-032-629-048_NOBID,88,,traffic_staging,,single_page_section,,,section spans exactly one page — possible stray match
