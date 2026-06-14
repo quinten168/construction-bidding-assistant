@@ -1,0 +1,823 @@
+raw_bidder_name,competitor_unit_id,valid_from,valid_to,mapping_status,notes
+Knife River Materials,KR_MN,,,pending_client_review,
+Knife River Corporation - North Dakota,KR_ND,,,pending_client_review,
+Mark Sand & Gravel Co.,MARK_SG,,,confirmed,
+KNIFE RIVER CORPORATION D/B/A KNIFE RIVER MIDWEST,KR_MN,,,pending_client_review,high-frequency current data name; operating-unit assignment needs client confirmation
+NORTHSTAR MATERIALS INC DBA KNIFE RIVER MATERIALS,KR_MN,,,pending_client_review,Knife River Minnesota candidate; needs client confirmation
+KNIFE RIVER MATERIALS-NORTHERN MINNESOTA,KR_MN,,,pending_client_review,Northern Minnesota candidate; needs client confirmation
+KNIFE RIVER MATERIALS - NORTHERN MN DIVISION,KR_MN,,,pending_client_review,Northern Minnesota division candidate; needs client confirmation
+KNIFE RIVER - NORTHERN MN DIV,KR_MN,,,pending_client_review,Northern Minnesota division candidate; needs client confirmation
+KNIFE RIVER MATERIALS BEMIDJI MN,KR_MN,,,pending_client_review,Bemidji Minnesota candidate; needs client confirmation
+KNIFE RIVER MATLS Â€“ NORTHERN MN,KR_MN,,,pending_client_review,encoding artifact in historical data; needs client confirmation
+KNIFE RIVER CORPORATION - NORTH CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+WEST BIT PAVING KNIFE RIVER CORP - NORTH CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+KNIFE RIVER - NORTH CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+KNIFE RIVER CORP -NORTH CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+KNIFE RIVER MATERIALS - NORTH CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+KNIFE RIVER CORP Â€“ NORTH CENTRAL,KR_ND,,,pending_client_review,encoding artifact in historical data; needs client confirmation
+KNIFE RIVER - N CENTRAL,KR_ND,,,pending_client_review,North Central candidate; needs client confirmation
+KNIFE RIVER MATERALS - NORTH CENTRAL,KR_ND,,,pending_client_review,misspelling in historical data; needs client confirmation
+KNIFE RIVER - CENTRAL ND DIVISION,KR_ND,,,pending_client_review,Central ND division candidate; needs client confirmation
+KNIFE RIVER CENTRAL ND DIVISION,KR_ND,,,pending_client_review,Central ND division candidate; needs client confirmation
+MARK SAND & GRAVEL CO FERGUS FALLS MN,MARK_SG,,,confirmed,current data name
+MARK SAND & GRAVEL COMPANY,MARK_SG,,,confirmed,current data name
+STRATA CORPORATION,STRATA_ND,,,pending_client_review,historical operating unit retained separately pending acquisition/relationship review
+3 FORKS SERVICES,TMP_3_FORKS_SERVICES_8A6F88F3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+3D SPECIALTIES INC,TMP_3D_SPECIALTIES_INC_33CA4D73,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+605 COMPANIES INC,TMP_605_COMPANIES_INC_2941AA38,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+A & C EXCAVATING,TMP_A_C_EXCAVATING_74BBAF20,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+A & M LOGISTICS,TMP_A_M_LOGISTICS_B893BF93,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+A & R CONSTRUCTION INC,TMP_A_R_CONSTRUCTION_INC_F61CDA22,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+A-1 EXCAVATING LLC,TMP_A_1_EXCAVATING_LLC_DB289BB9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+A-G-E CORPORATION,TMP_A_G_E_CORPORATION_21E12896,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ABBOTT ARNE SCHWINDT INC,TMP_ABBOTT_ARNE_SCHWINDT_INC_D30CE2C9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ABSOLUTE CONCRETE CONST,TMP_ABSOLUTE_CONCRETE_CONST_CFC3FC22,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ABSOLUTE CONCRETE DBA ABSOLUTE GROUP,TMP_ABSOLUTE_CONCRETE_DBA_ABSOLUTE_G_D3C1CE8E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ACM LLC,TMP_ACM_LLC_71E5FB43,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ACME CONCRETE PAVING INC,TMP_ACME_CONCRETE_PAVING_INC_7EF2B32D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ACTION COMPANY LLC,TMP_ACTION_COMPANY_LLC_67140097,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ADVANCED STRIPING & SEALCOATING,TMP_ADVANCED_STRIPING_SEALCOATING_8A2F47D5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AG TECH DRAINAGE,TMP_AG_TECH_DRAINAGE_6E226A98,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AGASSIZ ASPHALT LLC,TMP_AGASSIZ_ASPHALT_LLC_68B76A31,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AGE CORP,TMP_AGE_CORP_5A9D93FB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AINSWORTH BENNING,TMP_AINSWORTH_BENNING_BB9BBC31,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALL AMERICAN PLUMBING & HEATING,TMP_ALL_AMERICAN_PLUMBING_HEATING_AAD08EF2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALL FINISH CONCRETE INC,TMP_ALL_FINISH_CONCRETE_INC_81CE9F8B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALL STAR CONCRETE,TMP_ALL_STAR_CONCRETE_3F3B1FCD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALLIANCE CONSTRUCTION LLC,TMP_ALLIANCE_CONSTRUCTION_LLC_B51EFB8E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALLSTATES PAVEMENT,TMP_ALLSTATES_PAVEMENT_D70EC804,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ALLSTATES PAVEMENT & RECYCLING,TMP_ALLSTATES_PAVEMENT_RECYCLING_42B02CF7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AM COHRON & SON INC,TMP_AM_COHRON_SON_INC_C963653E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AMERICAN RESURFACING,TMP_AMERICAN_RESURFACING_375AE5F3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AMERICAN ROAD MAINT,TMP_AMERICAN_ROAD_MAINT_8869AAB7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AMES CONSTRUCTION INC,TMP_AMES_CONSTRUCTION_INC_275BFFE0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ANDERSON BROTHERS COMPANY,TMP_ANDERSON_BROTHERS_COMPANY_7D55F75F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ANDERSON BROTHERS CONSTRUCTION COMPANY OF BRAINERD LLC,TMP_ANDERSON_BROTHERS_CONSTRUCTION_C_25F179A9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ANDERSON CONTRACTORS INC,TMP_ANDERSON_CONTRACTORS_INC_43C3254B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ANDERSON DRAINAGE & EXCAVATION,TMP_ANDERSON_DRAINAGE_EXCAVATION_757B7236,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ANDERSON WESTERN INC,TMP_ANDERSON_WESTERN_INC_835C3B76,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AP & SONS,TMP_AP_SONS_EC4A3D21,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AP & SONS CONSTRUCTION,TMP_AP_SONS_CONSTRUCTION_6DAE1028,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+APX CONSTRUCTION GROUP,TMP_APX_CONSTRUCTION_GROUP_2DC21594,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ARMODUS LLC,TMP_ARMODUS_LLC_F28FED18,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASCO,TMP_ASCO_4156C41D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASHLAND ROAD EXCAVATING,TMP_ASHLAND_ROAD_EXCAVATING_D29EA882,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASHPALT SURFACING COMPANY,TMP_ASHPALT_SURFACING_COMPANY_5D0CBB37,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASHWILL COMPANIES,TMP_ASHWILL_COMPANIES_2FF3AA1D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASKIN CONSTRUCTION,TMP_ASKIN_CONSTRUCTION_F1E95B37,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPHALT PAVING & MATERIALS COMPANY,TMP_ASPHALT_PAVING_MATERIALS_COMPANY_699A87F1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPHALT PAVING & MATERIALS COMPANY INC,TMP_ASPHALT_PAVING_MATERIALS_COMPANY_535948DE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPHALT SERVICING,TMP_ASPHALT_SERVICING_A015D53E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPHALT SURFACE TECHNOLOGIES CORP,TMP_ASPHALT_SURFACE_TECHNOLOGIES_COR_D6B353A5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPHALT SURFACING COMPANY,TMP_ASPHALT_SURFACING_COMPANY_D36F92A4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASPRO INC,TMP_ASPRO_INC_656CE3CF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ASTECH,TMP_ASTECH_CB272791,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+AUSCAR X LLC,TMP_AUSCAR_X_LLC_3A0A9B68,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+B & B CONTRACTING,TMP_B_B_CONTRACTING_9E05C4C6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BACKHAUS EXCAVATION,TMP_BACKHAUS_EXCAVATION_675319FE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BALLARD ASPHALT PAVING & MAINT,TMP_BALLARD_ASPHALT_PAVING_MAINT_8F8639E0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARANKO BROS INC,TMP_BARANKO_BROS_INC_981B0E4F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARANKO BROTHERS INC,TMP_BARANKO_BROTHERS_INC_AA578AFE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARATTO BROTHERS CONSTRUCTION INC,TMP_BARATTO_BROTHERS_CONSTRUCTION_IN_7BE90B72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARCON INC,TMP_BARCON_INC_0702E7EB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARKLEY ASPHALT INC,TMP_BARKLEY_ASPHALT_INC_136C589C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARRATTO BROTHERS CONSTRUCTION,TMP_BARRATTO_BROTHERS_CONSTRUCTION_E7FDA079,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BARRY CONSTRUCTION,TMP_BARRY_CONSTRUCTION_960BC792,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BASARABA EXCAVATING,TMP_BASARABA_EXCAVATING_BA47188B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BASIN CONSTRUCTION & DRAIN TILE LLC,TMP_BASIN_CONSTRUCTION_DRAIN_TILE_LL_A7F842CE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BATES,TMP_BATES_98D779BB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BATTLE RIDGE BUILDERS,TMP_BATTLE_RIDGE_BUILDERS_32E66BCF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BCI CONSTRUCTION INC,TMP_BCI_CONSTRUCTION_INC_C73AF483,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BCM CONSTRUCTION INC,TMP_BCM_CONSTRUCTION_INC_54AA727A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BCSS LLC,TMP_BCSS_LLC_7517E8AC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BECHTOLD PAVING INC,TMP_BECHTOLD_PAVING_INC_0ED6E305,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BECK EXCAVATING INC,TMP_BECK_EXCAVATING_INC_012E8D72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BECKER TRANSPORT & AGGREGATE,TMP_BECKER_TRANSPORT_AGGREGATE_E84CEB63,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BEDROCK GRAVEL,TMP_BEDROCK_GRAVEL_AF6C8520,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BEK CONSULTING LLC,TMP_BEK_CONSULTING_LLC_F2F5192A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BERENS EXCAVATING,TMP_BERENS_EXCAVATING_316127F2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BG AMUNDSON,TMP_BG_AMUNDSON_AFE983A7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BID CENTRAL SPECIALTIES INC,TMP_BID_CENTRAL_SPECIALTIES_INC_501760A4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BIG-O-CONCRETE LLC,TMP_BIG_O_CONCRETE_LLC_D5902F79,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BITUMINOUS PAVING INC,TMP_BITUMINOUS_PAVING_INC_1D5965FC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BITUMINOUS ROADWAYS INC,TMP_BITUMINOUS_ROADWAYS_INC_0EDD2E82,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BL CONTRACTING,TMP_BL_CONTRACTING_6D00D5D6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACK TOP PAVING,TMP_BLACK_TOP_PAVING_8B2DF050,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACK-TOP PAVING,TMP_BLACK_TOP_PAVING_09E89B8D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACK-TOP PAVING CO,TMP_BLACK_TOP_PAVING_CO_F8103D51,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACKSTONE CONTRACTORS LLC,TMP_BLACKSTONE_CONTRACTORS_LLC_6BDCB807,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACKTOP PAVING,TMP_BLACKTOP_PAVING_F27BBDB9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACKTOP PAVING COMPANY,TMP_BLACKTOP_PAVING_COMPANY_B2A83D47,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLACKTOP SERVICE CO & SUBSIDIARY,TMP_BLACKTOP_SERVICE_CO_SUBSIDIARY_D507C5D8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLOMBECK CONST INC,TMP_BLOMBECK_CONST_INC_EF8BD6D7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLOMBECK CONSTRUCTION INC,TMP_BLOMBECK_CONSTRUCTION_INC_A19E276C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BLUESTONE CONSTRUCTION,TMP_BLUESTONE_CONSTRUCTION_D2EB2DF9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOBCAT GULCH LLC,TMP_BOBCAT_GULCH_LLC_9522C275,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOHLMAN TRENCHING SERVICE,TMP_BOHLMAN_TRENCHING_SERVICE_43F85EB1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOLDEN TRENCHING,TMP_BOLDEN_TRENCHING_2DC5A88C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOOMERANG CORP,TMP_BOOMERANG_CORP_2F5E2BC3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BORDER STATES PAVING INC,TMP_BORDER_STATES_PAVING_INC_F1849B87,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BORNEKE CONSTRUCTION,TMP_BORNEKE_CONSTRUCTION_FD2BF363,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BORNEKE CONSTRUCTION INC,TMP_BORNEKE_CONSTRUCTION_INC_7EAFDA6A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOULDER CREEK INC,TMP_BOULDER_CREEK_INC_5DD92160,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BOWES CONSTRUCTION INC,TMP_BOWES_CONSTRUCTION_INC_2F314B2F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BPI,TMP_BPI_1181E533,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRAATEN AGGREGATE,TMP_BRAATEN_AGGREGATE_D94A8A5E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRADFORD BAY CENTRAL SPECIALTIES,TMP_BRADFORD_BAY_CENTRAL_SPECIALTIES_DDF1BCB0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRANDZO CONCRETE,TMP_BRANDZO_CONCRETE_7A3C4214,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BREIDENBACH EXCAVATING,TMP_BREIDENBACH_EXCAVATING_927726F6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BREITBACH CONSTRUCTION,TMP_BREITBACH_CONSTRUCTION_8E8E3C05,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRENNAN CONSTRUCTION,TMP_BRENNAN_CONSTRUCTION_B36D89DD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRISTLIN CONSTRUCTION INC,TMP_BRISTLIN_CONSTRUCTION_INC_BBB3C3F5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BROCK CONTRACTING,TMP_BROCK_CONTRACTING_7DB2089D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BROUWER CONSTRUCTION,TMP_BROUWER_CONSTRUCTION_EEA03051,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BRUNZ CONSTRUCTION COMPANY INC,TMP_BRUNZ_CONSTRUCTION_COMPANY_INC_E53A5583,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BUILDERS ELECTRIC,TMP_BUILDERS_ELECTRIC_153A55DA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BURSCHVILLE CONSTRUCTION,TMP_BURSCHVILLE_CONSTRUCTION_5CF8D6D3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BURSKI EXCAVATING INC,TMP_BURSKI_EXCAVATING_INC_65DC6BA6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BW EXCAVATING,TMP_BW_EXCAVATING_D955D0A6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+BX CIVIL & CONSTRUCTION INC,TMP_BX_CIVIL_CONSTRUCTION_INC_9DA3F3B6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+C & J CONSTRUCTION,TMP_C_J_CONSTRUCTION_250D8BCD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+C & L EXCAVATING,TMP_C_L_EXCAVATING_50937857,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+C & L LARSON,TMP_C_L_LARSON_5746BFCE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+C J MOYNA & SONS,TMP_C_J_MOYNA_SONS_F2F3075A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CARLETON COMPANIES INC,TMP_CARLETON_COMPANIES_INC_4D14D08C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CARSTENSEN CONTRACTING,TMP_CARSTENSEN_CONTRACTING_6D6C516F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CASPER CONSTRUCTION INC,TMP_CASPER_CONSTRUCTION_INC_5C057448,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CC STEEL LLC,TMP_CC_STEEL_LLC_BC086C05,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CEDAR VALLEY CORP LLC,TMP_CEDAR_VALLEY_CORP_LLC_1C7AC91A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CEDAR VALLEY PAVING,TMP_CEDAR_VALLEY_PAVING_9385542F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CENTRAL SPECIALTIES,TMP_CENTRAL_SPECIALTIES_22205EA6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CENTRAL SPECIALTIES INC 600%,TMP_CENTRAL_SPECIALTIES_INC_600_CEB9BB8E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CENTURY COMPANIES INC,TMP_CENTURY_COMPANIES_INC_B754CC82,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CHARLES VRANA & SON CONSTRUCTION COMPANY,TMP_CHARLES_VRANA_SON_CONSTRUCTION_C_68DE1A1C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CHAS VRANA & SON CONSTRUCTION CO,TMP_CHAS_VRANA_SON_CONSTRUCTION_CO_B8057916,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CHRISTENSEN BROS INC,TMP_CHRISTENSEN_BROS_INC_DE131C5D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CIVIL SPECIALTIES,TMP_CIVIL_SPECIALTIES_E2BAE781,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CJ MOYNA & SONS,TMP_CJ_MOYNA_SONS_99B3AD92,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CJ MOYNA & SONS LLC & PROGRESSIVE STRUCTURES LLC JV,TMP_CJ_MOYNA_SONS_LLC_PROGRESSIVE_ST_4A005AD4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLAFLIN EXCAVATING,TMP_CLAFLIN_EXCAVATING_BADAA0C1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLARK CONSTRUCTION,TMP_CLARK_CONSTRUCTION_62FBA51E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLAUSEN & SONS,TMP_CLAUSEN_SONS_E6616AF8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLEVERINGA EXCAVATING,TMP_CLEVERINGA_EXCAVATING_64970C47,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLOSE CONSTRUCTION COMPANY,TMP_CLOSE_CONSTRUCTION_COMPANY_49978F4E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CLOSS CONSTRUCTION,TMP_CLOSS_CONSTRUCTION_E4F9426B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CMF,TMP_CMF_E2DF1333,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COFELL'S PLUMBING & EXCAVATING,TMP_COFELL_S_PLUMBING_EXCAVATING_DE3C4359,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COLE EXCAVATING LLC,TMP_COLE_EXCAVATING_LLC_AD0F377D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COMMERCIAL ASPHALT,TMP_COMMERCIAL_ASPHALT_4C854260,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COMPLETE CONCRETE INC DBA COMPLETE CONTRACTING SOL,TMP_COMPLETE_CONCRETE_INC_DBA_COMPLE_FCF6E854,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COMSTOCK CONSTRUCTION INC,TMP_COMSTOCK_CONSTRUCTION_INC_074249EA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COMSTOCK CONSTRUCTION INC (WAHPETON),TMP_COMSTOCK_CONSTRUCTION_INC_WAHPET_92047333,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CONCRETE IDEA INC,TMP_CONCRETE_IDEA_INC_715C44F4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CONCRETE TECHNOLOGIES INC,TMP_CONCRETE_TECHNOLOGIES_INC_C7890625,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COOREMAN CONTRACTING INC,TMP_COOREMAN_CONTRACTING_INC_30C29D56,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+COP CONSTRUCTION LLC,TMP_COP_CONSTRUCTION_LLC_81B9AAAD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CORDOVA CONSTRUCTION,TMP_CORDOVA_CONSTRUCTION_20E4E22E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CORELL CONSTRUCTION,TMP_CORELL_CONSTRUCTION_278D3D5E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CORR CONSTRUCTION SERVICES INC,TMP_CORR_CONSTRUCTION_SERVICES_INC_74D8CA4C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CORRIGAN CONSTRUCTION INC,TMP_CORRIGAN_CONSTRUCTION_INC_71F93522,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CRAIG BARDSON EXCAVATING INC,TMP_CRAIG_BARDSON_EXCAVATING_INC_CDA0BE40,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CRAMER & ASSOC INC,TMP_CRAMER_ASSOC_INC_0A2BC1DE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CRAMER & ASSOCIATES,TMP_CRAMER_ASSOCIATES_130E68FA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CRANE CREEK ASPHALT,TMP_CRANE_CREEK_ASPHALT_17ABE9AD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CRANE CREEK ASPHALT A DIVISION OF MATHY CONSTRUCTION CO,TMP_CRANE_CREEK_ASPHALT_A_DIVISION_O_DEB11DCB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CROELL INC,TMP_CROELL_INC_6FA87D84,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CROW RIVER CONSTRUCTION LLC,TMP_CROW_RIVER_CONSTRUCTION_LLC_E3E0A959,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+CS MCCROSSAN CONSTRUCTION,TMP_CS_MCCROSSAN_CONSTRUCTION_67F27D50,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+D & G CONC CONSTRUCTION,TMP_D_G_CONC_CONSTRUCTION_19715327,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+D & G EXCAVATING INC,TMP_D_G_EXCAVATING_INC_E870F84B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAHME CONSTRUCTION,TMP_DAHME_CONSTRUCTION_45D0572D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAHME CONSTRUCTION ABERDEEN,TMP_DAHME_CONSTRUCTION_ABERDEEN_168B8894,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAHME CONSTRUCTION CO,TMP_DAHME_CONSTRUCTION_CO_8A07EF48,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAKOTA FENCE COMPANY,TMP_DAKOTA_FENCE_COMPANY_9E827066,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAKOTA PRAIRIE LANDSCAPES,TMP_DAKOTA_PRAIRIE_LANDSCAPES_E193C653,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAKOTA UNDERGROUND COMPANY,TMP_DAKOTA_UNDERGROUND_COMPANY_22AB472E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAVID VANDERPOL CONSTRUCTION,TMP_DAVID_VANDERPOL_CONSTRUCTION_979E9E4B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DAVIDSON CONSTRUCTION INC,TMP_DAVIDSON_CONSTRUCTION_INC_A67473DD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DECHANTAL EXCAVATING LLC,TMP_DECHANTAL_EXCAVATING_LLC_22F540FC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DELONG CONSTRUCTION INC,TMP_DELONG_CONSTRUCTION_INC_173B027A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DENNIS DREWES INC,TMP_DENNIS_DREWES_INC_0A5C6438,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DENNYS ELECTRIC,TMP_DENNYS_ELECTRIC_A53B3856,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIAMOND J CONSTRUCTION,TMP_DIAMOND_J_CONSTRUCTION_6D78E26C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIAMOND SURFACE INC,TMP_DIAMOND_SURFACE_INC_CA0D5F83,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIG IT UP BACKHOE SERVICE INC,TMP_DIG_IT_UP_BACKHOE_SERVICE_INC_7814E43A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIGG COMMERCIAL LLC,TMP_DIGG_COMMERCIAL_LLC_01203F37,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIRT DYNAMICS,TMP_DIRT_DYNAMICS_44955E10,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIRT MERCHANT INC,TMP_DIRT_MERCHANT_INC_3E40ABA7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIRT SPECIALTIES,TMP_DIRT_SPECIALTIES_F9094D86,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIRTY DEEDS DIRTWORK INC,TMP_DIRTY_DEEDS_DIRTWORK_INC_A6077A03,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIRTY30 EXCAVATING & TRUCKING LLC,TMP_DIRTY30_EXCAVATING_TRUCKING_LLC_F7F8AE17,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIVERSIFIED FOUNDATIONS,TMP_DIVERSIFIED_FOUNDATIONS_F059773F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIVERSIFIED FOUNDATIONS LLC,TMP_DIVERSIFIED_FOUNDATIONS_LLC_372D8834,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIVERSIFIED PAVING,TMP_DIVERSIFIED_PAVING_8B2DC56C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DIXON CONSTRUCTION CO,TMP_DIXON_CONSTRUCTION_CO_FBB6FA24,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DL BARKIE CONSTRUCTION INC,TMP_DL_BARKIE_CONSTRUCTION_INC_FFFEDBC1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DLL EXCAVATING INC,TMP_DLL_EXCAVATING_INC_2A335B2E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DOBOSZENSKI & SONS,TMP_DOBOSZENSKI_SONS_13A84DE0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DOUBLE H PAVING INC,TMP_DOUBLE_H_PAVING_INC_B2D0B3CD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DOUGLAS-KERR UNDERGROUND LLC,TMP_DOUGLAS_KERR_UNDERGROUND_LLC_00775DCB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DRESEL CONTRACTING INC,TMP_DRESEL_CONTRACTING_INC_9B7C5EF2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DRIVEWAY SERVICES,TMP_DRIVEWAY_SERVICES_0C859702,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DUININCK INC,TMP_DUININCK_INC_D5ADC005,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+DUSTROL INC,TMP_DUSTROL_INC_85E64B91,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EAGLE CONSTRUCTION CO INC,TMP_EAGLE_CONSTRUCTION_CO_INC_5E6382B5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EARTHWORK SERVICES,TMP_EARTHWORK_SERVICES_FBE72E28,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EARTHWORKS ENTERPRISES,TMP_EARTHWORKS_ENTERPRISES_57DB9D2C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EBERT COMPANIES,TMP_EBERT_COMPANIES_D10FF4AF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EDLING ELECTRIC,TMP_EDLING_ELECTRIC_EC089BF4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EDLING ELECTRIC INC,TMP_EDLING_ELECTRIC_INC_AA2DBEF7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EDWARD H SCHWARTZ CONSTRUCTION INC,TMP_EDWARD_H_SCHWARTZ_CONSTRUCTION_I_301B5A83,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ELDER CORPORATION,TMP_ELDER_CORPORATION_89373B12,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ELECTRICAL FETZER ELECTRIC,TMP_ELECTRICAL_FETZER_ELECTRIC_EBC2DBC2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ELECTRICAL SKEELS ELECTRIC,TMP_ELECTRICAL_SKEELS_ELECTRIC_2E1976F0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EMERY SAPP & SONS,TMP_EMERY_SAPP_SONS_49441F4C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ENG ESTIMATE,TMP_ENG_ESTIMATE_90FD6E25,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EQUITY BUILDERS & CONSTRUCTION SERVICES INC,TMP_EQUITY_BUILDERS_CONSTRUCTION_SER_EC9EB216,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EST TOTAL,TMP_EST_TOTAL_67ADE821,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EST VALUE,TMP_EST_VALUE_95A0BA3A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EUREKA CONSTRUCTION INC,TMP_EUREKA_CONSTRUCTION_INC_8A69EB12,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EVERSTRONG CONSTRUCTION INC,TMP_EVERSTRONG_CONSTRUCTION_INC_45554D69,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EXCAVATING INC (FARGO),TMP_EXCAVATING_INC_FARGO_460E936E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EXCAVATING INC - FARGO,TMP_EXCAVATING_INC_FARGO_49DE3688,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+EXECUTIVE COMPANIES INC D/B/A EXECUTIVE DESIGN,TMP_EXECUTIVE_COMPANIES_INC_D_B_A_EX_206E911A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FAHRNER ASPHALT SEALERS LLC,TMP_FAHRNER_ASPHALT_SEALERS_LLC_E4ACEFA1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FARDEN CONSTRUCTION INC,TMP_FARDEN_CONSTRUCTION_INC_23C460E9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FEHN COMPANIES,TMP_FEHN_COMPANIES_F3B8BA04,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FEIMER CONSTRUCTION CO,TMP_FEIMER_CONSTRUCTION_CO_6A5C1612,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FEISTNER GRAVEL & EXCAVATION,TMP_FEISTNER_GRAVEL_EXCAVATION_C5479A61,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FELDT PLUMBING & EXCAVATING,TMP_FELDT_PLUMBING_EXCAVATING_A02885BF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGSON,TMP_FERGSON_A35CCF81,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGSON BROTHERS,TMP_FERGSON_BROTHERS_7FA60C03,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGUSON ASPHALT,TMP_FERGUSON_ASPHALT_266E04E7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGUSON ASPHALT PAVING,TMP_FERGUSON_ASPHALT_PAVING_94432896,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGUSON BROTHERS EXCAVATING,TMP_FERGUSON_BROTHERS_EXCAVATING_D25EBA16,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FERGUSON PAVING,TMP_FERGUSON_PAVING_11DC2588,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FETZER ELECTRIC LLC,TMP_FETZER_ELECTRIC_LLC_69EEA760,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FIRST DAKOTA ENTERPRISES,TMP_FIRST_DAKOTA_ENTERPRISES_F20FC98A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FIRST RATE EXCAVATE INC,TMP_FIRST_RATE_EXCAVATE_INC_57EDB084,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FISHER SAND & GRAVEL,TMP_FISHER_SAND_GRAVEL_C71872FA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FLATLAND ENTERPRISE,TMP_FLATLAND_ENTERPRISE_F44F884E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FLICKERTAIL (MAYO),TMP_FLICKERTAIL_MAYO_F82B4E78,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FM ASPHALT LLC,TMP_FM_ASPHALT_LLC_928CAFFC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FOOTHILLS CONTRACTING,TMP_FOOTHILLS_CONTRACTING_C56ED679,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FOOTHILLS CONTRACTING INC,TMP_FOOTHILLS_CONTRACTING_INC_14284F49,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FOREST EXCAVATING,TMP_FOREST_EXCAVATING_5CD4EB3D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FOREST LAKE CONTRACTING,TMP_FOREST_LAKE_CONTRACTING_E191552D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FORT DODGE ASPHALT COMPANY INC,TMP_FORT_DODGE_ASPHALT_COMPANY_INC_A7C38F29,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+FRANZ CONSTRUCTION,TMP_FRANZ_CONSTRUCTION_2CCDE82D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+G & M OUTDOOR SERVICES,TMP_G_M_OUTDOOR_SERVICES_B0807277,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+G M CONTRACTING,TMP_G_M_CONTRACTING_384AD13D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GALE CONSTRUCTION,TMP_GALE_CONSTRUCTION_90B8678E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GARY SMITH CONSTRUCTION,TMP_GARY_SMITH_CONSTRUCTION_84119D01,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GAST CONSTRUCTION CO,TMP_GAST_CONSTRUCTION_CO_DF348257,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GEHRKE INC,TMP_GEHRKE_INC_79E8E586,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GEISLINGER & SONS,TMP_GEISLINGER_SONS_23B982DD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GENERAL EXCAVATING,TMP_GENERAL_EXCAVATING_74E191E0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GEOMORPHIC RESTORATION INC,TMP_GEOMORPHIC_RESTORATION_INC_6571DAC0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GERTKEN BROS INC,TMP_GERTKEN_BROS_INC_4B330939,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GLADEN CONSTRUCTION INC,TMP_GLADEN_CONSTRUCTION_INC_E4F5F8D4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GLADEN'S CONST,TMP_GLADEN_S_CONST_FE983004,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GMH ASPHALT CORPORATION,TMP_GMH_ASPHALT_CORPORATION_8AF186AC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GODBERSEN-SMITH CONSTRUCTION CO & SUBSID,TMP_GODBERSEN_SMITH_CONSTRUCTION_CO_112A9712,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GORDON CONSTRUCTION OF MAHNOMEN INC,TMP_GORDON_CONSTRUCTION_OF_MAHNOMEN_EA6EFC93,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GOWAN CONSTRUCTION INC,TMP_GOWAN_CONSTRUCTION_INC_01DEB881,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRADE A EXCAVATION,TMP_GRADE_A_EXCAVATION_CC049E78,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRAHAM CONSTRUCTION,TMP_GRAHAM_CONSTRUCTION_AD8EE8AC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRANGAARD CONSTRUCTION,TMP_GRANGAARD_CONSTRUCTION_6BEE0684,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRATECH COMPANY LLC,TMP_GRATECH_COMPANY_LLC_ACFEF1EE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRATECH CONSTRUCTION,TMP_GRATECH_CONSTRUCTION_3617B9C4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRAVEL PRODUCTS,TMP_GRAVEL_PRODUCTS_ACB72C0B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRAVES CONSTRUCTION CO INC,TMP_GRAVES_CONSTRUCTION_CO_INC_21B78F0A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRAYTECH CO,TMP_GRAYTECH_CO_43A0249E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRIDOR CONSTRUCTION,TMP_GRIDOR_CONSTRUCTION_7F1F0F7A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GRIMES ASPHALT & PAVING,TMP_GRIMES_ASPHALT_PAVING_692681BF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GROUND WORKS BACKHOE SERVICE LLC,TMP_GROUND_WORKS_BACKHOE_SERVICE_LLC_4A49EE62,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GTI COMPANIES - WHITEWOOD,TMP_GTI_COMPANIES_WHITEWOOD_A40ABA03,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GUS CONSTRUCTION CO INC,TMP_GUS_CONSTRUCTION_CO_INC_4B1EC836,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GUS MILLER,TMP_GUS_MILLER_E9BD1715,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GUTHMILLER EARTHMOVING INC,TMP_GUTHMILLER_EARTHMOVING_INC_CBCFFB72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+GUTHMILLER EARTHMOVINGINCORPORATED,TMP_GUTHMILLER_EARTHMOVINGINCORPORAT_4D3DAF62,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+H & R CONST CO,TMP_H_R_CONST_CO_ACAFF6B2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+H & R CONSTRUCTION,TMP_H_R_CONSTRUCTION_98FEC7CC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+H & W CONTRACTING,TMP_H_W_CONTRACTING_EB264D89,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HALME INC,TMP_HALME_INC_301674C0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAMMERS CONSTRUCTION INC,TMP_HAMMERS_CONSTRUCTION_INC_C771C38B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HANSON EXCAVATING,TMP_HANSON_EXCAVATING_AE47A121,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HANSON'S EXCAVATING INC,TMP_HANSON_S_EXCAVATING_INC_18724F6F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HARPER BROTHERS CONSTRUCTION,TMP_HARPER_BROTHERS_CONSTRUCTION_91947FC5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HATCH GRADING & CONTRACTING,TMP_HATCH_GRADING_CONTRACTING_072052DB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAWKEYE PAVING CORP,TMP_HAWKEYE_PAVING_CORP_28A21DCF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAWKINS CONST CO,TMP_HAWKINS_CONST_CO_161BB073,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAWKINS CONSTRUCTION,TMP_HAWKINS_CONSTRUCTION_2EA22025,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAWKINSON CONSTRUCTION CO INC,TMP_HAWKINSON_CONSTRUCTION_CO_INC_DBD40322,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HAYWORTH ENTERPRISES LLC,TMP_HAYWORTH_ENTERPRISES_LLC_D7FE6FBB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HEARTLAND ASPHALT INC,TMP_HEARTLAND_ASPHALT_INC_3E749E37,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HEAVY CONSTRUCTORS,TMP_HEAVY_CONSTRUCTORS_1661EDF6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HEDSTROM EXCAVATING LLC,TMP_HEDSTROM_EXCAVATING_LLC_81E7B2D9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HELMIN CONSTRUCTION INC,TMP_HELMIN_CONSTRUCTION_INC_1CC96312,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HENDRICKSON TRANSPORTATION LLC,TMP_HENDRICKSON_TRANSPORTATION_LLC_B527034F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HENDRICKSON TRANSPORTATION LLC (HAMBURG IA),TMP_HENDRICKSON_TRANSPORTATION_LLC_H_A67C8374,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HENNING CONSTRUCTION,TMP_HENNING_CONSTRUCTION_0924E0CD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HENNINGSEN CONSTRUCTION INC,TMP_HENNINGSEN_CONSTRUCTION_INC_71AA7861,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HESELTON CONSTRUCTION LLC,TMP_HESELTON_CONSTRUCTION_LLC_E6E6AF98,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HGS LLC,TMP_HGS_LLC_A565EC64,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HGS PARK JOINT VENTURE,TMP_HGS_PARK_JOINT_VENTURE_94F27E85,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HILT CONSTRUCTION,TMP_HILT_CONSTRUCTION_87CC0758,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HJERPE CONSTRUCTION,TMP_HJERPE_CONSTRUCTION_7D3E7A2C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HJERPE CONTRACTING INC,TMP_HJERPE_CONTRACTING_INC_EFE6411E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HLEBECHUK CONSTRUCTION,TMP_HLEBECHUK_CONSTRUCTION_0EAA56D8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOBS EXCAVATING INC,TMP_HOBS_EXCAVATING_INC_5F1C841A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HODGMAN DRAINAGE INC,TMP_HODGMAN_DRAINAGE_INC_D9F572E6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOFFMAN CONST CO,TMP_HOFFMAN_CONST_CO_82DD4AEC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOFFMAN CONSTRUCTION COMPANY,TMP_HOFFMAN_CONSTRUCTION_COMPANY_E2089F87,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOLLAWAY BRIDGE & CULVERT INC,TMP_HOLLAWAY_BRIDGE_CULVERT_INC_BC30A2BD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOLTMEIER CONSTRUCTION INC,TMP_HOLTMEIER_CONSTRUCTION_INC_CB113B97,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOSIER WORLDWIDE,TMP_HOSIER_WORLDWIDE_6FBBB9DC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOSKINSON CONTRACTING,TMP_HOSKINSON_CONTRACTING_B7AC80FB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOUGH INC OF DETROIT LAKES,TMP_HOUGH_INC_OF_DETROIT_LAKES_2293E3B1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOUGH INC OF DL,TMP_HOUGH_INC_OF_DL_B45BFB71,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOULE EXCAVATING LLC,TMP_HOULE_EXCAVATING_LLC_C358F694,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOWARD’S DRIVEWAY INC,TMP_HOWARD_S_DRIVEWAY_INC_2052277F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HOWREY CONSTRUCTION,TMP_HOWREY_CONSTRUCTION_C4A782D2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HSG PARK JOINT VENTURE 2 LLC,TMP_HSG_PARK_JOINT_VENTURE_2_LLC_A660CEB1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HSG-PARK,TMP_HSG_PARK_05B59524,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HUDSON HARDWARE P & H,TMP_HUDSON_HARDWARE_P_H_EDE35A89,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HULSTEIN EXCAVATING INC,TMP_HULSTEIN_EXCAVATING_INC_4EC37AEA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HUOT CONSTRUCTION & SERVICES,TMP_HUOT_CONSTRUCTION_SERVICES_1B9D19FC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HY-TEC CONSTRUCTION OF BRAINERD,TMP_HY_TEC_CONSTRUCTION_OF_BRAINERD_7BA0CE6D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+HY-TEC CONSTRUCTION OF BRAINERD INC,TMP_HY_TEC_CONSTRUCTION_OF_BRAINERD_2841D591,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ICON CONSTRUCTORS LLC,TMP_ICON_CONSTRUCTORS_LLC_66F9B54F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ICON LLC,TMP_ICON_LLC_51CB508B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ICS INC,TMP_ICS_INC_1BAFDDDD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+IDEAL CONSTRUCTION,TMP_IDEAL_CONSTRUCTION_5FA417E3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+IDEAL CONSTRUCTION GROUP INC,TMP_IDEAL_CONSTRUCTION_GROUP_INC_ED98AE09,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+IMS CONTRACTING LLC,TMP_IMS_CONTRACTING_LLC_DDE348A9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+INDUSTRIAL BUILDERS INC,TMP_INDUSTRIAL_BUILDERS_INC_6A747EA1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+INROADS LLC,TMP_INROADS_LLC_3FF7ECE1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+INTERMOUNTAIN SLURRY SEAL INC,TMP_INTERMOUNTAIN_SLURRY_SEAL_INC_2E071CF9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+INTERSTATE IMPROVEMENT INC,TMP_INTERSTATE_IMPROVEMENT_INC_E47DFEBB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+IOWA CIVIL CONTRACTING INC,TMP_IOWA_CIVIL_CONTRACTING_INC_10BADE17,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+IOWA CONTRACTING,TMP_IOWA_CONTRACTING_07FD2511,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+J & J EARTHWORKS,TMP_J_J_EARTHWORKS_CCA3F90D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+J R FERCHE,TMP_J_R_FERCHE_C520515D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JAG CRUSHING - PRICE PER TON $260,TMP_JAG_CRUSHING_PRICE_PER_TON_260_009EFEF4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JASPER CONSTRUCTION SERVICES,TMP_JASPER_CONSTRUCTION_SERVICES_3545138F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JAV CONSTRUCTION,TMP_JAV_CONSTRUCTION_0343D3B3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JAY-R CORP,TMP_JAY_R_CORP_0BE778A7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JB HOLLAD CONSTRUCTION,TMP_JB_HOLLAD_CONSTRUCTION_E376A9DA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JB HOLLAND CONSTRUCTION INC,TMP_JB_HOLLAND_CONSTRUCTION_INC_DF66989B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JB NANICK INC,TMP_JB_NANICK_INC_025B5E99,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JCF BUILDERS LLC,TMP_JCF_BUILDERS_LLC_59D7914D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JCR EXCAVATING,TMP_JCR_EXCAVATING_14B4192C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JD DRIVE,TMP_JD_DRIVE_3A658551,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JD KRAEMER ENTERPRISES,TMP_JD_KRAEMER_ENTERPRISES_C09694DC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JEFF ARGO EXCAVATING,TMP_JEFF_ARGO_EXCAVATING_605F9F0D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JENCO CONSTRUCTION INC,TMP_JENCO_CONSTRUCTION_INC_41EC46E7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JENSEN BROS CONST,TMP_JENSEN_BROS_CONST_18B0A5C6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JENSEN BROTHERS CONSTRUCTION,TMP_JENSEN_BROTHERS_CONSTRUCTION_F3E135AE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JENSEN EXCAVATING & TRUCKING,TMP_JENSEN_EXCAVATING_TRUCKING_9FBD8015,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JENSEN ROCK & SAND,TMP_JENSEN_ROCK_SAND_6FBEFE7D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JEREMT THOMAS CONSTRUCTION,TMP_JEREMT_THOMAS_CONSTRUCTION_8BC4A103,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JIL ASPHALT PAVING,TMP_JIL_ASPHALT_PAVING_F36C6894,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JL THEIS INC,TMP_JL_THEIS_INC_1E55DB10,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JMN CONSTRUCTION LLC,TMP_JMN_CONSTRUCTION_LLC_928CA8C9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JOE RILEY CONSTRUCTION,TMP_JOE_RILEY_CONSTRUCTION_B2BAA051,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JOHN RILEY CONSTRUCTION INC,TMP_JOHN_RILEY_CONSTRUCTION_INC_60D89C06,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JOURNEY CONSTRUCTION,TMP_JOURNEY_CONSTRUCTION_2722DFE9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JOURNEY GROUP COMPANIES,TMP_JOURNEY_GROUP_COMPANIES_86A34F55,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JOURNEY GROUP CONSTRUCTION,TMP_JOURNEY_GROUP_CONSTRUCTION_6230A2E5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JR CIVIL LLC,TMP_JR_CIVIL_LLC_3FE0AD9A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JR FERCHE $ 220428700,TMP_JR_FERCHE_220428700_AAF99B24,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JR FERCHE INC,TMP_JR_FERCHE_INC_7F8E4544,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JUUL UNDERGROUND,TMP_JUUL_UNDERGROUND_98D10CD8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+JV BAILEY COMPANY,TMP_JV_BAILEY_COMPANY_A812F20B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+K & M ENTERPRISE LLC,TMP_K_M_ENTERPRISE_LLC_724B7C14,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+K2 CONSTRUCTION,TMP_K2_CONSTRUCTION_892457EB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+K2 REAL ESTATE DEVELOPMENT,TMP_K2_REAL_ESTATE_DEVELOPMENT_212F31A0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+K2 REAL ESTATE DEVELOPMENT LLC,TMP_K2_REAL_ESTATE_DEVELOPMENT_LLC_79569456,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KATZER CONCRETE INC,TMP_KATZER_CONCRETE_INC_67A132C6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KCI CONSTRUCTION LLC,TMP_KCI_CONSTRUCTION_LLC_4B65A30E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KEA CONSTRUCTORS LLC,TMP_KEA_CONSTRUCTORS_LLC_DBA17C83,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KELLER PAVING & LANDSCAPING INC,TMP_KELLER_PAVING_LANDSCAPING_INC_082D067E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KEMPER CONSTRUCTION,TMP_KEMPER_CONSTRUCTION_5077660A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KEPIDA CONTRACTING,TMP_KEPIDA_CONTRACTING_1C31CC89,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KERN & TABERY INC,TMP_KERN_TABERY_INC_EE31849E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KESTELOOT EXCAVATION,TMP_KESTELOOT_EXCAVATION_0CAE0A6C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KEY CONTRACTING INC,TMP_KEY_CONTRACTING_INC_F5E42A97,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KGM CONTRACTORS INC,TMP_KGM_CONTRACTORS_INC_FCC15E10,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KH CIVIL CONTRACTORS,TMP_KH_CIVIL_CONTRACTORS_9E842731,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KINFE RIVER,TMP_KINFE_RIVER_E77B03E3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KIRCHOFF CONSTRUCTION LLC,TMP_KIRCHOFF_CONSTRUCTION_LLC_E26D6A58,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER - BILLINGS,TMP_KNIFE_RIVER_BILLINGS_EE2F707F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER CONSTRUTION,TMP_KNIFE_RIVER_CONSTRUTION_2148B3BD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER CORP - BLGS,TMP_KNIFE_RIVER_CORP_BLGS_683FFD4C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER CORP DBA KNIFE RIVER MIDWEST,TMP_KNIFE_RIVER_CORP_DBA_KNIFE_RIVER_A3EF6662,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER CORPORATION - BLGS,TMP_KNIFE_RIVER_CORPORATION_BLGS_A3D811A4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNIFE RIVER MATERIALS 600%,TMP_KNIFE_RIVER_MATERIALS_600_77504159,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KNUTSON CONSTRUCTION SERVICES,TMP_KNUTSON_CONSTRUCTION_SERVICES_D79C75BC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KORBY CONTRACTING,TMP_KORBY_CONTRACTING_BCDAAE37,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KOSS CONSTRUCTION COMPANY,TMP_KOSS_CONSTRUCTION_COMPANY_AB48A5C8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KOTZER EXCAVATING INC,TMP_KOTZER_EXCAVATING_INC_643763E5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KPH INC,TMP_KPH_INC_E68ABDE9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KRAEMER EXCAVATING INC,TMP_KRAEMER_EXCAVATING_INC_4C6740B6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KRAEMER NORTH AMERICA LLC,TMP_KRAEMER_NORTH_AMERICA_LLC_B62A9A3F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KRAEMER SITEWORKS,TMP_KRAEMER_SITEWORKS_4A0F3789,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KRAEMER TRUCKING & EXCAVATING INC,TMP_KRAEMER_TRUCKING_EXCAVATING_INC_E4F0DBDB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KRUEGER EXCAVATING OF ALBERT LEA LLC,TMP_KRUEGER_EXCAVATING_OF_ALBERT_LEA_08472BAC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KUECHLE UNDERGROUND INC,TMP_KUECHLE_UNDERGROUND_INC_40C091FC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KURILLA CONTRACTING,TMP_KURILLA_CONTRACTING_FCB05CB5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+KUSSKE CONSTRUCTION COMPANY,TMP_KUSSKE_CONSTRUCTION_COMPANY_F4D6C6B7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LA CARLSON CONTRACTING INC,TMP_LA_CARLSON_CONTRACTING_INC_8F027CCE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LABATO CONSTRUCTION,TMP_LABATO_CONSTRUCTION_018BFEAD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LAKESIDE DRIVE CENTRAL SPECIALTIES,TMP_LAKESIDE_DRIVE_CENTRAL_SPECIALTI_3CC29941,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LAND PRIDE CONSTRUCTION,TMP_LAND_PRIDE_CONSTRUCTION_D7A35627,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LANDALL SERVICES LLC,TMP_LANDALL_SERVICES_LLC_3DC30EA4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LANDWEHR CONSTRUCTION INC,TMP_LANDWEHR_CONSTRUCTION_INC_B6B23949,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LANNY OLSON CONSTRUCTION,TMP_LANNY_OLSON_CONSTRUCTION_73E979E5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LARSON CONTRACTING,TMP_LARSON_CONTRACTING_665BE61E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LARSON EXCAVATING CONTRACTORS INC,TMP_LARSON_EXCAVATING_CONTRACTORS_IN_401EBBF0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LATOUR CONSTRUCTION INC,TMP_LATOUR_CONSTRUCTION_INC_043D676A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEHTOLA BUILDERS INC,TMP_LEHTOLA_BUILDERS_INC_5B0326F0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEIN TRANSPORTATION,TMP_LEIN_TRANSPORTATION_E0420BE7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEITCH EXCAVATING,TMP_LEITCH_EXCAVATING_D9DC2AA6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEROY & SONS,TMP_LEROY_SONS_B1433EF3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEVANEN UNDERGROUND LLC,TMP_LEVANEN_UNDERGROUND_LLC_DA0E3433,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LEVEL CONTRACTING,TMP_LEVEL_CONTRACTING_5EF88601,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LHC INCORPORATED,TMP_LHC_INCORPORATED_94840112,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LIBERTY DIRTWORKS,TMP_LIBERTY_DIRTWORKS_D8602C8B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LIDEL CONSTRUCTION,TMP_LIDEL_CONSTRUCTION_8CA19F5D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LIEBER CONSTRUCTION INC,TMP_LIEBER_CONSTRUCTION_INC_FE679C34,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LIEN TRANSPORTATION CO,TMP_LIEN_TRANSPORTATION_CO_1A5B1361,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LINHART CONSTRUCTION,TMP_LINHART_CONSTRUCTION_687F0164,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LINNCO INC,TMP_LINNCO_INC_E4568359,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LITZAU FARM DRAINAGE,TMP_LITZAU_FARM_DRAINAGE_31CDED8A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LL & SONS EXCAVATING INC,TMP_LL_SONS_EXCAVATING_INC_3C935E38,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LODGE CONSTRUCTION INC,TMP_LODGE_CONSTRUCTION_INC_C0C19F85,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LOISEAU CONSTRUCTION INC,TMP_LOISEAU_CONSTRUCTION_INC_129600FF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LT COMPANIES DBA PARKWAY CONSTRUCTION,TMP_LT_COMPANIES_DBA_PARKWAY_CONSTRU_35F2FF4E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LT COMPANIES INC DBA PARKWAY CONSTRUCTION,TMP_LT_COMPANIES_INC_DBA_PARKWAY_CON_423A6EBD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LUNDA CONSTRUCTION COMPANY,TMP_LUNDA_CONSTRUCTION_COMPANY_2B0E759E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+LYLE WILKENS INC,TMP_LYLE_WILKENS_INC_2F0AF6C5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+M & K BRIDGE CONSTRUCTION INC,TMP_M_K_BRIDGE_CONSTRUCTION_INC_F34727D5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+M & M CONTRACTORS LLC,TMP_M_M_CONTRACTORS_LLC_B45855B5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MA DEATLEY CONSTRUCTION,TMP_MA_DEATLEY_CONSTRUCTION_615CD27A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MAGNEY CONSTRUCTION,TMP_MAGNEY_CONSTRUCTION_95109A31,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MAINLINE CONTRACTING INC,TMP_MAINLINE_CONTRACTING_INC_42291454,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MALONET-ODIN,TMP_MALONET_ODIN_B8E3A9C8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MANATT'S INC,TMP_MANATT_S_INC_90D3D261,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MARK BOSEL EXCAVATING,TMP_MARK_BOSEL_EXCAVATING_9755C262,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MARK LEE ASPHALT,TMP_MARK_LEE_ASPHALT_B598C217,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MARK LEE EXCAVATING,TMP_MARK_LEE_EXCAVATING_D816CE72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MARTIN CONSTRUCTION INC,TMP_MARTIN_CONSTRUCTION_INC_B6A9DAAA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MARVIN TRETTER INC,TMP_MARVIN_TRETTER_INC_9F7A5646,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MASTER CONSTRUCTION,TMP_MASTER_CONSTRUCTION_88C511DA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MASTER CONSTRUCTION CO INC,TMP_MASTER_CONSTRUCTION_CO_INC_2CA4EDB2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MATHY CONSTRUCTION COMPANY,TMP_MATHY_CONSTRUCTION_COMPANY_84C806C0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MAX STEININGER INC,TMP_MAX_STEININGER_INC_AA5E495B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MAXXDRAINAGE LLC,TMP_MAXXDRAINAGE_LLC_B3F88515,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MAYO CONSTRUCTION COMPANY INC,TMP_MAYO_CONSTRUCTION_COMPANY_INC_202F193A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MCCUEN CONSTRUCTION,TMP_MCCUEN_CONSTRUCTION_6AA01E72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MCNAMARA CONTRACTING INC,TMP_MCNAMARA_CONTRACTING_INC_13097100,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ME COLLINS CONTRACTING CO,TMP_ME_COLLINS_CONTRACTING_CO_73EB8CAC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MENNING EXCAVATING INC,TMP_MENNING_EXCAVATING_INC_D2F402B7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MENSING CONSTRUCTION,TMP_MENSING_CONSTRUCTION_703A3FC7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+METRO CONSTRUCTION,TMP_METRO_CONSTRUCTION_8A0D9F3B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MEYER CONSTRUCTION,TMP_MEYER_CONSTRUCTION_9712F7BB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MEYER CONTRACTING INC,TMP_MEYER_CONTRACTING_INC_4617A158,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MICHELS CORP,TMP_MICHELS_CORP_4425AE24,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MICHELS FOUNDATIONS DIVISION OF MICHELS CONSTRUCT,TMP_MICHELS_FOUNDATIONS_DIVISION_OF_C1BE3353,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MICHELS ROAD & STONE,TMP_MICHELS_ROAD_STONE_7124F5FD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MICHELS ROAD & STONE INC 636%,TMP_MICHELS_ROAD_STONE_INC_636_8E6E8D3D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MID MINNESOTA HOT MIX,TMP_MID_MINNESOTA_HOT_MIX_5EC2D2B8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MID MN HOT MIX,TMP_MID_MN_HOT_MIX_C3C5D317,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIDLAND CONTRACTING INC,TMP_MIDLAND_CONTRACTING_INC_0063679C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIDWEST CONTRACTING LLC,TMP_MIDWEST_CONTRACTING_LLC_1F5BB213,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIKE COLEMAN CONSTRUCTION INC,TMP_MIKE_COLEMAN_CONSTRUCTION_INC_E9720BA4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIKKELSEN AGGREGATES LLC,TMP_MIKKELSEN_AGGREGATES_LLC_8D2E7BD4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIKKELSON AGGREGATES,TMP_MIKKELSON_AGGREGATES_6303D2C2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MILLENNUIM CONSTRUCTION & CONS,TMP_MILLENNUIM_CONSTRUCTION_CONS_38AE5C8E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINGER CONSTRUCTION CO INC,TMP_MINGER_CONSTRUCTION_CO_INC_186963D4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINGER CONSTRUCTION COMPANIES INC,TMP_MINGER_CONSTRUCTION_COMPANIES_IN_5C50EE82,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINGER CONSTRUCTION COMPANY INC,TMP_MINGER_CONSTRUCTION_COMPANY_INC_71AE4BE8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINNESOTA NATIVE LANDSCAPES,TMP_MINNESOTA_NATIVE_LANDSCAPES_AA295275,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINNOWA CONSTRUCTION INC,TMP_MINNOWA_CONSTRUCTION_INC_0844F0F9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINNOWA CONSTRUCTIONINC,TMP_MINNOWA_CONSTRUCTIONINC_67FDD87E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MINOT PAVING CO LLC,TMP_MINOT_PAVING_CO_LLC_E496A90F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MIX QUOTES: DRIVEWAY SERVICES,TMP_MIX_QUOTES_DRIVEWAY_SERVICES_B3294DDE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MMI EXCAVATION & RECLAMATION LLC,TMP_MMI_EXCAVATION_RECLAMATION_LLC_C7AE3E33,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MN PAVING & MATERIALS,TMP_MN_PAVING_MATERIALS_40257054,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MNL,TMP_MNL_AA022066,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MOLITOR EXCAVATING INC,TMP_MOLITOR_EXCAVATING_INC_094EEA2F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MORRIS INC,TMP_MORRIS_INC_C630E3FA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MOYNA CJ & SONS LLC,TMP_MOYNA_CJ_SONS_LLC_DC46D7E6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MPM,TMP_MPM_8D3BB99C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MR PAVING & EXCAVATING,TMP_MR_PAVING_EXCAVATING_81D1BE51,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MUNICIPAL PIPE TOOL COMPANY,TMP_MUNICIPAL_PIPE_TOOL_COMPANY_9C63FDD5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MUSSON BROS INC,TMP_MUSSON_BROS_INC_CE280E02,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MUTH ELECTRIC,TMP_MUTH_ELECTRIC_223F5C5F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MYRL & ROY PAVING,TMP_MYRL_ROY_PAVING_BD461C38,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MYRL & ROY'S PAVING,TMP_MYRL_ROY_S_PAVING_3907F2F5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MYRL & ROY'S PAVING INC,TMP_MYRL_ROY_S_PAVING_INC_21EE0032,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+MYRL & ROYS INC,TMP_MYRL_ROYS_INC_7EC77491,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NAASTAD BROTHERS INC,TMP_NAASTAD_BROTHERS_INC_BE0EB32C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NELSON & ROCK CONTRACTING INC,TMP_NELSON_ROCK_CONTRACTING_INC_78A35BCA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NEUVIRTH CONSTRUCTION INC,TMP_NEUVIRTH_CONSTRUCTION_INC_5FA4D4D2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NEW LOOK CONTRACTING INC,TMP_NEW_LOOK_CONTRACTING_INC_149572DD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NIELSEN BLACKTOPPING & CONCRETE INC,TMP_NIELSEN_BLACKTOPPING_CONCRETE_IN_D06848C2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NIELSEN BLACKTOPPING INC,TMP_NIELSEN_BLACKTOPPING_INC_9BF67719,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NIELSON BLACKTOPPING & CONC,TMP_NIELSON_BLACKTOPPING_CONC_CB7CFAF2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NLC LLC,TMP_NLC_LLC_3495C22F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NOLZ DRAGLINE & CONST CO,TMP_NOLZ_DRAGLINE_CONST_CO_ADE54762,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NOLZ DRAGLINE & CONSTRUCTION,TMP_NOLZ_DRAGLINE_CONSTRUCTION_725AC964,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NOLZ DRAGLINE & CONSTRUCTION COMPANY INC,TMP_NOLZ_DRAGLINE_CONSTRUCTION_COMPA_761B210D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NOOMEN EXCAVATING LLC,TMP_NOOMEN_EXCAVATING_LLC_89803CB3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NOR-SON CONSTRUCTION LLC,TMP_NOR_SON_CONSTRUCTION_LLC_D455E55F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORCON CORPORATION,TMP_NORCON_CORPORATION_21EEFE41,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORRIS ASPHALT PAVING CO LC,TMP_NORRIS_ASPHALT_PAVING_CO_LC_EFE5000F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTH CONSTRUCTION,TMP_NORTH_CONSTRUCTION_901A4473,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTH OAKS PAVING,TMP_NORTH_OAKS_PAVING_16D69BCB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTH PINE AGGREGATE,TMP_NORTH_PINE_AGGREGATE_341135AA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTH STAR CONSTRUCTION,TMP_NORTH_STAR_CONSTRUCTION_E4264B60,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTH VALLEY INC,TMP_NORTH_VALLEY_INC_3CC7B269,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHDALE CONSTRUCTION COMPANY INC,TMP_NORTHDALE_CONSTRUCTION_COMPANY_I_52C5CDEC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHEN IMPROVEMENT,TMP_NORTHEN_IMPROVEMENT_F4B867B7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN IMPROVEMENT COMPANY - FARGO,TMP_NORTHERN_IMPROVEMENT_COMPANY_FAR_5F60D420,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN IMPROVEMENT COMPANY 672%,TMP_NORTHERN_IMPROVEMENT_COMPANY_672_33202364,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN IMPROVEMENT COMPANY-BISMARCK,TMP_NORTHERN_IMPROVEMENT_COMPANY_BIS_7528F28E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN IMPROVEMENTS,TMP_NORTHERN_IMPROVEMENTS_5FFC3D0C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN IMPROVREMENT,TMP_NORTHERN_IMPROVREMENT_705C14CD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN LINES CONTRACTING,TMP_NORTHERN_LINES_CONTRACTING_1084C546,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHERN PAVING INC,TMP_NORTHERN_PAVING_INC_204527F1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHLAND CONSTRUCTORS A DIVISION OF MATHY CONSTRUCTION CO,TMP_NORTHLAND_CONSTRUCTORS_A_DIVISIO_298160C3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHLAND CONSTRUCTORS OF DULUTH A DIVISION OF MATHY CONSTRUCTION,TMP_NORTHLAND_CONSTRUCTORS_OF_DULUTH_E34E1A0D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHLAND CONSTRUCTORS OF DULUTH INC,TMP_NORTHLAND_CONSTRUCTORS_OF_DULUTH_0F9918B9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHLAND GRADING & EXCAVATING,TMP_NORTHLAND_GRADING_EXCAVATING_4DFE60AE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHWEST,TMP_NORTHWEST_BCC43D9D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHWEST ASPHALT,TMP_NORTHWEST_ASPHALT_86E7559B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+NORTHWEST LANDSCAPING INC,TMP_NORTHWEST_LANDSCAPING_INC_E77885D5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OBAN CONSTRUCTION,TMP_OBAN_CONSTRUCTION_692F7DCF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ODIN ENVIRONMENTAL,TMP_ODIN_ENVIRONMENTAL_FD2BB1D8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OEL CONSTRUCTION SERVICES,TMP_OEL_CONSTRUCTION_SERVICES_78F55A3F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OFTEDAL CONSTRUCTION INC,TMP_OFTEDAL_CONSTRUCTION_INC_49DEE52E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OLAF ANDERSON CONSTRUCTION,TMP_OLAF_ANDERSON_CONSTRUCTION_1698CC66,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMANN,TMP_OMANN_F6F19EE8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMANN BROTHERS PAVING,TMP_OMANN_BROTHERS_PAVING_F047B406,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MDIWEST INC,TMP_OMG_MDIWEST_INC_2E6E89E7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST - MPM,TMP_OMG_MIDWEST_MPM_49F0DF50,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST DBA DES MOINES ASPHALT & PAVING,TMP_OMG_MIDWEST_DBA_DES_MOINES_ASPHA_68FC3DD7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST DBA DSM ASPHALT,TMP_OMG_MIDWEST_DBA_DSM_ASPHALT_EC31B99D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST DBA MINNESOTA PAVING,TMP_OMG_MIDWEST_DBA_MINNESOTA_PAVING_D5ED14CE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST INC D/B/A DES MOINES ASPHALT & PAVING,TMP_OMG_MIDWEST_INC_D_B_A_DES_MOINES_B4831B2E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OMG MIDWEST INC DBA MINNESOTA PAVING & MATERIALS,TMP_OMG_MIDWEST_INC_DBA_MINNESOTA_PA_66863A27,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OPDAHL FARM DRAINAGE LLC,TMP_OPDAHL_FARM_DRAINAGE_LLC_27CCAD4D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OPP CONSTRUCTION LLC,TMP_OPP_CONSTRUCTION_LLC_878F0A2F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OSCAR RENDA CONTRACTING,TMP_OSCAR_RENDA_CONTRACTING_16D97DC7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+OTTER TAIL AGGREGATE,TMP_OTTER_TAIL_AGGREGATE_FF9B0E12,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PARAMOUNT BUILDERS,TMP_PARAMOUNT_BUILDERS_315C7CAF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PARAS CONTRACTING,TMP_PARAS_CONTRACTING_5AA5EAA9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PARK CONSTRUCTION COMPANY,TMP_PARK_CONSTRUCTION_COMPANY_A9842B5F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PARKSTONE CONTRACTING,TMP_PARKSTONE_CONTRACTING_DE4C7901,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PARRET CON,TMP_PARRET_CON_C7D2EEF9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PAUL REED CONSTRUCTION & SUPPLY,TMP_PAUL_REED_CONSTRUCTION_SUPPLY_01958FD7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PAULSEN INC,TMP_PAULSEN_INC_B4A4EB87,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PCI ROADS,TMP_PCI_ROADS_722C8301,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PCIROADS LLC,TMP_PCIROADS_LLC_308F4E1B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PEARSON EXCAVATING,TMP_PEARSON_EXCAVATING_433AF2AB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PEDERSEN EXCAVATING INC,TMP_PEDERSEN_EXCAVATING_INC_23E48C9C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PERRETT CONSTRUCTION,TMP_PERRETT_CONSTRUCTION_C4F62F93,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PETERSON COMPANIES INC,TMP_PETERSON_COMPANIES_INC_1B79E0D5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PETERSON CONTRACTORS INC,TMP_PETERSON_CONTRACTORS_INC_5330E366,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PETERSON SHEET METAL,TMP_PETERSON_SHEET_METAL_17CD7C35,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PICARD EXCAVATING,TMP_PICARD_EXCAVATING_8792A3AD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PIRC-TOBIN CONSTRUCTION,TMP_PIRC_TOBIN_CONSTRUCTION_8721BDD7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+POST CONSTRUCTION,TMP_POST_CONSTRUCTION_C057502E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+POST CONSTRUCTION INC,TMP_POST_CONSTRUCTION_INC_4344DC79,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRAHM CONSTRUCTION INC,TMP_PRAHM_CONSTRUCTION_INC_13DD2813,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRAIRIE STATES TRUCKING,TMP_PRAIRIE_STATES_TRUCKING_4F5AA0C4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRATT'S AFFORDABLE EXCAVATINGINC,TMP_PRATT_S_AFFORDABLE_EXCAVATINGINC_224A2FCB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRECISION DIRTWORKS,TMP_PRECISION_DIRTWORKS_5F388D19,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRECISION FARM DRAINAGE & EXCAVATING,TMP_PRECISION_FARM_DRAINAGE_EXCAVATI_BF6B6ACA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRECISION GRADING LLC,TMP_PRECISION_GRADING_LLC_1FC3600A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRIC-TOBIN CONSTRUCTION,TMP_PRIC_TOBIN_CONSTRUCTION_D51BF1B7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRINCE INC,TMP_PRINCE_INC_6E76182C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PROGRESSIVE STRUCTURES LLC,TMP_PROGRESSIVE_STRUCTURES_LLC_ABFD4123,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PROJECT ONE CONSTRUCTION INC,TMP_PROJECT_ONE_CONSTRUCTION_INC_3CE67B27,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PRUNTY CONSTRUCTION COMPANY INC,TMP_PRUNTY_CONSTRUCTION_COMPANY_INC_18F30258,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+PWS INC,TMP_PWS_INC_F405E3C9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+QUICK ENTERPRISES,TMP_QUICK_ENTERPRISES_D9C695DA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+QUINN CONSTRUCTION,TMP_QUINN_CONSTRUCTION_87AA06F3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+R & E ENTERPRISES OF MANKATO INC,TMP_R_E_ENTERPRISES_OF_MANKATO_INC_17A7A2D8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+R & G CONSTRUCTION,TMP_R_G_CONSTRUCTION_BD6BFDA7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+R & R EXCAVATING INC,TMP_R_R_EXCAVATING_INC_591FFC5F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+R A MUECKE SAND & GRAVEL,TMP_R_A_MUECKE_SAND_GRAVEL_4C90B4E3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+R-WAY PUMPING,TMP_R_WAY_PUMPING_C4E74127,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RACHEL CONTRACTING LLC,TMP_RACHEL_CONTRACTING_LLC_D5F2817C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RAMSEY COMPANIES,TMP_RAMSEY_COMPANIES_423E86E5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RCS CONSTRUCTION INC,TMP_RCS_CONSTRUCTION_INC_18D2A134,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RECHNAGEL CONSTRUCTION MANAGEMENT,TMP_RECHNAGEL_CONSTRUCTION_MANAGEMEN_8D48F3C5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RECHNAGLE CONST MANAGEMENT - PRICE PER TON $279,TMP_RECHNAGLE_CONST_MANAGEMENT_PRICE_E0EF61E5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RED LAKE BUILDERS INC,TMP_RED_LAKE_BUILDERS_INC_CA170C3A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RED ROCK TILING & EXCAVATING,TMP_RED_ROCK_TILING_EXCAVATING_E105F8C4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RED ROCKS TILING & EXCAVATION,TMP_RED_ROCKS_TILING_EXCAVATION_912698AF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REDSTONE CONSTRUCTION,TMP_REDSTONE_CONSTRUCTION_A159BC3D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REEDE CONSTRUCTION INC,TMP_REEDE_CONSTRUCTION_INC_9A949E54,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REEDE CONSTRUCTION INC 603%,TMP_REEDE_CONSTRUCTION_INC_603_87CAD561,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REIERSON CONSTRUCTION INC,TMP_REIERSON_CONSTRUCTION_INC_F664584E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REILLY CONSTRUCTION CO INC,TMP_REILLY_CONSTRUCTION_CO_INC_F6165C91,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+REINER CONTRACTING,TMP_REINER_CONTRACTING_3DF13DB6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RICE LAKE WEST INC,TMP_RICE_LAKE_WEST_INC_5C7D0554,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RIDGEWAY DRIVE CENTRAL SPECIALTIES,TMP_RIDGEWAY_DRIVE_CENTRAL_SPECIALTI_8EA0665D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RIGEL EXCAVATING LLC,TMP_RIGEL_EXCAVATING_LLC_6D48AB92,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RIGID EXCAVATING,TMP_RIGID_EXCAVATING_9E660F49,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RIVERSIDE CONTRACTING INC,TMP_RIVERSIDE_CONTRACTING_INC_BC122284,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RJ ZAVAROL,TMP_RJ_ZAVAROL_695BF4F6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RJ ZAVORAL & SONS,TMP_RJ_ZAVORAL_SONS_311DECCB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RL LARSON EXCAVATING,TMP_RL_LARSON_EXCAVATING_2A954BC4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RMS DRAINAGE & EXCAVATION,TMP_RMS_DRAINAGE_EXCAVATION_7CAFA458,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROADWAY SERVICES,TMP_ROADWAY_SERVICES_1EB2E54E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROBERT R SCHROEDER CONSTRUCTION INC,TMP_ROBERT_R_SCHROEDER_CONSTRUCTION_F0C6D1E3,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROCHESTER SAND & GRAVEL A DIV OF MATHY CONST CO,TMP_ROCHESTER_SAND_GRAVEL_A_DIV_OF_M_5DBD64EB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROGERS CONSTRUCTION INC,TMP_ROGERS_CONSTRUCTION_INC_52304B51,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROGGE EXCAVATING,TMP_ROGGE_EXCAVATING_1B07091E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROGNES BROS EXCAVATING INC,TMP_ROGNES_BROS_EXCAVATING_INC_53500F32,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RONGLIEN EXCAVATING,TMP_RONGLIEN_EXCAVATING_E772CB62,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RONGLIEN EXCAVATING INC,TMP_RONGLIEN_EXCAVATING_INC_DF84F061,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROUNDS CONSTRUCTION,TMP_ROUNDS_CONSTRUCTION_5EA8DE8B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ROUNDS CONSTRUCTION CO,TMP_ROUNDS_CONSTRUCTION_CO_DFB557D5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RP CONSTRUCTORS LLC,TMP_RP_CONSTRUCTORS_LLC_46717DE6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RTS SHEARING LLC,TMP_RTS_SHEARING_LLC_B7D74C84,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RUM RIVER,TMP_RUM_RIVER_455D6E2A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RUNGE ENTERPRISES INC,TMP_RUNGE_ENTERPRISES_INC_3A0E9623,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RUSSELL LAWLER CONSTRUCTION LLC,TMP_RUSSELL_LAWLER_CONSTRUCTION_LLC_7530AB15,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RUTJENS CONSTRUCTION,TMP_RUTJENS_CONSTRUCTION_4883A600,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+RYAN CONTRACTING CO,TMP_RYAN_CONTRACTING_CO_09178B72,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+S & R REINFORCING INC,TMP_S_R_REINFORCING_INC_8EE23FEF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+S J LOUIS CONSTRUCTION,TMP_S_J_LOUIS_CONSTRUCTION_7BBB93FC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+S R WEIDEMA INC,TMP_S_R_WEIDEMA_INC_0C3FF430,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SAFETY SIGNS,TMP_SAFETY_SIGNS_B166CCBE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SANDERS CONSTRUCTION,TMP_SANDERS_CONSTRUCTION_47FE6A99,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHAFER EXCAVATING,TMP_SCHAFER_EXCAVATING_8F73FEC2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHELLINGER CONSTRUCTION,TMP_SCHELLINGER_CONSTRUCTION_FF78E1A2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHERBENSKE,TMP_SCHERBENSKE_EBFDA7D1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHMIDT CONSTRUCTION,TMP_SCHMIDT_CONSTRUCTION_E009FF18,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHMIDT CONSTRUCTION INC,TMP_SCHMIDT_CONSTRUCTION_INC_F8D4340C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHUMACHER EXCAVATING INC,TMP_SCHUMACHER_EXCAVATING_INC_A2D41B49,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHWARTS CONSTRUCTION,TMP_SCHWARTS_CONSTRUCTION_850D7228,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHWARTZ EXCAVATING,TMP_SCHWARTZ_EXCAVATING_93C740AC,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCHWARTZLE CONSTRUCTION,TMP_SCHWARTZLE_CONSTRUCTION_6D8DA258,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SCI CONCRETE,TMP_SCI_CONCRETE_9941E09C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SEAL PROS,TMP_SEAL_PROS_744ED64B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SEALPROS PAVING,TMP_SEALPROS_PAVING_50FFDFD6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SELLAND CONSTRUCTION,TMP_SELLAND_CONSTRUCTION_FEE3B723,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SELLIN BROS,TMP_SELLIN_BROS_B1CF6467,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SELLIN BROTHERS INC,TMP_SELLIN_BROTHERS_INC_E6EAE24E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SELLY EXCAVATING INC,TMP_SELLY_EXCAVATING_INC_FB031BB2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SENTRY LLC,TMP_SENTRY_LLC_2691F69D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SEPH CONSTRUCTION & EXCAVATING,TMP_SEPH_CONSTRUCTION_EXCAVATING_FE069F3C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SFC CIVIL,TMP_SFC_CIVIL_1CD445E0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHAFER CONTRACTING CO INC,TMP_SHAFER_CONTRACTING_CO_INC_22AD7CAE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHARPE ENTERPRISES INC,TMP_SHARPE_ENTERPRISES_INC_0499A581,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHEBENSKE,TMP_SHEBENSKE_EF07F681,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHERBINSKE INC,TMP_SHERBINSKE_INC_719A628E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHIFT GENERAL CONTRACTING,TMP_SHIFT_GENERAL_CONTRACTING_645F4579,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SHORELINE LANDSCAPING & CONTRACTING,TMP_SHORELINE_LANDSCAPING_CONTRACTIN_71BB336D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SIMON CONTRACTORS OF SD,TMP_SIMON_CONTRACTORS_OF_SD_79863271,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SIMON CONTRACTORS OF SOUTH DAKOTA INC,TMP_SIMON_CONTRACTORS_OF_SOUTH_DAKOT_DE65CF9E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SITE WORKS INC,TMP_SITE_WORKS_INC_AA55C24B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SITEWORKS INC,TMP_SITEWORKS_INC_88C46265,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SITEWORX EXCAVATION & DEVELOPMENT COMPAN,TMP_SITEWORX_EXCAVATION_DEVELOPMENT_EC021DE5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SITEWORX EXCAVATION & DEVELOPMENT COMPANY,TMP_SITEWORX_EXCAVATION_DEVELOPMENT_679B7E53,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SK CONSTRUCTION,TMP_SK_CONSTRUCTION_668A6B38,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SLETTEN CONSTRUCTION COMPANY,TMP_SLETTEN_CONSTRUCTION_COMPANY_107C87F5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SM HENTGES & SONS,TMP_SM_HENTGES_SONS_1D44EFC9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SNOW CONTRACTING LLC,TMP_SNOW_CONTRACTING_LLC_A4909A46,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SON CONSTRUCTION LLC,TMP_SON_CONSTRUCTION_LLC_53453780,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SONNENBERG EXCAVATING,TMP_SONNENBERG_EXCAVATING_9D18DC26,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SOUKUP CONSTRUCTION,TMP_SOUKUP_CONSTRUCTION_225935E9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SPARKY'S CONSTRUCTION,TMP_SPARKY_S_CONSTRUCTION_8C859541,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SPENCER QUARRIES INCORPORATED,TMP_SPENCER_QUARRIES_INCORPORATED_B7113898,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SPIELMAN EXCAVATING,TMP_SPIELMAN_EXCAVATING_C364A22E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SPUD CONSTRUCTION NON-RESPONSIVE MC WELLS CONTRACTING,TMP_SPUD_CONSTRUCTION_NON_RESPONSIVE_60B697BD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STATE LINE EXCAVATING,TMP_STATE_LINE_EXCAVATING_DC376DBE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STATES BORDERS CONSTRUCTION,TMP_STATES_BORDERS_CONSTRUCTION_92EDDD57,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEEN CONSTRUCTION-DUS,TMP_STEEN_CONSTRUCTION_DUS_02581973,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEEN CONSTURCTION - DUS,TMP_STEEN_CONSTURCTION_DUS_0A5E700F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STERNQUIST CONSTRUCTION,TMP_STERNQUIST_CONSTRUCTION_DAF70D71,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEVE BEYLUND CONST,TMP_STEVE_BEYLUND_CONST_99E63831,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEVE BEYLUND CONSTRUCTION,TMP_STEVE_BEYLUND_CONSTRUCTION_C60A90D1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEVE HARRIS CONSTRUCTION,TMP_STEVE_HARRIS_CONSTRUCTION_1E67B4BD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STEVE LEHRKAMP ENTERPRISES INC,TMP_STEVE_LEHRKAMP_ENTERPRISES_INC_6B4B2CF5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STORMS CONSTRUCTION,TMP_STORMS_CONSTRUCTION_B37F2168,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STRATA CORP - BISMARCK,TMP_STRATA_CORP_BISMARCK_93EB45F6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STREET CONST CO,TMP_STREET_CONST_CO_EAEF04B0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+STRUCTURAL SPECIALTIES INC,TMP_STRUCTURAL_SPECIALTIES_INC_046D0D09,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SUBSURFACE INC,TMP_SUBSURFACE_INC_EDB743A5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SUBSURFCO LLC,TMP_SUBSURFCO_LLC_9136E598,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SUN ELECTRIC INC,TMP_SUN_ELECTRIC_INC_BAB70BBD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SUN ELECTRIC INC (FARGO ND),TMP_SUN_ELECTRIC_INC_FARGO_ND_43EFD402,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SUNDRE SAND & GRAVEL,TMP_SUNDRE_SAND_GRAVEL_81E38C05,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SVOBODA EXCAVATING INC,TMP_SVOBODA_EXCAVATING_INC_1BF138FA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWAN COMPANIES,TMP_SWAN_COMPANIES_AF1E3649,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWANBERG CONSTRUCTION,TMP_SWANBERG_CONSTRUCTION_6584EE2D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWANSON AGGREGATE,TMP_SWANSON_AGGREGATE_1D236470,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWEETMAN SAND & GRAVEL,TMP_SWEETMAN_SAND_GRAVEL_1203BD4C,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWENSON & SONS CONSTRUCTION,TMP_SWENSON_SONS_CONSTRUCTION_F4EAE9C2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+SWINGEN CONSTRUCTION CO,TMP_SWINGEN_CONSTRUCTION_CO_7B9009F4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+T & M CONCRETE,TMP_T_M_CONCRETE_45CFF23E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+T & R CONTRACTING,TMP_T_R_CONTRACTING_A9CDBD97,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+T1 CONSTRUCTION LLC (NORTH BEND OR),TMP_T1_CONSTRUCTION_LLC_NORTH_BEND_O_F0B35BB5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TAB CONSTRUCTION,TMP_TAB_CONSTRUCTION_2F7B68F5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TAND CONSTRUCTION,TMP_TAND_CONSTRUCTION_2C5F4DFD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TAND CONSTRUCTION LLC,TMP_TAND_CONSTRUCTION_LLC_76273EB7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TE UNDERGROUND LLC,TMP_TE_UNDERGROUND_LLC_D8A43398,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TEC CONSTRUCTION OF BRAINERD INC,TMP_TEC_CONSTRUCTION_OF_BRAINERD_INC_D879B41A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TEN POINT CONSTRUCTION CO,TMP_TEN_POINT_CONSTRUCTION_CO_A76975D7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TEPA GENERAL CONTRACTORS,TMP_TEPA_GENERAL_CONTRACTORS_65CB6384,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TERAFLEX GROUP LLC,TMP_TERAFLEX_GROUP_LLC_606029ED,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THE JOSEPH COMPANY,TMP_THE_JOSEPH_COMPANY_533DF366,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THE MATHIOWETZ CONST CO,TMP_THE_MATHIOWETZ_CONST_CO_CC53D22B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THE MATHIOWETZ CONSTRUCTION COMPANY,TMP_THE_MATHIOWETZ_CONSTRUCTION_COMP_44AA016A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THE SPRUCE VALLEY CORPORATION,TMP_THE_SPRUCE_VALLEY_CORPORATION_185FF105,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THE TRADESMEN CONSTRUCTION INC,TMP_THE_TRADESMEN_CONSTRUCTION_INC_69EC3921,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THIELEN EXCAVATING LLC,TMP_THIELEN_EXCAVATING_LLC_47B3D4CD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THREE OAKS CONSTRUCTION INC,TMP_THREE_OAKS_CONSTRUCTION_INC_F40F99ED,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+THYGESON CONSTRUCTION,TMP_THYGESON_CONSTRUCTION_59A4397E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TI-ZACK CONCRETE,TMP_TI_ZACK_CONCRETE_ADFEA35B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TIMMONS CONSTRUCTION INC,TMP_TIMMONS_CONSTRUCTION_INC_F4EB35C2,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TK CONCRETE INC,TMP_TK_CONCRETE_INC_C8A5D894,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TNT AGGREGATES LLC,TMP_TNT_AGGREGATES_LLC_2DD74363,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TNT CONST/KERKHOFF INC,TMP_TNT_CONST_KERKHOFF_INC_3FC35643,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TNT CONSTRUCTION GROUP LLC,TMP_TNT_CONSTRUCTION_GROUP_LLC_D7387BF9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TOM'S BACKHOE SERVICE INC,TMP_TOM_S_BACKHOE_SERVICE_INC_C1B3D882,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TOP GRADE CONCRETE LLC,TMP_TOP_GRADE_CONCRETE_LLC_F1422E7A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TOWNE & COUNTRY EXCAVATING LLC,TMP_TOWNE_COUNTRY_EXCAVATING_LLC_DB702A43,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TRADESMAN CONSTRUCTION,TMP_TRADESMAN_CONSTRUCTION_53036592,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TRANSPORTATION CO,TMP_TRANSPORTATION_CO_C2155E2D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TRIBAL 1,TMP_TRIBAL_1_12F23510,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TRU-FORM CONSTRUCTION,TMP_TRU_FORM_CONSTRUCTION_83C97339,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TS DIRT WORKS,TMP_TS_DIRT_WORKS_D5F84914,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TS DIRTWORKS,TMP_TS_DIRTWORKS_CCCB66D0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TSCHIGGFRIE EXCAVATING,TMP_TSCHIGGFRIE_EXCAVATING_3A079A42,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TTK ENTERPRISES,TMP_TTK_ENTERPRISES_1C068C96,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TUNHEIM CONSTRUCTION LLC,TMP_TUNHEIM_CONSTRUCTION_LLC_BD76DBA6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+TWIN CITIES UTILITIES LLC,TMP_TWIN_CITIES_UTILITIES_LLC_B6F41434,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ULLAND BROS INC,TMP_ULLAND_BROS_INC_E708DEA1,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ULLAND BROTHERS INC,TMP_ULLAND_BROTHERS_INC_8DD12047,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+UNDERGROUND CONNECTIONS,TMP_UNDERGROUND_CONNECTIONS_3F27E8CF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+UNI STUDENT GROUP,TMP_UNI_STUDENT_GROUP_FD8BC5A5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+UNITED CONTRACTORS,TMP_UNITED_CONTRACTORS_10E458C0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+UNITED CRANE & EXCAVATION,TMP_UNITED_CRANE_EXCAVATION_CA2A72E4,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+URBAN COMPANIES,TMP_URBAN_COMPANIES_8768BCD7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+US SITEWORK,TMP_US_SITEWORK_78BC2426,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+UTILITY SYSTEMS OF AMERICA INC,TMP_UTILITY_SYSTEMS_OF_AMERICA_INC_0857FC75,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VADA CONTRACTING LLC,TMP_VADA_CONTRACTING_LLC_80066D5E,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VALLEY EARTHWORKS INC,TMP_VALLEY_EARTHWORKS_INC_09B2B754,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VALLEY GRADING INC,TMP_VALLEY_GRADING_INC_C8B99F5A,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VALLEY PAVING INC,TMP_VALLEY_PAVING_INC_F69120DE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VANDER POI EXCAVATING,TMP_VANDER_POI_EXCAVATING_218B85FD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VANDER POL EXCAVATING LLC,TMP_VANDER_POL_EXCAVATING_LLC_4D2150BB,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VANDER WINDT & SONS,TMP_VANDER_WINDT_SONS_43E1D22B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VEIT & COMPANY INC,TMP_VEIT_COMPANY_INC_2C237ADF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VEIT CONSTRUCTION,TMP_VEIT_CONSTRUCTION_E3DE66A9,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VIET & COMPANY,TMP_VIET_COMPANY_22325F9D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VISU-SEWER,TMP_VISU_SEWER_EA642AA6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VOGT'S DIRT SERVICE LLC,TMP_VOGT_S_DIRT_SERVICE_LLC_B918BCCD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VONTZ PAVING,TMP_VONTZ_PAVING_CE445734,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+VOSS PLUMBING & HEATING,TMP_VOSS_PLUMBING_HEATING_AF7F9FF0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+W W CLYDE & CO,TMP_W_W_CLYDE_CO_B4E195D6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WADSWORTH BROTHERS CONSTRUCTION CO INC,TMP_WADSWORTH_BROTHERS_CONSTRUCTION_977A69CF,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WAGNER COMPANY,TMP_WAGNER_COMPANY_C64A9B39,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WAGNER CONSTRUCTION INC DBA WAGNER PLACE,TMP_WAGNER_CONSTRUCTION_INC_DBA_WAGN_D01D2A43,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WALTON CONSTRUCTION,TMP_WALTON_CONSTRUCTION_68D0AC26,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WEBER MULTI SERVICES,TMP_WEBER_MULTI_SERVICES_DC138ADD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WEBSTER SCALE INC,TMP_WEBSTER_SCALE_INC_27E35F56,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WENCL CONSTRUCTION INC,TMP_WENCL_CONSTRUCTION_INC_4B21AFC8,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WENDELL LORENTZ CONSTRUCTION,TMP_WENDELL_LORENTZ_CONSTRUCTION_686EB614,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WERNER CONSTRUCTION,TMP_WERNER_CONSTRUCTION_3A14C3B5,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WESTERN CONSTRUCTION INC,TMP_WESTERN_CONSTRUCTION_INC_9E080669,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WESTERN MUNICIPAL CONSTRUCTION,TMP_WESTERN_MUNICIPAL_CONSTRUCTION_942FBE0D,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WICKENS CONSTRUCTION,TMP_WICKENS_CONSTRUCTION_A6D0A306,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WICKS CONSTRUCTION,TMP_WICKS_CONSTRUCTION_3FA80507,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WILLIAMS EXCAVATING,TMP_WILLIAMS_EXCAVATING_01B5AA2B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WILLIAMS EXCAVATION & SEEDING,TMP_WILLIAMS_EXCAVATION_SEEDING_670149CA,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WILLIAMS EXCAVATION LLC,TMP_WILLIAMS_EXCAVATION_LLC_FAE79E42,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WILSON CONSTRUCTION,TMP_WILSON_CONSTRUCTION_9782B952,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WINBERG COMPANIES LLC,TMP_WINBERG_COMPANIES_LLC_8189C63B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WINN CONSTRUCTION INC,TMP_WINN_CONSTRUCTION_INC_7659C530,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WINTER CONTRACTING LLC,TMP_WINTER_CONTRACTING_LLC_798385D0,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WIPF EXCAVATING LLC,TMP_WIPF_EXCAVATING_LLC_A589C805,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WM D SCEPANIAK,TMP_WM_D_SCEPANIAK_8650D753,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WM MUELLER & SONS,TMP_WM_MUELLER_SONS_2E7113E6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WOELBER EXCAVATING INC,TMP_WOELBER_EXCAVATING_INC_D8C33610,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WOELBER EXCAVATING LLC,TMP_WOELBER_EXCAVATING_LLC_26792EBE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WW BLACKTOPPING,TMP_WW_BLACKTOPPING_E93CF1E7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WW CLYDE & CO,TMP_WW_CLYDE_CO_FBC3F6D6,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WYODAK ENERGY SERVICES,TMP_WYODAK_ENERGY_SERVICES_6EF8B15F,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+WYRICK CONSTRUCTION,TMP_WYRICK_CONSTRUCTION_E62586F7,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+YOUNG EXCAVATING,TMP_YOUNG_EXCAVATING_2761C3CE,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+YOUNG EXCAVATING INC,TMP_YOUNG_EXCAVATING_INC_064F9CAD,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+YOUNG GUN CONSTRUCTION,TMP_YOUNG_GUN_CONSTRUCTION_AFD9434B,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+YOUNG GUNS,TMP_YOUNG_GUNS_B96B3E31,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ZANDSTRA CONSTRUCTION INCORPORATED,TMP_ZANDSTRA_CONSTRUCTION_INCORPORAT_21588B20,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
+ZENITH TECH INC,TMP_ZENITH_TECH_INC_01515791,,,pending_client_review,auto-seeded one-to-one from historical BIDDER_NAME; no merge applied
