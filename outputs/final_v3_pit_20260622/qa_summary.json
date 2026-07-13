@@ -1,0 +1,19 @@
+{
+  "prediction_rows": 238752,
+  "projects": 1591,
+  "competitors": 722,
+  "candidate_rule_versions": [
+    "v3_90d_warmup_targeted_fallback"
+  ],
+  "logistic_score_nulls": 0,
+  "competitor_name_nulls": 0,
+  "pit_feature_count": 28,
+  "test_projects": 243,
+  "winner_candidate_hits": 216,
+  "winner_top5_hits": 96,
+  "winner_top10_hits": 129,
+  "winner_denominator": 243,
+  "winner_hit5_recalc": 0.3950617283950617,
+  "winner_hit10_recalc": 0.5308641975308642,
+  "all_metric_values_match": true
+}

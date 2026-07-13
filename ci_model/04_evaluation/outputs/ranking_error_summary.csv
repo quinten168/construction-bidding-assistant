@@ -1,0 +1,13 @@
+method,error_category,actual_bidders
+logistic_regression,captured,3279
+logistic_regression,ranking_miss,2129
+logistic_regression,filter_miss,1147
+logistic_regression,rare_project_type,287
+rule_based_score,ranking_miss,2685
+rule_based_score,captured,2627
+rule_based_score,filter_miss,1147
+rule_based_score,rare_project_type,383
+shallow_decision_tree,captured,3176
+shallow_decision_tree,ranking_miss,2222
+shallow_decision_tree,filter_miss,1147
+shallow_decision_tree,rare_project_type,297

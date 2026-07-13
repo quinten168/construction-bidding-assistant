@@ -1,0 +1,21 @@
+{
+  "rows": 274982,
+  "projects": 1591,
+  "competitors": 803,
+  "positive_rate": 0.02488162861569121,
+  "average_candidates_per_project": 172.83595223130106,
+  "missing_competitor_ids": 0,
+  "winner_without_bid_errors": 0,
+  "projects_with_multiple_winners": 0,
+  "bidder_count_mismatched_projects": 0,
+  "bidder_count_summary": {
+    "count": 1591.0,
+    "mean": 4.3004399748585795,
+    "std": 2.207532800246015,
+    "min": 1.0,
+    "25%": 3.0,
+    "50%": 4.0,
+    "75%": 5.0,
+    "max": 15.0
+  }
+}

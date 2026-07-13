@@ -1,0 +1,23 @@
+Review the following competitor analysis narrative:
+
+Competitor: {competitor_name}
+Bid Likelihood: {probability:.0%}
+Threat Level: {threat_level}
+Narrative: "{narrative}"
+
+Check ALL of the following:
+1. Is the threat level ({threat_level}) consistent with the bid likelihood ({probability:.0%})? (HIGH requires ≥70%, MEDIUM requires 40–69%, LOW requires <40%)
+2. Are all claims grounded in actual signal values? No invented data?
+3. Is the language clear for a non-technical business reader? No ML jargon?
+4. Are there any logical contradictions?
+5. Does every scope match claim (paving/grading/structure/etc.) appear in the signals list?
+
+If all checks pass, return the narrative unchanged.
+If any check fails, rewrite the narrative to fix the issue.
+
+Output JSON only, no other text:
+{
+  "passed": true or false,
+  "issues_found": ["issue 1", "issue 2"],
+  "revised_narrative": "final narrative text"
+}

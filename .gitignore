@@ -2,3 +2,18 @@
 .Rhistory
 __pycache__/
 .python_packages/
+
+# Large generated data files (reproduce by running the pipeline)
+ci_model/data/
+**/data/feature_store.csv
+**/data/training_data.csv
+**/data/model1_cv_results.csv
+**/data/model1.pkl
+outputs/model1/ranking_predictions.csv
+ci_model/model_1_wenyu/outputs/model1/ranking_predictions.csv
+ci_model/model_1_wenyu/outputs/model1/missed_actual_bidders.csv
+ci_model/model_1_wenyu/outputs/model1/top_k_recall.csv
+ci_model/model_1_wenyu/03_training/outputs/ranking_predictions.csv
+ci_model/competitor_prediction_model/03_training/outputs/ranking_predictions.csv
+ci_model/competitor_prediction_model/03_training/outputs/*.csv
+ci_model/03_training/outputs/ranking_predictions.csv

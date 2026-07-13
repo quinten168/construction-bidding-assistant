@@ -1,0 +1,5 @@
+rule,projects_evaluated,projects_with_winner_in_pool,winner_hit_rate_at_5,winner_hit_rate_at_10,winner_hit_rate_at_20,precision_at_5,precision_at_10,precision_at_20,notes
+distance,243,224,0.1473,0.1518,0.1518,0.0807,0.0436,0.0218,"nearest self-owned MN pit to project site; MN projects only, 20/726 companies have a computable distance"
+capacity_size_fit,243,224,0.0,0.0134,0.058,0.0082,0.0128,0.0136,project-material-scale fit vs company's historical avg qty per material (>=3 prior bids required per material)
+capacity_volume,243,224,0.1786,0.25,0.2991,0.1432,0.0914,0.0572,"log(total historical bid dollar volume), no project-fit involved"
+historical_winrate_state,243,219,0.0137,0.0183,0.032,0.0041,0.0066,0.0074,candidate pool restricted to same-state history only; score = win rate for this project_type in-state (falls back to overall in-state win rate)

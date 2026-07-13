@@ -1,0 +1,481 @@
+{
+  "model": "manual_weighted_gini_decision_tree",
+  "selected_max_depth": 5,
+  "selected_min_samples_leaf": 200,
+  "feature_columns": [
+    "prior_bid_rate",
+    "mix_ton_capacity_ratio",
+    "days_since_last_bid",
+    "same_state_prior_bid_count",
+    "same_county_prior_bid_count",
+    "same_project_type_bid_count",
+    "ever_bid_same_project_type",
+    "paving_match",
+    "grading_match",
+    "base_match",
+    "log_mix_tons",
+    "log_grading_yards",
+    "log_base_tons",
+    "log_shldr_tons",
+    "log_mill_sy",
+    "log_crush_tons",
+    "log_stock_tons",
+    "project_size_proxy",
+    "pit_applicable",
+    "project_location_missing",
+    "nearest_open_pit_miles",
+    "open_pits_lt_10mi",
+    "open_pits_10_25mi",
+    "open_pits_25_50mi",
+    "best_open_pit_rating_within_25mi",
+    "avg_open_pit_rating_within_25mi",
+    "nearest_unknown_access_pit_miles",
+    "unknown_access_pits_within_25mi",
+    "nearest_owned_or_restricted_pit_miles",
+    "owned_or_restricted_pits_within_25mi",
+    "best_owned_or_restricted_pit_rating_within_25mi",
+    "has_competitor_restricted_pit_within_25mi",
+    "competitor_pit_distance_advantage_vs_open"
+  ],
+  "tree": {
+    "probability": 0.49999999999999994,
+    "samples": 95266,
+    "positives": 2487,
+    "feature": "same_county_prior_bid_count",
+    "threshold": 0.5,
+    "left": {
+      "probability": 0.38067682100435807,
+      "samples": 88467,
+      "positives": 1434,
+      "feature": "prior_bid_rate",
+      "threshold": 0.03092551423423065,
+      "left": {
+        "probability": 0.2704037691586795,
+        "samples": 73193,
+        "positives": 720,
+        "feature": "same_state_prior_bid_count",
+        "threshold": 1.2000000000000002,
+        "left": {
+          "probability": 0.18024564110650199,
+          "samples": 39765,
+          "positives": 233,
+          "feature": "nearest_owned_or_restricted_pit_miles",
+          "threshold": 60.929603928833366,
+          "left": {
+            "probability": 0.7849212504053805,
+            "samples": 202,
+            "positives": 18,
+            "feature": null,
+            "threshold": null,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "probability": 0.16932492066339497,
+            "samples": 39563,
+            "positives": 215,
+            "feature": "prior_bid_rate",
+            "threshold": 0.004198895733422538,
+            "left": {
+              "probability": 0.12352830730002126,
+              "samples": 25241,
+              "positives": 95,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.23966752037408995,
+              "samples": 14322,
+              "positives": 120,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "probability": 0.35547330593188564,
+          "samples": 33428,
+          "positives": 487,
+          "feature": "nearest_unknown_access_pit_miles",
+          "threshold": 13.561759798994,
+          "left": {
+            "probability": 0.26746636813209607,
+            "samples": 22182,
+            "positives": 215,
+            "feature": "nearest_owned_or_restricted_pit_miles",
+            "threshold": 48.36789860470617,
+            "left": {
+              "probability": 0.7443537804511761,
+              "samples": 442,
+              "positives": 32,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.2405207640608659,
+              "samples": 21740,
+              "positives": 183,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.4804252860167027,
+            "samples": 11246,
+            "positives": 272,
+            "feature": "grading_match",
+            "threshold": 0.5,
+            "left": {
+              "probability": 0.4069301043236163,
+              "samples": 7032,
+              "positives": 127,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.5707040788700148,
+              "samples": 4214,
+              "positives": 145,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "right": {
+        "probability": 0.6465692630532962,
+        "samples": 15274,
+        "positives": 714,
+        "feature": "ever_bid_same_project_type",
+        "threshold": 0.5,
+        "left": {
+          "probability": 0.40718987130181505,
+          "samples": 7633,
+          "positives": 138,
+          "feature": "prior_bid_rate",
+          "threshold": 0.121141894077499,
+          "left": {
+            "probability": 0.352343365690608,
+            "samples": 6679,
+            "positives": 96,
+            "feature": "same_state_prior_bid_count",
+            "threshold": 2.4000000000000004,
+            "left": {
+              "probability": 0.27299596760609735,
+              "samples": 4917,
+              "positives": 49,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.505530374046844,
+              "samples": 1762,
+              "positives": 47,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.6320851950943913,
+            "samples": 954,
+            "positives": 42,
+            "feature": "days_since_last_bid",
+            "threshold": 6.5,
+            "left": {
+              "probability": 0.5588003878759739,
+              "samples": 670,
+              "positives": 22,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.7386427869695575,
+              "samples": 284,
+              "positives": 20,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "probability": 0.7525655719389907,
+          "samples": 7641,
+          "positives": 576,
+          "feature": "prior_bid_rate",
+          "threshold": 0.05847080847080841,
+          "left": {
+            "probability": 0.6133930387729363,
+            "samples": 3824,
+            "positives": 156,
+            "feature": "same_project_type_bid_count",
+            "threshold": 8.5,
+            "left": {
+              "probability": 0.5801298084137863,
+              "samples": 3500,
+              "positives": 125,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.7978576025565629,
+              "samples": 324,
+              "positives": 31,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.8218233359419729,
+            "samples": 3817,
+            "positives": 420,
+            "feature": "competitor_pit_distance_advantage_vs_open",
+            "threshold": -54.53704898548692,
+            "left": {
+              "probability": 0.18485904793973987,
+              "samples": 331,
+              "positives": 2,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.8355994339190659,
+              "samples": 3486,
+              "positives": 418,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "probability": 0.8723927380268721,
+      "samples": 6799,
+      "positives": 1053,
+      "feature": "prior_bid_rate",
+      "threshold": 0.020255654935857674,
+      "left": {
+        "probability": 0.7757490934652623,
+        "samples": 3276,
+        "positives": 278,
+        "feature": "same_state_prior_bid_count",
+        "threshold": 1.5,
+        "left": {
+          "probability": 0.613270225353458,
+          "samples": 981,
+          "positives": 40,
+          "feature": "days_since_last_bid",
+          "threshold": 51.178260869565214,
+          "left": {
+            "probability": 0.7075282601750276,
+            "samples": 312,
+            "positives": 19,
+            "feature": null,
+            "threshold": null,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "probability": 0.5473018468033826,
+            "samples": 669,
+            "positives": 21,
+            "feature": "prior_bid_rate",
+            "threshold": 0.002995421067409651,
+            "left": {
+              "probability": 0.6005591869578603,
+              "samples": 413,
+              "positives": 16,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.42632235794921935,
+              "samples": 256,
+              "positives": 5,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "probability": 0.8119009921660574,
+          "samples": 2295,
+          "positives": 238,
+          "feature": "unknown_access_pits_within_25mi",
+          "threshold": 96.66304347826086,
+          "left": {
+            "probability": 0.826843286978114,
+            "samples": 1974,
+            "positives": 224,
+            "feature": "grading_match",
+            "threshold": 0.5,
+            "left": {
+              "probability": 0.7894265176914157,
+              "samples": 1117,
+              "positives": 102,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.8609608759667522,
+              "samples": 857,
+              "positives": 122,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.6297985613952576,
+            "samples": 321,
+            "positives": 14,
+            "feature": null,
+            "threshold": null,
+            "left": null,
+            "right": null
+          }
+        }
+      },
+      "right": {
+        "probability": 0.913202317645834,
+        "samples": 3523,
+        "positives": 775,
+        "feature": "same_project_type_bid_count",
+        "threshold": 5.6152173913043475,
+        "left": {
+          "probability": 0.8764589902417383,
+          "samples": 2422,
+          "positives": 387,
+          "feature": "same_county_prior_bid_count",
+          "threshold": 1.5,
+          "left": {
+            "probability": 0.8302796184847546,
+            "samples": 1406,
+            "positives": 163,
+            "feature": "same_project_type_bid_count",
+            "threshold": 0.5,
+            "left": {
+              "probability": 0.751665248536078,
+              "samples": 533,
+              "positives": 40,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.85951340006042,
+              "samples": 873,
+              "positives": 123,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.9134279761957086,
+            "samples": 1016,
+            "positives": 224,
+            "feature": "unknown_access_pits_within_25mi",
+            "threshold": 46.95434782608695,
+            "left": {
+              "probability": 0.9274093911858573,
+              "samples": 686,
+              "positives": 175,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.8667598471540041,
+              "samples": 330,
+              "positives": 49,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "right": {
+          "probability": 0.9530537098583076,
+          "samples": 1101,
+          "positives": 388,
+          "feature": "days_since_last_bid",
+          "threshold": 10.876086956521737,
+          "left": {
+            "probability": 0.9622863737490432,
+            "samples": 714,
+            "positives": 290,
+            "feature": "same_project_type_bid_count",
+            "threshold": 10.991304347826087,
+            "left": {
+              "probability": 0.9455439450320564,
+              "samples": 318,
+              "positives": 101,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "probability": 0.9714787889666726,
+              "samples": 396,
+              "positives": 189,
+              "feature": null,
+              "threshold": null,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "probability": 0.9267417416116566,
+            "samples": 387,
+            "positives": 98,
+            "feature": null,
+            "threshold": null,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    }
+  }
+}

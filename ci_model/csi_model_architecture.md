@@ -1,274 +1,784 @@
-# CSI Competitor Intelligence System — Model Architecture Reference
+# CSI Competitor Intelligence System — Model 1 Architecture Reference
+
+## Current Scope
+
+This draft focuses only on **Model 1: Competitor Participation and Threat Assessment**.
+
+Model 2, CSI multi-factor decision support, is intentionally out of scope for the current build. It should not be implemented until the Model 1 candidate filter, participation ranking, and threat evidence are stable and auditable.
+
+Model 1 follows this sequence:
+
+```text
+Candidate filtering
+-> Participation ranking
+-> Threat / aggressiveness assessment for likely bidders
+```
+
+This separates two different questions:
+
+1. Which competitors should be considered reasonable candidates for this project?
+2. Among those candidates, which competitors are most likely to bid and most threatening if they appear?
+
+---
+
+## Open Questions and Planned Experiments
+
+This architecture should be treated as an MVP design plus a set of planned experiments. The first version should prioritize transparent candidate selection, clean labels, and auditable evidence before adding more complex predictive modeling.
+
+### Job Budget Definition
+
+The model needs a consistent `job_budget` or `estimated_value` field, but the current data may contain several possible proxies:
+
+- Lowest actual bid.
+- Engineer's estimate, where available and reliable.
+- CSI's internal estimate, if available later.
+- Project size proxy based on material quantities.
+
+For the MVP, `estimated_value` can use the lowest observed bid in historical data as a practical proxy for completed bid events. This should be documented as a historical training proxy, not as information that would always be known before a future bid.
+
+### Candidate-Filter Rules
+
+The first candidate filter should be transparent and rule-based. It should be evaluated before it is finalized.
+
+Core evaluation questions:
+
+- Does the filter retain actual bidders?
+- Does it retain the winner?
+- Does it retain near-low bidders?
+- Does it keep the candidate set small enough to be useful?
+- Does it capture region-specific and emerging competitors?
+
+### Candidate Window Experiments
+
+Recent activity windows are experiments, not fixed business facts. Do not include every window at once, because that will keep expanding the candidate pool.
+
+Test separate filter versions:
+
+- `Filter_v1_90d`
+- `Filter_v2_180d`
+- `Filter_v3_current_season`
+- `Filter_v4_12m`
+- `Filter_v5_24m`
+
+For the first definition of current season, use:
+
+```text
+Which rule set retains the actual bidders while keeping the candidate set small enough to be useful?
+```
+
+Evaluation should compare:
+
+- Candidate recall.
+- Recall@5.
+- Recall@10.
+- Winner recall.
+- Near-low bidder recall.
+- Number of candidates per project.
+- Whether emerging competitors are captured.
+
+### Candidate Window Experiments
+
+Recent activity windows should be treated as hyperparameters / rule experiments, not business facts. The following windows should be tested:
+
+- 90-day activity.
+- 180-day activity.
+- Current-season activity.
+- 12-month activity.
+- 24-month activity.
+
+The final candidate-filter configuration may find, for example, that 90 days is too short, 24 months is too broad, and current season + 12 months gives the best tradeoff.
+
+Evaluation should compare:
+
+- Candidate recall.
+- Recall@5.
+- Recall@10.
+- Average candidate count.
+- Median candidate count.
+- 90th percentile candidate count.
+- Whether emerging competitors are captured.
+
+The final configuration may show, for example, that 90 days is too short, 24 months is too broad, and current season + 12 months gives the best tradeoff.
+
+### Pit Future Refinement
+
+Pit and material-access features should be treated as future refinements, not MVP dependencies. The system should run without pit data. Once CSI provides a reliable pit / plant / access table, the model can add:
+
+Future pit features may include:
+
+- Distance to nearest eligible accessible pit or plant.
+- Ownership and access rights.
+- Material suitability.
+- Traffic-level or specification compatibility.
+- Local active-project or plant advantage.
+
+---
 
 ## Overview
 
-Two-model pipeline that answers two distinct questions:
+The system should be framed as **decision support**, not a pure binary classifier. The goal is to help CSI understand:
 
-- **Model 1:** Given a new job, which competitors are likely to bid?
-- **Model 2:** Given the competitive landscape, should CSI bid on this job?
+- Which competitors are likely to bid.
+- Why those competitors are likely to bid.
+- Which competitors may be aggressive or threatening.
+- How CSI's own position, capacity, risk, and operational fit affect the bid decision.
+
+The recommended structure is a **two-model pipeline**:
+
+- **Model 1: Competitor Participation and Threat Assessment**
+  - Candidate filtering.
+  - Likely bidder ranking.
+  - Competitor threat / aggressiveness assessment.
+- **Model 2: CSI Multi-Factor Decision Support**
+  - CSI competitive position.
+  - Capacity and operational fit.
+  - Risks.
+  - Recommendation and explanation.
+
+The final output may include a GO / REVIEW / NO-GO recommendation, but that recommendation should summarize an evidence-based assessment. It should not be presented as a direct conversion from a single win-probability score.
 
 ---
 
 ## Full Pipeline
 
-```
+```text
 New Job Comes In
-       ↓
-  [ Stage 1: Candidate Generation ]
-  Filter full competitor pool (50-100) down to ~10-20
-  plausible candidates for THIS job
-  (geography / recent activity / county+type relevance)
-       ↓
-  [ Model 1: Competitor Bid Prediction ]
-  Run only candidate competitors against this job
-       ↓
-  Competitor probability scores
-  + derived competition features
-  (n_bidders, top_threat, etc.)
-       ↓
-  [ Model 2: CSI Go / No-Go Recommendation ]
-  + CSI's own position features
-  + Job features
-       ↓
-  Win probability score
-       ↓
-  GO / NO-GO recommendation + SHAP explanation
+       |
+       v
+Project Feature Extraction
+  - Location
+  - Bid date / season
+  - Project type
+  - Material quantities
+  - Estimated value / job budget proxy
+       |
+       v
+Competitor Entity Resolution
+  - Raw bidder name -> competitor_unit_id
+  - Operating unit, not parent company, is the modeling unit
+  - Parent company retained for reporting context
+       |
+       v
+Model 1: Competitor Participation and Threat Assessment
+  1. Candidate filtering
+  2. Likely bidder ranking
+  3. Competitor threat / aggressiveness output
+       |
+       v
+Model 2: CSI Multi-Factor Decision Support
+  1. CSI competitive position
+  2. Capacity and operational fit
+  3. Risks and uncertainty
+  4. Recommendation and explanation
 ```
 
 ---
 
-## Model 1: Competitor Bid Prediction
+## Competitor Entity Management
 
-### Problem Framing
+The participation and workload models should use **competitor operating units**, not standardized company names or ultimate parent companies.
 
-Binary classification. One model covers all competitors.
+For example, Knife River Minnesota and Knife River North Dakota may share the same parent company but should be modeled separately if they:
 
-- Each training row = one **(job × competitor) pair**
-- Label = `did_bid` (1 = competitor bid on this job, 0 = did not)
-- At inference: run candidate competitors against a new job, rank by predicted probability
+- Bid from different offices or regions.
+- Maintain separate workload and capacity.
+- Follow different pricing behavior.
+- Do not share operational capacity across divisions.
 
-### Stage 1: Candidate Generation (for large competitor pools)
+Company names should not be used as permanent IDs. Each operating unit should have a stable `competitor_unit_id`, with raw historical names mapped through an alias table.
 
-With a small competitor set, scoring every (job × competitor) pair is fine. With **50-100 competitors** it breaks down: each job generates ~100 rows but only 3-5 are real bidders, so 95%+ of rows are negatives — and most are *trivial* negatives (a company 200 miles away that has never bid in the county). These dominate the data, and the model can reach 96% accuracy by predicting all-zero while learning nothing useful.
+Core reference tables:
 
-**Fix: two-stage retrieval → ranking** (same pattern as a recommender system).
-
-- **Stage 1 (candidate generation):** cheap rules narrow the full pool to ~10-20 plausible candidates for *this* job.
-- **Stage 2 (ranking):** the XGBoost model below scores only those candidates.
-
-Keep a **single pooled model** — do NOT train one model per competitor. The model learns *behavioral patterns* (close pit + matching type + free capacity → likely bid); per-competitor identity is captured through features, not separate models. More competitors just means more rows, which helps a pooled model.
-
-**Candidate generation filters** (tune for high recall, not precision):
-
-| Filter | Rule |
+| Table | Purpose |
 |---|---|
-| Geography | Competitor has at least one pit within X miles of the job (reuses `pit_distance`) |
-| Recent activity | Competitor has bid at least once in the last 12-18 months |
-| Relevance | Competitor has bid in this county OR on this job_type at least once historically |
+| `competitor_entities.csv` | Stable operating-unit registry |
+| `competitor_aliases.csv` | Raw bidder name to `competitor_unit_id` mapping |
+| `competitor_priority.csv` | Temporary or client-approved priority competitor list |
+| `competitor_relationships.csv` | Future parent / acquisition / division relationships |
+| `regional_competitors.csv` | Future region-specific competitor activation rules |
 
-The metric that matters here is **recall**: what % of actual bidders survive the filter. Target 95%+. A bidder dropped at Stage 1 can never be recovered at Stage 2, so keep the filters loose.
+Pending mappings should remain explicitly marked as `pending_client_review`. Do not permanently merge Knife River divisions, acquired companies, or ambiguous DBA relationships before client confirmation.
 
-**Apply candidate generation at BOTH train and inference time** so the row distribution matches. Training rows become `(job × candidate)` pairs, not `(job × all competitors)`.
+---
 
-**Effect on class balance:** after filtering (~15 candidates, ~4 bidders) the positive rate rises to ~25-30%, far healthier and less reliant on `scale_pos_weight`.
+## Model 1: Competitor Participation and Threat Assessment
 
-**Frequency baseline:** before trusting the model, rank competitors purely by historical bid count (optionally conditioned on county/type). The model must beat this baseline to justify itself — it earns its place only by adding job-specific context (this job is near competitor X's pit; competitor Y is usually active but currently at capacity) that a static ranking misses. This same ranking doubles as a candidate-generation signal.
+### Purpose
 
-### Training Data Structure
+Model 1 answers two linked questions:
 
+1. Which competitor operating units are likely to bid on this project?
+2. Among those likely bidders, which competitors appear most threatening or aggressive?
+
+The first MVP should begin with rule-based candidate filtering and simple ranking baselines before adding more complex models.
+
+### Training Unit
+
+Each training row should represent:
+
+```text
+one project x one competitor operating unit
 ```
-job_id | competitor | job_county | job_type | job_budget | ... | comp_pit_distance | ... | did_bid
-  001  |     A      |   Hennepin |  paving  |    2100000 | ... |              12.3 | ... |       1
-  001  |     B      |   Hennepin |  paving  |    2100000 | ... |              34.1 | ... |       0
-  001  |     C      |   Hennepin |  paving  |    2100000 | ... |               8.7 | ... |       0
-  002  |     A      |   Stearns  |  bridge  |    5400000 | ... |              41.2 | ... |       0
+
+Core label columns:
+
+| Column | Meaning |
+|---|---|
+| `did_bid` | 1 if the competitor bid on the project, otherwise 0 |
+| `did_win` | 1 if the competitor was the winner / lowest bidder under the selected win rule |
+| `bid_amount` | Actual bid amount when `did_bid = 1` |
+| `gap_to_low` | `(bid_amount - low_bid_amount) / low_bid_amount` |
+| `is_near_low` | 1 if `gap_to_low <= near_low_threshold` |
+| `was_rule_candidate` | 1 if the competitor entered through the rule candidate filter |
+| `candidate_source` | Rule path(s) that placed the competitor in the candidate set |
+
+### Near-Low Definition
+
+The MVP should use a fixed near-low threshold so evaluation metrics are stable:
+
+```text
+is_near_low = gap_to_low <= 0.05
 ```
 
-### Features
+Later sensitivity analysis should compare:
 
-#### Job Features
-*Same value for every competitor row on the same job*
+- 3%.
+- 5%.
+- 10%.
 
-| Feature | Description | Source |
-|---|---|---|
-| `job_county` | County where the job is located | Raw data |
-| `job_type` | Work type: paving, grading, bridge, culvert, etc. | Raw data (normalize first) |
-| `job_budget` | Estimated contract value in USD | Raw data (consider log transform) |
-| `material_mix_*` | Per-material columns: asphalt %, aggregate %, concrete % | Aggregate from line items |
-| `bid_month` | Month of bid opening date (1–12) | Derived from bid_date |
-| `bid_season` | Quarter of bid opening date: Q1/Q2/Q3/Q4 | Derived from bid_date |
+Tied-low bids need a clear rule. For the first backtest:
 
-#### Competitor × Job Features
-*Varies per competitor for the same job*
+```text
+did_win = 1 for all tied-low bidders
+```
 
-| Feature | Description | Calculation | Data Required |
+If CSI later provides final awarded contractor data, `did_win` can be changed to reflect the awarded contractor instead of all tied-low bidders.
+
+---
+
+## Rule Candidate Set vs Training Panel Set
+
+The architecture must distinguish between two sets.
+
+### 1. `rule_candidate_set`
+
+This is the real candidate pool that would be available at prediction time. It must be generated using only information known before the current project's bid date.
+
+It may include competitors from:
+
+- Historical relevance rules.
+- Temporary priority rules.
+- Region-specific rules.
+- Recent activity / emerging competitor rules.
+
+This set is used to:
+
+- Simulate future prediction.
+- Evaluate candidate recall.
+- Provide the real input universe to the participation ranking model.
+
+### 2. `training_panel_set`
+
+This is the panel used for training and diagnostic analysis:
+
+```text
+training_panel_set = rule_candidate_set + actual bidders
+```
+
+Actual bidders are added only so positive examples do not disappear from the training data and so missed bidders can be audited.
+
+This does **not** mean the filter succeeded. Use:
+
+```text
+was_rule_candidate = 0
+```
+
+for actual bidders that were missed by the rule filter.
+
+Example:
+
+| Project | Competitor | did_bid | was_rule_candidate |
+|---|---|---:|---:|
+| A | Knife River MN | 1 | 1 |
+| A | Local Contractor X | 1 | 0 |
+| A | Competitor Y | 0 | 1 |
+
+This allows the team to report:
+
+```text
+Candidate filter missed Local Contractor X.
+```
+
+---
+
+## Initial Candidate-Filtering Logic
+
+A competitor may enter the `rule_candidate_set` through any of these paths:
+
+```text
+rule_candidate_set =
+historically relevant competitors
++ temporary priority competitors
++ region-specific competitors
++ recently active / emerging competitors
+```
+
+During training only:
+
+```text
+training_panel_set =
+rule_candidate_set
++ actual bidders missed by the rules
+```
+
+The candidate filter should be evaluated separately from the ranking model. If the filter drops the true bidder, the ranking model cannot recover that competitor later.
+
+#### 1. Historically Relevant Competitors
+
+**Definition**
+
+An operating unit is historically relevant if, before the current project's bid date, it has demonstrated bidding activity in a market, project type, or project profile similar to the current project.
+
+Historical relevance may include prior bids in:
+
+- The same state.
+- The same county.
+- The same normalized project type.
+- Projects with similar size.
+- Projects with a similar material profile.
+
+**First MVP Rule**
+
+Start with the simplest version:
+
+```text
+same state OR same county OR same normalized project type
+```
+
+is too broad. `same county` is already contained within `same state`, and `same normalized project type` alone may pull in remote competitors from unrelated markets.
+
+Backtest multiple rule versions:
+
+```text
+Rule A:
+same state
+
+Rule B:
+same county
+
+Rule C:
+same state AND same normalized project type
+
+Rule D:
+same county
+OR (same state AND same normalized project type)
+
+Rule E:
+same county
+OR (same state AND same normalized project type)
+OR recent activity
+```
+
+The most promising first test is:
+
+```text
+same county
+OR (same state AND same normalized project type)
+```
+
+This is narrower than the broad OR rule while still allowing state-level project-type relevance.
+
+#### Later Refinement
+
+After basic candidate recall is evaluated, test:
+
+- Similar project size.
+- Similar material quantities.
+- Similar paving / grading / mixed work profile.
+- Prior near-low behavior on similar projects.
+
+#### Caution
+
+Historical relevance should not become a pure frequency filter. A competitor with low total bid count may still be important in a specific region or project type.
+
+#### 2. Temporary Priority Competitors
+
+**Definition**
+
+Temporary priority competitors are operating units that should be reviewed on each project until CSI provides a final priority competitor list.
+
+**First MVP Rule**
+
+Use the 10-12 operating units with the highest historical bid counts as a temporary priority list.
+
+**How the Flag Should Be Used**
+
+Priority status should:
+
+- Force the competitor to be reviewed.
+- Make the competitor eligible for detailed reporting.
+- Support separate priority-competitor recall metrics.
+
+Priority status should **not** directly increase the model's predicted participation probability.
+
+**Later Refinement**
+
+Replace the temporary top-count list with CSI's client-approved priority competitor list once available.
+
+and:
+
+```text
+Additional priority competitors reviewed
+```
+
+Example:
+
+| Competitor | Predicted Likelihood | Why Shown |
+|---|---:|---|
+| Knife River MN | High | Model Top 5 |
+| Competitor X | Low | CSI priority review |
+
+#### Later Refinement
+
+Replace the temporary top-count list with CSI's client-approved priority list when available.
+
+### 3. Region-Specific Competitors
+
+**Definition**
+
+An operating unit is region-specific if it has meaningful historical concentration in the project's local market, even if it is not a frequent competitor across the full dataset.
+
+This captures contractors that may not appear in the overall Top 10 but are important in specific counties, corridors, or local markets.
+
+**Initial Rules**
+
+An operating unit may be region-specific if it has:
+
+- A minimum number of bids in the same county or nearby counties.
+- A high share of its own historical bids occurring in that region.
+- A client-provided regional competitor designation.
+
+**Later Refinement**
+
+Regional definitions can be refined using:
+
+- County clusters.
+- State DOT districts.
+- CSI-defined market areas.
+- Distance bands from project location.
+- Region-specific project-type patterns.
+
+**Caution**
+
+Region-specific status should activate review and candidate inclusion. It should not automatically imply a high participation probability.
+
+#### 4. Recently Active or Emerging Competitors
+
+**Definition**
+
+A recently active or emerging competitor is an operating unit that may not have enough long-term history to satisfy the historical-relevance rules but has shown recent activity or has been identified by CSI as newly relevant.
+
+**Initial Signals**
+
+Signals may include:
+
+- One or more bids during the current bidding season.
+- Multiple bids during the past 90 or 180 days.
+- A recent first appearance in the historical data.
+- Client identification as a new or emerging competitor.
+
+**Window Experiments**
+
+The exact activity window should be selected through historical backtesting, not assumed as a business fact. Test:
+
+- 90-day activity.
+- 180-day activity.
+- Current-season activity.
+- 12-month activity.
+- 24-month activity.
+
+Compare:
+
+- Candidate recall.
+- Winner recall.
+- Near-low bidder recall.
+- Recall@5.
+- Recall@10.
+- Average candidate count.
+- Median candidate count.
+- 90th percentile candidate count.
+- Whether emerging competitors are captured.
+
+Current season should first be defined simply as:
+
+```text
+January 1 through the current bid date
+```
+
+#### Caution
+
+Recent activity alone is not the same as project-specific relevance. A recently active competitor may still be unlikely to bid if the project is outside its region, size range, or work type.
+
+---
+
+### Participation Ranking
+
+After candidate filtering, Model 1 ranks the candidate competitors by likely participation.
+
+The MVP ranking should compare:
+
+1. Historical frequency baseline.
+2. Rule-based score.
+3. Logistic regression or shallow decision tree.
+4. Random Forest / boosting only as a benchmark if simpler methods are insufficient.
+
+The ranking model should be evaluated with ranking metrics, not only accuracy or AUC.
+
+Recommended metrics:
+
+| Metric | Purpose |
+|---|---|
+| `candidate_recall` | Whether actual bidders survived candidate filtering |
+| `recall@5` | Actual bidders captured in the top 5 ranked competitors |
+| `recall@10` | Actual bidders captured in the top 10 ranked competitors |
+| `winner_recall@K` | Whether the actual winner appears in top K |
+| `near_low_bidder_recall@K` | Whether near-low bidders appear in top K |
+| `average_candidates_per_project` | Candidate-set size and usability |
+
+### Threat / Aggressiveness Output
+
+Model 1 should also produce a competitor threat / aggressiveness assessment for the top ranked competitors.
+
+This can start as a transparent rule-based output:
+
+```text
+rule candidates
++ actual bidders missed by rules
+```
+
+If extra negative sampling is needed later, draw only from a reasonable competitor universe, such as operating units that:
+
+- Have activity in the same state.
+- Have activity in nearby years.
+- Have bid on the same normalized project type.
+
+---
+
+## Participation Ranking
+
+After candidate filtering, Model 1 ranks competitors in the `rule_candidate_set` by likely participation.
+
+The first implementation should compare:
+
+1. **Baseline 1:** historical bid frequency.
+2. **Baseline 2:** weighted rule score.
+3. **Model 3:** logistic regression.
+
+A shallow decision tree can be added as an interpretability comparison. Random Forest or boosting should be held for later benchmarking after simple methods are tested.
+
+Initial features may include:
+
+- Same county bid count.
+- Same state bid count.
+- Same normalized project-type bid count.
+- Days since last bid.
+- Current-season bids.
+- Historical bid rate.
+- Similar-size bid count.
+
+All features must be calculated point-in-time using only records before the current project's bid date.
+
+### Ranking Metrics
+
+Evaluate ranking with:
+
+- Candidate recall.
+- Recall@5.
+- Recall@10.
+- Winner recall.
+- Near-low bidder recall.
+- Average candidate count.
+- Median candidate count.
+- 90th percentile candidate count.
+
+Do not judge Model 1 primarily by accuracy, because most candidate rows are negatives.
+
+---
+
+## Threat / Aggressiveness Assessment
+
+Model 1 should output two separate concepts:
+
+```text
+win_probability -> GO / NO-GO
+```
+
+Win probability is useful, but it is not the same as bid attractiveness. CSI may bid a lower-probability job for strategic reasons, or decline a high-probability job due to margin, schedule, capacity, risk, or operational fit.
+
+### CSI Competitive Position
+
+Model 2 should summarize CSI's position relative to the expected competitor field:
+
+- Expected number of bidders.
+- Number of strong competitors.
+- Most threatening competitors.
+- CSI's historical performance on similar projects.
+- CSI's relative position by geography, project type, size, and work profile.
+
+### Capacity and Operational Fit
+
+Capacity should be treated as a workload proxy unless CSI provides verified physical capacity denominators.
+
+Initial workload logic:
+
+| Contractor / Work Type | Preferred MVP Proxy |
+|---|---|
+| Paving-heavy work | Hot mix tons awarded before bid date vs historical annual mix-ton benchmark |
+| Grading-heavy work | Awarded revenue before bid date vs historical annual revenue benchmark |
+| Mixed work | Report both signals where available |
+
+Output should use business-facing categories:
+
+| Workload Status | Interpretation |
+|---|---|
+| Low observed workload | May have available capacity |
+| Moderate observed workload | Near recent workload level |
+| High observed workload | May be more selective |
+| Insufficient data | Capacity signal uncertain |
+
+### Risks
+
+Model 2 should explicitly surface risks and missing-data limitations:
+
+- Candidate filter uncertainty.
+- Pending operating-unit mappings.
+- Incomplete project type or budget definition.
+- Incomplete construction-window information.
+- Pit and material-access data not yet included in the MVP.
+- Workload proxy uncertainty.
+
+### Recommendation and Explanation
+
+The output should be a structured assessment, not only a score.
+
+Example:
+
+| Competitor | Bid Likelihood | Pricing Threat | Interpretation |
 |---|---|---|---|
-| `pit_distance_miles` | Distance from competitor's nearest pit to job site | Haversine across all pits → take min | Competitor pit GPS coords |
-| `comp_county_bid_rate` | Competitor's historical bid rate in this county | # bids in county / # total jobs in county (before bid_date) | Historical bid results |
-| `comp_type_bid_rate` | Competitor's historical bid rate on this job type | # bids on type / # total jobs of type (before bid_date) | Historical bid results |
-| `comp_budget_fit` | How well job budget matches competitor's typical contract size | job_budget / competitor's historical avg contract value | Historical bid results |
-| `comp_recent_activity` | Competitor's bid count in last 12 months | Count of bids in rolling 12-month window before bid_date | Historical bid results |
-| `comp_capacity_used_pct` | % of competitor's capacity already committed at bid_date | Sum of active contract values at bid_date / estimated max capacity | Job start/end dates (or estimated) |
+| Competitor A | High | Medium | Likely to bid, but historically not often near-low |
+| Competitor B | Medium | High | Less certain to bid, but dangerous if present |
 
-#### Capacity Calculation Detail
+### Bid Likelihood Evidence
 
-```
-Step 1: Find all jobs competitor has won where start_date <= bid_date <= end_date
-Step 2: active_value = sum(contract_value) of those jobs
-Step 3: max_capacity = competitor's historical peak concurrent contract value
-Step 4: comp_capacity_used_pct = active_value / max_capacity
-```
+Bid likelihood can use:
 
-If start/end dates are unavailable, estimate duration by job size:
-- < $1M → 3 months
-- $1M–$5M → 6 months
-- > $5M → 12 months
+- Historical state / county / type participation.
+- Recent activity.
+- Region-specific relevance.
+- Temporary priority review flag, reported separately.
+- Project size and work-profile fit.
 
-### Data Leakage Warning
+### Pricing Threat Evidence
 
-All competitor statistics (`bid_rate`, `recent_activity`, `capacity`) **must be calculated using only data prior to each job's `bid_date`**. Never use the full dataset for aggregations.
+Pricing threat can use:
 
-### Model Output
+- Historical near-low rate.
+- Frequency of bids within 5% of low.
+- Prior wins on similar projects.
+- Recent win shortage.
+- Low observed workload, only when paired with active bidding behavior.
 
-```
-Job #445 — Hennepin, paving, $2.1M
+Low observed workload should not automatically mean a competitor is aggressive. It may also mean the competitor is leaving a market or not pursuing that type of work.
 
-Competitor D:  0.87
-Competitor A:  0.71
-Competitor C:  0.45
-Competitor B:  0.23
-Competitor F:  0.11
+The first threat assessment can be rule-based. It does not need to be trained as a supervised model in the first Model 1 iteration.
+
+---
+
+## Model 1 Implementation Flow
+
+```text
+Step 1
+Resolve competitor entities at operating-unit level
+
+Step 2
+Build clean project and bidder tables
+
+Step 3
+For each historical project:
+use only earlier records to calculate features
+
+Step 4
+Generate rule_candidate_set
+
+Step 5
+Add missed actual bidders only to training_panel_set
+
+Step 6
+Evaluate candidate filter separately
+
+Step 7
+Choose one candidate-filter configuration
+
+Step 8
+Train participation ranking model
+
+Step 9
+Evaluate Recall@5, Recall@10, winner recall, and near-low recall
+
+Step 10
+Generate rule-based threat evidence for top-ranked competitors
 ```
 
 ---
 
-## Model 2: CSI Go / No-Go Recommendation
+## Future Refinement: Pit and Material Access
 
-### Problem Framing
+Model 2 should remain out of scope until Model 1 is stable.
 
-Binary classification. Predicts whether CSI will win if they bid.
+Later, Model 2 can use Model 1 outputs to support CSI decision-making:
 
-- Each training row = one job where **CSI actually bid**
-- Label = `csi_won` (1 = CSI won, 0 = CSI bid but lost)
-- Output = win probability → thresholded to GO / NO-GO
+- `distance_to_nearest_eligible_accessible_pit`
+- `pit_access_status`
+- `material_suitability_status`
+- `traffic_level_compatibility`
+- `plant_or_active_project_advantage`
 
-### Training Data Structure
+Pit distance alone should not be treated as a complete advantage feature. Eligibility depends on material requirement, ownership/access rights, traffic level, project date, and whether the pit or plant is actually available.
 
-Only includes jobs where CSI participated (win/loss known).
-
-```
-job_id | job_county | job_type | job_budget | expected_n_bidders | strong_competitor_count | csi_pit_distance | csi_capacity_used_pct | ... | csi_won
-  001  |   Hennepin |  paving  |    2100000 |                3.4 |                       2 |             5.2  |                  0.42 | ... |       1
-  002  |   Stearns  |  bridge  |    5400000 |                1.8 |                       1 |            18.7  |                  0.71 | ... |       0
-```
-
-### Features
-
-#### Group A: Job Features
-Same features as Model 1 (county, type, budget, material mix, season).
-
-#### Group B: Competition Landscape Features
-*Derived from Model 1 output*
-
-| Feature | Description | Calculation from Model 1 output |
-|---|---|---|
-| `expected_n_bidders` | Expected number of competitors who will show up | Sum of all competitor probabilities |
-| `strong_competitor_count` | Number of serious threats | Count of competitors with probability > 0.5 |
-| `top1_competitor_prob` | Strength of the dominant competitor | Max single competitor probability |
-| `avg_competitor_prob` | Overall field strength | Mean of all competitor probabilities |
-
-#### Group C: CSI's Own Position
-*CSI treated the same way as competitors in Model 1*
-
-| Feature | Description |
-|---|---|
-| `csi_pit_distance` | CSI's nearest pit to this job site |
-| `csi_capacity_used_pct` | % of CSI's capacity committed at bid_date |
-| `csi_county_win_rate` | CSI's historical win rate in this county |
-| `csi_type_win_rate` | CSI's historical win rate on this job type |
-| `csi_budget_fit` | job_budget / CSI's historical avg contract value |
-
-### Model Output
-
-```
-win_probability = 0.73 → GO
-win_probability = 0.28 → NO-GO
-```
-
-Threshold is a business decision (e.g. bid only when win_prob > 0.40). Can also be weighted by job size — a $5M job at 35% might still be worth it.
-
-### Explanation Layer (SHAP)
-
-For each recommendation, surface the top driving factors:
-
-```
-Job #445 — GO (win probability: 73%)
-
-  +0.21 → CSI pit only 5 miles away (strong cost advantage)
-  +0.18 → Only 1 strong competitor expected
-  +0.12 → CSI has 68% win rate in Hennepin County
-  -0.08 → CSI capacity currently at 71% (slightly constrained)
-```
+Missing pit data should be represented as `unknown`, not as "no advantage."
 
 ---
 
-## Data Requirements Summary
+## Data Leakage Rules
 
-| Data | Used In | Status |
-|---|---|---|
-| Historical bid results (who bid, which job) | Model 1 | ✅ Available |
-| Job attributes (county, type, budget, materials) | Model 1 + 2 | ✅ Available |
-| Competitor pit GPS coordinates | Model 1 | ⚠️ Need to confirm / geocode |
-| Job start and end dates | Model 1 (capacity) | ⚠️ May need to estimate |
-| CSI's historical win/loss records | Model 2 | ✅ Should be available |
-| CSI pit GPS coordinates | Model 2 | ⚠️ Same as competitor pits |
+All historical statistics must be computed using only information available before the current project's bid date.
+
+This applies to:
+
+- Candidate-filter membership.
+- Historical state / county / type bid counts.
+- Recent activity windows.
+- Near-low rates.
+- Win shortage.
+- Workload proxies.
+- CSI historical performance metrics used later by Model 2.
+
+The candidate filter, ranking model, and threat assessment should all be backtested point-in-time. The model should never use future bids to decide whether a competitor should have been a candidate for an earlier project.
 
 ---
 
 ## Implementation Notes
 
-- **Recommended model type:** XGBoost or Random Forest for both models (handles mixed feature types, supports SHAP natively)
-- **Negative samples in Model 1:** With candidate generation, negatives = candidates who did NOT bid (not the entire pool). This removes trivial negatives and keeps the signal meaningful.
-- **Class imbalance:** Candidate generation already lifts the positive rate to ~25-30%. If still skewed, use `scale_pos_weight` in XGBoost or `class_weight='balanced'` in sklearn.
-- **Baseline:** Always benchmark against a frequency ranking (historical bid count). Ship the model only if it beats this.
-- **Long-tail competitors:** Competitors with very few historical bids have noisy `bid_rate` features. Smooth toward the global average, or add an `n_observations` feature so the model knows how trustworthy each stat is.
-- **CSI is "competitor 0":** CSI's position features in Model 2 (Group C) use the same feature logic as competitors in Model 1. Write the feature functions once so they run for any bidder, CSI included.
-- **Feature store:** Competitor statistics should be precomputed as a lookup table keyed by `(competitor, county, job_type, as_of_date)` to avoid recomputation at inference time.
-- **Competitor name normalization:** Apply before any groupby. Regex-based normalization should already exist in the bid parser module.
+Current build order:
 
----
+1. Build competitor entity registry.
+2. Apply raw bidder-name to operating-unit mapping.
+3. Build project x competitor panel.
+4. Evaluate candidate-filter rules.
+5. Build point-in-time historical features.
+6. Train / compare ranking baselines and simple models.
+7. Add competitor threat assessment.
+8. Add CSI multi-factor decision-support output.
+9. Add pit and material-access features as future refinement.
 
-## Code Structure
-
-A lean 6-file layout for the predictive pipeline. Library modules hold logic (importable, no side effects); `pipeline.py` is the only entry point the chatbot/API calls.
-
-```
-csi/
-├── data.py        # CONFIG constants + data loaders + geo/distance helpers
-├── features.py    # feature computation + feature store (leakage-critical)
-├── model1.py      # candidate generation + dataset assembly + train/score + baseline
-├── model2.py      # landscape features + CSI position + train/score + SHAP
-├── evaluate.py    # recall@k, model metrics, baseline comparison
-└── pipeline.py    # end-to-end: new job → GO/NO-GO + explanation
-```
-
-| File | Responsibility |
-|---|---|
-| `data.py` | `CONFIG` dict (paths, radius, thresholds, hyperparams) at top; `load_bids/jobs/pits()`; `haversine()` |
-| `features.py` | Pure feature functions (each takes `as_of_date`) + `build_feature_store()`. **Keep separate** — leakage bugs are silent, so this logic must stay isolated and unit-tested. |
-| `model1.py` | Stage 1 filters, `(job × candidate)` dataset, `train_model1()`, `score_job(job) → {competitor: prob}`, frequency baseline |
-| `model2.py` | Build Group B + C features, `train_model2()`, `recommend(job) → (win_prob, shap_factors)` |
-| `evaluate.py` | Candidate-gen recall@k, Model 1/2 metrics, side-by-side vs baseline |
-| `pipeline.py` | Orchestrates Model 1 → Model 2 → GO/NO-GO |
-
-**Build order (bottom-up):**
-
-1. `data.py` — read data, compute distances
-2. `features.py` — **write tests first** (leakage lives here)
-3. `model1.py` — confirm it beats the frequency baseline before moving on
-4. `model2.py`
-5. `evaluate.py` + `pipeline.py` — wire end to end
-
-> The one boundary not to collapse: keep `features.py` out of `model1.py`. Everything else can merge freely.
-
-> The RAG / ChromaDB / PDF Q&A layer is a **separate subsystem** — keep it in its own `rag/` folder parallel to `csi/`, and only merge at the chatbot layer.
+The architecture should remain modular so the candidate-filter logic, window experiments, workload proxies, and pit features can be revised independently.

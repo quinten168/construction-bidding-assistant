@@ -1,0 +1,9 @@
+Competitor: {competitor_name}
+Bid Likelihood: {probability:.0%}
+Threat Level: {threat_level}
+
+Key signals about this competitor for this project:
+{bullet_points}
+
+Write 2–3 sentences explaining why this competitor is likely or unlikely to bid on this project.
+Use plain business language. Reference specific numbers from the signals above. Do not add any information not listed above.
