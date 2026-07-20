@@ -1,0 +1,8 @@
+v2,n_projects,bid_rate_%,n_bid,win_rate_%,win_well_rate_%,bomb_rate_%,bomb_share_of_wins_%,median_margin_%
+Reconstruct/Rebuild,461.0,37.3,172.0,22.7,14.5,8.1,35.9,8.94
+Mill & Overlay,306.0,40.5,124.0,17.7,10.5,7.3,40.9,9.82
+HMA Overlay/Resurface,212.0,41.5,88.0,14.8,5.7,9.1,61.5,12.78
+Grading/Earthwork,212.0,33.0,70.0,18.6,11.4,7.1,38.5,23.64
+Aggregate/Base/Gravel,133.0,34.6,46.0,17.4,4.3,10.9,62.5,17.28
+Unknown/NoQty,216.0,42.1,91.0,22.0,14.3,5.5,25.0,10.54
+Other,52.0,23.1,12.0,16.7,0.0,16.7,100.0,34.25

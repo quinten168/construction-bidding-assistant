@@ -1,0 +1,8 @@
+# build from repo root — keep the image lean
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/.chainlit/
+**/.env
+.playwright-mcp/
+*.log

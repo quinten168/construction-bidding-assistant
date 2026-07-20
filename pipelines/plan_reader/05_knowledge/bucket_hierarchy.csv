@@ -1,0 +1,7 @@
+sub_bucket,bucket,unit,historical_col,in_total_tons,to_grading_factor,note
+base_tons,AGGREGATE,TON,BASE_TN,1,,aggregate base placed
+shoulder_tons,AGGREGATE,TON,SHLDR_TN,1,,"shoulder gravel / aggregate surfacing; CSI tracks separately (1,018 rows fill both)"
+hot_mix_tons,ASPHALT,TON,MIX_TN,1,,placed hot mix only; tack/prime/binder excluded
+grading_quantity,GRADING,CY,GRADE_CY,0,,earthwork native CY
+removal_tons,GRADING,TON,,1,1.75,removed pavement/base; ÷1.75 Ton/CY into GRADING (Dunn plan-sheet factor); own visible line
+milling_sy,MILLING,SY,MILL_SY,0,,own bucket pending client Q1 (may fold under ASPHALT)

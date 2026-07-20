@@ -1,0 +1,6 @@
+work_type,size_basis,n,large_cut,method,median
+Reconstruct/Rebuild,placed tons (MIX+BASE+SHLDR),461,17744,median (no clean 2-mode seam),17744
+Mill & Overlay,MIX tons,306,4585,GMM(2) crossover,7416
+HMA Overlay/Resurface,MIX tons,212,2622,GMM(2) crossover,5474
+Grading/Earthwork,GRADE cubic yards,212,13931,GMM(2) crossover,5619
+Aggregate/Base/Gravel,BASE+SHLDR tons,133,1820,median (no clean 2-mode seam),1820

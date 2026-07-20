@@ -1,0 +1,157 @@
+2023_BEADLE-CO-SD_8389379_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_BLUE-EARTH-CO-MN_SAP-007-616-035_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_BLUE-EARTH-CO-MN_SAP-007-626-019_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_BROOKINGS-CO-SD_8391182_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_BURLEIGH-CO-ND_8428114_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_CASS-CO-ND_8416165_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_CLAY-CO-MN_8429196_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_CLAY-CO-MN_TH-94_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_CROW-WING-CO-MN_SAP-018-603-024_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_DIVIDE-CO-ND_8395536_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_EMMONS-CO-ND_8435627_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_HUBBARD-CO-MN_SAP-029-649-002_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_HUBBARD-CO-MN_TH-200_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_KANDIYOHI-CO-MN_TH-23_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MAHNOMEN-CO-MN_SP-4407-13_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MARTIN-CO-MN_8436697_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MCLEAN-CO-ND_8370470_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MEEKER-CO-MN_SAP-047-604-016_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MOUNTRAIL-CO-ND_8371604_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_MOUNTRAIL-CO-ND_8412827_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_OTTER-TAIL-CO-MN_4130-304_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_OTTER-TAIL-CO-MN_8412890_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_POPE-CO-MN_SAP-061-615-008_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_RENVILE-CO-ND_CP-3823_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_RICHLAND-CO-ND_ND-10_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_ROSEAU-CO-MN_SAP-068-623-005_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_SIBLEY-CO-MN_CP-1239_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_STEARNS-CO-MN_8414074_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_SWIFT-CO-MN_076-606-048_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_WALSH-CO-ND_8376434_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_WILKIN-CO-MN_TH-75_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_WILLIAMS-CO-ND_CR-12_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_WILLIAMS-CO-ND_CR-42_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_YANKTON-CO-SD_8380737_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_YELLOW-MEDICINE-CO-MN_8371633_LOST	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_BEADLE-CO-SD_SD-2025_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_BUFFALO-CO-SD_9809453_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_CASS-CO-MN_SAP-011-636-007_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_CLAY-CO-MN_9809481_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_DAY-CO-SD_PCN-09GX_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_DIVIDE-CO-ND_9776856_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_DUNN-CO-ND_9782095_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_HAND-CO-SD_08MV_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_HAND-CO-SD_PCN-08MQ_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_HUBBARD-CO-MN_SP-2905-39_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_JACKSON-CO-SD_09MD_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_KANDIYOHI-CO-MN_9353968_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_KANDIYOHI-CO-MN_9749930_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_KOOCHICHING-CO-MN_SAP-036-624-026_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_LYMAN-CO-SD_PCN-080A_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_MELLETTE-CO-SD_PCN-09A6_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_MINNEHAHA-CO-SD_UNKNOWN_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_MORTON-CO-ND_JOB-24133_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_MOUNTRAIL-CO-ND_9790217_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_MURRAY-CO-MN_CSAH-2_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_PENNINGTON-CO-SD_PCN-09GR_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_PERKINS-CO-SD_PCN-09V7_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_POPE-CO-MN_9776825_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_RENVILLE-CO-MN_SAP-065-599-097_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_SHERBURNE-CO-MN_9747843_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_STEARNS-CO-MN_CP-073-123_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_STEARNS-CO-MN_SAP-073-590-007_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2025_YANKTON-CO-SD_9738173_NOBID	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026-06-15_Jay_Plans	failed: OperationalError: database is locked
+2026_BENSON-RAMSEY-CO-ND_JOB-23928_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BOWMAN-CO-ND_10211449_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BROWN-MARSHALL-CO-SD_SD-06_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BURKE-CO-ND_10077496_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BURKE-WARD-CO-ND_JOB-22484_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BURLEIGH-CO-ND_CP-0189_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_BURLEIGH-CO-ND_JOB-23957_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_CASS-CO-ND_JOB-24812_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_CLAY-CO-MN_SAP-014-609-010_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_CORSON-CO-SD_SD-1806_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_DICKEY-CO-ND_ND-9920_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_DOUGLAS-CO-XX_021-640-004_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_DUNN-CO-ND_JOB-23388_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_DUNN-CO-ND_ND-9969_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_GARFIELD-MCCONE-CO-MT_9457000_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_HUBBARD-CO-MN_SAP-029-640-011_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_HUBBARD-CO-XX_26058_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_JACKSON-CO-SD_SD-73-ITEM-1_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_JACKSON-CO-SD_SD-73-ITEM-2_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_KANDIYOHI-CO-MN_CSAH-1_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_LINCOLN-CO-SD_SD-44_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_MCKENZIE-CO-ND_JOB-24778_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_MINNEHAHA-CO-SD_10075382_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_MOUNTRAIL-CO-XX_CR-2_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_OTTER-TAIL-CO-MN_CSAH-82_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_POPE-CO-MN_CSAH-18_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_POPE-CO-MN_CSAH-29_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_RENVILLE-CO-ND_SAP-021-614-019_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_SARGENT-CO-ND_JOB-24189_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_SWIFT-CO-MN_CSAH-15_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_TODD-CO-MN_CSAH-2_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-MN_TH-114_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-MN_TH-94_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-ND_26006_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-ND_9943056_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-ND_ND-2026_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_UNKNOWN-CO-XX_10051845_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WARD-CO-ND_CR-15_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WARD-CO-ND_JOB-24102_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WILLIAMS-CO-ND_CR-1_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WILLIAMS-CO-ND_CR-8_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WILLIAMS-CO-ND_CR-9_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2026_WILLIAMS-CO-ND_JOB-24571_UNKNOWN	failed: ModuleNotFoundError: No module named 'pymupdf4llm'
+2023_BEADLE-CO-SD_8389379_NOBID	failed: OperationalError: database is locked
+2023_BLUE-EARTH-CO-MN_SAP-007-616-035_NOBID	failed: OperationalError: database is locked
+2023_BLUE-EARTH-CO-MN_SAP-007-626-019_NOBID	failed: OperationalError: database is locked
+2023_BROOKINGS-CO-SD_8391182_LOST	failed: OperationalError: database is locked
+2023_BURLEIGH-CO-ND_8428114_NOBID	failed: OperationalError: database is locked
+2023_CASS-CO-ND_8416165_LOST	failed: OperationalError: database is locked
+2023_CLAY-CO-MN_8429196_UNKNOWN	failed: OperationalError: database is locked
+2023_CLAY-CO-MN_TH-94_NOBID	failed: OperationalError: database is locked
+2023_CROW-WING-CO-MN_SAP-018-603-024_NOBID	failed: OperationalError: database is locked
+2023_DIVIDE-CO-ND_8395536_NOBID	failed: OperationalError: database is locked
+2023_EMMONS-CO-ND_8435627_NOBID	failed: OperationalError: database is locked
+2023_HUBBARD-CO-MN_SAP-029-649-002_NOBID	failed: OperationalError: database is locked
+2023_HUBBARD-CO-MN_TH-200_NOBID	failed: OperationalError: database is locked
+2023_KANDIYOHI-CO-MN_TH-23_NOBID	failed: OperationalError: database is locked
+2023_MAHNOMEN-CO-MN_SP-4407-13_LOST	failed: OperationalError: database is locked
+2023_MARTIN-CO-MN_8436697_NOBID	failed: OperationalError: database is locked
+2023_MCLEAN-CO-ND_8370470_NOBID	failed: OperationalError: database is locked
+2023_MEEKER-CO-MN_SAP-047-604-016_LOST	failed: OperationalError: database is locked
+2023_MOUNTRAIL-CO-ND_8371604_NOBID	failed: OperationalError: database is locked
+2023_MOUNTRAIL-CO-ND_8412827_UNKNOWN	failed: OperationalError: database is locked
+2023_OTTER-TAIL-CO-MN_4130-304_UNKNOWN	failed: OperationalError: database is locked
+2023_OTTER-TAIL-CO-MN_8412890_LOST	failed: OperationalError: database is locked
+2023_POPE-CO-MN_SAP-061-615-008_NOBID	failed: OperationalError: database is locked
+2023_RENVILE-CO-ND_CP-3823_LOST	failed: OperationalError: database is locked
+2023_RICHLAND-CO-ND_ND-10_LOST	failed: OperationalError: database is locked
+2023_ROSEAU-CO-MN_SAP-068-623-005_NOBID	failed: OperationalError: database is locked
+2023_SIBLEY-CO-MN_CP-1239_LOST	failed: OperationalError: database is locked
+2023_STEARNS-CO-MN_8414074_LOST	failed: OperationalError: database is locked
+2023_SWIFT-CO-MN_076-606-048_UNKNOWN	failed: OperationalError: database is locked
+2023_WALSH-CO-ND_8376434_LOST	failed: OperationalError: database is locked
+2023_WILKIN-CO-MN_TH-75_NOBID	failed: OperationalError: database is locked
+2023_WILLIAMS-CO-ND_CR-12_NOBID	failed: OperationalError: database is locked
+2023_HUBBARD-CO-MN_SAP-029-649-002_NOBID	empty/near-empty conversion (0 chars; likely plan-set/scanned)
+2023_POPE-CO-MN_SAP-061-615-008_NOBID	empty/near-empty conversion (0 chars; likely plan-set/scanned)
+2023_WILLIAMS-CO-ND_CR-42_NOBID	conversion timeout (>300s; pathological PDF)
+2025_HUBBARD-CO-MN_SP-2905-39_NOBID	failed: PdfminerException: 
+2025_MOUNTRAIL-CO-ND_9790217_NOBID	failed: PdfminerException: 
+2025_STEARNS-CO-MN_SAP-073-590-007_NOBID	failed: ValueError: Point: bad args
+2025_YANKTON-CO-SD_9738173_NOBID	conversion timeout (>300s; pathological PDF)
+2026-06-15_Jay_Plans	no PDF in folder
+2026_CLAY-CO-MN_SAP-014-609-010_UNKNOWN	empty/near-empty conversion (0 chars; likely plan-set/scanned)
+2026_DICKEY-CO-ND_ND-9920_UNKNOWN	conversion timeout (>300s; pathological PDF)
+2026_MOUNTRAIL-CO-XX_CR-2_UNKNOWN	failed: PdfminerException: 
+2026_TODD-CO-MN_CSAH-2_UNKNOWN	empty/near-empty conversion (0 chars; likely plan-set/scanned)
+2026_UNKNOWN-CO-MN_TH-114_UNKNOWN	failed: PdfminerException: 
+2026_UNKNOWN-CO-MN_TH-94_UNKNOWN	conversion timeout (>300s; pathological PDF)
+2026_UNKNOWN-CO-ND_9943056_UNKNOWN	failed: ValueError: Point: bad args
+2026_UNKNOWN-CO-ND_ND-2026_UNKNOWN	conversion timeout (>300s; pathological PDF)
+2026_WILLIAMS-CO-ND_CR-1_UNKNOWN	conversion timeout (>300s; pathological PDF)
+2026_WILLIAMS-CO-ND_CR-9_UNKNOWN	conversion timeout (>300s; pathological PDF)

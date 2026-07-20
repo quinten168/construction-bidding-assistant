@@ -1,0 +1,1592 @@
+Contract_Id,State,work_type,size_value,size_tier,pctile_within_type,n_mat_types,BOX,is_bid,is_win,CSI_Margin_Pct,messiness_proxy
+1,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+2,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+3,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.3543,0
+4,North Dakota,Other,,,,2,False,True,False,0.4365,2
+7,Minnesota,Mill & Overlay,20626.0,Large,72.22222222222221,5,False,False,False,,5
+9,North Dakota,HMA Overlay/Resurface,72223.0,Large,99.76415094339622,3,False,True,False,0.2561,3
+10,North Dakota,HMA Overlay/Resurface,4408.0,Large,46.69811320754717,3,False,False,False,,3
+11,North Dakota,Mill & Overlay,6880.0,Large,48.69281045751634,4,False,False,False,,4
+12,Minnesota,Reconstruct/Rebuild,15852.0,Small,46.637744034707154,4,False,False,False,,4
+13,North Dakota,HMA Overlay/Resurface,72223.0,Large,99.76415094339622,3,False,True,False,0.0138,3
+14,North Dakota,Reconstruct/Rebuild,93046.0,Large,87.63557483731019,5,False,True,False,0.2723,5
+15,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+16,North Dakota,Reconstruct/Rebuild,55684.0,Large,77.87418655097615,2,False,True,False,0.043,2
+17,North Dakota,Mill & Overlay,514.0,Small,8.169934640522875,3,True,False,False,,5
+19,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+20,North Dakota,Other,,,,1,False,False,False,,1
+21,North Dakota,Other,,,,1,False,False,False,,1
+22,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.2704,0
+23,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+24,Montana,Mill & Overlay,43406.0,Large,88.56209150326796,3,False,False,False,,3
+25,North Dakota,Mill & Overlay,22529.0,Large,74.67320261437908,3,False,True,False,0.0314,3
+26,North Dakota,Mill & Overlay,161.0,Small,2.941176470588235,3,False,False,False,,3
+27,Minnesota,Reconstruct/Rebuild,291582.0,Large,98.69848156182212,5,False,True,False,0.1177,5
+28,North Dakota,Other,,,,1,True,True,False,0.2484,3
+29,North Dakota,Mill & Overlay,5427.0,Large,43.13725490196079,4,False,False,False,,4
+30,North Dakota,Mill & Overlay,810.0,Small,11.437908496732026,3,False,False,False,,3
+31,North Dakota,Mill & Overlay,847.0,Small,11.76470588235294,3,False,False,False,,3
+32,North Dakota,Mill & Overlay,3500.0,Small,35.62091503267974,3,False,False,False,,3
+33,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+35,North Dakota,Mill & Overlay,5444.0,Large,43.627450980392155,3,False,False,False,,3
+36,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0011,0
+37,North Dakota,HMA Overlay/Resurface,2041.0,Small,34.43396226415094,4,False,False,False,,4
+38,North Dakota,Mill & Overlay,638.0,Small,9.313725490196079,4,False,True,False,0.2571,4
+40,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.1976,0
+41,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0266,0
+42,North Dakota,HMA Overlay/Resurface,4150.0,Large,44.339622641509436,3,False,False,False,,3
+43,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+44,North Dakota,Mill & Overlay,14300.0,Large,64.70588235294117,3,False,False,False,,3
+45,North Dakota,Aggregate/Base/Gravel,1091.0,Small,42.4812030075188,3,False,False,False,,3
+46,North Dakota,HMA Overlay/Resurface,315.0,Small,11.79245283018868,3,False,False,False,,3
+47,Minnesota,Reconstruct/Rebuild,246636.0,Large,97.18004338394793,5,False,False,False,,5
+48,North Dakota,Aggregate/Base/Gravel,1091.0,Small,42.4812030075188,3,False,False,False,,3
+49,Minnesota,HMA Overlay/Resurface,9490.0,Large,64.15094339622641,3,False,False,False,,3
+50,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+51,North Dakota,HMA Overlay/Resurface,6560.0,Large,54.24528301886793,2,False,False,False,,2
+52,North Dakota,Mill & Overlay,22529.0,Large,74.67320261437908,3,False,True,False,0.019,3
+53,North Dakota,Aggregate/Base/Gravel,326.0,Small,24.81203007518797,2,False,False,False,,2
+54,North Dakota,Aggregate/Base/Gravel,224867.0,Large,98.49624060150376,2,False,True,False,0.1674,2
+55,North Dakota,HMA Overlay/Resurface,1596.0,Small,30.424528301886795,1,False,False,False,,1
+56,North Dakota,HMA Overlay/Resurface,1209.0,Small,25.943396226415093,4,False,False,False,,4
+57,North Dakota,Mill & Overlay,34960.0,Large,85.62091503267973,4,False,True,False,0.0565,4
+58,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+59,North Dakota,Mill & Overlay,8737.0,Large,53.26797385620915,4,False,False,False,,4
+60,North Dakota,Mill & Overlay,7723.0,Large,50.98039215686274,3,False,False,False,,3
+62,North Dakota,HMA Overlay/Resurface,1596.0,Small,30.424528301886795,1,False,False,False,,1
+63,Minnesota,Mill & Overlay,15836.0,Large,67.3202614379085,3,False,False,False,,3
+64,North Dakota,Aggregate/Base/Gravel,295.0,Small,23.308270676691727,2,False,False,False,,2
+65,North Dakota,HMA Overlay/Resurface,1780.0,Small,32.54716981132076,4,False,False,False,,4
+66,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+67,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0618,0
+68,North Dakota,Aggregate/Base/Gravel,2730.0,Large,56.390977443609025,3,False,True,False,0.0476,3
+69,North Dakota,Unknown/NoQty,,,,0,False,True,True,,0
+70,North Dakota,Mill & Overlay,638.0,Small,9.313725490196079,4,False,False,False,,4
+71,North Dakota,HMA Overlay/Resurface,1944.0,Small,33.0188679245283,2,False,False,False,,2
+72,North Dakota,Mill & Overlay,18778.0,Large,70.58823529411765,3,False,True,False,0.085,3
+73,Minnesota,Aggregate/Base/Gravel,173.0,Small,13.533834586466165,2,False,False,False,,2
+74,North Dakota,Aggregate/Base/Gravel,7043.0,Large,69.92481203007519,3,False,False,False,,3
+75,North Dakota,HMA Overlay/Resurface,1596.0,Small,30.424528301886795,1,False,False,False,,1
+76,Minnesota,Reconstruct/Rebuild,12110.0,Small,41.64859002169197,3,False,False,False,,3
+78,North Dakota,HMA Overlay/Resurface,1596.0,Small,30.424528301886795,1,False,False,False,,1
+79,North Dakota,Mill & Overlay,26922.0,Large,78.75816993464052,4,False,True,False,0.1386,4
+81,North Dakota,Other,,,,2,False,True,True,-0.611,2
+82,North Dakota,HMA Overlay/Resurface,2247.0,Small,34.90566037735849,2,False,True,False,0.0481,2
+83,North Dakota,Mill & Overlay,376.0,Small,4.901960784313726,3,False,False,False,,3
+84,North Dakota,Mill & Overlay,3245.0,Small,32.6797385620915,4,False,True,False,0.1946,4
+85,North Dakota,HMA Overlay/Resurface,14294.0,Large,71.69811320754717,4,False,True,False,0.1531,4
+86,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0118,0
+87,North Dakota,HMA Overlay/Resurface,39134.0,Large,93.16037735849056,4,False,True,False,0.1543,4
+88,North Dakota,Aggregate/Base/Gravel,1407.0,Small,45.86466165413533,3,False,False,False,,3
+89,North Dakota,Aggregate/Base/Gravel,153.0,Small,12.781954887218044,2,False,True,False,1.1788,2
+91,North Dakota,Mill & Overlay,116022.0,Large,100.0,3,False,True,True,-0.0581,3
+92,Montana,Mill & Overlay,37523.0,Large,86.60130718954248,3,False,False,False,,3
+93,North Dakota,Mill & Overlay,7365.0,Large,50.0,4,False,True,False,0.3554,4
+94,North Dakota,Mill & Overlay,2060.0,Small,25.163398692810457,3,False,False,False,,3
+95,North Dakota,HMA Overlay/Resurface,28212.0,Large,88.20754716981132,3,False,False,False,,3
+97,North Dakota,HMA Overlay/Resurface,52048.0,Large,97.16981132075472,3,False,True,False,0.1527,3
+98,Minnesota,Reconstruct/Rebuild,146848.0,Large,93.70932754880694,5,True,False,False,,7
+99,North Dakota,Grading/Earthwork,1390.0,Small,17.452830188679243,3,True,True,True,-0.0934,5
+100,North Dakota,Reconstruct/Rebuild,684.0,Small,2.6030368763557483,4,False,True,True,-0.198,4
+101,North Dakota,Mill & Overlay,2989.0,Small,31.372549019607842,3,False,False,False,,3
+102,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+103,North Dakota,HMA Overlay/Resurface,16857.0,Large,74.05660377358491,3,False,True,False,0.1226,3
+104,North Dakota,HMA Overlay/Resurface,21383.0,Large,83.49056603773585,4,False,True,False,0.0087,4
+105,Minnesota,Reconstruct/Rebuild,380850.0,Large,99.56616052060737,4,False,False,False,,4
+106,North Dakota,Mill & Overlay,91827.0,Large,99.01960784313727,3,False,True,False,0.0676,3
+107,North Dakota,Aggregate/Base/Gravel,21402.0,Large,82.33082706766918,1,False,True,False,0.1017,1
+109,North Dakota,Mill & Overlay,1725.0,Small,22.22222222222222,3,False,True,False,0.3393,3
+110,North Dakota,Other,,,,1,False,False,False,,1
+111,North Dakota,Aggregate/Base/Gravel,52961.0,Large,91.35338345864662,2,False,False,False,,2
+112,North Dakota,Aggregate/Base/Gravel,52961.0,Large,91.35338345864662,2,False,True,False,0.1728,2
+113,North Dakota,Aggregate/Base/Gravel,1193.0,Small,44.3609022556391,3,False,True,True,-0.116,3
+114,North Dakota,Mill & Overlay,4209.0,Small,40.032679738562095,4,False,True,False,0.0098,4
+115,North Dakota,Aggregate/Base/Gravel,21402.0,Large,82.33082706766918,1,False,True,False,0.3547,1
+117,North Dakota,Mill & Overlay,4727.0,Large,40.849673202614376,3,False,False,False,,3
+119,North Dakota,Aggregate/Base/Gravel,11550.0,Large,77.44360902255639,1,False,True,False,0.4452,1
+120,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+121,North Dakota,HMA Overlay/Resurface,12870.0,Large,67.9245283018868,4,False,True,False,0.2659,4
+122,North Dakota,Mill & Overlay,850.0,Small,12.091503267973856,3,False,True,True,-0.0189,3
+123,North Dakota,Reconstruct/Rebuild,5440.0,Small,26.46420824295011,4,False,False,False,,4
+124,Minnesota,Reconstruct/Rebuild,136620.0,Large,92.19088937093277,4,False,True,False,0.131,4
+125,Minnesota,Reconstruct/Rebuild,35766.0,Large,68.32971800433839,3,False,True,False,0.0673,3
+126,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+127,North Dakota,Aggregate/Base/Gravel,260.0,Small,21.052631578947366,2,False,True,True,-0.0029,2
+128,North Dakota,HMA Overlay/Resurface,39134.0,Large,93.16037735849056,4,False,True,False,0.1157,4
+129,North Dakota,Aggregate/Base/Gravel,2500.0,Large,53.00751879699248,2,False,True,False,0.2875,2
+130,North Dakota,Mill & Overlay,2173.0,Small,26.797385620915033,3,False,True,False,0.2819,3
+131,North Dakota,Aggregate/Base/Gravel,4242.0,Large,64.66165413533834,2,False,False,False,,2
+132,North Dakota,Other,,,,1,False,False,False,,1
+133,North Dakota,Aggregate/Base/Gravel,9772.0,Large,75.18796992481202,2,False,False,False,,2
+134,North Dakota,Mill & Overlay,4209.0,Small,40.032679738562095,4,False,True,False,0.0972,4
+135,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+136,North Dakota,Other,,,,1,False,False,False,,1
+137,North Dakota,Aggregate/Base/Gravel,261.0,Small,21.804511278195488,2,False,False,False,,2
+138,North Dakota,Other,,,,1,False,True,False,0.47,1
+139,North Dakota,Mill & Overlay,3485.0,Small,34.47712418300654,4,False,True,False,0.1453,4
+140,Minnesota,Mill & Overlay,9250.0,Large,53.92156862745098,3,False,False,False,,3
+141,Minnesota,Grading/Earthwork,51476.0,Large,82.0754716981132,2,False,False,False,,2
+142,Minnesota,Mill & Overlay,45053.0,Large,89.86928104575163,4,False,True,False,0.0939,4
+144,North Dakota,HMA Overlay/Resurface,45495.0,Large,96.22641509433963,2,False,True,True,-0.0325,2
+145,North Dakota,Mill & Overlay,972.0,Small,14.052287581699346,2,False,False,False,,2
+147,North Dakota,Mill & Overlay,15121.0,Large,66.33986928104575,4,False,True,False,0.0787,4
+148,North Dakota,HMA Overlay/Resurface,26982.0,Large,87.73584905660378,4,False,True,False,0.0664,4
+149,Minnesota,Mill & Overlay,10308.0,Large,56.209150326797385,4,True,False,False,,6
+150,Minnesota,HMA Overlay/Resurface,1324.0,Small,27.358490566037734,4,False,False,False,,4
+151,North Dakota,Mill & Overlay,2173.0,Small,26.797385620915033,3,False,False,False,,3
+152,North Dakota,Mill & Overlay,3789.0,Small,36.76470588235294,4,False,False,False,,4
+153,North Dakota,Grading/Earthwork,500.0,Small,0.4716981132075472,2,True,True,False,0.3964,4
+154,North Dakota,Aggregate/Base/Gravel,70750.0,Large,95.48872180451127,2,False,False,False,,2
+156,North Dakota,HMA Overlay/Resurface,7488.0,Large,58.490566037735846,3,False,True,False,0.3307,3
+157,North Dakota,HMA Overlay/Resurface,11400.0,Large,66.98113207547169,4,False,True,False,0.2183,4
+158,North Dakota,Mill & Overlay,2918.0,Small,30.718954248366014,4,True,False,False,,6
+159,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+160,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+161,North Dakota,Mill & Overlay,4000.0,Small,38.72549019607843,3,False,False,False,,3
+162,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+163,North Dakota,Mill & Overlay,7033.0,Large,49.18300653594771,3,False,False,False,,3
+164,North Dakota,Mill & Overlay,2173.0,Small,26.797385620915033,3,False,False,False,,3
+165,North Dakota,Mill & Overlay,4000.0,Small,38.72549019607843,3,False,False,False,,3
+166,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+167,North Dakota,Mill & Overlay,5750.0,Large,45.09803921568628,3,False,False,False,,3
+168,North Dakota,HMA Overlay/Resurface,730.0,Small,16.9811320754717,2,False,False,False,,2
+169,North Dakota,Aggregate/Base/Gravel,200.0,Small,15.789473684210526,2,False,False,False,,2
+170,North Dakota,Aggregate/Base/Gravel,3446.0,Large,61.65413533834586,3,True,False,False,,5
+171,North Dakota,Aggregate/Base/Gravel,1820.0,Large,50.37593984962406,2,False,False,False,,2
+172,North Dakota,Other,,,,1,False,False,False,,1
+173,North Dakota,Aggregate/Base/Gravel,9119.0,Large,72.93233082706767,3,False,False,False,,3
+174,North Dakota,Mill & Overlay,11011.0,Large,59.47712418300654,3,False,True,True,-0.3775,3
+175,North Dakota,HMA Overlay/Resurface,4300.0,Large,45.75471698113208,2,False,False,False,,2
+176,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.3296,0
+177,North Dakota,HMA Overlay/Resurface,121.0,Small,6.132075471698113,2,False,False,False,,2
+180,North Dakota,Other,,,,1,False,False,False,,1
+181,North Dakota,Aggregate/Base/Gravel,11640.0,Large,78.57142857142857,1,False,True,False,0.0456,1
+182,North Dakota,Aggregate/Base/Gravel,11640.0,Large,78.57142857142857,1,False,False,False,,1
+183,Minnesota,Mill & Overlay,500.0,Small,7.6797385620915035,4,True,True,False,0.0905,6
+184,North Dakota,HMA Overlay/Resurface,32298.0,Large,89.62264150943396,4,False,True,False,0.2341,4
+185,North Dakota,Mill & Overlay,2.0,Small,0.8169934640522877,2,False,False,False,,2
+186,Minnesota,Mill & Overlay,96.0,Small,1.6339869281045754,3,True,True,False,0.2816,5
+187,North Dakota,Mill & Overlay,3789.0,Small,36.76470588235294,4,False,False,False,,4
+188,North Dakota,HMA Overlay/Resurface,7100.0,Large,56.839622641509436,2,False,False,False,,2
+189,North Dakota,HMA Overlay/Resurface,19520.0,Large,81.13207547169812,2,False,False,False,,2
+190,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+191,Minnesota,Other,,,,1,False,False,False,,1
+192,Minnesota,Mill & Overlay,3217.0,Small,32.35294117647059,3,False,False,False,,3
+193,North Dakota,HMA Overlay/Resurface,4296.0,Large,45.28301886792453,2,False,False,False,,2
+194,Minnesota,HMA Overlay/Resurface,750.0,Small,17.92452830188679,2,False,False,False,,2
+195,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.4155,0
+196,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+197,Minnesota,Mill & Overlay,2445.0,Small,29.08496732026144,4,False,False,False,,4
+198,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+199,North Dakota,HMA Overlay/Resurface,5495.0,Large,50.47169811320755,2,False,False,False,,2
+200,North Dakota,Aggregate/Base/Gravel,135.0,Small,9.774436090225564,2,False,False,False,,2
+201,North Dakota,Other,,,,1,True,True,False,0.1141,3
+202,Minnesota,Reconstruct/Rebuild,30839.0,Large,64.20824295010846,3,False,True,False,0.2172,3
+204,North Dakota,Mill & Overlay,926.0,Small,12.745098039215685,3,False,False,False,,3
+205,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+206,North Dakota,Aggregate/Base/Gravel,75.0,Small,3.007518796992481,1,False,False,False,,1
+207,North Dakota,HMA Overlay/Resurface,19520.0,Large,81.13207547169812,2,False,False,False,,2
+208,North Dakota,Aggregate/Base/Gravel,10702.0,Large,76.69172932330827,2,False,False,False,,2
+209,North Dakota,HMA Overlay/Resurface,7100.0,Large,56.839622641509436,2,False,False,False,,2
+210,Minnesota,Reconstruct/Rebuild,94629.0,Large,87.85249457700651,4,False,True,False,0.2863,4
+211,North Dakota,Mill & Overlay,651.0,Small,9.967320261437909,3,False,False,False,,3
+212,Minnesota,HMA Overlay/Resurface,3510.0,Large,40.56603773584906,4,False,True,False,0.1026,4
+213,Minnesota,HMA Overlay/Resurface,19174.0,Large,79.71698113207547,2,False,True,True,-0.0156,2
+214,North Dakota,Mill & Overlay,7033.0,Large,49.18300653594771,3,False,False,False,,3
+215,North Dakota,HMA Overlay/Resurface,14141.0,Large,71.22641509433963,4,False,False,False,,4
+216,Minnesota,Reconstruct/Rebuild,236358.0,Large,96.74620390455532,3,False,True,False,0.0724,3
+217,North Dakota,Mill & Overlay,2.0,Small,0.8169934640522877,2,False,False,False,,2
+218,North Dakota,Mill & Overlay,10610.0,Large,57.18954248366013,4,False,True,False,0.4082,4
+219,Minnesota,Reconstruct/Rebuild,73787.0,Large,84.3817787418655,5,False,False,False,,5
+220,Minnesota,Other,,,,1,False,False,False,,1
+221,North Dakota,Mill & Overlay,492.0,Small,7.18954248366013,3,False,False,False,,3
+222,North Dakota,Aggregate/Base/Gravel,17426.0,Large,80.45112781954887,3,False,False,False,,3
+223,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.6565,0
+225,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+226,Minnesota,Reconstruct/Rebuild,13526.0,Small,44.251626898047725,4,False,False,False,,4
+227,North Dakota,Mill & Overlay,2.0,Small,0.8169934640522877,2,False,False,False,,2
+228,Minnesota,HMA Overlay/Resurface,1250.0,Small,26.41509433962264,3,False,False,False,,3
+229,North Dakota,HMA Overlay/Resurface,32276.0,Large,89.15094339622641,2,False,True,False,0.2044,2
+230,North Dakota,Mill & Overlay,926.0,Small,12.745098039215685,3,False,False,False,,3
+231,North Dakota,HMA Overlay/Resurface,9446.0,Large,63.443396226415096,2,False,True,False,0.2946,2
+232,Minnesota,Aggregate/Base/Gravel,3400.0,Large,60.902255639097746,2,False,False,False,,2
+233,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+234,North Dakota,HMA Overlay/Resurface,19520.0,Large,81.13207547169812,2,False,False,False,,2
+235,North Dakota,Mill & Overlay,8580.0,Large,52.94117647058824,4,False,False,False,,4
+236,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+237,Minnesota,Mill & Overlay,20235.0,Large,71.89542483660131,5,False,False,False,,5
+238,North Dakota,Mill & Overlay,737.0,Small,11.11111111111111,4,False,False,False,,4
+239,North Dakota,Mill & Overlay,926.0,Small,12.745098039215685,3,False,False,False,,3
+240,North Dakota,Mill & Overlay,651.0,Small,9.967320261437909,3,False,False,False,,3
+241,North Dakota,Aggregate/Base/Gravel,2693.0,Large,54.88721804511278,2,False,False,False,,2
+242,Minnesota,Mill & Overlay,1099.0,Small,16.33986928104575,3,False,True,False,0.312,3
+243,North Dakota,Mill & Overlay,1699.0,Small,21.568627450980394,3,False,False,False,,3
+244,North Dakota,Aggregate/Base/Gravel,7846.0,Large,70.67669172932331,3,False,False,False,,3
+245,North Dakota,Aggregate/Base/Gravel,3277.0,Large,60.150375939849624,3,False,False,False,,3
+246,North Dakota,Mill & Overlay,1672.0,Small,21.241830065359476,3,False,False,False,,3
+247,Minnesota,Aggregate/Base/Gravel,431.0,Small,27.819548872180448,3,False,False,False,,3
+248,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+249,North Dakota,Mill & Overlay,3485.0,Small,34.47712418300654,4,False,False,False,,4
+250,North Dakota,HMA Overlay/Resurface,5421.0,Large,49.056603773584904,2,False,True,False,0.2364,2
+251,North Dakota,HMA Overlay/Resurface,7330.0,Large,58.01886792452831,2,False,False,False,,2
+252,North Dakota,Aggregate/Base/Gravel,641.0,Small,33.83458646616541,3,False,False,False,,3
+253,North Dakota,Mill & Overlay,2.0,Small,0.8169934640522877,2,False,False,False,,2
+254,North Dakota,Mill & Overlay,10639.0,Large,57.6797385620915,3,False,True,False,0.1129,3
+255,North Dakota,Mill & Overlay,1139.0,Small,17.320261437908496,4,False,False,False,,4
+256,North Dakota,Mill & Overlay,10639.0,Large,57.6797385620915,3,False,True,False,0.3106,3
+257,Minnesota,Aggregate/Base/Gravel,5451.0,Large,68.42105263157895,3,False,False,False,,3
+258,North Dakota,Aggregate/Base/Gravel,2500.0,Large,53.00751879699248,2,False,False,False,,2
+259,North Dakota,Aggregate/Base/Gravel,4136.0,Large,63.53383458646616,2,False,False,False,,2
+260,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0682,0
+261,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+262,North Dakota,Aggregate/Base/Gravel,5100.0,Large,66.9172932330827,2,False,False,False,,2
+263,Minnesota,Mill & Overlay,10602.0,Large,56.86274509803921,4,False,False,False,,4
+264,North Dakota,HMA Overlay/Resurface,5683.0,Large,50.943396226415096,3,False,True,False,0.5588,3
+265,Minnesota,Mill & Overlay,2126.0,Small,25.816993464052292,4,False,True,False,0.0295,4
+266,North Dakota,Mill & Overlay,1232.0,Small,17.973856209150327,4,False,True,True,-0.0833,4
+267,Minnesota,Mill & Overlay,2472.0,Small,29.411764705882355,3,False,True,False,0.3144,3
+268,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+269,North Dakota,Aggregate/Base/Gravel,843.0,Small,39.473684210526315,2,True,True,False,0.1067,4
+270,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0109,0
+271,Minnesota,Reconstruct/Rebuild,170492.0,Large,95.22776572668113,4,False,True,False,0.0508,4
+272,Minnesota,Mill & Overlay,410.0,Small,5.228758169934641,3,False,True,False,0.0233,3
+273,Minnesota,Mill & Overlay,19912.0,Large,71.56862745098039,5,False,True,False,0.036,5
+274,Minnesota,Reconstruct/Rebuild,49564.0,Large,75.27114967462039,5,False,False,False,,5
+275,North Dakota,Aggregate/Base/Gravel,191.0,Small,15.037593984962406,2,False,True,False,0.1148,2
+276,North Dakota,HMA Overlay/Resurface,35961.0,Large,91.50943396226415,4,False,True,False,0.1013,4
+277,Minnesota,Mill & Overlay,6058.0,Large,46.40522875816993,4,False,True,False,1.2365,4
+278,North Dakota,HMA Overlay/Resurface,2411.0,Small,36.79245283018868,4,False,False,False,,4
+281,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.5316,0
+282,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+283,North Dakota,Reconstruct/Rebuild,211330.0,Large,95.87852494577007,4,False,False,False,,4
+284,North Dakota,Aggregate/Base/Gravel,91.0,Small,5.263157894736842,1,False,False,False,,1
+285,Minnesota,Reconstruct/Rebuild,19754.0,Large,52.060737527114966,5,False,True,False,0.2095,5
+286,Montana,Mill & Overlay,14847.0,Large,65.68627450980392,3,False,False,False,,3
+287,North Dakota,Aggregate/Base/Gravel,1638.0,Small,49.62406015037594,2,False,False,False,,2
+288,Minnesota,Reconstruct/Rebuild,419328.0,Large,99.78308026030369,4,False,False,False,,4
+289,Minnesota,Reconstruct/Rebuild,135246.0,Large,91.75704989154013,5,False,False,False,,5
+290,North Dakota,Aggregate/Base/Gravel,4136.0,Large,63.53383458646616,2,False,True,False,0.7663,2
+291,North Dakota,HMA Overlay/Resurface,3841.0,Large,41.509433962264154,4,False,True,False,0.2305,4
+292,North Dakota,HMA Overlay/Resurface,24249.0,Large,86.79245283018868,4,False,False,False,,4
+293,Minnesota,Aggregate/Base/Gravel,550.0,Small,30.82706766917293,2,True,False,False,,4
+294,North Dakota,HMA Overlay/Resurface,2836.0,Large,38.20754716981132,4,False,False,False,,4
+295,North Dakota,Aggregate/Base/Gravel,74921.0,Large,96.2406015037594,2,False,False,False,,2
+296,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0792,0
+297,Minnesota,Mill & Overlay,190.0,Small,3.2679738562091507,4,False,False,False,,4
+298,Montana,Mill & Overlay,14258.0,Large,64.05228758169935,4,False,False,False,,4
+300,Minnesota,Reconstruct/Rebuild,5872.0,Small,26.89804772234273,3,False,False,False,,3
+301,Minnesota,Aggregate/Base/Gravel,2548.0,Large,54.13533834586466,3,False,False,False,,3
+302,Minnesota,Mill & Overlay,370.0,Small,4.57516339869281,3,False,False,False,,3
+303,Minnesota,Reconstruct/Rebuild,245774.0,Large,96.96312364425162,5,False,False,False,,5
+304,Minnesota,Mill & Overlay,613.0,Small,8.823529411764707,3,False,False,False,,3
+305,North Dakota,Mill & Overlay,68411.0,Large,97.7124183006536,4,False,True,True,-0.1504,4
+306,Minnesota,Reconstruct/Rebuild,217224.0,Large,96.09544468546638,3,False,True,False,0.3305,3
+307,Minnesota,Mill & Overlay,1813.0,Small,22.875816993464053,3,False,True,False,0.4574,3
+308,North Dakota,Aggregate/Base/Gravel,28345.0,Large,86.46616541353383,2,False,True,False,0.1314,2
+309,Minnesota,HMA Overlay/Resurface,4316.0,Large,46.22641509433962,4,False,True,False,0.2315,4
+310,North Dakota,Mill & Overlay,1132.0,Small,16.99346405228758,2,False,False,False,,2
+311,Minnesota,Mill & Overlay,1889.0,Small,23.856209150326798,4,False,False,False,,4
+312,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+313,North Dakota,Aggregate/Base/Gravel,5592.0,Large,69.17293233082707,3,False,True,True,-0.0063,3
+314,Minnesota,HMA Overlay/Resurface,2256.0,Small,36.32075471698113,3,False,True,False,0.6342,3
+315,North Dakota,HMA Overlay/Resurface,4126.0,Large,43.86792452830189,4,False,True,True,-0.0131,4
+316,North Dakota,HMA Overlay/Resurface,10914.0,Large,65.09433962264151,3,False,False,False,,3
+317,Minnesota,Mill & Overlay,15024.0,Large,66.01307189542483,4,False,True,True,-0.0262,4
+318,North Dakota,Mill & Overlay,2588.0,Small,29.73856209150327,4,False,True,True,-0.2927,4
+319,Minnesota,Reconstruct/Rebuild,55953.0,Large,78.09110629067246,4,False,False,False,,4
+320,North Dakota,Aggregate/Base/Gravel,843.0,Small,39.473684210526315,2,True,True,False,0.0056,4
+321,Minnesota,HMA Overlay/Resurface,16920.0,Large,74.52830188679245,3,False,False,False,,3
+322,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.4315,0
+323,North Dakota,Mill & Overlay,500.0,Small,7.6797385620915035,3,False,False,False,,3
+324,Minnesota,Mill & Overlay,24185.0,Large,76.47058823529412,4,False,True,False,0.1279,4
+325,North Dakota,Mill & Overlay,9573.0,Large,55.06535947712419,3,False,True,False,0.187,3
+326,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+327,Montana,Other,,,,1,False,False,False,,1
+328,Minnesota,Aggregate/Base/Gravel,740.0,Small,36.84210526315789,3,False,True,False,0.203,3
+331,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+332,North Dakota,Aggregate/Base/Gravel,222.0,Small,19.548872180451127,2,False,True,False,1.8913,2
+333,North Dakota,HMA Overlay/Resurface,6645.0,Large,54.71698113207547,5,False,False,False,,5
+334,Minnesota,Grading/Earthwork,25700.0,Large,71.69811320754717,1,False,True,False,0.5614,1
+335,North Dakota,HMA Overlay/Resurface,8136.0,Large,60.84905660377359,3,False,True,False,0.1209,3
+336,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0993,0
+337,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0132,0
+338,North Dakota,Aggregate/Base/Gravel,12153.0,Large,79.69924812030075,4,False,True,True,,4
+340,Minnesota,Reconstruct/Rebuild,12883.0,Small,42.84164859002169,5,False,False,False,,5
+341,Minnesota,Aggregate/Base/Gravel,10432.0,Large,75.93984962406014,3,False,True,True,-0.1837,3
+342,Minnesota,Mill & Overlay,2209.0,Small,27.450980392156865,4,False,False,False,,4
+343,Minnesota,Reconstruct/Rebuild,168512.0,Large,95.01084598698482,5,False,True,False,0.1914,5
+344,Minnesota,Other,,,,1,False,False,False,,1
+345,Minnesota,Reconstruct/Rebuild,12883.0,Small,42.84164859002169,5,False,True,False,0.1671,5
+346,Minnesota,Reconstruct/Rebuild,71809.0,Large,83.51409978308027,5,False,False,False,,5
+347,North Dakota,Grading/Earthwork,4707.0,Small,43.86792452830189,2,True,True,False,1.4427,4
+348,North Dakota,Mill & Overlay,9573.0,Large,55.06535947712419,3,False,True,False,0.0715,3
+349,Minnesota,Reconstruct/Rebuild,379521.0,Large,99.34924078091106,5,False,True,False,0.1682,5
+350,Minnesota,Mill & Overlay,1809.0,Small,22.54901960784314,3,False,False,False,,3
+351,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+352,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.2516,0
+353,Minnesota,Mill & Overlay,652.0,Small,10.457516339869281,3,True,False,False,,5
+354,South Dakota,Unknown/NoQty,,,,0,False,True,True,-0.2046,0
+355,Minnesota,Reconstruct/Rebuild,24464.0,Large,57.48373101952278,4,False,False,False,,4
+356,South Dakota,Aggregate/Base/Gravel,246912.0,Large,100.0,4,True,True,False,0.2378,6
+357,Minnesota,Mill & Overlay,1060.0,Small,15.686274509803921,3,False,True,False,0.387,3
+358,South Dakota,Other,,,,1,False,False,False,,1
+359,Minnesota,Aggregate/Base/Gravel,68866.0,Large,93.98496240601504,2,False,True,False,0.0174,2
+360,Minnesota,Mill & Overlay,1276.0,Small,18.30065359477124,3,False,False,False,,3
+361,Minnesota,Aggregate/Base/Gravel,68866.0,Large,93.98496240601504,2,False,True,True,-0.1249,2
+363,South Dakota,Mill & Overlay,38716.0,Large,87.58169934640523,5,False,True,False,0.0932,5
+364,Minnesota,Reconstruct/Rebuild,2674.0,Small,14.859002169197396,4,True,False,False,,6
+365,Minnesota,Reconstruct/Rebuild,466069.0,Large,100.0,6,False,True,False,0.1355,6
+366,Minnesota,Mill & Overlay,5231.0,Large,42.810457516339866,3,False,True,False,0.0992,3
+367,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+368,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.1744,0
+370,Minnesota,Mill & Overlay,2279.0,Small,27.77777777777778,4,True,True,False,0.0967,6
+371,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0596,0
+372,Minnesota,HMA Overlay/Resurface,5040.0,Large,48.113207547169814,3,False,True,False,0.1631,3
+373,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0377,0
+374,Minnesota,Grading/Earthwork,926.0,Small,7.783018867924528,4,False,True,False,0.0104,4
+375,Minnesota,Grading/Earthwork,926.0,Small,7.783018867924528,4,False,True,True,-0.0417,4
+376,Minnesota,HMA Overlay/Resurface,18186.0,Large,76.41509433962264,4,False,False,False,,4
+377,Minnesota,Reconstruct/Rebuild,4911.0,Small,24.945770065075923,3,False,False,False,,3
+378,Minnesota,Aggregate/Base/Gravel,68866.0,Large,93.98496240601504,2,False,True,False,0.0132,2
+379,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+380,Minnesota,Mill & Overlay,3180.0,Small,32.02614379084967,3,False,False,False,,3
+381,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1616,0
+382,South Dakota,Mill & Overlay,933.0,Small,13.562091503267974,4,False,False,False,,4
+384,South Dakota,Mill & Overlay,933.0,Small,13.562091503267974,4,False,False,False,,4
+385,Minnesota,HMA Overlay/Resurface,2700.0,Large,37.5,1,False,False,False,,1
+386,Minnesota,HMA Overlay/Resurface,2700.0,Large,37.5,1,False,True,False,0.0479,1
+388,Minnesota,Aggregate/Base/Gravel,1056.0,Small,41.35338345864661,2,False,False,False,,2
+389,Minnesota,Mill & Overlay,490.0,Small,6.862745098039216,2,False,True,False,0.0947,2
+390,Minnesota,Reconstruct/Rebuild,289660.0,Large,98.37310195227765,5,False,False,False,,5
+391,Minnesota,Other,,,,2,True,True,False,0.4858,4
+392,Minnesota,Mill & Overlay,130.0,Small,2.287581699346405,3,False,False,False,,3
+394,Minnesota,Reconstruct/Rebuild,7399.0,Small,31.77874186550976,4,False,False,False,,4
+395,Minnesota,Grading/Earthwork,659.0,Small,3.7735849056603774,2,True,False,False,,4
+396,Minnesota,Reconstruct/Rebuild,44290.0,Large,72.88503253796095,4,False,False,False,,4
+397,Minnesota,Mill & Overlay,541.0,Small,8.49673202614379,3,False,False,False,,3
+398,Minnesota,Grading/Earthwork,46574.0,Large,79.95283018867924,2,False,True,False,0.1668,2
+399,Minnesota,Reconstruct/Rebuild,7399.0,Small,31.77874186550976,4,False,False,False,,4
+400,Minnesota,Mill & Overlay,2425.0,Small,28.75816993464052,3,False,False,False,,3
+401,Minnesota,Aggregate/Base/Gravel,1150.0,Small,43.609022556390975,2,False,False,False,,2
+402,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.3439,0
+403,Minnesota,Grading/Earthwork,3000.0,Small,34.90566037735849,1,False,True,False,0.0606,1
+404,Minnesota,HMA Overlay/Resurface,945.0,Small,19.81132075471698,2,False,True,False,0.1715,2
+405,Minnesota,Reconstruct/Rebuild,25840.0,Large,59.97830802603037,4,False,False,False,,4
+406,Minnesota,Other,,,,1,False,False,False,,1
+407,Minnesota,HMA Overlay/Resurface,1470.0,Small,28.77358490566038,3,False,False,False,,3
+408,Minnesota,Reconstruct/Rebuild,138008.0,Large,92.62472885032538,5,False,True,False,0.0537,5
+410,Minnesota,HMA Overlay/Resurface,8854.0,Large,62.5,2,False,True,False,0.3172,2
+411,Montana,Mill & Overlay,47009.0,Large,90.52287581699346,3,False,False,False,,3
+412,Minnesota,Mill & Overlay,24533.0,Large,76.79738562091504,3,True,False,False,,5
+413,Minnesota,Mill & Overlay,7680.0,Large,50.65359477124183,3,False,False,False,,3
+414,Minnesota,Reconstruct/Rebuild,251215.0,Large,97.39696312364426,5,False,True,True,-0.0027,5
+415,Minnesota,Grading/Earthwork,4030.0,Small,39.62264150943396,2,False,True,False,0.4896,2
+416,Minnesota,HMA Overlay/Resurface,8016.0,Large,59.905660377358494,3,False,False,False,,3
+417,Minnesota,HMA Overlay/Resurface,4021.0,Large,42.45283018867924,3,False,False,False,,3
+418,South Dakota,Mill & Overlay,4607.0,Large,40.52287581699346,3,False,False,False,,3
+419,Minnesota,HMA Overlay/Resurface,8854.0,Large,62.5,2,False,False,False,,2
+420,Minnesota,Reconstruct/Rebuild,38740.0,Large,69.41431670281996,3,False,True,True,-0.0063,3
+421,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+422,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0313,0
+423,Minnesota,Reconstruct/Rebuild,289660.0,Large,98.37310195227765,5,False,False,False,,5
+424,Minnesota,HMA Overlay/Resurface,12987.0,Large,68.39622641509435,4,False,False,False,,4
+425,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+426,Minnesota,Reconstruct/Rebuild,6707.0,Small,29.934924078091107,4,False,False,False,,4
+427,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+429,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.2676,0
+430,Minnesota,Grading/Earthwork,46574.0,Large,79.95283018867924,2,False,True,False,0.3474,2
+431,Minnesota,HMA Overlay/Resurface,102.0,Small,4.716981132075472,4,False,False,False,,4
+432,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+433,Minnesota,Reconstruct/Rebuild,123462.0,Large,90.88937093275487,5,False,True,False,0.0903,5
+434,Minnesota,Aggregate/Base/Gravel,555.0,Small,31.57894736842105,2,True,True,False,0.1865,4
+435,Minnesota,Reconstruct/Rebuild,25480.0,Large,59.00216919739696,5,False,False,False,,5
+436,Minnesota,Reconstruct/Rebuild,31742.0,Large,64.42516268980476,5,False,False,False,,5
+437,Minnesota,Reconstruct/Rebuild,193314.0,Large,95.66160520607376,3,False,True,True,-0.0921,3
+438,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.4995,0
+439,Minnesota,Mill & Overlay,3281.0,Small,33.006535947712415,5,False,True,False,0.2785,5
+440,Minnesota,Aggregate/Base/Gravel,17800.0,Large,81.203007518797,1,False,True,False,0.0618,1
+441,Minnesota,HMA Overlay/Resurface,6152.0,Large,52.83018867924528,4,False,False,False,,4
+442,Minnesota,HMA Overlay/Resurface,1382.0,Small,27.830188679245282,5,False,False,False,,5
+443,South Dakota,HMA Overlay/Resurface,41104.0,Large,94.81132075471697,4,False,True,False,0.0952,4
+444,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.441,0
+445,Minnesota,Reconstruct/Rebuild,25840.0,Large,59.97830802603037,4,False,True,False,0.2755,4
+446,Minnesota,Reconstruct/Rebuild,38542.0,Large,69.19739696312365,4,False,False,False,,4
+447,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.2271,0
+448,South Dakota,Mill & Overlay,6340.0,Large,47.385620915032675,4,False,False,False,,4
+449,Minnesota,HMA Overlay/Resurface,19960.0,Large,82.0754716981132,2,False,False,False,,2
+451,Minnesota,Reconstruct/Rebuild,55628.0,Large,77.65726681127983,5,False,False,False,,5
+452,Minnesota,Mill & Overlay,13146.0,Large,62.745098039215684,4,False,False,False,,4
+453,Minnesota,Reconstruct/Rebuild,34945.0,Large,67.67895878524945,5,False,False,False,,5
+454,Minnesota,HMA Overlay/Resurface,5452.0,Large,49.764150943396224,4,False,False,False,,4
+455,Minnesota,HMA Overlay/Resurface,5452.0,Large,49.764150943396224,4,False,False,False,,4
+456,Minnesota,HMA Overlay/Resurface,1020.0,Small,24.056603773584907,3,False,True,True,-0.1495,3
+458,South Dakota,Aggregate/Base/Gravel,671.0,Small,34.58646616541353,3,True,True,False,0.1138,5
+459,South Dakota,Other,,,,1,False,False,False,,1
+460,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0496,0
+461,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+462,Minnesota,Mill & Overlay,272.0,Small,3.9215686274509802,3,False,False,False,,3
+463,Minnesota,Aggregate/Base/Gravel,5060.0,Large,66.16541353383458,2,False,False,False,,2
+464,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+465,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+466,Minnesota,HMA Overlay/Resurface,190.0,Small,9.19811320754717,5,False,True,False,0.484,5
+467,Minnesota,Reconstruct/Rebuild,257983.0,Large,97.61388286334056,4,True,False,False,,6
+468,Minnesota,Reconstruct/Rebuild,12562.0,Small,42.0824295010846,3,False,True,False,0.1482,3
+469,Minnesota,Reconstruct/Rebuild,137283.0,Large,92.40780911062907,5,False,True,True,-0.004,5
+470,Minnesota,HMA Overlay/Resurface,65.0,Small,3.7735849056603774,3,False,False,False,,3
+471,Minnesota,Mill & Overlay,3548.0,Small,35.947712418300654,3,False,True,False,0.2019,3
+473,Minnesota,HMA Overlay/Resurface,500.0,Small,14.622641509433961,2,False,False,False,,2
+474,Minnesota,Reconstruct/Rebuild,16329.0,Small,47.939262472885034,4,False,False,False,,4
+475,Minnesota,Mill & Overlay,1000.0,Small,15.032679738562091,3,False,False,False,,3
+476,Minnesota,HMA Overlay/Resurface,18988.0,Large,79.24528301886792,4,False,True,False,0.2171,4
+477,South Dakota,Aggregate/Base/Gravel,3093.0,Large,58.64661654135338,1,True,True,False,0.3233,3
+478,Minnesota,Aggregate/Base/Gravel,109.0,Small,6.7669172932330826,2,False,False,False,,2
+479,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0393,0
+480,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+481,Minnesota,Aggregate/Base/Gravel,62806.0,Large,92.4812030075188,2,False,True,False,0.3927,2
+482,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+483,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+484,Minnesota,HMA Overlay/Resurface,190.0,Small,9.19811320754717,5,False,False,False,,5
+485,Minnesota,Other,,,,1,False,False,False,,1
+486,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+487,Minnesota,HMA Overlay/Resurface,15120.0,Large,72.64150943396226,4,False,True,False,0.0784,4
+489,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+490,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+491,Minnesota,Aggregate/Base/Gravel,449.0,Small,28.57142857142857,2,True,False,False,,4
+492,Minnesota,Grading/Earthwork,2123.0,Small,28.77358490566038,4,False,False,False,,4
+493,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0137,0
+494,Minnesota,Aggregate/Base/Gravel,360.0,Small,25.93984962406015,2,True,False,False,,4
+495,Minnesota,Reconstruct/Rebuild,25580.0,Large,59.436008676789584,3,False,True,False,0.3308,3
+496,Minnesota,Mill & Overlay,1540.0,Small,20.26143790849673,4,False,True,False,0.0312,4
+497,Minnesota,HMA Overlay/Resurface,2938.0,Large,39.62264150943396,3,False,False,False,,3
+498,South Dakota,HMA Overlay/Resurface,13862.0,Large,70.75471698113208,3,False,False,False,,3
+499,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0619,0
+500,Minnesota,Reconstruct/Rebuild,57391.0,Large,79.17570498915401,5,False,False,False,,5
+501,Minnesota,Mill & Overlay,3499.0,Small,35.294117647058826,3,False,False,False,,3
+502,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+503,Minnesota,Reconstruct/Rebuild,153412.0,Large,94.14316702819957,4,False,True,False,0.062,4
+504,South Dakota,Aggregate/Base/Gravel,23214.0,Large,83.45864661654136,2,False,False,False,,2
+506,Minnesota,Aggregate/Base/Gravel,85768.0,Large,96.99248120300751,3,False,False,False,,3
+507,Minnesota,Mill & Overlay,4762.0,Large,41.50326797385621,3,False,False,False,,3
+508,Minnesota,Aggregate/Base/Gravel,1850.0,Large,51.127819548872175,2,True,False,False,,4
+509,Minnesota,Reconstruct/Rebuild,259124.0,Large,97.83080260303689,5,False,False,False,,5
+510,Minnesota,HMA Overlay/Resurface,8487.0,Large,61.32075471698113,2,False,True,False,0.1337,2
+511,Minnesota,Reconstruct/Rebuild,48228.0,Large,74.83731019522777,4,False,True,False,0.0837,4
+512,South Dakota,Mill & Overlay,49333.0,Large,91.17647058823529,3,True,True,False,0.1616,5
+513,Minnesota,Mill & Overlay,734.0,Small,10.784313725490197,3,False,False,False,,3
+514,Minnesota,Mill & Overlay,1332.0,Small,19.607843137254903,4,False,False,False,,4
+515,Minnesota,Reconstruct/Rebuild,333808.0,Large,98.91540130151843,5,False,True,False,0.0968,5
+516,South Dakota,Mill & Overlay,25678.0,Large,77.12418300653596,5,False,True,False,0.1888,5
+517,Minnesota,Reconstruct/Rebuild,111129.0,Large,89.3709327548807,5,False,False,False,,5
+518,Minnesota,Mill & Overlay,3433.0,Small,33.66013071895425,4,False,False,False,,4
+519,Minnesota,Reconstruct/Rebuild,266739.0,Large,98.0477223427332,3,False,True,True,-0.0244,3
+520,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+521,South Dakota,Other,,,,1,False,False,False,,1
+522,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+523,South Dakota,Aggregate/Base/Gravel,232418.0,Large,99.24812030075188,5,False,True,False,0.3552,5
+524,Minnesota,HMA Overlay/Resurface,9446.0,Large,63.443396226415096,2,False,False,False,,2
+526,South Dakota,HMA Overlay/Resurface,19325.0,Large,80.18867924528303,4,False,True,False,0.0366,4
+527,Minnesota,Mill & Overlay,112.0,Small,1.9607843137254901,4,False,False,False,,4
+528,Minnesota,HMA Overlay/Resurface,22104.0,Large,84.43396226415094,4,False,True,False,0.114,4
+529,South Dakota,Aggregate/Base/Gravel,5425.0,Large,67.66917293233082,2,True,False,False,,4
+530,Minnesota,Mill & Overlay,55706.0,Large,92.48366013071896,4,True,False,False,,6
+531,South Dakota,Mill & Overlay,3803.0,Small,37.254901960784316,3,False,False,False,,3
+532,Minnesota,HMA Overlay/Resurface,17610.0,Large,75.47169811320755,2,False,True,False,0.1594,2
+533,Minnesota,Reconstruct/Rebuild,37574.0,Large,68.98047722342733,5,True,False,False,,7
+534,Minnesota,Mill & Overlay,2950.0,Small,31.045751633986928,5,False,False,False,,5
+535,Minnesota,Mill & Overlay,1453.0,Small,19.934640522875817,3,True,False,False,,5
+536,Minnesota,Reconstruct/Rebuild,15739.0,Small,46.420824295010846,3,False,True,False,0.1248,3
+537,Minnesota,HMA Overlay/Resurface,1762.0,Small,31.60377358490566,1,False,False,False,,1
+538,Minnesota,Mill & Overlay,1140.0,Small,17.647058823529413,4,False,True,False,0.3154,4
+539,Minnesota,Reconstruct/Rebuild,72858.0,Large,84.1648590021692,3,False,True,True,-0.0474,3
+540,Minnesota,Aggregate/Base/Gravel,2188.0,Large,51.8796992481203,2,False,False,False,,2
+541,Minnesota,Reconstruct/Rebuild,122351.0,Large,90.67245119305856,4,True,False,False,,6
+542,South Dakota,HMA Overlay/Resurface,11324.0,Large,66.50943396226415,2,False,False,False,,2
+543,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.2565,0
+546,South Dakota,Other,,,,2,False,False,False,,2
+548,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0392,0
+551,Minnesota,Reconstruct/Rebuild,3957.0,Small,21.908893709327547,4,True,True,False,0.9659,6
+552,Minnesota,Mill & Overlay,3831.0,Small,37.908496732026144,3,False,False,False,,3
+554,Minnesota,Reconstruct/Rebuild,116974.0,Large,89.80477223427332,4,False,True,True,-0.0489,4
+555,Minnesota,Mill & Overlay,3480.0,Small,33.98692810457516,3,False,False,False,,3
+556,South Dakota,HMA Overlay/Resurface,8672.0,Large,61.79245283018868,5,False,True,False,0.0334,5
+557,Minnesota,Mill & Overlay,2300.0,Small,28.104575163398692,3,False,False,False,,3
+558,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+559,Minnesota,Mill & Overlay,2172.0,Small,26.143790849673206,4,False,False,False,,4
+560,Minnesota,Reconstruct/Rebuild,26138.0,Large,60.30368763557483,5,False,False,False,,5
+561,Minnesota,Mill & Overlay,1660.0,Small,20.915032679738562,4,False,False,False,,4
+562,Minnesota,Mill & Overlay,6522.0,Large,48.36601307189542,3,False,False,False,,3
+564,South Dakota,Other,,,,1,True,False,False,,3
+565,Minnesota,Reconstruct/Rebuild,40748.0,Large,71.14967462039046,5,False,True,True,-0.0156,5
+566,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+567,Minnesota,Aggregate/Base/Gravel,175.0,Small,14.285714285714285,2,False,False,False,,2
+568,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1054,0
+569,Minnesota,Unknown/NoQty,,,,0,True,True,False,0.3218,2
+570,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.2573,0
+571,South Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0048,0
+572,South Dakota,Aggregate/Base/Gravel,717.0,Small,36.09022556390977,2,False,False,False,,2
+573,South Dakota,Aggregate/Base/Gravel,4268.0,Large,65.41353383458647,4,False,False,False,,4
+574,South Dakota,Other,,,,1,False,False,False,,1
+575,Minnesota,Aggregate/Base/Gravel,8866.0,Large,72.18045112781954,3,False,False,False,,3
+576,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+577,South Dakota,Aggregate/Base/Gravel,463.0,Small,29.32330827067669,3,True,False,False,,5
+578,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+579,South Dakota,Aggregate/Base/Gravel,1495.0,Small,46.99248120300752,2,True,False,False,,4
+580,Minnesota,Mill & Overlay,8479.0,Large,52.614379084967325,3,False,False,False,,3
+582,Minnesota,Mill & Overlay,1329.0,Small,19.28104575163399,3,False,False,False,,3
+584,Minnesota,HMA Overlay/Resurface,7569.0,Large,58.9622641509434,3,False,True,False,0.1195,3
+585,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.0467,0
+586,Minnesota,Reconstruct/Rebuild,140843.0,Large,93.49240780911063,4,False,True,False,0.1942,4
+587,Minnesota,Reconstruct/Rebuild,46388.0,Large,74.40347071583514,4,False,True,False,0.3862,4
+588,Minnesota,Reconstruct/Rebuild,79466.0,Large,85.24945770065075,4,False,False,False,,4
+589,South Dakota,Aggregate/Base/Gravel,1616.0,Small,48.87218045112782,2,False,False,False,,2
+590,South Dakota,HMA Overlay/Resurface,56420.0,Large,97.87735849056604,4,False,False,False,,4
+591,South Dakota,Aggregate/Base/Gravel,214741.0,Large,97.74436090225564,5,True,False,False,,7
+592,South Dakota,Mill & Overlay,74707.0,Large,98.69281045751634,5,False,True,False,0.1093,5
+593,Minnesota,Mill & Overlay,1287.0,Small,18.627450980392158,3,False,True,False,1.082,3
+594,South Dakota,Mill & Overlay,18482.0,Large,70.26143790849673,3,False,False,False,,3
+595,Minnesota,Other,,,,1,False,True,False,0.468,1
+596,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0704,0
+597,Minnesota,Aggregate/Base/Gravel,240.0,Small,20.30075187969925,2,True,True,False,0.5489,4
+599,South Dakota,Mill & Overlay,3497.0,Small,34.967320261437905,3,False,False,False,,3
+600,Minnesota,Reconstruct/Rebuild,117424.0,Large,90.02169197396964,5,False,False,False,,5
+601,Minnesota,Mill & Overlay,21220.0,Large,72.87581699346404,3,False,False,False,,3
+602,Minnesota,Reconstruct/Rebuild,117509.0,Large,90.23861171366593,3,False,True,False,0.1226,3
+603,Minnesota,Unknown/NoQty,,,,0,True,False,False,,2
+604,Minnesota,Reconstruct/Rebuild,135522.0,Large,91.97396963123644,3,False,True,True,-0.0079,3
+605,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+606,South Dakota,HMA Overlay/Resurface,56420.0,Large,97.87735849056604,4,False,False,False,,4
+607,Minnesota,Grading/Earthwork,58470.0,Large,83.9622641509434,1,False,True,False,0.9975,1
+608,Minnesota,Reconstruct/Rebuild,70873.0,Large,83.29718004338395,3,False,True,False,0.0583,3
+609,Minnesota,Mill & Overlay,140.0,Small,2.6143790849673203,3,True,False,False,,5
+610,Minnesota,Reconstruct/Rebuild,9450.0,Small,36.22559652928417,3,False,False,False,,3
+611,South Dakota,Aggregate/Base/Gravel,1495.0,Small,46.99248120300752,2,True,True,False,0.2703,4
+613,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.2221,0
+614,Minnesota,Reconstruct/Rebuild,43572.0,Large,72.66811279826464,5,False,True,True,-0.0177,5
+615,South Dakota,HMA Overlay/Resurface,109.0,Small,5.4245283018867925,2,False,False,False,,2
+616,South Dakota,HMA Overlay/Resurface,109.0,Small,5.4245283018867925,2,False,False,False,,2
+617,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1695,0
+618,South Dakota,Aggregate/Base/Gravel,24956.0,Large,84.9624060150376,2,False,False,False,,2
+619,Minnesota,Other,,,,1,True,False,False,,3
+620,South Dakota,Unknown/NoQty,,,,0,False,True,False,1.5073,0
+621,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.161,0
+622,South Dakota,Aggregate/Base/Gravel,677.0,Small,35.338345864661655,2,True,False,False,,4
+623,South Dakota,Mill & Overlay,485.0,Small,6.372549019607843,4,False,False,False,,4
+624,South Dakota,Mill & Overlay,485.0,Small,6.372549019607843,4,False,False,False,,4
+625,Minnesota,Aggregate/Base/Gravel,4087.0,Large,62.40601503759399,2,False,True,False,1.3991,2
+626,Minnesota,Aggregate/Base/Gravel,8407.0,Large,71.42857142857143,2,False,False,False,,2
+627,Minnesota,Other,,,,1,True,False,False,,3
+628,Minnesota,Mill & Overlay,4860.0,Large,42.15686274509804,3,False,False,False,,3
+629,Minnesota,Other,,,,1,False,False,False,,1
+630,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+631,South Dakota,Mill & Overlay,29513.0,Large,81.69934640522875,3,False,True,False,0.1255,3
+634,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+638,South Dakota,Mill & Overlay,2690.0,Small,30.065359477124183,3,False,False,False,,3
+640,Minnesota,Reconstruct/Rebuild,74415.0,Large,84.81561822125813,3,False,True,False,0.3663,3
+641,Minnesota,HMA Overlay/Resurface,22563.0,Large,85.37735849056604,3,False,True,False,0.0581,3
+642,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1233,0
+643,South Dakota,Mill & Overlay,7060.0,Large,49.673202614379086,4,False,False,False,,4
+644,Minnesota,Other,,,,1,True,False,False,,3
+645,South Dakota,HMA Overlay/Resurface,15959.0,Large,73.58490566037736,3,False,True,False,0.2956,3
+646,South Dakota,Mill & Overlay,11889.0,Large,59.80392156862745,3,False,False,False,,3
+647,Iowa,Mill & Overlay,56965.0,Large,92.97385620915033,3,False,False,False,,3
+648,Iowa,Mill & Overlay,56965.0,Large,92.97385620915033,3,False,False,False,,3
+649,Iowa,HMA Overlay/Resurface,22264.0,Large,84.90566037735849,3,False,False,False,,3
+651,South Dakota,HMA Overlay/Resurface,444.0,Small,14.150943396226415,2,False,False,False,,2
+652,Iowa,Reconstruct/Rebuild,13405.0,Small,44.03470715835141,2,False,False,False,,2
+653,South Dakota,HMA Overlay/Resurface,286.0,Small,11.320754716981133,3,False,False,False,,3
+654,South Dakota,Mill & Overlay,39704.0,Large,87.90849673202614,5,False,True,False,0.0853,5
+655,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.147,0
+656,Iowa,Reconstruct/Rebuild,235903.0,Large,96.31236442516268,4,False,True,False,0.3053,4
+657,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+658,South Dakota,HMA Overlay/Resurface,591.0,Small,16.037735849056602,4,False,False,False,,4
+659,Iowa,Mill & Overlay,36862.0,Large,85.94771241830065,3,False,False,False,,3
+661,South Dakota,Mill & Overlay,5742.0,Large,44.6078431372549,4,False,True,False,0.6097,4
+662,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1074,0
+663,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0391,0
+664,South Dakota,Mill & Overlay,23370.0,Large,75.65359477124183,4,True,True,False,0.2508,6
+665,South Dakota,Mill & Overlay,230.0,Small,3.594771241830065,3,False,False,False,,3
+666,Iowa,HMA Overlay/Resurface,29830.0,Large,88.67924528301887,2,False,True,False,0.0662,2
+667,South Dakota,Mill & Overlay,23370.0,Large,75.65359477124183,4,True,False,False,,6
+668,Iowa,Reconstruct/Rebuild,22350.0,Large,55.09761388286334,3,False,False,False,,3
+669,South Dakota,Mill & Overlay,5098.0,Large,42.48366013071895,3,False,False,False,,3
+670,South Dakota,Mill & Overlay,4732.0,Large,41.17647058823529,4,True,True,False,0.4248,6
+672,Nebraska,HMA Overlay/Resurface,5337.0,Large,48.58490566037736,2,False,False,False,,2
+673,Iowa,Mill & Overlay,1920.0,Small,24.18300653594771,3,False,False,False,,3
+674,Iowa,HMA Overlay/Resurface,6721.0,Large,55.188679245283026,3,False,False,False,,3
+675,Iowa,Reconstruct/Rebuild,109355.0,Large,89.15401301518439,4,False,False,False,,4
+676,Iowa,HMA Overlay/Resurface,23151.0,Large,85.84905660377359,2,False,False,False,,2
+677,South Dakota,Mill & Overlay,1068.0,Small,16.013071895424837,3,False,False,False,,3
+678,Iowa,Reconstruct/Rebuild,63204.0,Large,81.12798264642083,4,False,False,False,,4
+679,Iowa,Reconstruct/Rebuild,27331.0,Large,61.388286334056396,4,False,False,False,,4
+680,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+682,Nebraska,HMA Overlay/Resurface,24039.0,Large,86.32075471698113,2,False,False,False,,2
+683,South Dakota,Mill & Overlay,5742.0,Large,44.6078431372549,4,False,False,False,,4
+684,Nebraska,HMA Overlay/Resurface,17410.0,Large,75.0,3,False,True,False,0.4879,3
+686,Iowa,HMA Overlay/Resurface,48129.0,Large,96.69811320754717,2,False,False,False,,2
+687,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+688,Nebraska,HMA Overlay/Resurface,8058.0,Large,60.37735849056604,3,False,False,False,,3
+689,Iowa,Mill & Overlay,1987.0,Small,24.509803921568626,3,False,False,False,,3
+690,Nebraska,Mill & Overlay,52431.0,Large,91.83006535947712,3,False,False,False,,3
+691,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+692,Nebraska,HMA Overlay/Resurface,18180.0,Large,75.94339622641509,3,False,False,False,,3
+693,Nebraska,HMA Overlay/Resurface,44878.0,Large,95.75471698113208,3,False,False,False,,3
+694,Nebraska,HMA Overlay/Resurface,26810.0,Large,87.26415094339622,3,False,False,False,,3
+695,Nebraska,Aggregate/Base/Gravel,1538.0,Small,48.1203007518797,2,False,False,False,,2
+696,North Dakota,Grading/Earthwork,173796.0,Large,94.33962264150944,1,True,False,False,,3
+697,North Dakota,Aggregate/Base/Gravel,780.0,Small,37.59398496240601,2,False,True,False,3.3621,2
+698,South Dakota,Grading/Earthwork,10243.0,Small,63.67924528301887,1,False,False,False,,1
+699,South Dakota,Reconstruct/Rebuild,13353.0,Small,43.817787418655094,3,False,False,False,,3
+700,South Dakota,Reconstruct/Rebuild,904.0,Small,3.9045553145336225,4,False,False,False,,4
+701,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+702,Minnesota,Other,,,,1,False,False,False,,1
+703,Minnesota,HMA Overlay/Resurface,1296.0,Small,26.88679245283019,4,False,True,False,0.1731,4
+704,North Dakota,Reconstruct/Rebuild,25421.0,Large,58.78524945770065,4,False,False,False,,4
+705,North Dakota,Grading/Earthwork,14195.0,Large,66.98113207547169,1,False,False,False,,1
+706,North Dakota,HMA Overlay/Resurface,6216.0,Large,53.301886792452834,1,False,False,False,,1
+707,Minnesota,Reconstruct/Rebuild,2839.0,Small,15.61822125813449,4,True,True,False,0.2971,6
+708,Minnesota,Reconstruct/Rebuild,944.0,Small,4.4468546637744035,3,True,True,False,0.4359,5
+709,Minnesota,Reconstruct/Rebuild,944.0,Small,4.4468546637744035,3,True,False,False,,5
+710,Minnesota,Grading/Earthwork,1566.0,Small,20.754716981132077,2,False,False,False,,2
+711,Minnesota,Mill & Overlay,1700.0,Small,21.895424836601308,4,False,False,False,,4
+712,South Dakota,Other,,,,1,False,False,False,,1
+713,South Dakota,HMA Overlay/Resurface,34.0,Small,2.5943396226415096,3,False,False,False,,3
+714,South Dakota,HMA Overlay/Resurface,34.0,Small,2.5943396226415096,3,False,False,False,,3
+715,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+716,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+717,Minnesota,Reconstruct/Rebuild,8797.0,Small,35.24945770065076,4,True,True,False,0.6226,6
+718,Minnesota,Reconstruct/Rebuild,8797.0,Small,35.24945770065076,4,True,True,False,0.1301,6
+719,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+720,Minnesota,Reconstruct/Rebuild,30787.0,Large,63.99132321041214,5,False,False,False,,5
+721,Minnesota,Reconstruct/Rebuild,40478.0,Large,70.93275488069413,5,False,True,False,0.0773,5
+722,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+723,Minnesota,Reconstruct/Rebuild,967.0,Small,4.772234273318872,3,False,False,False,,3
+724,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+725,South Dakota,Reconstruct/Rebuild,173584.0,Large,95.44468546637745,5,False,False,False,,5
+726,South Dakota,Reconstruct/Rebuild,2833.0,Small,15.40130151843818,3,True,True,False,0.1317,5
+727,South Dakota,Mill & Overlay,64701.0,Large,96.40522875816994,5,False,True,True,-0.0374,5
+728,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+729,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+730,Nebraska,Reconstruct/Rebuild,70479.0,Large,83.08026030368764,3,False,False,False,,3
+731,North Dakota,Aggregate/Base/Gravel,31677.0,Large,87.21804511278195,1,False,True,False,13.9155,1
+732,North Dakota,Other,,,,1,False,True,False,4.6527,1
+733,North Dakota,Other,,,,1,False,False,False,,1
+734,North Dakota,Grading/Earthwork,190075.0,Large,94.81132075471697,3,False,False,False,,3
+735,Montana,Reconstruct/Rebuild,3481.0,Small,18.004338394793926,3,False,False,False,,3
+736,Minnesota,Reconstruct/Rebuild,49817.0,Large,75.48806941431671,3,False,False,False,,3
+737,North Dakota,Reconstruct/Rebuild,1571.0,Small,9.761388286334057,4,False,False,False,,4
+738,North Dakota,Mill & Overlay,1118.0,Small,16.666666666666664,3,False,False,False,,3
+739,North Dakota,Aggregate/Base/Gravel,360.0,Small,25.93984962406015,3,False,False,False,,3
+740,North Dakota,Aggregate/Base/Gravel,560.0,Small,32.33082706766917,3,False,False,False,,3
+741,Iowa,Grading/Earthwork,11272.0,Small,65.09433962264151,2,False,False,False,,2
+742,Iowa,Reconstruct/Rebuild,9599.0,Small,36.767895878524946,3,False,False,False,,3
+743,Iowa,Reconstruct/Rebuild,9599.0,Small,36.767895878524946,3,False,False,False,,3
+744,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+745,Iowa,Unknown/NoQty,,,,0,False,True,False,0.1764,0
+746,South Dakota,Grading/Earthwork,9568.0,Small,62.735849056603776,1,False,True,False,0.638,1
+747,South Dakota,Reconstruct/Rebuild,160108.0,Large,94.36008676789588,5,True,True,False,0.3578,7
+748,South Dakota,HMA Overlay/Resurface,34604.0,Large,90.56603773584906,3,False,True,False,0.2327,3
+749,South Dakota,Reconstruct/Rebuild,72437.0,Large,83.94793926247289,5,False,True,True,-0.0453,5
+750,South Dakota,Reconstruct/Rebuild,64560.0,Large,81.56182212581345,4,False,True,False,0.0322,4
+751,Minnesota,Grading/Earthwork,79103.0,Large,86.32075471698113,4,False,True,False,1.6693,4
+752,Minnesota,Reconstruct/Rebuild,16482.0,Small,48.15618221258134,4,False,False,False,,4
+753,Montana,Unknown/NoQty,,,,0,False,True,False,0.1087,0
+754,Montana,Reconstruct/Rebuild,38760.0,Large,69.63123644251627,5,False,False,False,,5
+755,Nebraska,Reconstruct/Rebuild,84265.0,Large,85.90021691973969,4,False,False,False,,4
+756,Nebraska,Reconstruct/Rebuild,20798.0,Large,53.470715835141,4,False,False,False,,4
+757,Nebraska,Reconstruct/Rebuild,20798.0,Large,53.470715835141,4,False,True,False,0.2532,4
+758,Minnesota,Reconstruct/Rebuild,4154.0,Small,23.210412147505423,4,True,False,False,,6
+759,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+760,Minnesota,Reconstruct/Rebuild,18240.0,Large,50.32537960954448,4,False,False,False,,4
+761,Minnesota,Grading/Earthwork,1759.0,Small,23.349056603773587,2,True,True,False,0.3959,4
+762,Minnesota,Other,,,,1,False,False,False,,1
+763,North Dakota,Grading/Earthwork,27563.0,Large,73.11320754716981,2,True,False,False,,4
+764,Minnesota,Grading/Earthwork,1759.0,Small,23.349056603773587,2,True,False,False,,4
+765,Minnesota,Reconstruct/Rebuild,3311.0,Small,16.919739696312362,4,False,False,False,,4
+766,South Dakota,Grading/Earthwork,5448.0,Small,48.34905660377358,2,False,False,False,,2
+767,South Dakota,Grading/Earthwork,5448.0,Small,48.34905660377358,2,False,False,False,,2
+768,North Dakota,HMA Overlay/Resurface,3900.0,Large,41.9811320754717,2,False,False,False,,2
+769,South Dakota,Grading/Earthwork,5456.0,Small,49.056603773584904,2,False,False,False,,2
+770,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0316,0
+771,South Dakota,Reconstruct/Rebuild,2159.0,Small,11.930585683297181,3,False,False,False,,3
+772,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+773,South Dakota,Reconstruct/Rebuild,43363.0,Large,72.45119305856834,4,False,True,False,0.1179,4
+774,North Dakota,Mill & Overlay,8389.0,Large,51.9607843137255,2,False,False,False,,2
+775,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+776,Minnesota,Reconstruct/Rebuild,1214.0,Small,6.507592190889371,4,True,False,False,,6
+777,North Dakota,Mill & Overlay,4826.0,Large,41.830065359477125,4,False,False,False,,4
+778,North Dakota,Grading/Earthwork,7185.0,Small,56.60377358490566,3,True,True,False,0.1032,5
+779,South Dakota,Grading/Earthwork,5032.0,Small,46.22641509433962,2,False,False,False,,2
+780,Montana,Aggregate/Base/Gravel,130.0,Small,7.518796992481203,2,False,False,False,,2
+781,North Dakota,Mill & Overlay,19596.0,Large,71.07843137254902,2,False,True,False,0.0041,2
+782,North Dakota,Grading/Earthwork,1246.0,Small,13.679245283018867,2,True,True,False,0.2941,4
+783,North Dakota,Reconstruct/Rebuild,15957.0,Small,46.85466377440347,4,True,True,False,0.1063,6
+784,North Dakota,Aggregate/Base/Gravel,98.0,Small,6.015037593984962,1,False,False,False,,1
+785,North Dakota,Reconstruct/Rebuild,29469.0,Large,62.47288503253796,4,False,True,False,0.2877,4
+786,North Dakota,Reconstruct/Rebuild,87209.0,Large,86.33405639913232,4,False,False,False,,4
+787,North Dakota,Reconstruct/Rebuild,87209.0,Large,86.33405639913232,4,False,False,False,,4
+788,North Dakota,HMA Overlay/Resurface,18531.0,Large,78.30188679245283,3,False,True,False,0.0212,3
+789,North Dakota,Mill & Overlay,19596.0,Large,71.07843137254902,2,False,True,True,-0.0308,2
+790,North Dakota,Reconstruct/Rebuild,3559.0,Small,18.22125813449024,3,False,False,False,,3
+791,North Dakota,Reconstruct/Rebuild,87209.0,Large,86.33405639913232,4,False,True,True,-0.0442,4
+792,North Dakota,Grading/Earthwork,27071.0,Large,72.64150943396226,2,False,True,False,0.5088,2
+793,North Dakota,Grading/Earthwork,93200.0,Large,89.85849056603774,2,False,False,False,,2
+794,Minnesota,Aggregate/Base/Gravel,2881.0,Large,57.14285714285714,4,True,False,False,,6
+795,Minnesota,Grading/Earthwork,22721.0,Large,70.28301886792453,2,False,False,False,,2
+796,North Dakota,Grading/Earthwork,93200.0,Large,89.85849056603774,2,False,False,False,,2
+797,South Dakota,Grading/Earthwork,1740.0,Small,21.933962264150946,3,False,False,False,,3
+798,South Dakota,Grading/Earthwork,1740.0,Small,21.933962264150946,3,False,False,False,,3
+799,North Dakota,HMA Overlay/Resurface,4055.0,Large,43.160377358490564,2,False,False,False,,2
+800,South Dakota,Reconstruct/Rebuild,236035.0,Large,96.52928416485899,5,False,True,True,-0.0136,5
+801,South Dakota,Reconstruct/Rebuild,35071.0,Large,68.00433839479393,4,False,True,False,0.0606,4
+802,South Dakota,Reconstruct/Rebuild,35071.0,Large,68.00433839479393,4,False,True,False,0.0376,4
+803,Minnesota,Reconstruct/Rebuild,247.0,Small,0.43383947939262474,3,False,False,False,,3
+804,North Dakota,Reconstruct/Rebuild,32967.0,Large,65.72668112798264,4,False,True,False,0.2516,4
+805,South Dakota,Reconstruct/Rebuild,1270.0,Small,7.266811279826464,3,False,False,False,,3
+806,Minnesota,Reconstruct/Rebuild,71936.0,Large,83.73101952277658,5,True,True,False,0.0813,7
+807,Minnesota,Reconstruct/Rebuild,33276.0,Large,66.5943600867679,5,False,True,False,0.3174,5
+808,Minnesota,Reconstruct/Rebuild,121262.0,Large,90.45553145336225,4,False,True,False,0.1197,4
+809,Minnesota,Reconstruct/Rebuild,26158.0,Large,60.73752711496746,5,False,True,False,0.0691,5
+810,Minnesota,Reconstruct/Rebuild,26158.0,Large,60.73752711496746,5,False,True,False,0.0342,5
+811,South Dakota,Reconstruct/Rebuild,90.0,Small,0.21691973969631237,4,True,False,False,,6
+812,North Dakota,Grading/Earthwork,1648676.0,Large,99.52830188679245,2,False,False,False,,2
+813,Minnesota,Reconstruct/Rebuild,2183.0,Small,12.147505422993492,4,False,False,False,,4
+814,North Dakota,Reconstruct/Rebuild,106469.0,Large,88.93709327548807,3,True,False,False,,5
+815,North Dakota,Reconstruct/Rebuild,28450.0,Large,62.039045553145336,4,False,False,False,,4
+816,Minnesota,Grading/Earthwork,1266.0,Small,15.09433962264151,2,True,False,False,,4
+817,South Dakota,Aggregate/Base/Gravel,209.0,Small,16.917293233082706,3,False,False,False,,3
+818,South Dakota,Aggregate/Base/Gravel,209.0,Small,16.917293233082706,3,False,False,False,,3
+819,South Dakota,HMA Overlay/Resurface,172.0,Small,8.254716981132075,3,False,True,True,-0.0506,3
+820,South Dakota,HMA Overlay/Resurface,172.0,Small,8.254716981132075,3,False,True,True,-0.1478,3
+821,Minnesota,Reconstruct/Rebuild,60391.0,Large,80.36876355748373,4,False,False,False,,4
+822,South Dakota,Other,,,,1,False,False,False,,1
+823,North Dakota,Grading/Earthwork,53413.0,Large,83.01886792452831,2,False,False,False,,2
+824,South Dakota,Other,,,,1,False,False,False,,1
+825,South Dakota,Grading/Earthwork,2854.0,Small,33.0188679245283,1,True,False,False,,3
+826,South Dakota,Grading/Earthwork,4460.0,Small,42.45283018867924,1,True,False,False,,3
+827,South Dakota,Reconstruct/Rebuild,58944.0,Large,79.82646420824295,4,False,True,True,-0.0135,4
+828,South Dakota,Grading/Earthwork,7232.0,Small,57.07547169811321,1,False,True,False,0.0582,1
+829,South Dakota,Other,,,,1,False,False,False,,1
+830,Minnesota,Reconstruct/Rebuild,60391.0,Large,80.36876355748373,4,False,True,True,-0.0586,4
+831,Montana,Reconstruct/Rebuild,77535.0,Large,85.03253796095444,5,False,True,False,0.2555,5
+832,Minnesota,Reconstruct/Rebuild,18602.0,Large,51.19305856832972,4,False,False,False,,4
+833,Minnesota,Reconstruct/Rebuild,18526.0,Large,50.759219088937094,5,False,True,True,-0.0798,5
+834,Minnesota,Reconstruct/Rebuild,37136.0,Large,68.54663774403471,4,True,False,False,,6
+835,Minnesota,Reconstruct/Rebuild,17199.0,Small,49.457700650759215,5,False,False,False,,5
+836,Minnesota,Reconstruct/Rebuild,8176.0,Small,34.490238611713664,3,False,False,False,,3
+837,South Dakota,Reconstruct/Rebuild,1142.0,Small,5.639913232104121,4,False,False,False,,4
+838,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+839,Minnesota,Reconstruct/Rebuild,57006.0,Large,78.95878524945769,4,False,False,False,,4
+840,South Dakota,HMA Overlay/Resurface,28.0,Small,1.650943396226415,2,False,False,False,,2
+841,South Dakota,HMA Overlay/Resurface,28.0,Small,1.650943396226415,2,False,False,False,,2
+842,South Dakota,Grading/Earthwork,1894.0,Small,25.471698113207548,2,True,False,False,,4
+843,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.1385,0
+844,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.3626,0
+845,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.1061,0
+846,South Dakota,Grading/Earthwork,5656.0,Small,51.65094339622641,2,True,True,False,0.1006,4
+847,South Dakota,Grading/Earthwork,5656.0,Small,51.65094339622641,2,True,True,False,0.2842,4
+848,Nebraska,Mill & Overlay,65890.0,Large,97.05882352941177,3,False,False,False,,3
+849,Nebraska,Mill & Overlay,65890.0,Large,97.05882352941177,3,False,False,False,,3
+850,Nebraska,Reconstruct/Rebuild,18379.0,Large,50.542299349240785,4,False,True,False,0.0227,4
+851,Nebraska,Mill & Overlay,43963.0,Large,89.05228758169935,4,False,True,False,0.1216,4
+852,Nebraska,Mill & Overlay,43963.0,Large,89.05228758169935,4,False,True,True,-0.0189,4
+853,Nebraska,Mill & Overlay,65890.0,Large,97.05882352941177,3,False,False,False,,3
+854,Nebraska,Mill & Overlay,31242.0,Large,83.66013071895425,4,False,True,False,0.0236,4
+855,Minnesota,Other,,,,1,False,True,False,0.2429,1
+856,Minnesota,Reconstruct/Rebuild,46254.0,Large,74.18655097613883,5,True,False,False,,7
+857,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0021,0
+858,North Dakota,HMA Overlay/Resurface,133.0,Small,6.60377358490566,2,False,False,False,,2
+859,North Dakota,Grading/Earthwork,3466.0,Small,37.735849056603776,2,False,False,False,,2
+860,North Dakota,Aggregate/Base/Gravel,216.0,Small,18.796992481203006,1,False,True,False,1.4683,1
+861,North Dakota,Grading/Earthwork,1152.0,Small,11.556603773584905,2,True,True,False,0.1094,4
+862,North Dakota,Grading/Earthwork,1152.0,Small,11.556603773584905,2,True,True,True,-0.0335,4
+863,North Dakota,Reconstruct/Rebuild,1995.0,Small,11.279826464208242,3,False,False,False,,3
+864,North Dakota,Reconstruct/Rebuild,1232.0,Small,6.941431670281996,3,False,True,False,0.0756,3
+865,Iowa,Reconstruct/Rebuild,20167.0,Large,52.49457700650759,4,False,False,False,,4
+866,North Dakota,Grading/Earthwork,2846.0,Small,32.54716981132076,2,False,True,False,0.4007,2
+867,Minnesota,Grading/Earthwork,8606.0,Small,60.37735849056604,2,False,False,False,,2
+868,Iowa,Reconstruct/Rebuild,133691.0,Large,91.3232104121475,4,False,False,False,,4
+869,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+870,Iowa,Grading/Earthwork,5975.0,Small,52.83018867924528,4,False,False,False,,4
+871,South Dakota,Reconstruct/Rebuild,278.0,Small,0.6507592190889371,3,False,False,False,,3
+872,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+873,Minnesota,Reconstruct/Rebuild,10608.0,Small,39.69631236442516,5,False,True,True,-0.1873,5
+874,North Dakota,Grading/Earthwork,298799.0,Large,97.16981132075472,2,False,True,False,0.1003,2
+875,South Dakota,Grading/Earthwork,47416.0,Large,80.66037735849056,1,False,False,False,,1
+876,North Dakota,Reconstruct/Rebuild,61156.0,Large,80.91106290672451,3,False,False,False,,3
+877,North Dakota,Mill & Overlay,1305.0,Small,18.954248366013072,4,False,False,False,,4
+878,North Dakota,HMA Overlay/Resurface,3309.0,Large,40.09433962264151,2,False,False,False,,2
+879,South Dakota,HMA Overlay/Resurface,35119.0,Large,91.0377358490566,3,False,True,False,0.0768,3
+880,Minnesota,Grading/Earthwork,8881.0,Small,61.79245283018868,3,False,False,False,,3
+881,Minnesota,Grading/Earthwork,8881.0,Small,61.79245283018868,3,False,False,False,,3
+882,Minnesota,Grading/Earthwork,8881.0,Small,61.79245283018868,3,False,False,False,,3
+883,Montana,Reconstruct/Rebuild,33391.0,Large,66.81127982646422,3,False,False,False,,3
+884,Montana,Grading/Earthwork,83001.0,Large,88.20754716981132,4,False,False,False,,4
+885,Montana,Reconstruct/Rebuild,16046.0,Small,47.50542299349241,4,False,True,False,0.9796,4
+886,North Dakota,Reconstruct/Rebuild,28091.0,Large,61.82212581344903,3,False,False,False,,3
+887,Minnesota,Reconstruct/Rebuild,20272.0,Large,52.7114967462039,4,False,False,False,,4
+888,North Dakota,Grading/Earthwork,2960.0,Small,34.43396226415094,3,False,False,False,,3
+889,North Dakota,Reconstruct/Rebuild,39429.0,Large,70.06507592190889,3,True,True,False,0.0121,5
+890,North Dakota,Grading/Earthwork,130881.0,Large,92.9245283018868,1,False,True,False,0.6816,1
+891,North Dakota,Reconstruct/Rebuild,20947.0,Large,53.79609544468546,3,False,True,False,0.1612,3
+892,Minnesota,Grading/Earthwork,1750.0,Small,22.641509433962266,2,False,False,False,,2
+893,Minnesota,Reconstruct/Rebuild,49158.0,Large,75.05422993492408,3,False,False,False,,3
+894,South Dakota,Aggregate/Base/Gravel,50.0,Small,2.2556390977443606,2,False,True,False,0.2847,2
+895,Minnesota,Unknown/NoQty,,,,0,True,True,False,0.3196,2
+896,Minnesota,Reconstruct/Rebuild,8377.0,Small,34.924078091106296,3,False,False,False,,3
+897,Nebraska,Mill & Overlay,26170.0,Large,77.45098039215686,2,False,False,False,,2
+898,Nebraska,Reconstruct/Rebuild,58926.0,Large,79.60954446854663,4,True,True,False,0.0188,6
+899,Nebraska,Reconstruct/Rebuild,66766.0,Large,82.4295010845987,4,False,False,False,,4
+900,Minnesota,Reconstruct/Rebuild,27160.0,Large,61.17136659436009,3,False,False,False,,3
+901,Minnesota,Reconstruct/Rebuild,30727.0,Large,63.77440347071583,3,False,False,False,,3
+902,Minnesota,Reconstruct/Rebuild,7238.0,Small,31.23644251626898,3,True,True,False,0.0394,5
+903,Minnesota,Mill & Overlay,16935.0,Large,68.95424836601308,3,False,True,False,0.0853,3
+904,Minnesota,Reconstruct/Rebuild,27636.0,Large,61.60520607375272,4,False,True,False,0.1218,4
+905,Minnesota,Reconstruct/Rebuild,7078.0,Small,30.80260303687636,3,False,False,False,,3
+906,South Dakota,Reconstruct/Rebuild,56052.0,Large,78.52494577006507,5,True,False,False,,7
+907,South Dakota,Reconstruct/Rebuild,56052.0,Large,78.52494577006507,5,True,False,False,,7
+908,South Dakota,Reconstruct/Rebuild,56052.0,Large,78.52494577006507,5,True,True,True,-0.0206,7
+909,Iowa,Reconstruct/Rebuild,24120.0,Large,56.50759219088937,5,False,False,False,,5
+910,Iowa,Reconstruct/Rebuild,6464.0,Small,28.850325379609544,3,False,False,False,,3
+911,Iowa,Grading/Earthwork,86999.0,Large,89.15094339622641,3,True,True,False,0.3209,5
+912,Iowa,Aggregate/Base/Gravel,35395.0,Large,87.96992481203007,2,False,False,False,,2
+913,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+914,Iowa,Reconstruct/Rebuild,73876.0,Large,84.59869848156181,4,True,False,False,,6
+915,Iowa,Grading/Earthwork,7140.0,Small,55.89622641509434,2,False,False,False,,2
+916,Iowa,Grading/Earthwork,7140.0,Small,55.89622641509434,2,False,False,False,,2
+917,Iowa,Mill & Overlay,21500.0,Large,73.52941176470588,3,True,True,False,0.1595,5
+918,Iowa,Reconstruct/Rebuild,24120.0,Large,56.50759219088937,5,False,False,False,,5
+919,Iowa,Reconstruct/Rebuild,45391.0,Large,73.7527114967462,4,False,True,False,0.1061,4
+920,Iowa,Reconstruct/Rebuild,50511.0,Large,75.92190889370933,4,False,True,False,0.2251,4
+921,Iowa,Mill & Overlay,30403.0,Large,82.6797385620915,3,False,True,False,0.0521,3
+922,Iowa,Reconstruct/Rebuild,6464.0,Small,28.850325379609544,3,False,False,False,,3
+923,Iowa,Reconstruct/Rebuild,6464.0,Small,28.850325379609544,3,False,False,False,,3
+924,Iowa,Grading/Earthwork,6832.0,Small,54.71698113207547,1,True,False,False,,3
+925,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0445,0
+926,South Dakota,Grading/Earthwork,1640.0,Small,21.22641509433962,2,False,True,False,0.4258,2
+927,South Dakota,Reconstruct/Rebuild,487.0,Small,2.1691973969631237,3,False,True,False,0.009,3
+928,South Dakota,Reconstruct/Rebuild,134924.0,Large,91.54013015184381,5,False,True,False,0.1,5
+929,South Dakota,Reconstruct/Rebuild,55131.0,Large,77.22342733188721,5,False,False,False,,5
+930,Minnesota,Mill & Overlay,5837.0,Large,45.42483660130719,4,False,False,False,,4
+931,Minnesota,Reconstruct/Rebuild,1291.0,Small,7.592190889370933,2,False,False,False,,2
+932,North Dakota,Grading/Earthwork,2246.0,Small,29.71698113207547,2,False,True,False,1.1247,2
+933,Minnesota,Mill & Overlay,64247.0,Large,95.91503267973856,5,False,False,False,,5
+934,Minnesota,Mill & Overlay,64247.0,Large,95.91503267973856,5,False,True,True,-0.207,5
+935,North Dakota,HMA Overlay/Resurface,150.0,Small,7.547169811320755,3,False,False,False,,3
+936,Minnesota,Reconstruct/Rebuild,12927.0,Small,43.16702819956616,3,False,False,False,,3
+937,Minnesota,Mill & Overlay,30383.0,Large,82.35294117647058,3,False,True,True,-0.1102,3
+938,Minnesota,Reconstruct/Rebuild,33123.0,Large,66.26898047722342,4,False,False,False,,4
+939,Minnesota,Reconstruct/Rebuild,33123.0,Large,66.26898047722342,4,False,False,False,,4
+940,Minnesota,Aggregate/Base/Gravel,578.0,Small,33.08270676691729,3,False,False,False,,3
+941,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0046,0
+942,Minnesota,Reconstruct/Rebuild,4918.0,Small,25.16268980477224,3,True,False,False,,5
+943,Minnesota,Reconstruct/Rebuild,29935.0,Large,63.34056399132321,5,False,True,False,0.0727,5
+944,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.005,0
+945,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+946,Minnesota,Grading/Earthwork,8120.0,Small,59.43396226415094,2,False,True,False,0.1379,2
+947,Minnesota,Reconstruct/Rebuild,97128.0,Large,88.28633405639913,4,False,True,False,0.0787,4
+948,Iowa,Mill & Overlay,5550.0,Large,44.11764705882353,5,False,False,False,,5
+949,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+950,North Dakota,Grading/Earthwork,123269.0,Large,92.45283018867924,1,False,True,False,0.3385,1
+951,North Dakota,Mill & Overlay,9971.0,Large,55.88235294117647,2,False,True,False,0.0092,2
+952,South Dakota,Aggregate/Base/Gravel,132.0,Small,8.646616541353383,2,False,False,False,,2
+953,South Dakota,Aggregate/Base/Gravel,132.0,Small,8.646616541353383,2,False,False,False,,2
+954,North Dakota,Grading/Earthwork,33580.0,Large,75.94339622641509,2,False,True,True,-0.0636,2
+955,North Dakota,Grading/Earthwork,33580.0,Large,75.94339622641509,2,False,True,False,0.0096,2
+956,North Dakota,Grading/Earthwork,33580.0,Large,75.94339622641509,2,False,True,True,-0.5341,2
+957,South Dakota,Reconstruct/Rebuild,4079.0,Small,22.559652928416483,4,False,False,False,,4
+958,South Dakota,Grading/Earthwork,7682.0,Small,58.01886792452831,4,False,False,False,,4
+959,South Dakota,Reconstruct/Rebuild,1099.0,Small,5.314533622559653,3,False,True,True,-0.0655,3
+960,South Dakota,Reconstruct/Rebuild,140003.0,Large,93.058568329718,5,False,True,True,-0.1221,5
+961,South Dakota,Grading/Earthwork,7136.0,Small,55.188679245283026,3,False,False,False,,3
+962,South Dakota,Other,,,,1,False,True,False,19.8522,1
+963,South Dakota,Reconstruct/Rebuild,58836.0,Large,79.39262472885032,5,False,True,False,0.162,5
+964,South Dakota,Reconstruct/Rebuild,2578.0,Small,14.099783080260304,4,False,False,False,,4
+965,South Dakota,Reconstruct/Rebuild,1099.0,Small,5.314533622559653,3,False,False,False,,3
+966,South Dakota,Reconstruct/Rebuild,103328.0,Large,88.50325379609545,5,False,True,False,0.0219,5
+967,South Dakota,Mill & Overlay,22099.0,Large,74.18300653594771,4,False,True,True,-0.0586,4
+968,Minnesota,HMA Overlay/Resurface,1408.0,Small,28.30188679245283,3,False,True,False,0.2154,3
+969,Minnesota,Reconstruct/Rebuild,4136.0,Small,22.99349240780911,3,False,False,False,,3
+970,South Dakota,Grading/Earthwork,223100.0,Large,96.22641509433963,2,False,True,True,-0.1426,2
+971,Minnesota,HMA Overlay/Resurface,1580.0,Small,29.245283018867923,1,False,False,False,,1
+972,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+973,Minnesota,Mill & Overlay,59300.0,Large,94.77124183006535,3,False,True,False,0.03,3
+974,Minnesota,Reconstruct/Rebuild,30709.0,Large,63.55748373101952,3,False,False,False,,3
+975,Minnesota,Mill & Overlay,51651.0,Large,91.50326797385621,5,False,True,False,0.1242,5
+976,Minnesota,Reconstruct/Rebuild,23906.0,Large,55.9652928416486,3,False,False,False,,3
+977,North Dakota,Grading/Earthwork,10548.0,Small,64.15094339622641,2,False,False,False,,2
+978,North Dakota,Grading/Earthwork,80497.0,Large,86.79245283018868,2,True,True,True,-0.0657,4
+979,North Dakota,Reconstruct/Rebuild,2242.0,Small,12.689804772234273,3,False,True,False,0.0166,3
+980,North Dakota,Aggregate/Base/Gravel,790.0,Small,38.34586466165413,1,False,True,False,0.0762,1
+981,North Dakota,Grading/Earthwork,4379.0,Small,41.9811320754717,2,False,False,False,,2
+982,North Dakota,Grading/Earthwork,2051.0,Small,27.830188679245282,2,False,True,False,0.0514,2
+983,North Dakota,Grading/Earthwork,4116.0,Small,41.0377358490566,2,True,True,False,0.0892,4
+984,North Dakota,Reconstruct/Rebuild,14712.0,Small,45.5531453362256,3,False,True,True,-0.03,3
+985,North Dakota,Reconstruct/Rebuild,2242.0,Small,12.689804772234273,3,False,True,True,-0.156,3
+986,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0297,0
+987,North Dakota,Grading/Earthwork,1412.0,Small,18.632075471698112,1,False,True,False,0.2315,1
+988,North Dakota,Reconstruct/Rebuild,10713.0,Small,40.3470715835141,4,False,True,False,0.0667,4
+989,North Dakota,Grading/Earthwork,1412.0,Small,18.632075471698112,1,False,True,False,0.4496,1
+990,North Dakota,Grading/Earthwork,1176.0,Small,12.735849056603774,2,False,False,False,,2
+991,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+992,North Dakota,Mill & Overlay,3593.0,Small,36.27450980392157,2,False,False,False,,2
+993,Minnesota,HMA Overlay/Resurface,5700.0,Large,51.65094339622641,2,False,True,True,-0.1208,2
+994,Minnesota,Reconstruct/Rebuild,41882.0,Large,71.36659436008676,4,False,True,False,0.0013,4
+995,South Dakota,Mill & Overlay,13667.0,Large,63.39869281045751,4,False,True,True,-0.0184,4
+996,Minnesota,Reconstruct/Rebuild,29506.0,Large,62.68980477223427,5,False,True,False,0.0306,5
+997,South Dakota,Other,,,,1,False,True,False,0.0308,1
+998,South Dakota,Other,,,,1,False,True,True,-0.0858,1
+999,North Dakota,Reconstruct/Rebuild,7588.0,Small,32.86334056399132,3,False,True,True,-0.0608,3
+1000,South Dakota,Reconstruct/Rebuild,7953.0,Small,33.839479392624725,4,False,False,False,,4
+1001,North Dakota,HMA Overlay/Resurface,12.0,Small,0.9433962264150944,2,False,False,False,,2
+1002,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.2524,0
+1003,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0776,0
+1004,Minnesota,HMA Overlay/Resurface,58079.0,Large,98.82075471698113,3,False,True,True,-0.0719,3
+1005,Minnesota,HMA Overlay/Resurface,58079.0,Large,98.82075471698113,3,False,True,True,-0.0366,3
+1006,North Dakota,Reconstruct/Rebuild,7588.0,Small,32.86334056399132,3,False,True,False,0.0748,3
+1007,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.109,0
+1008,Iowa,Grading/Earthwork,49400.0,Large,81.60377358490565,1,False,False,False,,1
+1009,Minnesota,Reconstruct/Rebuild,7356.0,Small,31.453362255965295,4,False,False,False,,4
+1010,Iowa,Grading/Earthwork,18737.0,Large,68.16037735849056,2,False,False,False,,2
+1011,Iowa,Grading/Earthwork,18737.0,Large,68.16037735849056,2,False,False,False,,2
+1012,Iowa,Grading/Earthwork,33329.0,Large,75.0,3,False,False,False,,3
+1013,Iowa,Reconstruct/Rebuild,42733.0,Large,72.23427331887203,4,False,True,False,0.0299,4
+1014,Iowa,Reconstruct/Rebuild,66394.0,Large,81.99566160520607,4,False,False,False,,4
+1015,Iowa,Reconstruct/Rebuild,64018.0,Large,81.34490238611714,3,False,False,False,,3
+1016,Iowa,Grading/Earthwork,2028.0,Small,27.122641509433965,3,False,True,True,-0.1681,3
+1017,Iowa,Mill & Overlay,12644.0,Large,60.78431372549019,2,False,True,False,0.104,2
+1018,Iowa,Reconstruct/Rebuild,54702.0,Large,77.00650759219089,4,False,True,False,0.0832,4
+1019,Iowa,Mill & Overlay,33000.0,Large,84.9673202614379,3,False,False,False,,3
+1020,Iowa,Other,,,,1,False,False,False,,1
+1021,Iowa,Mill & Overlay,6195.0,Large,46.89542483660131,3,False,False,False,,3
+1022,Iowa,Mill & Overlay,6195.0,Large,46.89542483660131,3,False,False,False,,3
+1023,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1024,Iowa,Grading/Earthwork,2028.0,Small,27.122641509433965,3,False,False,False,,3
+1025,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1026,Iowa,Grading/Earthwork,520.0,Small,0.9433962264150944,1,False,False,False,,1
+1027,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1028,Iowa,Other,,,,1,False,False,False,,1
+1029,Iowa,Other,,,,1,False,False,False,,1
+1030,Iowa,Grading/Earthwork,4772.0,Small,44.339622641509436,3,False,False,False,,3
+1031,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1032,Iowa,Other,,,,1,False,False,False,,1
+1033,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1034,Iowa,Grading/Earthwork,715.0,Small,5.89622641509434,1,False,False,False,,1
+1035,Iowa,Grading/Earthwork,715.0,Small,5.89622641509434,1,False,False,False,,1
+1036,Minnesota,Reconstruct/Rebuild,15305.0,Small,46.20390455531454,3,False,False,False,,3
+1037,South Dakota,Mill & Overlay,8427.0,Large,52.28758169934641,4,False,False,False,,4
+1038,Minnesota,Mill & Overlay,54775.0,Large,92.15686274509804,3,False,False,False,,3
+1041,Minnesota,Mill & Overlay,12087.0,Large,60.45751633986928,2,False,False,False,,2
+1042,Minnesota,Reconstruct/Rebuild,10630.0,Small,39.91323210412148,3,False,True,False,0.1833,3
+1043,Minnesota,Reconstruct/Rebuild,725.0,Small,3.036876355748373,3,False,False,False,,3
+1044,South Dakota,Reconstruct/Rebuild,164251.0,Large,94.57700650759219,3,False,True,False,0.1324,3
+1045,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0663,0
+1046,South Dakota,Grading/Earthwork,4706.0,Small,43.39622641509434,3,False,False,False,,3
+1047,Minnesota,Mill & Overlay,8918.0,Large,53.59477124183007,3,False,True,False,0.0035,3
+1048,Minnesota,Mill & Overlay,98872.0,Large,99.67320261437908,4,False,True,True,-0.0554,4
+1049,South Dakota,HMA Overlay/Resurface,11019.0,Large,66.0377358490566,2,False,False,False,,2
+1050,North Dakota,Grading/Earthwork,308026.0,Large,97.87735849056604,1,False,True,True,-0.0808,1
+1051,Montana,Reconstruct/Rebuild,140100.0,Large,93.27548806941431,3,False,True,True,-0.1172,3
+1052,Montana,Reconstruct/Rebuild,21515.0,Large,54.01301518438177,4,False,False,False,,4
+1053,North Dakota,Reconstruct/Rebuild,16811.0,Small,49.0238611713666,4,False,True,False,0.0212,4
+1054,North Dakota,Grading/Earthwork,704.0,Small,4.952830188679245,2,True,True,True,-0.0005,4
+1055,North Dakota,Grading/Earthwork,704.0,Small,4.952830188679245,2,True,True,True,-0.0597,4
+1056,Minnesota,Reconstruct/Rebuild,9910.0,Small,38.17787418655097,3,False,False,False,,3
+1057,Minnesota,Reconstruct/Rebuild,3370.0,Small,17.570498915401302,3,False,True,False,0.0263,3
+1058,North Dakota,Grading/Earthwork,308026.0,Large,97.87735849056604,1,False,True,False,0.1005,1
+1059,Minnesota,Aggregate/Base/Gravel,39027.0,Large,88.7218045112782,2,False,True,False,0.2354,2
+1060,South Dakota,Mill & Overlay,1882.0,Small,23.52941176470588,3,False,False,False,,3
+1061,Minnesota,Grading/Earthwork,25910.0,Large,72.16981132075472,2,False,True,True,-0.0597,2
+1062,Minnesota,Reconstruct/Rebuild,66519.0,Large,82.21258134490239,6,False,True,False,0.0029,6
+1063,South Dakota,Reconstruct/Rebuild,811.0,Small,3.470715835140998,3,True,False,False,,5
+1064,Minnesota,Reconstruct/Rebuild,10730.0,Small,40.563991323210416,4,False,False,False,,4
+1065,South Dakota,Mill & Overlay,1550.0,Small,20.588235294117645,4,False,False,False,,4
+1066,South Dakota,HMA Overlay/Resurface,1003.0,Small,23.58490566037736,1,False,False,False,,1
+1067,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0359,0
+1068,Minnesota,Reconstruct/Rebuild,7454.0,Small,32.32104121475054,3,False,False,False,,3
+1069,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1070,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.2656,0
+1071,Minnesota,Reconstruct/Rebuild,400.0,Small,1.9522776572668112,3,False,True,False,0.607,3
+1072,Minnesota,Reconstruct/Rebuild,14568.0,Small,45.33622559652928,3,False,False,False,,3
+1073,Iowa,HMA Overlay/Resurface,2016.0,Small,33.72641509433962,3,False,False,False,,3
+1074,Iowa,HMA Overlay/Resurface,2016.0,Small,33.72641509433962,3,False,False,False,,3
+1075,North Dakota,Reconstruct/Rebuild,3876.0,Small,20.17353579175705,2,False,False,False,,2
+1076,Minnesota,Reconstruct/Rebuild,44813.0,Large,73.21041214750542,5,False,True,False,0.3127,5
+1077,Minnesota,Reconstruct/Rebuild,44813.0,Large,73.21041214750542,5,False,True,True,-0.0173,5
+1078,South Dakota,Other,,,,1,False,False,False,,1
+1079,South Dakota,Other,,,,1,False,False,False,,1
+1080,South Dakota,Grading/Earthwork,31023.0,Large,74.52830188679245,3,False,False,False,,3
+1081,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1082,Minnesota,Reconstruct/Rebuild,21518.0,Large,54.229934924078094,3,False,False,False,,3
+1083,North Dakota,Grading/Earthwork,1079.0,Small,10.377358490566039,2,True,True,False,0.0347,4
+1084,North Dakota,Reconstruct/Rebuild,1781.0,Small,11.062906724511931,2,False,True,False,0.1641,2
+1085,Minnesota,Grading/Earthwork,1410.0,Small,17.92452830188679,2,False,False,False,,2
+1086,North Dakota,Grading/Earthwork,99429.0,Large,91.0377358490566,2,False,True,False,0.4171,2
+1087,Minnesota,Reconstruct/Rebuild,3930.0,Small,21.25813449023861,4,False,False,False,,4
+1088,Minnesota,Reconstruct/Rebuild,3930.0,Small,21.25813449023861,4,False,False,False,,4
+1089,Minnesota,Reconstruct/Rebuild,3930.0,Small,21.25813449023861,4,False,False,False,,4
+1090,Minnesota,Grading/Earthwork,2905.0,Small,33.9622641509434,4,True,False,False,,6
+1091,Minnesota,HMA Overlay/Resurface,20741.0,Large,82.78301886792453,2,False,True,False,0.0314,2
+1092,Minnesota,HMA Overlay/Resurface,20741.0,Large,82.78301886792453,2,False,True,False,0.0031,2
+1093,Minnesota,Mill & Overlay,3083.0,Small,31.699346405228756,2,False,True,True,-0.0085,2
+1094,Minnesota,Mill & Overlay,94855.0,Large,99.34640522875817,4,False,True,False,0.1777,4
+1095,Nebraska,Grading/Earthwork,989.0,Small,8.962264150943396,2,False,False,False,,2
+1096,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1097,Minnesota,HMA Overlay/Resurface,693.0,Small,16.50943396226415,1,False,False,False,,1
+1098,Montana,Grading/Earthwork,66310.0,Large,84.43396226415094,2,False,False,False,,2
+1099,Minnesota,Reconstruct/Rebuild,6582.0,Small,29.718004338394792,3,False,False,False,,3
+1100,Nebraska,Mill & Overlay,1850.0,Small,23.202614379084967,2,False,False,False,,2
+1101,Minnesota,HMA Overlay/Resurface,840.0,Small,18.867924528301888,3,False,False,False,,3
+1103,Minnesota,Grading/Earthwork,11640.0,Small,65.56603773584906,3,False,False,False,,3
+1104,South Dakota,Aggregate/Base/Gravel,3253.0,Large,59.3984962406015,2,False,False,False,,2
+1105,South Dakota,Aggregate/Base/Gravel,287.0,Small,22.55639097744361,3,False,False,False,,3
+1106,South Dakota,Unknown/NoQty,,,,0,False,True,False,1.4504,0
+1107,South Dakota,Grading/Earthwork,4837.0,Small,44.81132075471698,2,True,False,False,,4
+1108,South Dakota,Reconstruct/Rebuild,112589.0,Large,89.587852494577,5,True,True,False,0.3403,7
+1109,South Dakota,Grading/Earthwork,6750.0,Small,53.77358490566038,3,False,False,False,,3
+1110,Minnesota,HMA Overlay/Resurface,3832.0,Large,41.0377358490566,3,False,False,False,,3
+1111,Minnesota,Reconstruct/Rebuild,22033.0,Large,54.66377440347071,3,False,True,False,0.0978,3
+1112,North Dakota,Unknown/NoQty,,,,0,False,True,False,1.1301,0
+1113,North Dakota,Aggregate/Base/Gravel,15.0,Small,1.5037593984962405,2,True,False,False,,4
+1114,North Dakota,Aggregate/Base/Gravel,26611.0,Large,85.71428571428571,1,False,True,False,0.16,1
+1115,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+1116,Minnesota,Reconstruct/Rebuild,31942.0,Large,64.8590021691974,4,False,False,False,,4
+1117,Nebraska,Grading/Earthwork,2251.0,Small,30.18867924528302,2,False,False,False,,2
+1118,Minnesota,Reconstruct/Rebuild,280.0,Small,0.8676789587852495,3,False,False,False,,3
+1119,North Dakota,Mill & Overlay,3806.0,Small,37.58169934640523,3,False,True,False,0.354,3
+1120,Minnesota,Mill & Overlay,5900.0,Large,45.751633986928105,2,False,True,True,-0.1599,2
+1121,Minnesota,Reconstruct/Rebuild,28934.0,Large,62.25596529284165,4,False,False,False,,4
+1122,Minnesota,Reconstruct/Rebuild,3593.0,Small,18.43817787418655,3,False,False,False,,3
+1123,Iowa,HMA Overlay/Resurface,11635.0,Large,67.45283018867924,3,False,False,False,,3
+1124,North Dakota,Mill & Overlay,3847.0,Small,38.23529411764706,3,False,False,False,,3
+1125,North Dakota,Grading/Earthwork,34278.0,Large,76.88679245283019,2,False,True,False,0.1565,2
+1126,Minnesota,Mill & Overlay,27250.0,Large,79.24836601307189,3,False,False,False,,3
+1127,Minnesota,Aggregate/Base/Gravel,23800.0,Large,84.21052631578947,1,False,True,False,0.0949,1
+1128,Iowa,Unknown/NoQty,,,,0,False,False,False,,0
+1129,Minnesota,Reconstruct/Rebuild,25650.0,Large,59.65292841648589,4,False,False,False,,4
+1130,Minnesota,HMA Overlay/Resurface,13586.0,Large,69.10377358490565,2,False,True,False,0.2837,2
+1131,Minnesota,Mill & Overlay,27250.0,Large,79.24836601307189,3,False,False,False,,3
+1132,Minnesota,HMA Overlay/Resurface,13586.0,Large,69.10377358490565,2,False,True,False,0.0554,2
+1133,Minnesota,HMA Overlay/Resurface,10946.0,Large,65.56603773584906,2,False,False,False,,2
+1134,North Dakota,Reconstruct/Rebuild,16215.0,Small,47.722342733188725,4,False,True,False,0.2498,4
+1135,South Dakota,Grading/Earthwork,5619.0,Small,50.235849056603776,4,False,False,False,,4
+1136,South Dakota,Grading/Earthwork,5619.0,Small,50.235849056603776,4,False,False,False,,4
+1137,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0835,0
+1138,Minnesota,Reconstruct/Rebuild,6330.0,Small,27.9826464208243,4,False,False,False,,4
+1139,North Dakota,HMA Overlay/Resurface,4055.0,Large,43.160377358490564,1,False,False,False,,1
+1140,Minnesota,Aggregate/Base/Gravel,150.0,Small,12.030075187969924,2,False,False,False,,2
+1141,Iowa,HMA Overlay/Resurface,39683.0,Large,93.86792452830188,4,False,False,False,,4
+1142,North Dakota,Reconstruct/Rebuild,51409.0,Large,76.35574837310195,4,False,False,False,,4
+1143,Minnesota,Grading/Earthwork,1050.0,Small,9.90566037735849,2,False,False,False,,2
+1144,North Dakota,Reconstruct/Rebuild,20715.0,Large,53.14533622559653,4,False,False,False,,4
+1145,North Dakota,Reconstruct/Rebuild,24927.0,Large,57.9175704989154,3,False,False,False,,3
+1146,North Dakota,Reconstruct/Rebuild,89444.0,Large,87.20173535791757,3,True,True,False,0.0844,5
+1147,North Dakota,Reconstruct/Rebuild,4607.0,Small,24.40347071583514,3,False,False,False,,3
+1148,Minnesota,Aggregate/Base/Gravel,84.0,Small,4.511278195488721,2,False,False,False,,2
+1149,North Dakota,Mill & Overlay,31547.0,Large,84.31372549019608,4,False,True,False,0.0164,4
+1150,North Dakota,Reconstruct/Rebuild,4607.0,Small,24.40347071583514,3,False,True,False,0.0497,3
+1151,North Dakota,Reconstruct/Rebuild,89444.0,Large,87.20173535791757,3,True,True,False,0.0792,5
+1152,North Dakota,Reconstruct/Rebuild,89444.0,Large,87.20173535791757,3,True,True,False,0.0754,5
+1153,Minnesota,Reconstruct/Rebuild,40246.0,Large,70.60737527114968,4,False,True,True,-0.0432,4
+1154,Minnesota,Reconstruct/Rebuild,40246.0,Large,70.60737527114968,4,False,False,False,,4
+1155,Minnesota,Reconstruct/Rebuild,3631.0,Small,18.655097613882862,3,False,False,False,,3
+1156,Minnesota,HMA Overlay/Resurface,1092.0,Small,24.528301886792452,2,False,True,False,0.0099,2
+1157,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.4362,0
+1158,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0298,0
+1159,North Dakota,Grading/Earthwork,74703.0,Large,85.37735849056604,4,False,False,False,,4
+1160,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0795,0
+1161,North Dakota,Grading/Earthwork,52632.0,Large,82.54716981132076,2,False,True,False,0.1422,2
+1162,North Dakota,Mill & Overlay,459.0,Small,5.88235294117647,3,False,False,False,,3
+1163,Minnesota,Aggregate/Base/Gravel,40500.0,Large,89.84962406015038,1,False,False,False,,1
+1164,Minnesota,Aggregate/Base/Gravel,40500.0,Large,89.84962406015038,1,False,False,False,,1
+1165,Minnesota,Reconstruct/Rebuild,360.0,Small,1.735357917570499,4,True,False,False,,6
+1166,Minnesota,Reconstruct/Rebuild,3727.0,Small,19.63123644251627,4,False,False,False,,4
+1167,Minnesota,Grading/Earthwork,7877.0,Small,58.490566037735846,2,False,True,False,0.2412,2
+1168,Minnesota,Reconstruct/Rebuild,3727.0,Small,19.63123644251627,4,False,False,False,,4
+1169,North Dakota,Mill & Overlay,21671.0,Large,73.8562091503268,4,False,True,False,3.7412,4
+1170,Minnesota,Reconstruct/Rebuild,3727.0,Small,19.63123644251627,4,False,False,False,,4
+1171,North Dakota,Grading/Earthwork,71813.0,Large,84.90566037735849,2,False,False,False,,2
+1172,Minnesota,Reconstruct/Rebuild,3727.0,Small,19.63123644251627,4,False,False,False,,4
+1173,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1174,Iowa,Reconstruct/Rebuild,24252.0,Large,56.83297180043384,4,False,True,False,0.0726,4
+1175,Iowa,Reconstruct/Rebuild,4302.0,Small,23.644251626898047,2,False,False,False,,2
+1176,Iowa,Reconstruct/Rebuild,68431.0,Large,82.646420824295,3,False,True,False,0.0468,3
+1177,Iowa,HMA Overlay/Resurface,7246.0,Large,57.54716981132076,4,False,False,False,,4
+1178,Iowa,Reconstruct/Rebuild,19890.0,Large,52.27765726681128,2,False,False,False,,2
+1179,Iowa,HMA Overlay/Resurface,13861.0,Large,70.04716981132076,1,False,True,False,0.1991,1
+1180,Iowa,HMA Overlay/Resurface,13861.0,Large,70.04716981132076,1,False,True,False,0.2226,1
+1181,Iowa,HMA Overlay/Resurface,4229.0,Large,44.81132075471698,3,False,False,False,,3
+1182,Iowa,Reconstruct/Rebuild,32753.0,Large,65.40130151843819,4,False,False,False,,4
+1183,Iowa,Reconstruct/Rebuild,32753.0,Large,65.40130151843819,4,False,False,False,,4
+1184,Iowa,HMA Overlay/Resurface,4653.0,Large,47.64150943396226,2,False,True,False,0.296,2
+1185,Iowa,Reconstruct/Rebuild,34243.0,Large,67.13665943600867,3,False,True,False,0.2596,3
+1186,Iowa,Reconstruct/Rebuild,34243.0,Large,67.13665943600867,3,False,True,False,0.0945,3
+1187,Iowa,Grading/Earthwork,884.0,Small,7.0754716981132075,2,True,False,False,,4
+1188,Iowa,Grading/Earthwork,1318.0,Small,16.745283018867923,1,True,False,False,,3
+1189,Iowa,Grading/Earthwork,1318.0,Small,16.745283018867923,1,True,False,False,,3
+1190,North Dakota,HMA Overlay/Resurface,1100.0,Small,25.0,3,False,True,False,0.3227,3
+1191,Minnesota,Reconstruct/Rebuild,5549.0,Small,26.68112798264642,3,False,False,False,,3
+1192,North Dakota,Reconstruct/Rebuild,13000.0,Small,43.38394793926248,4,False,False,False,,4
+1193,Minnesota,Reconstruct/Rebuild,87495.0,Large,86.76789587852495,5,False,False,False,,5
+1194,Minnesota,Mill & Overlay,12071.0,Large,60.130718954248366,3,False,True,True,-0.1737,3
+1195,Minnesota,Reconstruct/Rebuild,127655.0,Large,91.1062906724512,5,False,True,False,0.1326,5
+1196,Minnesota,Reconstruct/Rebuild,47090.0,Large,74.62039045553145,3,False,False,False,,3
+1197,Minnesota,Reconstruct/Rebuild,24460.0,Large,57.26681127982647,3,False,False,False,,3
+1198,Minnesota,Reconstruct/Rebuild,6446.0,Small,28.41648590021692,4,False,True,True,-0.0053,4
+1199,South Dakota,Aggregate/Base/Gravel,210.0,Small,18.045112781954884,2,True,False,False,,4
+1200,North Dakota,Grading/Earthwork,81887.0,Large,87.5,2,False,True,False,0.438,2
+1201,North Dakota,Grading/Earthwork,81887.0,Large,87.5,2,False,True,False,0.4765,2
+1202,South Dakota,Grading/Earthwork,586271.0,Large,99.05660377358491,4,False,False,False,,4
+1203,South Dakota,Grading/Earthwork,1503.0,Small,19.339622641509436,3,False,False,False,,3
+1204,South Dakota,Reconstruct/Rebuild,1204.0,Small,6.073752711496746,3,False,False,False,,3
+1205,Minnesota,Reconstruct/Rebuild,138331.0,Large,92.84164859002169,4,False,True,False,0.035,4
+1206,Minnesota,Mill & Overlay,38307.0,Large,87.25490196078431,4,False,True,True,-0.0403,4
+1207,Minnesota,Mill & Overlay,4122.0,Small,39.21568627450981,4,False,False,False,,4
+1208,North Dakota,HMA Overlay/Resurface,1000.0,Small,23.11320754716981,2,False,False,False,,2
+1209,Nebraska,Mill & Overlay,16309.0,Large,67.97385620915033,2,False,False,False,,2
+1210,Minnesota,Reconstruct/Rebuild,1736.0,Small,10.52060737527115,3,False,False,False,,3
+1211,Minnesota,Reconstruct/Rebuild,23916.0,Large,56.182212581344906,3,False,False,False,,3
+1212,Minnesota,HMA Overlay/Resurface,18380.0,Large,77.35849056603774,2,False,True,True,-0.1303,2
+1213,Minnesota,Reconstruct/Rebuild,1736.0,Small,10.52060737527115,3,False,False,False,,3
+1214,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1215,Minnesota,Reconstruct/Rebuild,3654.0,Small,18.872017353579178,3,False,True,False,0.1017,3
+1216,Minnesota,Reconstruct/Rebuild,17744.0,Large,50.108459869848154,4,False,False,False,,4
+1217,North Dakota,Grading/Earthwork,644.0,Small,3.30188679245283,2,True,True,False,0.2628,4
+1218,Minnesota,Grading/Earthwork,96868.0,Large,90.56603773584906,2,False,False,False,,2
+1219,Minnesota,Reconstruct/Rebuild,8970.0,Small,35.68329718004338,3,False,False,False,,3
+1220,Minnesota,Reconstruct/Rebuild,8970.0,Small,35.68329718004338,3,False,False,False,,3
+1221,Minnesota,HMA Overlay/Resurface,18380.0,Large,77.35849056603774,2,False,True,True,-0.1222,2
+1222,Minnesota,HMA Overlay/Resurface,18380.0,Large,77.35849056603774,2,False,True,False,0.047,2
+1223,Minnesota,Reconstruct/Rebuild,1736.0,Small,10.52060737527115,3,False,False,False,,3
+1224,Minnesota,Reconstruct/Rebuild,1736.0,Small,10.52060737527115,3,False,False,False,,3
+1225,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.0215,0
+1226,North Dakota,Grading/Earthwork,2648.0,Small,31.367924528301888,2,False,True,True,-0.0105,2
+1227,North Dakota,Reconstruct/Rebuild,991.0,Small,4.989154013015185,3,False,False,False,,3
+1228,North Dakota,Grading/Earthwork,2648.0,Small,31.367924528301888,2,False,False,False,,2
+1229,North Dakota,HMA Overlay/Resurface,142.0,Small,7.0754716981132075,3,False,True,False,0.5109,3
+1230,North Dakota,Aggregate/Base/Gravel,82.0,Small,3.7593984962406015,3,False,False,False,,3
+1231,North Dakota,Mill & Overlay,29487.0,Large,81.37254901960785,3,False,True,False,0.0838,3
+1232,Minnesota,Mill & Overlay,12725.0,Large,61.111111111111114,4,False,False,False,,4
+1233,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1234,North Dakota,HMA Overlay/Resurface,958.0,Small,21.22641509433962,3,False,False,False,,3
+1235,Minnesota,Grading/Earthwork,1877.0,Small,25.0,2,True,True,False,0.3346,4
+1236,Minnesota,Reconstruct/Rebuild,1554.0,Small,9.544468546637743,3,True,True,False,0.3065,5
+1237,Minnesota,Reconstruct/Rebuild,148774.0,Large,93.92624728850325,5,False,True,True,-0.0265,5
+1238,Minnesota,Mill & Overlay,41110.0,Large,88.23529411764706,3,False,True,False,0.0394,3
+1239,Minnesota,Grading/Earthwork,1519.0,Small,19.81132075471698,3,False,False,False,,3
+1240,South Dakota,Reconstruct/Rebuild,7112.0,Small,31.019522776572668,3,False,False,False,,3
+1241,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.066,0
+1242,Minnesota,Reconstruct/Rebuild,3663.0,Small,19.088937093275486,4,False,True,True,-0.1172,4
+1243,Minnesota,Aggregate/Base/Gravel,517.0,Small,30.075187969924812,2,False,True,True,-0.3228,2
+1244,Minnesota,Mill & Overlay,14009.0,Large,63.725490196078425,2,False,True,False,0.1425,2
+1245,North Dakota,Mill & Overlay,14280.0,Large,64.37908496732027,2,False,False,False,,2
+1246,Minnesota,Reconstruct/Rebuild,3889.0,Small,20.390455531453362,4,False,True,False,0.1113,4
+1247,North Dakota,Grading/Earthwork,7637.0,Small,57.54716981132076,1,False,False,False,,1
+1248,North Dakota,Grading/Earthwork,8210.0,Small,59.905660377358494,2,False,False,False,,2
+1249,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1250,Minnesota,HMA Overlay/Resurface,754.0,Small,18.39622641509434,1,False,True,False,0.2632,1
+1251,North Dakota,HMA Overlay/Resurface,379.0,Small,12.735849056603774,2,False,True,True,-0.2296,2
+1252,North Dakota,Reconstruct/Rebuild,167616.0,Large,94.79392624728851,3,False,True,False,0.0591,3
+1253,Minnesota,Grading/Earthwork,4075.0,Small,40.56603773584906,2,False,False,False,,2
+1254,Minnesota,Reconstruct/Rebuild,7655.0,Small,33.40563991323211,3,False,False,False,,3
+1255,Minnesota,Reconstruct/Rebuild,1189.0,Small,5.856832971800434,3,False,True,False,0.9076,3
+1256,Minnesota,HMA Overlay/Resurface,985.0,Small,22.169811320754718,2,False,True,False,0.1164,2
+1257,Minnesota,HMA Overlay/Resurface,985.0,Small,22.169811320754718,2,False,True,False,0.1204,2
+1258,Minnesota,HMA Overlay/Resurface,985.0,Small,22.169811320754718,2,False,True,False,0.1899,2
+1259,Minnesota,HMA Overlay/Resurface,10891.0,Large,64.62264150943396,2,False,False,False,,2
+1260,Minnesota,Mill & Overlay,290.0,Small,4.248366013071895,2,False,True,False,0.6257,2
+1261,North Dakota,Reconstruct/Rebuild,34599.0,Large,67.46203904555314,4,False,True,True,-0.102,4
+1262,Minnesota,Mill & Overlay,18383.0,Large,69.6078431372549,4,False,False,False,,4
+1263,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1264,Minnesota,Reconstruct/Rebuild,8024.0,Small,34.273318872017356,3,False,False,False,,3
+1265,Minnesota,Reconstruct/Rebuild,29917.0,Large,63.015184381778745,3,False,False,False,,3
+1266,Minnesota,Reconstruct/Rebuild,29917.0,Large,63.015184381778745,3,False,False,False,,3
+1267,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.1874,0
+1268,North Dakota,Mill & Overlay,6472.0,Large,48.03921568627451,3,False,True,False,0.1404,3
+1269,North Dakota,Mill & Overlay,16032.0,Large,67.64705882352942,3,False,True,False,0.1016,3
+1270,Minnesota,Reconstruct/Rebuild,12626.0,Small,42.299349240780906,3,False,False,False,,3
+1271,South Dakota,Grading/Earthwork,1111.0,Small,10.849056603773585,2,False,False,False,,2
+1272,Minnesota,Reconstruct/Rebuild,24953.0,Large,58.35140997830802,3,False,False,False,,3
+1273,Minnesota,Reconstruct/Rebuild,24953.0,Large,58.35140997830802,3,False,False,False,,3
+1274,Minnesota,Mill & Overlay,62753.0,Large,95.26143790849673,3,False,True,False,0.0912,3
+1275,Minnesota,Reconstruct/Rebuild,24953.0,Large,58.35140997830802,3,False,False,False,,3
+1276,North Dakota,Grading/Earthwork,292767.0,Large,96.69811320754717,1,False,True,False,0.2416,1
+1277,South Dakota,Reconstruct/Rebuild,22000.0,Large,54.4468546637744,4,False,True,False,0.1959,4
+1278,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1279,North Dakota,Reconstruct/Rebuild,14222.0,Small,44.68546637744035,3,False,False,False,,3
+1280,North Dakota,Reconstruct/Rebuild,4000.0,Small,22.342733188720175,3,False,False,False,,3
+1281,Minnesota,Mill & Overlay,16822.0,Large,68.4640522875817,4,False,False,False,,4
+1282,Minnesota,Mill & Overlay,16822.0,Large,68.4640522875817,4,False,True,False,0.2462,4
+1283,Minnesota,HMA Overlay/Resurface,37997.0,Large,92.21698113207547,3,False,True,False,0.0195,3
+1284,Minnesota,HMA Overlay/Resurface,37997.0,Large,92.21698113207547,3,False,True,False,0.1331,3
+1285,Minnesota,Mill & Overlay,62753.0,Large,95.26143790849673,3,False,True,False,0.0508,3
+1286,Minnesota,Reconstruct/Rebuild,6403.0,Small,28.199566160520607,4,False,False,False,,4
+1287,Minnesota,Mill & Overlay,31494.0,Large,83.98692810457517,4,False,False,False,,4
+1288,North Dakota,HMA Overlay/Resurface,41700.0,Large,95.28301886792453,2,False,True,False,0.0596,2
+1289,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1290,South Dakota,Grading/Earthwork,30918.0,Large,74.05660377358491,3,False,False,False,,3
+1291,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.5748,0
+1292,Minnesota,Grading/Earthwork,1156.0,Small,12.264150943396226,2,False,False,False,,2
+1293,North Dakota,Grading/Earthwork,600.0,Small,2.358490566037736,2,False,False,False,,2
+1294,North Dakota,Reconstruct/Rebuild,7435.0,Small,32.10412147505423,3,False,True,True,-0.164,3
+1295,Minnesota,Reconstruct/Rebuild,31825.0,Large,64.64208242950107,4,False,False,False,,4
+1296,Minnesota,HMA Overlay/Resurface,5700.0,Large,51.65094339622641,2,False,True,False,0.0993,2
+1297,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1298,North Dakota,Grading/Earthwork,1033.0,Small,9.433962264150944,2,True,True,False,0.3217,4
+1299,North Dakota,HMA Overlay/Resurface,232.0,Small,10.377358490566039,2,False,False,False,,2
+1300,Minnesota,Reconstruct/Rebuild,3187.0,Small,16.377440347071584,2,False,True,False,0.0094,2
+1301,Minnesota,Reconstruct/Rebuild,3187.0,Small,16.377440347071584,2,False,True,False,0.3068,2
+1302,Minnesota,Mill & Overlay,10413.0,Large,56.5359477124183,3,False,False,False,,3
+1303,North Dakota,Reconstruct/Rebuild,3904.0,Small,20.824295010845987,4,False,False,False,,4
+1304,Minnesota,Reconstruct/Rebuild,1508.0,Small,9.327548806941431,3,False,False,False,,3
+1305,Minnesota,Reconstruct/Rebuild,6884.0,Small,30.585683297180044,4,False,False,False,,4
+1306,Minnesota,Reconstruct/Rebuild,42675.0,Large,72.0173535791757,4,False,False,False,,4
+1307,Minnesota,Reconstruct/Rebuild,23104.0,Large,55.748373101952275,3,False,False,False,,3
+1308,Minnesota,Reconstruct/Rebuild,2850.0,Small,15.835140997830802,3,False,False,False,,3
+1309,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1310,Iowa,Grading/Earthwork,19104.0,Large,69.33962264150944,2,False,False,False,,2
+1311,Minnesota,Grading/Earthwork,41268.0,Large,78.30188679245283,2,False,False,False,,2
+1312,Minnesota,Mill & Overlay,26244.0,Large,78.43137254901961,3,False,True,False,0.0625,3
+1313,Minnesota,Mill & Overlay,57229.0,Large,93.4640522875817,4,False,False,False,,4
+1314,Minnesota,Reconstruct/Rebuild,13680.0,Small,44.46854663774403,4,False,False,False,,4
+1315,North Dakota,Grading/Earthwork,950.0,Small,8.49056603773585,2,False,False,False,,2
+1316,Minnesota,Reconstruct/Rebuild,2948.0,Small,16.052060737527114,3,False,True,False,0.1659,3
+1317,North Dakota,Aggregate/Base/Gravel,2708.0,Large,55.639097744360896,3,False,True,True,-0.0761,3
+1318,North Dakota,Mill & Overlay,6028.0,Large,46.07843137254902,2,False,False,False,,2
+1319,South Dakota,Reconstruct/Rebuild,9768.0,Small,37.52711496746204,3,False,False,False,,3
+1320,North Dakota,HMA Overlay/Resurface,1130.0,Small,25.471698113207548,3,False,False,False,,3
+1321,Minnesota,Mill & Overlay,4197.0,Small,39.54248366013072,3,False,True,True,-0.1125,3
+1322,Minnesota,Reconstruct/Rebuild,38839.0,Large,69.84815618221259,5,False,True,False,0.1129,5
+1323,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.83,0
+1324,North Dakota,Reconstruct/Rebuild,6089.0,Small,27.331887201735356,3,True,True,True,-0.1515,5
+1325,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0946,0
+1326,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.0857,0
+1327,North Dakota,Grading/Earthwork,1295.0,Small,16.037735849056602,2,False,False,False,,2
+1328,North Dakota,Mill & Overlay,30471.0,Large,83.16993464052288,3,False,True,False,0.1554,3
+1329,North Dakota,Grading/Earthwork,5240.0,Small,47.40566037735849,2,False,False,False,,2
+1330,North Dakota,Grading/Earthwork,1531.0,Small,20.28301886792453,2,False,False,False,,2
+1331,North Dakota,Unknown/NoQty,,,,0,False,True,True,-0.071,0
+1332,North Dakota,Mill & Overlay,30471.0,Large,83.16993464052288,3,False,True,False,0.1128,3
+1333,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1334,North Dakota,Mill & Overlay,59181.0,Large,94.44444444444444,3,False,True,True,-0.0235,3
+1335,North Dakota,HMA Overlay/Resurface,40603.0,Large,94.33962264150944,3,False,True,True,-0.0707,3
+1336,North Dakota,HMA Overlay/Resurface,18722.0,Large,78.77358490566037,2,False,False,False,,2
+1337,North Dakota,HMA Overlay/Resurface,6902.0,Large,56.132075471698116,2,False,True,False,0.209,2
+1338,North Dakota,HMA Overlay/Resurface,70.0,Small,4.245283018867925,4,False,False,False,,4
+1339,North Dakota,Mill & Overlay,13263.0,Large,63.0718954248366,4,False,True,False,0.0792,4
+1340,North Dakota,Grading/Earthwork,5240.0,Small,47.40566037735849,2,False,False,False,,2
+1341,Minnesota,Reconstruct/Rebuild,25560.0,Large,59.219088937093275,3,False,True,False,0.1623,3
+1342,North Dakota,Grading/Earthwork,3472.0,Small,38.20754716981132,2,False,False,False,,2
+1343,North Dakota,Reconstruct/Rebuild,9133.0,Small,36.00867678958785,3,False,False,False,,3
+1344,North Dakota,Grading/Earthwork,2059.0,Small,28.30188679245283,3,False,False,False,,3
+1345,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1346,Minnesota,Reconstruct/Rebuild,45110.0,Large,73.53579175704989,4,False,False,False,,4
+1347,Minnesota,Reconstruct/Rebuild,2308.0,Small,13.015184381778742,3,False,True,False,0.1562,3
+1348,Iowa,Mill & Overlay,9477.0,Large,54.41176470588235,3,False,False,False,,3
+1349,Iowa,Mill & Overlay,9477.0,Large,54.41176470588235,3,False,False,False,,3
+1350,Iowa,Mill & Overlay,12770.0,Large,61.60130718954249,5,False,False,False,,5
+1351,Iowa,Mill & Overlay,12770.0,Large,61.60130718954249,5,False,False,False,,5
+1352,Iowa,Mill & Overlay,9895.0,Large,55.55555555555556,3,False,False,False,,3
+1353,Iowa,Grading/Earthwork,113084.0,Large,91.74528301886792,3,False,True,False,1.0991,3
+1354,Iowa,Grading/Earthwork,113084.0,Large,91.74528301886792,3,False,False,False,,3
+1355,Minnesota,Reconstruct/Rebuild,33027.0,Large,65.94360086767897,4,False,False,False,,4
+1356,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.0606,0
+1357,South Dakota,HMA Overlay/Resurface,1779.0,Small,32.075471698113205,3,False,False,False,,3
+1358,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1359,Minnesota,Mill & Overlay,29469.0,Large,81.04575163398692,3,False,True,False,0.0969,3
+1360,Minnesota,Grading/Earthwork,3751.0,Small,39.15094339622642,1,True,True,False,0.4234,3
+1361,Minnesota,Reconstruct/Rebuild,10674.0,Small,40.130151843817785,3,False,False,False,,3
+1362,Minnesota,Reconstruct/Rebuild,2596.0,Small,14.533622559652928,3,False,False,False,,3
+1363,North Dakota,Reconstruct/Rebuild,24305.0,Large,57.04989154013015,4,False,True,True,-0.0393,4
+1365,Minnesota,Aggregate/Base/Gravel,143.0,Small,10.902255639097744,2,False,False,False,,2
+1366,Minnesota,Aggregate/Base/Gravel,143.0,Small,10.902255639097744,2,False,False,False,,2
+1367,Minnesota,Reconstruct/Rebuild,9478.0,Small,36.44251626898048,3,False,False,False,,3
+1368,North Dakota,Mill & Overlay,8135.0,Large,51.633986928104584,4,False,True,False,0.6573,4
+1369,Minnesota,Grading/Earthwork,35503.0,Large,77.35849056603774,2,False,False,False,,2
+1370,North Dakota,Reconstruct/Rebuild,9696.0,Small,37.310195227765725,4,False,True,False,0.2016,4
+1371,South Dakota,Reconstruct/Rebuild,10237.0,Small,38.611713665943604,3,False,False,False,,3
+1372,Minnesota,Reconstruct/Rebuild,752.0,Small,3.2537960954446854,3,False,False,False,,3
+1373,Minnesota,Grading/Earthwork,5200.0,Small,46.69811320754717,2,False,False,False,,2
+1374,Minnesota,Reconstruct/Rebuild,12267.0,Small,41.86550976138829,3,False,True,False,0.2674,3
+1375,Minnesota,Mill & Overlay,21100.0,Large,72.54901960784314,3,False,True,False,0.6482,3
+1376,Minnesota,Mill & Overlay,13027.0,Large,62.254901960784316,3,False,True,False,0.0182,3
+1377,Minnesota,Reconstruct/Rebuild,3946.0,Small,21.69197396963124,4,False,False,False,,4
+1378,North Dakota,Grading/Earthwork,9600.0,Small,63.20754716981132,3,False,False,False,,3
+1379,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1380,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1381,Minnesota,Mill & Overlay,13027.0,Large,62.254901960784316,3,False,True,False,0.1334,3
+1382,Minnesota,Reconstruct/Rebuild,14314.0,Small,45.119305856832966,4,False,False,False,,4
+1383,North Dakota,Mill & Overlay,3358.0,Small,33.33333333333333,2,False,True,False,0.2937,2
+1384,North Dakota,Grading/Earthwork,693.0,Small,4.245283018867925,2,False,True,False,0.1488,2
+1385,North Dakota,Grading/Earthwork,1249.0,Small,14.150943396226415,2,False,False,False,,2
+1386,Minnesota,Reconstruct/Rebuild,3890.0,Small,20.607375271149674,4,False,True,False,0.3554,4
+1387,Montana,Mill & Overlay,72675.0,Large,98.36601307189542,4,False,False,False,,4
+1388,North Dakota,Aggregate/Base/Gravel,1333.0,Small,45.11278195488722,3,False,False,False,,3
+1389,Minnesota,Reconstruct/Rebuild,37399.0,Large,68.76355748373102,4,False,False,False,,4
+1390,Minnesota,HMA Overlay/Resurface,21916.0,Large,83.9622641509434,3,False,False,False,,3
+1391,Minnesota,Mill & Overlay,46190.0,Large,90.19607843137256,3,False,True,False,0.1014,3
+1392,Nebraska,Unknown/NoQty,,,,0,False,False,False,,0
+1393,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1394,North Dakota,Grading/Earthwork,23256.0,Large,70.75471698113208,4,False,True,False,0.7584,4
+1395,North Dakota,Unknown/NoQty,,,,0,False,True,False,0.261,0
+1396,North Dakota,Reconstruct/Rebuild,22341.0,Large,54.880694143167034,3,False,False,False,,3
+1397,North Dakota,Reconstruct/Rebuild,5284.0,Small,26.030368763557483,3,False,True,True,-0.3273,3
+1398,North Dakota,Reconstruct/Rebuild,1315.0,Small,8.026030368763557,2,False,True,False,0.0739,2
+1399,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1400,North Dakota,Grading/Earthwork,22518.0,Large,69.81132075471697,1,False,False,False,,1
+1401,Minnesota,Reconstruct/Rebuild,11420.0,Small,40.780911062906725,3,False,False,False,,3
+1402,North Dakota,Reconstruct/Rebuild,2210.0,Small,12.364425162689804,3,False,False,False,,3
+1403,Minnesota,Mill & Overlay,7810.0,Large,51.307189542483655,3,False,False,False,,3
+1404,North Dakota,Grading/Earthwork,1847.0,Small,24.056603773584907,2,True,False,False,,4
+1405,Minnesota,Reconstruct/Rebuild,1300.0,Small,7.809110629067245,4,False,True,False,0.3422,4
+1406,Minnesota,Reconstruct/Rebuild,4169.0,Small,23.427331887201735,3,False,False,False,,3
+1407,Minnesota,Mill & Overlay,21473.0,Large,73.20261437908496,3,False,False,False,,3
+1408,Minnesota,Mill & Overlay,23425.0,Large,76.1437908496732,3,False,False,False,,3
+1409,Minnesota,Aggregate/Base/Gravel,9429.0,Large,74.06015037593986,1,False,True,False,0.2375,1
+1410,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1411,Minnesota,Reconstruct/Rebuild,60480.0,Large,80.6941431670282,3,False,False,False,,3
+1412,Minnesota,Mill & Overlay,47410.0,Large,90.84967320261438,3,False,True,True,-0.0399,3
+1413,Minnesota,Aggregate/Base/Gravel,9429.0,Large,74.06015037593986,1,False,True,False,0.4977,1
+1414,Minnesota,Reconstruct/Rebuild,710.0,Small,2.8199566160520604,3,False,False,False,,3
+1415,North Dakota,Mill & Overlay,2400.0,Small,28.431372549019606,3,False,False,False,,3
+1416,North Dakota,HMA Overlay/Resurface,350.0,Small,12.264150943396226,3,False,False,False,,3
+1417,South Dakota,Grading/Earthwork,44010.0,Large,79.24528301886792,1,False,False,False,,1
+1418,North Dakota,Other,,,,1,False,False,False,,1
+1419,North Dakota,Other,,,,1,False,False,False,,1
+1420,Minnesota,HMA Overlay/Resurface,2251.0,Small,35.613207547169814,1,False,False,False,,1
+1421,Minnesota,HMA Overlay/Resurface,2251.0,Small,35.613207547169814,1,False,True,False,0.1804,1
+1422,Minnesota,Reconstruct/Rebuild,18698.0,Large,51.40997830802603,3,False,False,False,,3
+1423,Minnesota,Reconstruct/Rebuild,79556.0,Large,85.46637744034707,5,False,False,False,,5
+1424,Minnesota,Reconstruct/Rebuild,58996.0,Large,80.04338394793926,5,False,True,False,0.165,5
+1425,Minnesota,Grading/Earthwork,43242.0,Large,78.77358490566037,3,True,False,False,,5
+1426,Minnesota,HMA Overlay/Resurface,909.0,Small,19.339622641509436,4,False,False,False,,4
+1427,South Dakota,HMA Overlay/Resurface,6800.0,Large,55.660377358490564,4,False,True,False,0.1654,4
+1428,Minnesota,Reconstruct/Rebuild,4811.0,Small,24.728850325379607,4,False,False,False,,4
+1429,Minnesota,Mill & Overlay,2086.0,Small,25.49019607843137,3,False,True,False,0.3979,3
+1430,Minnesota,Mill & Overlay,18480.0,Large,69.93464052287581,3,False,False,False,,3
+1431,Minnesota,Reconstruct/Rebuild,50462.0,Large,75.70498915401302,4,False,False,False,,4
+1432,North Dakota,Mill & Overlay,15800.0,Large,66.83006535947712,2,False,False,False,,2
+1433,North Dakota,Reconstruct/Rebuild,5922.0,Small,27.114967462039047,4,False,True,False,0.372,4
+1434,South Dakota,HMA Overlay/Resurface,64.0,Small,3.30188679245283,1,False,False,False,,1
+1435,South Dakota,Grading/Earthwork,569.0,Small,1.8867924528301887,1,False,False,False,,1
+1436,South Dakota,Unknown/NoQty,,,,0,False,True,False,0.1188,0
+1437,North Dakota,Mill & Overlay,15800.0,Large,66.83006535947712,2,False,True,False,0.2604,2
+1438,Minnesota,Other,,,,1,False,False,False,,1
+1440,Minnesota,Reconstruct/Rebuild,14258.0,Small,44.90238611713666,3,False,False,False,,3
+1441,Minnesota,HMA Overlay/Resurface,2850.0,Large,38.67924528301887,2,False,False,False,,2
+1442,Minnesota,Grading/Earthwork,2877.0,Small,33.490566037735846,3,False,False,False,,3
+1443,Minnesota,Reconstruct/Rebuild,24500.0,Large,57.70065075921909,3,False,False,False,,3
+1444,North Dakota,Grading/Earthwork,155323.0,Large,93.86792452830188,2,False,False,False,,2
+1445,North Dakota,Mill & Overlay,17762.0,Large,69.28104575163398,4,False,True,False,0.168,4
+1446,North Dakota,Reconstruct/Rebuild,65262.0,Large,81.77874186550976,3,False,True,False,0.0947,3
+1447,Minnesota,Reconstruct/Rebuild,2768.0,Small,15.184381778741866,3,False,False,False,,3
+1448,North Dakota,Reconstruct/Rebuild,6559.0,Small,29.392624728850326,4,False,True,True,-0.2218,4
+1449,North Dakota,Reconstruct/Rebuild,1384.0,Small,8.459869848156181,3,True,True,False,0.3591,5
+1450,North Dakota,Reconstruct/Rebuild,6559.0,Small,29.392624728850326,4,False,True,False,0.1718,4
+1451,North Dakota,Reconstruct/Rebuild,3358.0,Small,17.35357917570499,3,False,False,False,,3
+1452,North Dakota,HMA Overlay/Resurface,9.0,Small,0.4716981132075472,2,False,False,False,,2
+1453,North Dakota,Reconstruct/Rebuild,319.0,Small,1.0845986984815619,4,False,False,False,,4
+1454,North Dakota,Mill & Overlay,2811.0,Small,30.392156862745097,2,False,False,False,,2
+1455,North Dakota,Mill & Overlay,72341.0,Large,98.0392156862745,3,False,True,False,0.1302,3
+1456,Minnesota,Mill & Overlay,29705.0,Large,82.02614379084967,3,False,False,False,,3
+1457,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1458,Minnesota,Mill & Overlay,28029.0,Large,79.73856209150327,3,False,False,False,,3
+1459,Minnesota,Mill & Overlay,7468.0,Large,50.326797385620914,4,False,False,False,,4
+1460,Minnesota,Reconstruct/Rebuild,4980.0,Small,25.488069414316705,4,False,False,False,,4
+1461,Minnesota,Reconstruct/Rebuild,4980.0,Small,25.488069414316705,4,False,False,False,,4
+1462,North Dakota,HMA Overlay/Resurface,208.0,Small,9.90566037735849,4,False,False,False,,4
+1463,North Dakota,Mill & Overlay,10809.0,Large,58.66013071895425,4,False,False,False,,4
+1464,North Dakota,Mill & Overlay,10809.0,Large,58.66013071895425,4,False,False,False,,4
+1465,North Dakota,Mill & Overlay,10809.0,Large,58.66013071895425,4,False,False,False,,4
+1466,North Dakota,Mill & Overlay,10809.0,Large,58.66013071895425,4,False,True,False,0.1106,4
+1467,Minnesota,Reconstruct/Rebuild,2486.0,Small,13.882863340563992,4,True,False,False,,6
+1468,Minnesota,Grading/Earthwork,1968.0,Small,25.943396226415093,2,True,False,False,,4
+1469,Minnesota,Grading/Earthwork,197592.0,Large,95.28301886792453,3,False,False,False,,3
+1470,Minnesota,Mill & Overlay,28465.0,Large,80.55555555555556,3,False,True,False,0.0067,3
+1471,Minnesota,Mill & Overlay,28465.0,Large,80.55555555555556,3,False,True,False,0.0552,3
+1472,Minnesota,Mill & Overlay,37561.0,Large,86.9281045751634,3,False,True,False,0.2001,3
+1473,South Dakota,Reconstruct/Rebuild,12635.0,Small,42.51626898047722,3,False,False,False,,3
+1474,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1475,North Dakota,Reconstruct/Rebuild,535.0,Small,2.386117136659436,3,False,False,False,,3
+1476,North Dakota,Reconstruct/Rebuild,14848.0,Small,45.87852494577007,3,False,False,False,,3
+1477,Minnesota,Reconstruct/Rebuild,13200.0,Small,43.600867678958785,3,False,False,False,,3
+1478,North Dakota,Reconstruct/Rebuild,12055.0,Small,41.431670281995665,3,False,False,False,,3
+1479,Nebraska,Reconstruct/Rebuild,16701.0,Small,48.80694143167028,3,False,False,False,,3
+1480,North Dakota,Reconstruct/Rebuild,68500.0,Large,82.86334056399133,4,False,False,False,,4
+1481,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1482,North Dakota,Reconstruct/Rebuild,14848.0,Small,45.87852494577007,3,False,False,False,,3
+1483,Minnesota,Grading/Earthwork,8878.0,Small,60.84905660377359,4,False,False,False,,4
+1484,North Dakota,Reconstruct/Rebuild,2083.0,Small,11.713665943600867,4,False,False,False,,4
+1485,Minnesota,Reconstruct/Rebuild,9664.0,Small,37.093275488069416,3,False,False,False,,3
+1486,Minnesota,Reconstruct/Rebuild,45668.0,Large,73.96963123644251,4,False,True,False,0.2019,4
+1487,Minnesota,Mill & Overlay,57800.0,Large,93.95424836601308,3,False,True,False,0.5899,3
+1488,Minnesota,Mill & Overlay,57800.0,Large,93.95424836601308,3,False,True,False,0.3646,3
+1489,Minnesota,Mill & Overlay,28376.0,Large,80.06535947712419,3,False,True,False,0.0149,3
+1490,Minnesota,Reconstruct/Rebuild,4315.0,Small,23.861171366594363,3,False,True,False,0.4807,3
+1491,Iowa,Reconstruct/Rebuild,105141.0,Large,88.72017353579176,4,False,True,False,0.1611,4
+1492,North Dakota,Reconstruct/Rebuild,6292.0,Small,27.54880694143167,3,False,True,True,-0.1249,3
+1493,Minnesota,Mill & Overlay,1991.0,Small,24.836601307189543,2,False,True,False,0.1129,2
+1494,Minnesota,Reconstruct/Rebuild,15994.0,Small,47.071583514099785,4,False,False,False,,4
+1495,Minnesota,HMA Overlay/Resurface,416.0,Small,13.20754716981132,1,False,False,False,,1
+1498,Minnesota,Reconstruct/Rebuild,19588.0,Large,51.62689804772235,4,False,False,False,,4
+1499,North Dakota,Grading/Earthwork,86551.0,Large,88.67924528301887,2,False,True,False,0.1299,2
+1500,South Dakota,Aggregate/Base/Gravel,3.0,Small,0.7518796992481203,2,False,False,False,,2
+1501,North Dakota,Grading/Earthwork,3439.0,Small,37.264150943396224,2,True,False,False,,4
+1502,Minnesota,Reconstruct/Rebuild,6722.0,Small,30.260303687635577,3,False,False,False,,3
+1503,Minnesota,Reconstruct/Rebuild,3204.0,Small,16.702819956616054,3,False,False,False,,3
+1504,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1505,Minnesota,Reconstruct/Rebuild,10354.0,Small,39.04555314533623,4,False,True,False,0.3784,4
+1506,Minnesota,Reconstruct/Rebuild,6722.0,Small,30.260303687635577,3,False,False,False,,3
+1507,Minnesota,Mill & Overlay,442.0,Small,5.555555555555555,4,False,True,False,0.3989,4
+1508,Minnesota,Reconstruct/Rebuild,1501.0,Small,9.11062906724512,3,False,False,False,,3
+1509,South Dakota,Reconstruct/Rebuild,32040.0,Large,65.0759219088937,3,False,False,False,,3
+1510,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1511,Minnesota,Grading/Earthwork,53491.0,Large,83.49056603773585,2,False,False,False,,2
+1512,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1513,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1514,Minnesota,Reconstruct/Rebuild,2590.0,Small,14.316702819956618,3,False,False,False,,3
+1515,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.6379,0
+1516,Minnesota,Reconstruct/Rebuild,933.0,Small,4.121475054229935,3,False,False,False,,3
+1517,North Dakota,HMA Overlay/Resurface,252.0,Small,10.849056603773585,4,False,False,False,,4
+1518,Minnesota,Mill & Overlay,979.0,Small,14.54248366013072,2,False,False,False,,2
+1519,Minnesota,Mill & Overlay,979.0,Small,14.54248366013072,2,False,True,False,0.5332,2
+1520,Minnesota,Reconstruct/Rebuild,42592.0,Large,71.8004338394794,5,False,False,False,,5
+1521,North Dakota,Reconstruct/Rebuild,16683.0,Small,48.590021691973966,4,False,False,False,,4
+1522,Minnesota,Reconstruct/Rebuild,22741.0,Large,55.42299349240781,5,False,False,False,,5
+1523,Minnesota,Reconstruct/Rebuild,22741.0,Large,55.42299349240781,5,False,False,False,,5
+1524,Minnesota,Mill & Overlay,26218.0,Large,77.94117647058823,3,False,False,False,,3
+1525,Minnesota,Mill & Overlay,26218.0,Large,77.94117647058823,3,False,True,False,0.0596,3
+1526,Minnesota,Reconstruct/Rebuild,9909.0,Small,37.960954446854664,4,False,False,False,,4
+1527,Minnesota,Reconstruct/Rebuild,1385.0,Small,8.676789587852495,4,True,False,False,,6
+1528,North Dakota,Reconstruct/Rebuild,10260.0,Small,38.82863340563991,4,False,False,False,,4
+1529,Minnesota,Reconstruct/Rebuild,3464.0,Small,17.787418655097614,3,False,False,False,,3
+1530,North Dakota,Reconstruct/Rebuild,1210.0,Small,6.29067245119306,3,False,False,False,,3
+1531,Minnesota,Grading/Earthwork,5564.0,Small,49.528301886792455,2,False,False,False,,2
+1532,North Dakota,HMA Overlay/Resurface,2918.0,Large,39.15094339622642,2,False,False,False,,2
+1533,North Dakota,HMA Overlay/Resurface,5765.0,Large,52.358490566037744,2,False,True,False,0.1408,2
+1534,South Dakota,Grading/Earthwork,4306.0,Small,41.509433962264154,1,False,False,False,,1
+1535,Minnesota,Reconstruct/Rebuild,5039.0,Small,25.813449023861175,4,False,True,False,0.1476,4
+1536,North Dakota,Reconstruct/Rebuild,39655.0,Large,70.28199566160521,3,False,True,False,0.0278,3
+1537,Minnesota,Reconstruct/Rebuild,9886.0,Small,37.744034707158356,4,False,False,False,,4
+1538,Minnesota,HMA Overlay/Resurface,34424.0,Large,90.09433962264151,3,False,True,False,0.1912,3
+1539,Minnesota,HMA Overlay/Resurface,4606.0,Large,47.16981132075472,4,False,True,False,0.4414,4
+1540,North Dakota,HMA Overlay/Resurface,578.0,Small,15.330188679245282,2,False,False,False,,2
+1541,North Dakota,HMA Overlay/Resurface,578.0,Small,15.330188679245282,2,False,False,False,,2
+1542,Minnesota,Reconstruct/Rebuild,41953.0,Large,71.58351409978309,3,False,True,False,0.1152,3
+1543,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1544,North Dakota,Reconstruct/Rebuild,55564.0,Large,77.44034707158352,3,False,True,False,0.0885,3
+1545,Minnesota,Reconstruct/Rebuild,10200.0,Small,38.39479392624729,3,False,True,False,0.2712,3
+1546,Minnesota,Reconstruct/Rebuild,52223.0,Large,76.57266811279827,5,False,False,False,,5
+1547,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.544,0
+1548,Minnesota,Mill & Overlay,34388.0,Large,85.29411764705883,3,False,True,False,0.0747,3
+1549,Minnesota,Reconstruct/Rebuild,8283.0,Small,34.70715835140998,4,False,True,False,0.0219,4
+1550,South Dakota,Aggregate/Base/Gravel,3000.0,Large,57.89473684210527,1,False,False,False,,1
+1551,Minnesota,Reconstruct/Rebuild,2310.0,Small,13.232104121475055,4,True,False,False,,6
+1552,Minnesota,Mill & Overlay,6460.0,Large,47.712418300653596,3,False,False,False,,3
+1553,Minnesota,Mill & Overlay,14558.0,Large,65.359477124183,3,False,True,False,0.1735,3
+1554,Minnesota,Mill & Overlay,32309.0,Large,84.640522875817,4,False,False,False,,4
+1555,Nebraska,Reconstruct/Rebuild,365468.0,Large,99.13232104121475,4,False,False,False,,4
+1556,Nebraska,Reconstruct/Rebuild,1578.0,Small,9.97830802603037,4,True,False,False,,6
+1557,North Dakota,Unknown/NoQty,,,,0,False,True,True,,0
+1558,North Dakota,Other,,,,1,False,False,False,,1
+1559,North Dakota,Reconstruct/Rebuild,10373.0,Small,39.26247288503254,3,False,False,False,,3
+1560,North Dakota,Grading/Earthwork,4545.0,Small,42.924528301886795,2,False,False,False,,2
+1561,North Dakota,Reconstruct/Rebuild,2674.0,Small,14.859002169197396,3,True,False,False,,5
+1562,North Dakota,Reconstruct/Rebuild,17139.0,Small,49.240780911062906,4,False,False,False,,4
+1563,North Dakota,Grading/Earthwork,77622.0,Large,85.84905660377359,2,False,False,False,,2
+1564,North Dakota,HMA Overlay/Resurface,6484.0,Large,53.77358490566038,2,False,True,False,0.0119,2
+1565,Minnesota,Reconstruct/Rebuild,7541.0,Small,32.53796095444685,3,False,False,False,,3
+1566,Iowa,Reconstruct/Rebuild,18545.0,Large,50.97613882863341,2,False,False,False,,2
+1567,Minnesota,Reconstruct/Rebuild,7902.0,Small,33.622559652928416,4,False,True,True,-0.0295,4
+1568,North Dakota,Reconstruct/Rebuild,17501.0,Small,49.891540130151846,3,False,False,False,,3
+1569,Minnesota,Reconstruct/Rebuild,2350.0,Small,13.449023861171366,3,False,False,False,,3
+1570,Minnesota,Unknown/NoQty,,,,0,True,True,True,-0.1062,2
+1571,South Dakota,Grading/Earthwork,1260.0,Small,14.622641509433961,2,False,False,False,,2
+1572,Minnesota,Reconstruct/Rebuild,328.0,Small,1.3015184381778742,3,False,True,False,0.745,3
+1573,North Dakota,Grading/Earthwork,215512.0,Large,95.75471698113208,2,False,True,False,0.3749,2
+1574,Minnesota,Grading/Earthwork,11081.0,Small,64.62264150943396,1,False,False,False,,1
+1575,Minnesota,Grading/Earthwork,5003.0,Small,45.75471698113208,2,False,False,False,,2
+1576,Minnesota,Unknown/NoQty,,,,0,False,True,True,-0.4121,0
+1577,Minnesota,Unknown/NoQty,,,,0,False,True,False,0.0526,0
+1578,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1579,Minnesota,Unknown/NoQty,,,,0,False,False,False,,0
+1580,Minnesota,Reconstruct/Rebuild,83857.0,Large,85.68329718004338,4,False,False,False,,4
+1581,Minnesota,Reconstruct/Rebuild,11917.0,Small,40.99783080260303,4,False,False,False,,4
+1582,North Dakota,Grading/Earthwork,2650.0,Small,32.075471698113205,2,False,True,False,0.7813,2
+1583,South Dakota,Grading/Earthwork,2421.0,Small,30.660377358490564,3,False,False,False,,3
+1584,North Dakota,HMA Overlay/Resurface,952.0,Small,20.5188679245283,4,False,False,False,,4
+1585,North Dakota,Reconstruct/Rebuild,3335.0,Small,17.136659436008678,3,False,True,False,0.4374,3
+1586,Minnesota,Reconstruct/Rebuild,19671.0,Large,51.84381778741866,3,False,False,False,,3
+1587,Minnesota,Mill & Overlay,22627.0,Large,75.16339869281046,3,False,True,False,0.1886,3
+1588,Minnesota,Grading/Earthwork,17770.0,Large,67.45283018867924,2,True,False,False,,4
+1589,Minnesota,Reconstruct/Rebuild,7997.0,Small,34.05639913232104,5,False,False,False,,5
+1590,North Dakota,HMA Overlay/Resurface,952.0,Small,20.5188679245283,4,False,True,False,0.2265,4
+1591,North Dakota,Reconstruct/Rebuild,4108.0,Small,22.7765726681128,3,False,False,False,,3
+1592,South Dakota,Reconstruct/Rebuild,1231.0,Small,6.724511930585683,3,False,False,False,,3
+1593,South Dakota,Grading/Earthwork,5746.0,Small,52.358490566037744,2,False,False,False,,2
+1594,Minnesota,Grading/Earthwork,136200.0,Large,93.39622641509435,1,False,False,False,,1
+1595,Minnesota,Reconstruct/Rebuild,1270.0,Small,7.266811279826464,3,False,True,False,0.5887,3
+1596,North Dakota,Reconstruct/Rebuild,1379.0,Small,8.24295010845987,3,False,False,False,,3
+1597,South Dakota,Grading/Earthwork,12784.0,Small,66.50943396226415,3,False,False,False,,3
+1598,Minnesota,Grading/Earthwork,23700.0,Large,71.22641509433963,2,True,True,False,0.6405,4
+1599,North Dakota,HMA Overlay/Resurface,748.0,Small,17.452830188679243,1,False,True,False,0.2414,1
+1600,Minnesota,Reconstruct/Rebuild,2469.0,Small,13.665943600867678,3,False,False,False,,3
+1601,North Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1602,South Dakota,Grading/Earthwork,3126.0,Small,35.613207547169814,2,True,False,False,,4
+1603,South Dakota,Grading/Earthwork,3126.0,Small,35.613207547169814,2,True,False,False,,4
+1604,South Dakota,Reconstruct/Rebuild,7600.0,Small,33.18872017353579,3,False,True,False,0.2407,3
+1605,Iowa,HMA Overlay/Resurface,15750.0,Large,73.11320754716981,2,False,False,False,,2
+1606,North Dakota,Aggregate/Base/Gravel,999.0,Small,40.6015037593985,2,False,False,False,,2
+1607,North Dakota,Grading/Earthwork,469043.0,Large,98.58490566037736,2,False,True,False,0.2027,2
+1608,South Dakota,Grading/Earthwork,3354.0,Small,36.32075471698113,1,False,True,False,0.516,1
+1609,South Dakota,Grading/Earthwork,3561.0,Small,38.67924528301887,1,False,False,False,,1
+1610,South Dakota,Grading/Earthwork,1290.0,Small,15.566037735849056,3,False,False,False,,3
+1611,South Dakota,Grading/Earthwork,12631.0,Small,66.0377358490566,3,False,False,False,,3
+1612,Minnesota,Reconstruct/Rebuild,837.0,Small,3.68763557483731,3,False,False,False,,3
+1613,North Dakota,Reconstruct/Rebuild,54701.0,Large,76.78958785249458,4,False,True,True,-0.0678,4
+1614,North Dakota,Aggregate/Base/Gravel,430.0,Small,27.06766917293233,1,False,False,False,,1
+1615,Minnesota,Mill & Overlay,44701.0,Large,89.54248366013073,4,False,False,False,,4
+1616,North Dakota,Reconstruct/Rebuild,345.0,Small,1.5184381778741864,4,False,False,False,,4
+1617,North Dakota,Reconstruct/Rebuild,16567.0,Small,48.37310195227766,4,False,False,False,,4
+1618,Minnesota,Reconstruct/Rebuild,4376.0,Small,24.07809110629067,4,False,False,False,,4
+1619,Minnesota,Reconstruct/Rebuild,1443.0,Small,8.893709327548807,3,False,True,False,0.4069,3
+1620,North Dakota,Grading/Earthwork,4060.0,Small,40.09433962264151,3,False,True,False,0.0064,3
+1621,Minnesota,Reconstruct/Rebuild,96799.0,Large,88.06941431670282,4,False,False,False,,4
+1622,South Dakota,Grading/Earthwork,2152.0,Small,29.245283018867923,2,False,False,False,,2
+1623,South Dakota,Aggregate/Base/Gravel,321.0,Small,24.06015037593985,3,False,False,False,,3
+1625,Minnesota,Grading/Earthwork,6788.0,Small,54.24528301886793,2,False,False,False,,2
+1626,South Dakota,Grading/Earthwork,617.0,Small,2.8301886792452833,1,False,False,False,,1
+1627,South Dakota,Grading/Earthwork,734.0,Small,6.60377358490566,1,False,False,False,,1
+1628,North Dakota,Grading/Earthwork,1980.0,Small,26.41509433962264,2,False,False,False,,2
+1629,Minnesota,Grading/Earthwork,1209.0,Small,13.20754716981132,2,False,False,False,,2
+1630,Minnesota,Reconstruct/Rebuild,5345.0,Small,26.247288503253795,5,False,False,False,,5
+1631,North Dakota,HMA Overlay/Resurface,441.0,Small,13.679245283018867,3,False,False,False,,3
+1632,Minnesota,Grading/Earthwork,536.0,Small,1.4150943396226416,2,False,False,False,,2
+1633,Minnesota,Reconstruct/Rebuild,2071.0,Small,11.496746203904555,3,True,False,False,,5
+1634,Minnesota,Reconstruct/Rebuild,26158.0,Large,60.73752711496746,4,False,False,False,,4
+1635,Minnesota,Mill & Overlay,5444.0,Large,43.627450980392155,3,False,False,False,,3
+1636,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1637,South Dakota,Grading/Earthwork,28116.0,Large,73.58490566037736,3,False,False,False,,3
+1638,South Dakota,Unknown/NoQty,,,,0,False,False,False,,0
+1639,Minnesota,Reconstruct/Rebuild,17293.0,Small,49.67462039045553,3,False,False,False,,3
+1640,South Dakota,HMA Overlay/Resurface,7714.0,Large,59.43396226415094,1,False,False,False,,1
+1641,North Dakota,Grading/Earthwork,49229.0,Large,81.13207547169812,2,False,False,False,,2
+1642,North Dakota,Grading/Earthwork,4911.0,Small,45.28301886792453,2,False,False,False,,2
+1643,North Dakota,Reconstruct/Rebuild,16004.0,Small,47.288503253796094,3,False,False,False,,3
+1644,Minnesota,Reconstruct/Rebuild,12051.0,Small,41.21475054229935,3,False,False,False,,3
+1645,Iowa,Reconstruct/Rebuild,20475.0,Large,52.92841648590022,3,False,False,False,,3
+1646,Iowa,Grading/Earthwork,1860.0,Small,24.528301886792452,2,True,False,False,,4
+1647,Minnesota,Grading/Earthwork,19009.0,Large,68.86792452830188,3,True,False,False,,5
+1648,South Dakota,Grading/Earthwork,6470.0,Small,53.301886792452834,2,True,False,False,,4
+1649,Minnesota,Reconstruct/Rebuild,6296.0,Small,27.765726681127983,2,False,False,False,,2
+1650,Minnesota,Reconstruct/Rebuild,10570.0,Small,39.479392624728845,3,False,False,False,,3
+1651,South Dakota,HMA Overlay/Resurface,14357.0,Large,72.16981132075472,2,False,False,False,,2
+1652,Minnesota,Mill & Overlay,37405.0,Large,86.27450980392157,3,False,False,False,,3
+1653,South Dakota,Grading/Earthwork,3393.0,Small,36.79245283018868,1,True,True,False,0.4324,3
+1654,South Dakota,Grading/Earthwork,5644.0,Small,50.943396226415096,1,True,False,False,,3
+1655,South Dakota,Reconstruct/Rebuild,3990.0,Small,22.125813449023862,3,False,False,False,,3
+1656,South Dakota,Grading/Earthwork,8013.0,Small,58.9622641509434,3,False,False,False,,3
+1657,North Dakota,Mill & Overlay,1036.0,Small,15.359477124183007,3,False,False,False,,3
+1658,Nebraska,Grading/Earthwork,2811267.0,Large,100.0,4,False,True,False,0.1071,4
+1659,Minnesota,Mill & Overlay,14480.0,Large,65.0326797385621,5,False,False,False,,5
+1660,Nebraska,Reconstruct/Rebuild,50595.0,Large,76.13882863340564,4,False,False,False,,4
+1661,Nebraska,Grading/Earthwork,36038.0,Large,77.83018867924528,2,False,False,False,,2

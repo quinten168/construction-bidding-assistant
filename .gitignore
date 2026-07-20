@@ -17,3 +17,91 @@ ci_model/model_1_wenyu/03_training/outputs/ranking_predictions.csv
 ci_model/competitor_prediction_model/03_training/outputs/ranking_predictions.csv
 ci_model/competitor_prediction_model/03_training/outputs/*.csv
 ci_model/03_training/outputs/ranking_predictions.csv
+
+# ==================================================================================
+# Added by t/live-stack — rules for the Plan Reader / Bid Assistant / frontend stack
+# ==================================================================================
+
+# --- Secrets (NEVER commit) ---
+.env
+**/.env
+*.env
+!**/.env.example
+
+# --- SQLite / databases (client bid data + regenerable) ---
+# Pattern-based on purpose: an exact-path rule matched 1 of 9 db files in the
+# source repo and left ~1.1 GB of client data stageable.
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+*.bak
+*.bak_*
+
+# --- Vector store (Chroma persist dir; rebuilds on ingest, ~1.5 GB) ---
+# Path-relative on purpose: exact-path rules were coupled to the pre-restructure
+# `02_modules/plan_reader/` layout and stopped matching the moment the module moved,
+# which would have committed ~6 GB of derived artifacts into a shared repo's history.
+**/06_chroma/
+**/chroma_db/
+
+# --- Plan Reader: client plan PDFs + regenerable per-plan artifacts (~4.5 GB) ---
+**/00_input/plans/**/*.pdf
+**/00_input/plans/**/*.md
+**/00_input/plans/**/*.json
+**/00_input/_md_cache/
+**/00_input/_report_payload_cache/
+# 02_outputs/ is generated diagnostics + scorecards — regenerable, ignored wholesale.
+# The 7 files old `main` tracked here remain recoverable at d63b96c if ever needed as
+# cited evidence of extraction quality.
+**/plan_reader/02_outputs/
+
+# --- CI model: large regenerable training/eval outputs ---
+# Deliberately file-pattern, NOT `03_training/outputs/`. That directory is 96 MB but only because
+# of ranking_predictions.csv (94 MB); it also holds the *_model.json files — including
+# logistic_baseline_model.json, the orchestrator's --model input — at ~30 KB total. A directory-level
+# ignore would drop those and silently break live report generation on a fresh clone, while still
+# passing locally because the working tree already has them.
+#
+# ranking_predictions.csv must be regenerated or obtained on a fresh clone: see
+# pipelines/ci_model/README.md. Everything ignored here is a *write* target of 03_training /
+# 04_evaluation; the 06_reporting path reads none of it (verified).
+**/ranking_predictions.csv
+**/top_k_precision.csv
+**/top_k_recall.csv
+**/*_tuning.csv
+# Kept tracked on purpose: **/*_model.json, shallow_decision_tree.{json,txt} — small, and a fresh
+# clone cannot generate a report without them.
+
+# --- Bid Assistant: captured chat traffic (contains client bid data) ---
+**/data/conversations/
+**/data/corrections/
+**/.chainlit/
+**/.files/
+**/.deepeval/
+
+# --- Frontend (Next.js) ---
+node_modules/
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# --- Python / OS cruft ---
+.venv/
+venv/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- research/sweet_spot ---
+# Exported notebook renders (4 files, 4.5 MB). Regenerable from the .ipynb/.Rmd
+# sources, which ARE tracked, and nothing references them.
+# Scoped to this directory deliberately: a bare `*.html` rule is occurrence 1 in
+# docs/ARCHITECTURE.md section 7 -- a pattern that stopped matching what it was
+# written for. Everything else under research/sweet_spot/, including all of
+# outputs/, is TRACKED on purpose. Do not add a blanket outputs/ ignore here.
+research/sweet_spot/notebooks/*.html
+research/sweet_spot/notebooks/*_files/

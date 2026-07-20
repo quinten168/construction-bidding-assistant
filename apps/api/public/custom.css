@@ -1,0 +1,8 @@
+/* CSI Bidding IQ — UI chrome tweaks over the Chainlit default theme. */
+
+/* Hide the "Built with Chainlit" watermark / footer link. */
+a[href*="chainlit.io"],
+.watermark,
+a.watermark {
+  display: none !important;
+}

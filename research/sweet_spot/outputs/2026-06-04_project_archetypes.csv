@@ -1,0 +1,1592 @@
+Contract_Id,rule_archetype,cluster_id,cluster_label
+1,Unknown/NoQty,,
+2,Unknown/NoQty,,
+3,Unknown/NoQty,,
+4,Other,5.0,C5:MILL_SY-dom
+7,Mill & Overlay,5.0,C5:MILL_SY-dom
+9,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+10,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+11,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+12,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+13,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+14,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+15,Unknown/NoQty,,
+16,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+17,Mill & Overlay,5.0,C5:MILL_SY-dom
+19,Unknown/NoQty,,
+20,Other,5.0,C5:MILL_SY-dom
+21,Other,5.0,C5:MILL_SY-dom
+22,Unknown/NoQty,,
+23,Unknown/NoQty,,
+24,Mill & Overlay,5.0,C5:MILL_SY-dom
+25,Mill & Overlay,5.0,C5:MILL_SY-dom
+26,Mill & Overlay,5.0,C5:MILL_SY-dom
+27,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+28,Other,5.0,C5:MILL_SY-dom
+29,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+30,Mill & Overlay,5.0,C5:MILL_SY-dom
+31,Mill & Overlay,1.0,C1:BASE_TN-dom
+32,Mill & Overlay,1.0,C1:BASE_TN-dom
+33,Unknown/NoQty,,
+35,Mill & Overlay,1.0,C1:BASE_TN-dom
+36,Unknown/NoQty,,
+37,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+38,Mill & Overlay,5.0,C5:MILL_SY-dom
+40,Unknown/NoQty,,
+41,Unknown/NoQty,,
+42,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+43,Unknown/NoQty,,
+44,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+45,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+46,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+47,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+48,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+49,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+50,Unknown/NoQty,,
+51,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+52,Mill & Overlay,5.0,C5:MILL_SY-dom
+53,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+54,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+55,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+56,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+57,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+58,Unknown/NoQty,,
+59,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+60,Mill & Overlay,1.0,C1:BASE_TN-dom
+62,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+63,Mill & Overlay,5.0,C5:MILL_SY-dom
+64,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+65,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+66,Unknown/NoQty,,
+67,Unknown/NoQty,,
+68,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+69,Unknown/NoQty,,
+70,Mill & Overlay,5.0,C5:MILL_SY-dom
+71,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+72,Mill & Overlay,5.0,C5:MILL_SY-dom
+73,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+74,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+75,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+76,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+78,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+79,Mill & Overlay,5.0,C5:MILL_SY-dom
+81,Other,5.0,C5:MILL_SY-dom
+82,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+83,Mill & Overlay,5.0,C5:MILL_SY-dom
+84,Mill & Overlay,5.0,C5:MILL_SY-dom
+85,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+86,Unknown/NoQty,,
+87,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+88,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+89,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+91,Mill & Overlay,5.0,C5:MILL_SY-dom
+92,Mill & Overlay,5.0,C5:MILL_SY-dom
+93,Mill & Overlay,5.0,C5:MILL_SY-dom
+94,Mill & Overlay,1.0,C1:BASE_TN-dom
+95,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+97,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+98,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+99,Grading/Earthwork,5.0,C5:MILL_SY-dom
+100,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+101,Mill & Overlay,5.0,C5:MILL_SY-dom
+102,Unknown/NoQty,,
+103,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+104,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+105,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+106,Mill & Overlay,2.0,C2:MIX_TN-dom
+107,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+109,Mill & Overlay,5.0,C5:MILL_SY-dom
+110,Other,5.0,C5:MILL_SY-dom
+111,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+112,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+113,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+114,Mill & Overlay,5.0,C5:MILL_SY-dom
+115,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+117,Mill & Overlay,1.0,C1:BASE_TN-dom
+119,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+120,Unknown/NoQty,,
+121,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+122,Mill & Overlay,1.0,C1:BASE_TN-dom
+123,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+124,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+125,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+126,Unknown/NoQty,,
+127,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+128,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+129,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+130,Mill & Overlay,1.0,C1:BASE_TN-dom
+131,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+132,Other,5.0,C5:MILL_SY-dom
+133,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+134,Mill & Overlay,5.0,C5:MILL_SY-dom
+135,Unknown/NoQty,,
+136,Other,5.0,C5:MILL_SY-dom
+137,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+138,Other,5.0,C5:MILL_SY-dom
+139,Mill & Overlay,5.0,C5:MILL_SY-dom
+140,Mill & Overlay,5.0,C5:MILL_SY-dom
+141,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+142,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+144,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+145,Mill & Overlay,5.0,C5:MILL_SY-dom
+147,Mill & Overlay,1.0,C1:BASE_TN-dom
+148,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+149,Mill & Overlay,5.0,C5:MILL_SY-dom
+150,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+151,Mill & Overlay,1.0,C1:BASE_TN-dom
+152,Mill & Overlay,5.0,C5:MILL_SY-dom
+153,Grading/Earthwork,5.0,C5:MILL_SY-dom
+154,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+156,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+157,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+158,Mill & Overlay,5.0,C5:MILL_SY-dom
+159,Unknown/NoQty,,
+160,Unknown/NoQty,,
+161,Mill & Overlay,5.0,C5:MILL_SY-dom
+162,Unknown/NoQty,,
+163,Mill & Overlay,1.0,C1:BASE_TN-dom
+164,Mill & Overlay,1.0,C1:BASE_TN-dom
+165,Mill & Overlay,5.0,C5:MILL_SY-dom
+166,Unknown/NoQty,,
+167,Mill & Overlay,2.0,C2:MIX_TN-dom
+168,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+169,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+170,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+171,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+172,Other,5.0,C5:MILL_SY-dom
+173,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+174,Mill & Overlay,1.0,C1:BASE_TN-dom
+175,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+176,Unknown/NoQty,,
+177,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+180,Other,5.0,C5:MILL_SY-dom
+181,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+182,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+183,Mill & Overlay,5.0,C5:MILL_SY-dom
+184,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+185,Mill & Overlay,5.0,C5:MILL_SY-dom
+186,Mill & Overlay,5.0,C5:MILL_SY-dom
+187,Mill & Overlay,5.0,C5:MILL_SY-dom
+188,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+189,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+190,Unknown/NoQty,,
+191,Other,5.0,C5:MILL_SY-dom
+192,Mill & Overlay,1.0,C1:BASE_TN-dom
+193,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+194,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+195,Unknown/NoQty,,
+196,Unknown/NoQty,,
+197,Mill & Overlay,1.0,C1:BASE_TN-dom
+198,Unknown/NoQty,,
+199,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+200,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+201,Other,5.0,C5:MILL_SY-dom
+202,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+204,Mill & Overlay,5.0,C5:MILL_SY-dom
+205,Unknown/NoQty,,
+206,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+207,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+208,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+209,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+210,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+211,Mill & Overlay,5.0,C5:MILL_SY-dom
+212,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+213,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+214,Mill & Overlay,1.0,C1:BASE_TN-dom
+215,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+216,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+217,Mill & Overlay,5.0,C5:MILL_SY-dom
+218,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+219,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+220,Other,0.0,C0:GRADE_CY-dom
+221,Mill & Overlay,5.0,C5:MILL_SY-dom
+222,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+223,Unknown/NoQty,,
+225,Unknown/NoQty,,
+226,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+227,Mill & Overlay,5.0,C5:MILL_SY-dom
+228,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+229,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+230,Mill & Overlay,5.0,C5:MILL_SY-dom
+231,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+232,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+233,Unknown/NoQty,,
+234,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+235,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+236,Unknown/NoQty,,
+237,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+238,Mill & Overlay,5.0,C5:MILL_SY-dom
+239,Mill & Overlay,5.0,C5:MILL_SY-dom
+240,Mill & Overlay,5.0,C5:MILL_SY-dom
+241,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+242,Mill & Overlay,5.0,C5:MILL_SY-dom
+243,Mill & Overlay,5.0,C5:MILL_SY-dom
+244,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+245,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+246,Mill & Overlay,5.0,C5:MILL_SY-dom
+247,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+248,Unknown/NoQty,,
+249,Mill & Overlay,5.0,C5:MILL_SY-dom
+250,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+251,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+252,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+253,Mill & Overlay,5.0,C5:MILL_SY-dom
+254,Mill & Overlay,5.0,C5:MILL_SY-dom
+255,Mill & Overlay,5.0,C5:MILL_SY-dom
+256,Mill & Overlay,5.0,C5:MILL_SY-dom
+257,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+258,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+259,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+260,Unknown/NoQty,,
+261,Unknown/NoQty,,
+262,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+263,Mill & Overlay,1.0,C1:BASE_TN-dom
+264,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+265,Mill & Overlay,5.0,C5:MILL_SY-dom
+266,Mill & Overlay,1.0,C1:BASE_TN-dom
+267,Mill & Overlay,5.0,C5:MILL_SY-dom
+268,Unknown/NoQty,,
+269,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+270,Unknown/NoQty,,
+271,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+272,Mill & Overlay,1.0,C1:BASE_TN-dom
+273,Mill & Overlay,5.0,C5:MILL_SY-dom
+274,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+275,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+276,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+277,Mill & Overlay,5.0,C5:MILL_SY-dom
+278,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+281,Unknown/NoQty,,
+282,Unknown/NoQty,,
+283,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+284,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+285,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+286,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+287,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+288,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+289,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+290,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+291,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+292,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+293,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+294,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+295,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+296,Unknown/NoQty,,
+297,Mill & Overlay,5.0,C5:MILL_SY-dom
+298,Mill & Overlay,5.0,C5:MILL_SY-dom
+300,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+301,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+302,Mill & Overlay,5.0,C5:MILL_SY-dom
+303,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+304,Mill & Overlay,5.0,C5:MILL_SY-dom
+305,Mill & Overlay,2.0,C2:MIX_TN-dom
+306,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+307,Mill & Overlay,5.0,C5:MILL_SY-dom
+308,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+309,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+310,Mill & Overlay,5.0,C5:MILL_SY-dom
+311,Mill & Overlay,5.0,C5:MILL_SY-dom
+312,Unknown/NoQty,,
+313,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+314,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+315,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+316,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+317,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+318,Mill & Overlay,5.0,C5:MILL_SY-dom
+319,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+320,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+321,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+322,Unknown/NoQty,,
+323,Mill & Overlay,5.0,C5:MILL_SY-dom
+324,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+325,Mill & Overlay,1.0,C1:BASE_TN-dom
+326,Unknown/NoQty,,
+327,Other,5.0,C5:MILL_SY-dom
+328,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+331,Unknown/NoQty,,
+332,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+333,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+334,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+335,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+336,Unknown/NoQty,,
+337,Unknown/NoQty,,
+338,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+340,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+341,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+342,Mill & Overlay,5.0,C5:MILL_SY-dom
+343,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+344,Other,5.0,C5:MILL_SY-dom
+345,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+346,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+347,Grading/Earthwork,5.0,C5:MILL_SY-dom
+348,Mill & Overlay,1.0,C1:BASE_TN-dom
+349,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+350,Mill & Overlay,1.0,C1:BASE_TN-dom
+351,Unknown/NoQty,,
+352,Unknown/NoQty,,
+353,Mill & Overlay,5.0,C5:MILL_SY-dom
+354,Unknown/NoQty,,
+355,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+356,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+357,Mill & Overlay,5.0,C5:MILL_SY-dom
+358,Other,5.0,C5:MILL_SY-dom
+359,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+360,Mill & Overlay,1.0,C1:BASE_TN-dom
+361,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+363,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+364,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+365,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+366,Mill & Overlay,1.0,C1:BASE_TN-dom
+367,Unknown/NoQty,,
+368,Unknown/NoQty,,
+370,Mill & Overlay,5.0,C5:MILL_SY-dom
+371,Unknown/NoQty,,
+372,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+373,Unknown/NoQty,,
+374,Grading/Earthwork,5.0,C5:MILL_SY-dom
+375,Grading/Earthwork,5.0,C5:MILL_SY-dom
+376,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+377,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+378,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+379,Unknown/NoQty,,
+380,Mill & Overlay,5.0,C5:MILL_SY-dom
+381,Unknown/NoQty,,
+382,Mill & Overlay,1.0,C1:BASE_TN-dom
+384,Mill & Overlay,1.0,C1:BASE_TN-dom
+385,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+386,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+388,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+389,Mill & Overlay,5.0,C5:MILL_SY-dom
+390,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+391,Other,5.0,C5:MILL_SY-dom
+392,Mill & Overlay,5.0,C5:MILL_SY-dom
+394,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+395,Grading/Earthwork,5.0,C5:MILL_SY-dom
+396,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+397,Mill & Overlay,5.0,C5:MILL_SY-dom
+398,Grading/Earthwork,5.0,C5:MILL_SY-dom
+399,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+400,Mill & Overlay,5.0,C5:MILL_SY-dom
+401,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+402,Unknown/NoQty,,
+403,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+404,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+405,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+406,Other,5.0,C5:MILL_SY-dom
+407,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+408,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+410,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+411,Mill & Overlay,2.0,C2:MIX_TN-dom
+412,Mill & Overlay,5.0,C5:MILL_SY-dom
+413,Mill & Overlay,1.0,C1:BASE_TN-dom
+414,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+415,Grading/Earthwork,5.0,C5:MILL_SY-dom
+416,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+417,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+418,Mill & Overlay,5.0,C5:MILL_SY-dom
+419,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+420,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+421,Unknown/NoQty,,
+422,Unknown/NoQty,,
+423,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+424,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+425,Unknown/NoQty,,
+426,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+427,Unknown/NoQty,,
+429,Unknown/NoQty,,
+430,Grading/Earthwork,5.0,C5:MILL_SY-dom
+431,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+432,Unknown/NoQty,,
+433,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+434,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+435,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+436,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+437,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+438,Unknown/NoQty,,
+439,Mill & Overlay,1.0,C1:BASE_TN-dom
+440,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+441,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+442,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+443,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+444,Unknown/NoQty,,
+445,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+446,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+447,Unknown/NoQty,,
+448,Mill & Overlay,1.0,C1:BASE_TN-dom
+449,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+451,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+452,Mill & Overlay,5.0,C5:MILL_SY-dom
+453,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+454,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+455,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+456,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+458,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+459,Other,5.0,C5:MILL_SY-dom
+460,Unknown/NoQty,,
+461,Unknown/NoQty,,
+462,Mill & Overlay,5.0,C5:MILL_SY-dom
+463,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+464,Unknown/NoQty,,
+465,Unknown/NoQty,,
+466,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+467,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+468,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+469,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+470,HMA Overlay/Resurface,0.0,C0:GRADE_CY-dom
+471,Mill & Overlay,1.0,C1:BASE_TN-dom
+473,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+474,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+475,Mill & Overlay,5.0,C5:MILL_SY-dom
+476,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+477,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+478,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+479,Unknown/NoQty,,
+480,Unknown/NoQty,,
+481,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+482,Unknown/NoQty,,
+483,Unknown/NoQty,,
+484,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+485,Other,5.0,C5:MILL_SY-dom
+486,Unknown/NoQty,,
+487,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+489,Unknown/NoQty,,
+490,Unknown/NoQty,,
+491,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+492,Grading/Earthwork,5.0,C5:MILL_SY-dom
+493,Unknown/NoQty,,
+494,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+495,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+496,Mill & Overlay,1.0,C1:BASE_TN-dom
+497,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+498,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+499,Unknown/NoQty,,
+500,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+501,Mill & Overlay,5.0,C5:MILL_SY-dom
+502,Unknown/NoQty,,
+503,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+504,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+506,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+507,Mill & Overlay,5.0,C5:MILL_SY-dom
+508,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+509,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+510,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+511,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+512,Mill & Overlay,1.0,C1:BASE_TN-dom
+513,Mill & Overlay,1.0,C1:BASE_TN-dom
+514,Mill & Overlay,5.0,C5:MILL_SY-dom
+515,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+516,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+517,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+518,Mill & Overlay,5.0,C5:MILL_SY-dom
+519,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+520,Unknown/NoQty,,
+521,Other,5.0,C5:MILL_SY-dom
+522,Unknown/NoQty,,
+523,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+524,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+526,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+527,Mill & Overlay,5.0,C5:MILL_SY-dom
+528,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+529,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+530,Mill & Overlay,5.0,C5:MILL_SY-dom
+531,Mill & Overlay,1.0,C1:BASE_TN-dom
+532,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+533,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+534,Mill & Overlay,1.0,C1:BASE_TN-dom
+535,Mill & Overlay,5.0,C5:MILL_SY-dom
+536,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+537,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+538,Mill & Overlay,1.0,C1:BASE_TN-dom
+539,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+540,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+541,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+542,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+543,Unknown/NoQty,,
+546,Other,5.0,C5:MILL_SY-dom
+548,Unknown/NoQty,,
+551,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+552,Mill & Overlay,1.0,C1:BASE_TN-dom
+554,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+555,Mill & Overlay,5.0,C5:MILL_SY-dom
+556,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+557,Mill & Overlay,5.0,C5:MILL_SY-dom
+558,Unknown/NoQty,,
+559,Mill & Overlay,5.0,C5:MILL_SY-dom
+560,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+561,Mill & Overlay,5.0,C5:MILL_SY-dom
+562,Mill & Overlay,1.0,C1:BASE_TN-dom
+564,Other,5.0,C5:MILL_SY-dom
+565,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+566,Unknown/NoQty,,
+567,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+568,Unknown/NoQty,,
+569,Unknown/NoQty,,
+570,Unknown/NoQty,,
+571,Unknown/NoQty,,
+572,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+573,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+574,Other,5.0,C5:MILL_SY-dom
+575,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+576,Unknown/NoQty,,
+577,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+578,Unknown/NoQty,,
+579,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+580,Mill & Overlay,1.0,C1:BASE_TN-dom
+582,Mill & Overlay,1.0,C1:BASE_TN-dom
+584,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+585,Unknown/NoQty,,
+586,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+587,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+588,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+589,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+590,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+591,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+592,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+593,Mill & Overlay,5.0,C5:MILL_SY-dom
+594,Mill & Overlay,5.0,C5:MILL_SY-dom
+595,Other,1.0,C1:BASE_TN-dom
+596,Unknown/NoQty,,
+597,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+599,Mill & Overlay,1.0,C1:BASE_TN-dom
+600,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+601,Mill & Overlay,5.0,C5:MILL_SY-dom
+602,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+603,Unknown/NoQty,,
+604,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+605,Unknown/NoQty,,
+606,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+607,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+608,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+609,Mill & Overlay,5.0,C5:MILL_SY-dom
+610,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+611,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+613,Unknown/NoQty,,
+614,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+615,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+616,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+617,Unknown/NoQty,,
+618,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+619,Other,5.0,C5:MILL_SY-dom
+620,Unknown/NoQty,,
+621,Unknown/NoQty,,
+622,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+623,Mill & Overlay,5.0,C5:MILL_SY-dom
+624,Mill & Overlay,5.0,C5:MILL_SY-dom
+625,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+626,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+627,Other,5.0,C5:MILL_SY-dom
+628,Mill & Overlay,1.0,C1:BASE_TN-dom
+629,Other,5.0,C5:MILL_SY-dom
+630,Unknown/NoQty,,
+631,Mill & Overlay,2.0,C2:MIX_TN-dom
+634,Unknown/NoQty,,
+638,Mill & Overlay,5.0,C5:MILL_SY-dom
+640,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+641,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+642,Unknown/NoQty,,
+643,Mill & Overlay,5.0,C5:MILL_SY-dom
+644,Other,5.0,C5:MILL_SY-dom
+645,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+646,Mill & Overlay,1.0,C1:BASE_TN-dom
+647,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+648,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+649,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+651,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+652,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+653,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+654,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+655,Unknown/NoQty,,
+656,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+657,Unknown/NoQty,,
+658,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+659,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+661,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+662,Unknown/NoQty,,
+663,Unknown/NoQty,,
+664,Mill & Overlay,5.0,C5:MILL_SY-dom
+665,Mill & Overlay,5.0,C5:MILL_SY-dom
+666,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+667,Mill & Overlay,5.0,C5:MILL_SY-dom
+668,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+669,Mill & Overlay,5.0,C5:MILL_SY-dom
+670,Mill & Overlay,5.0,C5:MILL_SY-dom
+672,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+673,Mill & Overlay,5.0,C5:MILL_SY-dom
+674,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+675,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+676,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+677,Mill & Overlay,5.0,C5:MILL_SY-dom
+678,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+679,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+680,Unknown/NoQty,,
+682,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+683,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+684,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+686,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+687,Unknown/NoQty,,
+688,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+689,Mill & Overlay,5.0,C5:MILL_SY-dom
+690,Mill & Overlay,2.0,C2:MIX_TN-dom
+691,Unknown/NoQty,,
+692,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+693,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+694,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+695,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+696,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+697,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+698,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+699,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+700,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+701,Unknown/NoQty,,
+702,Other,0.0,C0:GRADE_CY-dom
+703,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+704,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+705,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+706,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+707,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+708,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+709,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+710,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+711,Mill & Overlay,5.0,C5:MILL_SY-dom
+712,Other,0.0,C0:GRADE_CY-dom
+713,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+714,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+715,Unknown/NoQty,,
+716,Unknown/NoQty,,
+717,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+718,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+719,Unknown/NoQty,,
+720,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+721,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+722,Unknown/NoQty,,
+723,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+724,Unknown/NoQty,,
+725,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+726,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+727,Mill & Overlay,5.0,C5:MILL_SY-dom
+728,Unknown/NoQty,,
+729,Unknown/NoQty,,
+730,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+731,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+732,Other,3.0,C3:CRUSH_TN-dom
+733,Other,3.0,C3:CRUSH_TN-dom
+734,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+735,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+736,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+737,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+738,Mill & Overlay,5.0,C5:MILL_SY-dom
+739,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+740,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+741,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+742,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+743,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+744,Unknown/NoQty,,
+745,Unknown/NoQty,,
+746,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+747,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+748,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+749,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+750,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+751,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+752,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+753,Unknown/NoQty,,
+754,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+755,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+756,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+757,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+758,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+759,Unknown/NoQty,,
+760,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+761,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+762,Other,3.0,C3:CRUSH_TN-dom
+763,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+764,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+765,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+766,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+767,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+768,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+769,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+770,Unknown/NoQty,,
+771,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+772,Unknown/NoQty,,
+773,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+774,Mill & Overlay,5.0,C5:MILL_SY-dom
+775,Unknown/NoQty,,
+776,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+777,Mill & Overlay,5.0,C5:MILL_SY-dom
+778,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+779,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+780,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+781,Mill & Overlay,5.0,C5:MILL_SY-dom
+782,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+783,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+784,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+785,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+786,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+787,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+788,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+789,Mill & Overlay,5.0,C5:MILL_SY-dom
+790,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+791,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+792,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+793,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+794,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+795,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+796,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+797,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+798,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+799,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+800,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+801,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+802,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+803,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+804,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+805,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+806,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+807,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+808,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+809,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+810,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+811,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+812,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+813,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+814,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+815,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+816,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+817,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+818,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+819,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+820,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+821,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+822,Other,3.0,C3:CRUSH_TN-dom
+823,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+824,Other,3.0,C3:CRUSH_TN-dom
+825,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+826,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+827,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+828,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+829,Other,3.0,C3:CRUSH_TN-dom
+830,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+831,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+832,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+833,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+834,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+835,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+836,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+837,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+838,Unknown/NoQty,,
+839,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+840,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+841,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+842,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+843,Unknown/NoQty,,
+844,Unknown/NoQty,,
+845,Unknown/NoQty,,
+846,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+847,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+848,Mill & Overlay,2.0,C2:MIX_TN-dom
+849,Mill & Overlay,2.0,C2:MIX_TN-dom
+850,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+851,Mill & Overlay,2.0,C2:MIX_TN-dom
+852,Mill & Overlay,2.0,C2:MIX_TN-dom
+853,Mill & Overlay,2.0,C2:MIX_TN-dom
+854,Mill & Overlay,2.0,C2:MIX_TN-dom
+855,Other,3.0,C3:CRUSH_TN-dom
+856,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+857,Unknown/NoQty,,
+858,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+859,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+860,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+861,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+862,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+863,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+864,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+865,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+866,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+867,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+868,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+869,Unknown/NoQty,,
+870,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+871,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+872,Unknown/NoQty,,
+873,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+874,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+875,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+876,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+877,Mill & Overlay,5.0,C5:MILL_SY-dom
+878,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+879,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+880,Grading/Earthwork,1.0,C1:BASE_TN-dom
+881,Grading/Earthwork,1.0,C1:BASE_TN-dom
+882,Grading/Earthwork,1.0,C1:BASE_TN-dom
+883,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+884,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+885,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+886,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+887,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+888,Grading/Earthwork,1.0,C1:BASE_TN-dom
+889,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+890,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+891,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+892,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+893,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+894,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+895,Unknown/NoQty,,
+896,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+897,Mill & Overlay,5.0,C5:MILL_SY-dom
+898,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+899,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+900,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+901,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+902,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+903,Mill & Overlay,5.0,C5:MILL_SY-dom
+904,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+905,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+906,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+907,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+908,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+909,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+910,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+911,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+912,Aggregate/Base/Gravel,4.0,C4:SHLDR_TN-dom
+913,Unknown/NoQty,,
+914,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+915,Grading/Earthwork,1.0,C1:BASE_TN-dom
+916,Grading/Earthwork,1.0,C1:BASE_TN-dom
+917,Mill & Overlay,2.0,C2:MIX_TN-dom
+918,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+919,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+920,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+921,Mill & Overlay,5.0,C5:MILL_SY-dom
+922,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+923,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+924,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+925,Unknown/NoQty,,
+926,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+927,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+928,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+929,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+930,Mill & Overlay,5.0,C5:MILL_SY-dom
+931,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+932,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+933,Mill & Overlay,5.0,C5:MILL_SY-dom
+934,Mill & Overlay,5.0,C5:MILL_SY-dom
+935,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+936,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+937,Mill & Overlay,5.0,C5:MILL_SY-dom
+938,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+939,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+940,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+941,Unknown/NoQty,,
+942,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+943,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+944,Unknown/NoQty,,
+945,Unknown/NoQty,,
+946,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+947,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+948,Mill & Overlay,2.0,C2:MIX_TN-dom
+949,Unknown/NoQty,,
+950,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+951,Mill & Overlay,5.0,C5:MILL_SY-dom
+952,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+953,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+954,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+955,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+956,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+957,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+958,Grading/Earthwork,1.0,C1:BASE_TN-dom
+959,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+960,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+961,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+962,Other,0.0,C0:GRADE_CY-dom
+963,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+964,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+965,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+966,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+967,Mill & Overlay,5.0,C5:MILL_SY-dom
+968,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+969,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+970,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+971,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+972,Unknown/NoQty,,
+973,Mill & Overlay,5.0,C5:MILL_SY-dom
+974,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+975,Mill & Overlay,5.0,C5:MILL_SY-dom
+976,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+977,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+978,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+979,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+980,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+981,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+982,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+983,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+984,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+985,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+986,Unknown/NoQty,,
+987,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+988,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+989,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+990,Grading/Earthwork,1.0,C1:BASE_TN-dom
+991,Unknown/NoQty,,
+992,Mill & Overlay,2.0,C2:MIX_TN-dom
+993,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+994,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+995,Mill & Overlay,2.0,C2:MIX_TN-dom
+996,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+997,Other,0.0,C0:GRADE_CY-dom
+998,Other,0.0,C0:GRADE_CY-dom
+999,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1000,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1001,HMA Overlay/Resurface,0.0,C0:GRADE_CY-dom
+1002,Unknown/NoQty,,
+1003,Unknown/NoQty,,
+1004,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1005,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1006,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1007,Unknown/NoQty,,
+1008,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1009,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1010,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1011,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1012,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1013,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1014,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1015,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1016,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1017,Mill & Overlay,5.0,C5:MILL_SY-dom
+1018,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1019,Mill & Overlay,5.0,C5:MILL_SY-dom
+1020,Other,0.0,C0:GRADE_CY-dom
+1021,Mill & Overlay,2.0,C2:MIX_TN-dom
+1022,Mill & Overlay,2.0,C2:MIX_TN-dom
+1023,Unknown/NoQty,,
+1024,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1025,Unknown/NoQty,,
+1026,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1027,Unknown/NoQty,,
+1028,Other,0.0,C0:GRADE_CY-dom
+1029,Other,0.0,C0:GRADE_CY-dom
+1030,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1031,Unknown/NoQty,,
+1032,Other,0.0,C0:GRADE_CY-dom
+1033,Unknown/NoQty,,
+1034,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1035,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1036,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1037,Mill & Overlay,5.0,C5:MILL_SY-dom
+1038,Mill & Overlay,2.0,C2:MIX_TN-dom
+1041,Mill & Overlay,5.0,C5:MILL_SY-dom
+1042,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1043,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1044,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1045,Unknown/NoQty,,
+1046,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1047,Mill & Overlay,5.0,C5:MILL_SY-dom
+1048,Mill & Overlay,5.0,C5:MILL_SY-dom
+1049,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1050,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1051,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1052,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1053,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1054,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1055,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1056,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1057,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1058,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1059,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1060,Mill & Overlay,5.0,C5:MILL_SY-dom
+1061,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1062,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1063,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1064,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1065,Mill & Overlay,5.0,C5:MILL_SY-dom
+1066,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1067,Unknown/NoQty,,
+1068,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1069,Unknown/NoQty,,
+1070,Unknown/NoQty,,
+1071,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1072,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1073,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1074,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1075,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1076,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1077,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1078,Other,5.0,C5:MILL_SY-dom
+1079,Other,5.0,C5:MILL_SY-dom
+1080,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1081,Unknown/NoQty,,
+1082,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1083,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1084,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1085,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1086,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1087,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1088,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1089,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1090,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1091,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1092,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1093,Mill & Overlay,5.0,C5:MILL_SY-dom
+1094,Mill & Overlay,5.0,C5:MILL_SY-dom
+1095,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1096,Unknown/NoQty,,
+1097,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1098,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1099,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1100,Mill & Overlay,5.0,C5:MILL_SY-dom
+1101,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1103,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1104,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1105,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1106,Unknown/NoQty,,
+1107,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1108,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1109,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1110,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1111,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1112,Unknown/NoQty,,
+1113,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1114,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1115,Unknown/NoQty,,
+1116,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1117,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1118,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1119,Mill & Overlay,5.0,C5:MILL_SY-dom
+1120,Mill & Overlay,5.0,C5:MILL_SY-dom
+1121,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1122,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1123,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+1124,Mill & Overlay,1.0,C1:BASE_TN-dom
+1125,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1126,Mill & Overlay,2.0,C2:MIX_TN-dom
+1127,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1128,Unknown/NoQty,,
+1129,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1130,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1131,Mill & Overlay,2.0,C2:MIX_TN-dom
+1132,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1133,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1134,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1135,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1136,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1137,Unknown/NoQty,,
+1138,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1139,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1140,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1141,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1142,Reconstruct/Rebuild,4.0,C4:SHLDR_TN-dom
+1143,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1144,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1145,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1146,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1147,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1148,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1149,Mill & Overlay,5.0,C5:MILL_SY-dom
+1150,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1151,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1152,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1153,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1154,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1155,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1156,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1157,Unknown/NoQty,,
+1158,Unknown/NoQty,,
+1159,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1160,Unknown/NoQty,,
+1161,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1162,Mill & Overlay,5.0,C5:MILL_SY-dom
+1163,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1164,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1165,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1166,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1167,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1168,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1169,Mill & Overlay,5.0,C5:MILL_SY-dom
+1170,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1171,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1172,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1173,Unknown/NoQty,,
+1174,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1175,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1176,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1177,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1178,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1179,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1180,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1181,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1182,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1183,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1184,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1185,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1186,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1187,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1188,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1189,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1190,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1191,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1192,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1193,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1194,Mill & Overlay,5.0,C5:MILL_SY-dom
+1195,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1196,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1197,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1198,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1199,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1200,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1201,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1202,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1203,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1204,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1205,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1206,Mill & Overlay,5.0,C5:MILL_SY-dom
+1207,Mill & Overlay,5.0,C5:MILL_SY-dom
+1208,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1209,Mill & Overlay,5.0,C5:MILL_SY-dom
+1210,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1211,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1212,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1213,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1214,Unknown/NoQty,,
+1215,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1216,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1217,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1218,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1219,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1220,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1221,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1222,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1223,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1224,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1225,Unknown/NoQty,,
+1226,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1227,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1228,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1229,HMA Overlay/Resurface,0.0,C0:GRADE_CY-dom
+1230,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1231,Mill & Overlay,5.0,C5:MILL_SY-dom
+1232,Mill & Overlay,5.0,C5:MILL_SY-dom
+1233,Unknown/NoQty,,
+1234,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1235,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1236,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1237,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1238,Mill & Overlay,5.0,C5:MILL_SY-dom
+1239,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1240,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1241,Unknown/NoQty,,
+1242,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1243,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1244,Mill & Overlay,5.0,C5:MILL_SY-dom
+1245,Mill & Overlay,5.0,C5:MILL_SY-dom
+1246,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1247,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1248,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1249,Unknown/NoQty,,
+1250,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1251,HMA Overlay/Resurface,5.0,C5:MILL_SY-dom
+1252,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1253,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1254,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1255,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1256,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1257,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1258,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1259,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1260,Mill & Overlay,5.0,C5:MILL_SY-dom
+1261,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1262,Mill & Overlay,5.0,C5:MILL_SY-dom
+1263,Unknown/NoQty,,
+1264,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1265,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1266,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1267,Unknown/NoQty,,
+1268,Mill & Overlay,5.0,C5:MILL_SY-dom
+1269,Mill & Overlay,5.0,C5:MILL_SY-dom
+1270,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1271,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1272,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1273,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1274,Mill & Overlay,5.0,C5:MILL_SY-dom
+1275,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1276,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1277,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1278,Unknown/NoQty,,
+1279,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1280,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1281,Mill & Overlay,2.0,C2:MIX_TN-dom
+1282,Mill & Overlay,2.0,C2:MIX_TN-dom
+1283,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1284,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1285,Mill & Overlay,5.0,C5:MILL_SY-dom
+1286,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1287,Mill & Overlay,5.0,C5:MILL_SY-dom
+1288,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1289,Unknown/NoQty,,
+1290,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1291,Unknown/NoQty,,
+1292,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1293,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1294,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1295,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1296,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1297,Unknown/NoQty,,
+1298,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1299,HMA Overlay/Resurface,5.0,C5:MILL_SY-dom
+1300,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1301,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1302,Mill & Overlay,5.0,C5:MILL_SY-dom
+1303,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1304,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1305,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1306,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1307,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1308,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1309,Unknown/NoQty,,
+1310,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1311,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1312,Mill & Overlay,5.0,C5:MILL_SY-dom
+1313,Mill & Overlay,5.0,C5:MILL_SY-dom
+1314,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1315,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1316,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1317,Aggregate/Base/Gravel,5.0,C5:MILL_SY-dom
+1318,Mill & Overlay,5.0,C5:MILL_SY-dom
+1319,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1320,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1321,Mill & Overlay,5.0,C5:MILL_SY-dom
+1322,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1323,Unknown/NoQty,,
+1324,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1325,Unknown/NoQty,,
+1326,Unknown/NoQty,,
+1327,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1328,Mill & Overlay,5.0,C5:MILL_SY-dom
+1329,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1330,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1331,Unknown/NoQty,,
+1332,Mill & Overlay,5.0,C5:MILL_SY-dom
+1333,Unknown/NoQty,,
+1334,Mill & Overlay,5.0,C5:MILL_SY-dom
+1335,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1336,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1337,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1338,HMA Overlay/Resurface,5.0,C5:MILL_SY-dom
+1339,Mill & Overlay,5.0,C5:MILL_SY-dom
+1340,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1341,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1342,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1343,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1344,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1345,Unknown/NoQty,,
+1346,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1347,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1348,Mill & Overlay,5.0,C5:MILL_SY-dom
+1349,Mill & Overlay,5.0,C5:MILL_SY-dom
+1350,Mill & Overlay,2.0,C2:MIX_TN-dom
+1351,Mill & Overlay,2.0,C2:MIX_TN-dom
+1352,Mill & Overlay,2.0,C2:MIX_TN-dom
+1353,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1354,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1355,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1356,Unknown/NoQty,,
+1357,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1358,Unknown/NoQty,,
+1359,Mill & Overlay,5.0,C5:MILL_SY-dom
+1360,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1361,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1362,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1363,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1365,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1366,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1367,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1368,Mill & Overlay,5.0,C5:MILL_SY-dom
+1369,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1370,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1371,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1372,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1373,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1374,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1375,Mill & Overlay,5.0,C5:MILL_SY-dom
+1376,Mill & Overlay,5.0,C5:MILL_SY-dom
+1377,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1378,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1379,Unknown/NoQty,,
+1380,Unknown/NoQty,,
+1381,Mill & Overlay,5.0,C5:MILL_SY-dom
+1382,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1383,Mill & Overlay,5.0,C5:MILL_SY-dom
+1384,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1385,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1386,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1387,Mill & Overlay,5.0,C5:MILL_SY-dom
+1388,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1389,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1390,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1391,Mill & Overlay,5.0,C5:MILL_SY-dom
+1392,Unknown/NoQty,,
+1393,Unknown/NoQty,,
+1394,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1395,Unknown/NoQty,,
+1396,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1397,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1398,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1399,Unknown/NoQty,,
+1400,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1401,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1402,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1403,Mill & Overlay,5.0,C5:MILL_SY-dom
+1404,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1405,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1406,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1407,Mill & Overlay,5.0,C5:MILL_SY-dom
+1408,Mill & Overlay,5.0,C5:MILL_SY-dom
+1409,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1410,Unknown/NoQty,,
+1411,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1412,Mill & Overlay,2.0,C2:MIX_TN-dom
+1413,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1414,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1415,Mill & Overlay,5.0,C5:MILL_SY-dom
+1416,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1417,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1418,Other,0.0,C0:GRADE_CY-dom
+1419,Other,0.0,C0:GRADE_CY-dom
+1420,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1421,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1422,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1423,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1424,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1425,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1426,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1427,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1428,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1429,Mill & Overlay,5.0,C5:MILL_SY-dom
+1430,Mill & Overlay,5.0,C5:MILL_SY-dom
+1431,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1432,Mill & Overlay,2.0,C2:MIX_TN-dom
+1433,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1434,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1435,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1436,Unknown/NoQty,,
+1437,Mill & Overlay,2.0,C2:MIX_TN-dom
+1438,Other,0.0,C0:GRADE_CY-dom
+1440,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1441,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1442,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1443,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1444,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1445,Mill & Overlay,5.0,C5:MILL_SY-dom
+1446,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1447,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1448,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1449,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1450,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1451,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1452,HMA Overlay/Resurface,0.0,C0:GRADE_CY-dom
+1453,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1454,Mill & Overlay,5.0,C5:MILL_SY-dom
+1455,Mill & Overlay,5.0,C5:MILL_SY-dom
+1456,Mill & Overlay,5.0,C5:MILL_SY-dom
+1457,Unknown/NoQty,,
+1458,Mill & Overlay,2.0,C2:MIX_TN-dom
+1459,Mill & Overlay,5.0,C5:MILL_SY-dom
+1460,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1461,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1462,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1463,Mill & Overlay,5.0,C5:MILL_SY-dom
+1464,Mill & Overlay,5.0,C5:MILL_SY-dom
+1465,Mill & Overlay,5.0,C5:MILL_SY-dom
+1466,Mill & Overlay,5.0,C5:MILL_SY-dom
+1467,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1468,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1469,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1470,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+1471,Mill & Overlay,4.0,C4:SHLDR_TN-dom
+1472,Mill & Overlay,5.0,C5:MILL_SY-dom
+1473,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1474,Unknown/NoQty,,
+1475,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1476,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1477,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1478,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1479,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1480,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1481,Unknown/NoQty,,
+1482,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1483,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1484,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1485,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1486,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1487,Mill & Overlay,2.0,C2:MIX_TN-dom
+1488,Mill & Overlay,2.0,C2:MIX_TN-dom
+1489,Mill & Overlay,5.0,C5:MILL_SY-dom
+1490,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1491,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1492,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1493,Mill & Overlay,5.0,C5:MILL_SY-dom
+1494,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1495,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1498,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1499,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1500,Aggregate/Base/Gravel,0.0,C0:GRADE_CY-dom
+1501,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1502,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1503,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1504,Unknown/NoQty,,
+1505,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1506,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1507,Mill & Overlay,5.0,C5:MILL_SY-dom
+1508,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1509,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1510,Unknown/NoQty,,
+1511,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1512,Unknown/NoQty,,
+1513,Unknown/NoQty,,
+1514,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1515,Unknown/NoQty,,
+1516,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1517,HMA Overlay/Resurface,5.0,C5:MILL_SY-dom
+1518,Mill & Overlay,5.0,C5:MILL_SY-dom
+1519,Mill & Overlay,5.0,C5:MILL_SY-dom
+1520,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1521,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1522,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1523,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1524,Mill & Overlay,5.0,C5:MILL_SY-dom
+1525,Mill & Overlay,5.0,C5:MILL_SY-dom
+1526,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1527,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1528,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1529,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1530,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1531,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1532,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1533,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1534,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1535,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1536,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1537,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1538,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1539,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1540,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1541,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1542,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1543,Unknown/NoQty,,
+1544,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1545,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1546,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1547,Unknown/NoQty,,
+1548,Mill & Overlay,5.0,C5:MILL_SY-dom
+1549,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1550,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1551,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1552,Mill & Overlay,5.0,C5:MILL_SY-dom
+1553,Mill & Overlay,5.0,C5:MILL_SY-dom
+1554,Mill & Overlay,5.0,C5:MILL_SY-dom
+1555,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1556,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1557,Unknown/NoQty,,
+1558,Other,0.0,C0:GRADE_CY-dom
+1559,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1560,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1561,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1562,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1563,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1564,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1565,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1566,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1567,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1568,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1569,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1570,Unknown/NoQty,,
+1571,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1572,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1573,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1574,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1575,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1576,Unknown/NoQty,,
+1577,Unknown/NoQty,,
+1578,Unknown/NoQty,,
+1579,Unknown/NoQty,,
+1580,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1581,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1582,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1583,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1584,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1585,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1586,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1587,Mill & Overlay,5.0,C5:MILL_SY-dom
+1588,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1589,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1590,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1591,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1592,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1593,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1594,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1595,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1596,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1597,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1598,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1599,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1600,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1601,Unknown/NoQty,,
+1602,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1603,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1604,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1605,HMA Overlay/Resurface,4.0,C4:SHLDR_TN-dom
+1606,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1607,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1608,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1609,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1610,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1611,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1612,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1613,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1614,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1615,Mill & Overlay,5.0,C5:MILL_SY-dom
+1616,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1617,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1618,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1619,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1620,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1621,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1622,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1623,Aggregate/Base/Gravel,1.0,C1:BASE_TN-dom
+1625,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1626,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1627,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1628,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1629,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1630,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1631,HMA Overlay/Resurface,1.0,C1:BASE_TN-dom
+1632,Grading/Earthwork,1.0,C1:BASE_TN-dom
+1633,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1634,Reconstruct/Rebuild,5.0,C5:MILL_SY-dom
+1635,Mill & Overlay,5.0,C5:MILL_SY-dom
+1636,Unknown/NoQty,,
+1637,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1638,Unknown/NoQty,,
+1639,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1640,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1641,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1642,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1643,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1644,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1645,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1646,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1647,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1648,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1649,Reconstruct/Rebuild,2.0,C2:MIX_TN-dom
+1650,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1651,HMA Overlay/Resurface,2.0,C2:MIX_TN-dom
+1652,Mill & Overlay,5.0,C5:MILL_SY-dom
+1653,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1654,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1655,Reconstruct/Rebuild,1.0,C1:BASE_TN-dom
+1656,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1657,Mill & Overlay,5.0,C5:MILL_SY-dom
+1658,Grading/Earthwork,0.0,C0:GRADE_CY-dom
+1659,Mill & Overlay,5.0,C5:MILL_SY-dom
+1660,Reconstruct/Rebuild,0.0,C0:GRADE_CY-dom
+1661,Grading/Earthwork,0.0,C0:GRADE_CY-dom

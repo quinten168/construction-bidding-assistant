@@ -1,0 +1,29 @@
+# CSI Bid Assistant — FastAPI backend serving the Next.js frontend (apps/web)
+fastapi>=0.115
+uvicorn[standard]>=0.30
+anthropic>=0.40
+
+# Retrieval stack (shared with the Plan Reader; needed in the SAME interpreter that runs the app)
+chromadb>=0.5
+sentence-transformers>=2.2
+
+# PDF -> Markdown conversion (the Plan Reader pipeline the backend calls into)
+pymupdf4llm>=0.0.17
+pdfplumber>=0.11
+
+# Data tools. These were MISSING from this file until 2026-07-15 — the app imported them but
+# never declared them, so it only ran on a machine that happened to have them already. Caught by
+# installing into a clean venv and starting the backend (ModuleNotFoundError: pandas).
+#   pandas    -> bid_data, competitors, competitor_record, competitor_live, project_registry
+#   rapidfuzz -> project_registry (fuzzy entity resolution for the find_projects tool)
+pandas>=2.0
+rapidfuzz>=3.0
+
+# Required by FastAPI to parse multipart/form-data — i.e. the PDF upload on /api/report.
+# Also undeclared until 2026-07-15; without it the report endpoint 500s at request time
+# (the app still starts, so this one only shows up when you actually upload a plan).
+python-multipart>=0.0.9
+
+# NOTE: chainlit was removed on the t/live-stack branch. The Chainlit UI that mounted at /chat
+# is gone (the Next.js frontend replaced it); nothing imports chainlit any more.
+# NOTE: deepeval was dropped with the eval/ harness (not needed to serve the app).

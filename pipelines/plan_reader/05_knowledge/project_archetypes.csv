@@ -1,0 +1,6 @@
+archetype,definition
+Reconstruct/Rebuild,"Regrade the roadbed AND pave (grading + asphalt both present) — reconstructs, realignments, widenings"
+Mill & Overlay,"Mill off the old asphalt and lay new (milling + asphalt, no grading) — price-sensitive commodity"
+HMA Overlay/Resurface,"New asphalt over the existing surface (asphalt present, no milling, no grading)"
+Grading/Earthwork,"Earthwork / grading with no asphalt paving"
+Aggregate/Base/Gravel,"Base / shoulder / gravel work with no asphalt surface"

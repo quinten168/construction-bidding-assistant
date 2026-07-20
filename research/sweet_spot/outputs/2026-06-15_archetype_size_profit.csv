@@ -1,0 +1,11 @@
+work_type,size_tier,n_field,n_bid,bid_rate,win_rate,win_well_rate,bomb_rate,med_margin,med_bidders
+Aggregate/Base/Gravel,Large,67,29,43.3,17.2,3.4,10.3,0.17,5.0
+Aggregate/Base/Gravel,Small,66,17,25.8,17.6,5.9,11.8,0.186,6.0
+Grading/Earthwork,Large,71,31,43.7,19.4,9.7,9.7,0.242,7.0
+Grading/Earthwork,Small,141,39,27.7,17.9,12.8,5.1,0.232,7.0
+HMA Overlay/Resurface,Large,134,68,50.7,13.2,5.9,7.4,0.12,5.0
+HMA Overlay/Resurface,Small,78,20,25.6,20.0,5.0,15.0,0.177,3.5
+Mill & Overlay,Large,183,90,49.2,18.9,12.2,6.7,0.088,5.0
+Mill & Overlay,Small,123,34,27.6,14.7,5.9,8.8,0.229,5.0
+Reconstruct/Rebuild,Large,231,108,46.8,23.1,18.5,4.6,0.079,5.0
+Reconstruct/Rebuild,Small,230,64,27.8,21.9,7.8,14.1,0.14,5.0

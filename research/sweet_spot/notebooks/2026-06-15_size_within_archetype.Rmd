@@ -1,0 +1,116 @@
+---
+title: "Size within each work-type archetype — CSI's two-axis model (R)"
+output: html_document
+---
+
+R twin of `scripts/2026-06-15_size_within_archetype.py`. A project = **work-type × size ×
+messiness → profit**. "Large" is a tier *inside* each work-type (native unit), not a type.
+Plan-knowable inputs only (the 7 quantities); `Project_Size_Dollars` is **back-test only** (it's the
+post-auction winning bid = leakage). Live `10_000` rule unchanged.
+
+> `mclust` is not installed, so the 2-mode size seam uses a small hand-rolled EM + BIC (matches Python).
+
+```{r setup, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages({library(dplyr); library(tidyr); library(ggplot2); library(scales)})
+BASE <- "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/01_Summer_2026"
+OUT  <- file.path(BASE, "02_modules/sweet_spot/outputs")
+df <- read.csv(file.path(OUT, "2026-06-04_project_base.csv"), stringsAsFactors = FALSE)
+num <- c("MIX_TN_num","GRADE_CY_num","BASE_TN_num","SHLDR_TN_num","MILL_SY_num",
+         "Project_Size_Dollars","CSI_Margin_Pct","Num_Valid_Bidders")
+df[num] <- lapply(df[num], function(x) suppressWarnings(as.numeric(x)))
+z <- function(x) ifelse(is.na(x), 0, x)
+df$placed_tons <- z(df$MIX_TN_num) + z(df$BASE_TN_num) + z(df$SHLDR_TN_num)
+df$base_shldr  <- z(df$BASE_TN_num) + z(df$SHLDR_TN_num)
+df$has_q <- toupper(trimws(df$has_quantity)) == "TRUE" | df$has_quantity == TRUE
+```
+
+### Axis 1 — work-type from which scopes are present
+
+```{r worktype}
+work_type <- function(mix, grade, base, mill, shldr, hasq) {
+  # canonical — split on grading = rebuild vs resurface
+  if (!isTRUE(hasq)) return("Unknown/NoQty")
+  if (grade && mix) return("Reconstruct/Rebuild")
+  if (mix && mill) return("Mill & Overlay")
+  if (mix) return("HMA Overlay/Resurface")
+  if (grade) return("Grading/Earthwork")
+  if (base || shldr) return("Aggregate/Base/Gravel")
+  "Other"
+}
+df$work_type <- mapply(work_type, z(df$MIX_TN_num)>0, z(df$GRADE_CY_num)>0, z(df$BASE_TN_num)>0,
+                       z(df$MILL_SY_num)>0, z(df$SHLDR_TN_num)>0, df$has_q)
+df$is_bid <- toupper(trimws(df$CSI_Participated))=="TRUE"
+df$is_win <- toupper(trimws(df$CSI_Won))=="TRUE"
+df$is_win_well <- df$CSI_Bid_Quality %in% c("Excellent Win","Acceptable Win")
+df$is_bomb <- df$CSI_Bid_Quality == "Bomb"
+print(table(df$work_type[df$has_q]))
+```
+
+### Axis 3 — size cut within each work-type (hand-rolled 2-mode EM + BIC, else median)
+
+```{r sizecut}
+em2 <- function(x, it=300){ mu<-as.numeric(quantile(x,c(.25,.75))); s<-c(sd(x),sd(x)); p<-c(.5,.5)
+  for(i in 1:it){ d1<-p[1]*dnorm(x,mu[1],s[1]); d2<-p[2]*dnorm(x,mu[2],s[2]); r<-d2/(d1+d2)
+    p[2]<-mean(r); p[1]<-1-p[2]; mu[2]<-sum(r*x)/sum(r); mu[1]<-sum((1-r)*x)/sum(1-r)
+    s[2]<-sqrt(sum(r*(x-mu[2])^2)/sum(r)); s[1]<-sqrt(sum((1-r)*(x-mu[1])^2)/sum(1-r)) }
+  ll<-sum(log(p[1]*dnorm(x,mu[1],s[1])+p[2]*dnorm(x,mu[2],s[2]))); list(mu=mu,s=s,p=p,ll=ll) }
+size_cut <- function(v){ v<-v[!is.na(v) & v>0]; if(length(v)<30) return(if(length(v)) median(v) else NA)
+  x<-log10(v); n<-length(x); g<-c(.1,.9); qg<-quantile(v,g)
+  ll1<-sum(dnorm(x,mean(x),sd(x),log=TRUE)); bic1<- -2*ll1+2*log(n)
+  f<-em2(x); bic2<- -2*f$ll+5*log(n)
+  if(bic2<bic1){ hi<-which.max(f$mu); grid<-seq(min(x),max(x),length.out=4000)
+    post<-f$p[hi]*dnorm(grid,f$mu[hi],f$s[hi])/(f$p[1]*dnorm(grid,f$mu[1],f$s[1])+f$p[2]*dnorm(grid,f$mu[2],f$s[2]))
+    cut<-10^(grid[which(post>.5)[1]]); if(!is.na(cut) && cut>=qg[1] && cut<=qg[2]) return(cut) }
+  median(v) }
+SIZE_BASIS <- list("Reconstruct/Rebuild"="placed_tons",
+  "Mill & Overlay"="MIX_TN_num","HMA Overlay/Resurface"="MIX_TN_num",
+  "Grading/Earthwork"="GRADE_CY_num","Aggregate/Base/Gravel"="base_shldr")
+df$size_value <- NA_real_; df$size_tier <- NA_character_; cuts <- list()
+for (wt in names(SIZE_BASIS)) { basis <- SIZE_BASIS[[wt]]; m <- df$work_type==wt
+  cut <- size_cut(df[[basis]][m]); cuts[[wt]] <- cut
+  df$size_value[m] <- df[[basis]][m]; df$size_tier[m] <- ifelse(df[[basis]][m] >= cut, "Large","Small")
+  cat(sprintf("%-24s %-14s Large >= %s\n", wt, basis, comma(round(cut)))) }
+```
+
+### Back-test (NOT an input): within-type size vs realized $ (Spearman)
+
+```{r backtest}
+for (wt in names(SIZE_BASIS)) { s <- df %>% filter(work_type==wt, Project_Size_Dollars>0, size_value>0)
+  if (nrow(s)>10) cat(sprintf("%-24s rho=%+.2f\n", wt, cor(s$size_value, s$Project_Size_Dollars, method="spearman"))) }
+```
+
+### Sweet spot — profit by work-type × size (table + heatmap)
+
+```{r sweetspot, fig.width=7, fig.height=4}
+bid <- df %>% filter(is_bid, work_type %in% names(SIZE_BASIS))
+g <- bid %>% group_by(work_type, size_tier) %>% summarise(n_bid=n(),
+  win=round(mean(is_win)*100,1), win_well=round(mean(is_win_well)*100,1),
+  bomb=round(mean(is_bomb)*100,1), med_margin=round(median(CSI_Margin_Pct,na.rm=TRUE)*100,1), .groups="drop")
+print(as.data.frame(g))
+ggplot(g, aes(size_tier, work_type, fill=med_margin)) + geom_tile() +
+  geom_text(aes(label=sprintf("%.0f%%", med_margin))) +
+  scale_fill_gradient2(low="#d73027", mid="#fee08b", high="#1a9850", midpoint=15, name="margin %") +
+  labs(title="Median CSI margin by work-type × size", x=NULL, y=NULL) + theme_minimal(base_size=12)
+```
+
+**Read:** smaller jobs within a type carry **higher margin** (more self-performed); Mill & Overlay is
+the commodity floor; big Reconstructs win most but at thin margin (keep-crews-busy, not margin) —
+matching the kickoff transcript.
+
+### Forward classify a NEW plan (plan-knowable inputs only)
+
+```{r forward}
+classify <- function(q){ g<-function(k) if(is.null(q[[k]])) 0 else q[[k]]
+  wt<-work_type(g("MIX_TN_num")>0,g("GRADE_CY_num")>0,g("BASE_TN_num")>0,g("MILL_SY_num")>0,g("SHLDR_TN_num")>0,TRUE)
+  basis<-SIZE_BASIS[[wt]]
+  val<-switch(if(is.null(basis)) "x" else basis, placed_tons=g("MIX_TN_num")+g("BASE_TN_num")+g("SHLDR_TN_num"),
+              base_shldr=g("BASE_TN_num")+g("SHLDR_TN_num"), if(is.null(basis)) NA else g(basis))
+  tier<-if(!is.null(basis)) ifelse(val>=cuts[[wt]], "Large","Small") else "n/a"
+  list(work_type=wt, size_value=round(val), size_tier=tier) }
+# Stutsman County grade-raise (the image): 48,442 CY borrow, no asphalt
+str(classify(list(GRADE_CY_num=48442, BASE_TN_num=6546)))
+```
+
+## Takeaway
+"Large" is a **size tier within each work-type**, not a type; the sweet spot is **profit by
+work-type × size**. Client artifact: `2026-06-15_archetype_decision_rules_PROPOSED.md`.

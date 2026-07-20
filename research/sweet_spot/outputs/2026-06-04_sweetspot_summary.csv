@@ -1,0 +1,8 @@
+archetype,n_projects,bid_rate,n_bid,win_rate,win_well_rate,bomb_rate,bomb_share_of_wins,med_size_dollars
+Unknown/NoQty,215,42.3,91,22.0,14.3,5.5,25.0,2250842.0
+HMA Overlay/Resurface,212,41.5,88,14.8,5.7,9.1,61.5,1354061.0
+Mill & Overlay,306,40.5,124,17.7,10.5,7.3,40.9,2107359.0
+Reconstruct/Rebuild,461,37.3,172,22.7,14.5,8.1,35.9,2319756.0
+Aggregate/Base/Gravel,133,34.6,46,17.4,4.3,10.9,62.5,897698.7
+Grading/Earthwork,212,33.0,70,18.6,11.4,7.1,38.5,897012.7
+Other,52,23.1,12,16.7,0.0,16.7,100.0,433470.0

@@ -1,0 +1,79 @@
+---
+title: "Project distributions — material types & archetypes (R)"
+output: html_document
+---
+
+R twin of `scripts/2026-06-15_distributions.R`. Distribution of each of the 7 material types
+(CSI bids vs the rest of the field) and project counts per archetype (field vs where CSI bids).
+Palette matches `utils/colors.py`.
+
+```{r setup, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages({library(dplyr); library(tidyr); library(ggplot2); library(scales)})
+BASE <- "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/01_Summer_2026"
+OUT  <- file.path(BASE, "02_modules/sweet_spot/outputs")
+base <- read.csv(file.path(OUT, "2026-06-04_project_base.csv"), stringsAsFactors = FALSE)
+arch <- read.csv(file.path(OUT, "2026-06-04_project_archetypes.csv"), stringsAsFactors = FALSE)
+ARCHETYPE <- c("Reconstruct/Rebuild"="#7b3294","Mill & Overlay"="#fdae61","HMA Overlay/Resurface"="#2c7fb8",
+               "Grading/Earthwork"="#d7191c","Aggregate/Base/Gravel"="#abdda4","Unknown/NoQty"="#bdbdbd","Other"="#999999")
+ORDER <- names(ARCHETYPE)
+FIELD <- c("CSI bid"="#1f4e79","Rest of field"="#bdbdbd")
+MATERIALS <- c(MIX_TN_num="MIX (asphalt,t)", GRADE_CY_num="GRADE (earthwork,CY)", BASE_TN_num="BASE (agg,t)",
+               SHLDR_TN_num="SHLDR (shoulder,t)", MILL_SY_num="MILL (milling,SY)",
+               CRUSH_TN_num="CRUSH (crushed,t)", STOCK_TN_num="STOCK (stockpile,t)")
+df <- left_join(base, arch[, c("Contract_Id","rule_archetype")], by="Contract_Id") %>%
+  mutate(bid_field = ifelse(toupper(trimws(CSI_Participated))=="TRUE","CSI bid","Rest of field"),
+         rule_archetype = factor(rule_archetype, levels=ORDER))
+cat(sprintf("%d projects (%d CSI bids)\n", nrow(df), sum(df$bid_field=="CSI bid")))
+```
+
+### Material-quantity distributions — CSI bids vs the rest of the field (log10)
+
+```{r material, fig.width=11, fig.height=11, warning=FALSE, message=FALSE}
+long <- df %>% select(bid_field, all_of(names(MATERIALS))) %>%
+  pivot_longer(-bid_field, names_to="material", values_to="qty") %>%
+  filter(!is.na(qty), qty>0) %>%
+  mutate(material=factor(MATERIALS[material], levels=MATERIALS),
+         bid_field=factor(bid_field, levels=names(FIELD)))
+ggplot(long, aes(qty, fill=bid_field, color=bid_field)) +
+  geom_density(alpha=.45, linewidth=.4) +
+  facet_wrap(~material, scales="free", ncol=2) +
+  scale_x_log10(labels=comma) +
+  scale_fill_manual(values=FIELD, name=NULL) + scale_color_manual(values=FIELD, name=NULL) +
+  labs(title="Material-quantity distributions by type — CSI bids vs the rest of the field",
+       x="Quantity (log10)", y="Density") +
+  theme_minimal(base_size=12) + theme(legend.position="top", strip.text=element_text(face="bold"))
+```
+
+### Projects by archetype — the whole field vs where CSI bids
+
+```{r counts, fig.width=10, fig.height=6}
+counts <- df %>% filter(!is.na(rule_archetype)) %>% group_by(rule_archetype) %>%
+  summarise(`All projects`=n(), `CSI bid`=sum(bid_field=="CSI bid"), .groups="drop") %>%
+  pivot_longer(c(`All projects`,`CSI bid`), names_to="set", values_to="n") %>%
+  mutate(set=factor(set, levels=c("All projects","CSI bid")))
+ggplot(counts, aes(rule_archetype, n, fill=set)) +
+  geom_col(position=position_dodge(.75), width=.7) +
+  geom_text(aes(label=n), position=position_dodge(.75), vjust=-.3, size=3) +
+  scale_fill_manual(values=c("All projects"="#bdbdbd","CSI bid"="#1f4e79"), name=NULL) +
+  labs(title="Projects by archetype — field vs CSI bid", x=NULL, y="projects") +
+  theme_minimal(base_size=12) + theme(legend.position="top", axis.text.x=element_text(angle=20, hjust=1))
+```
+
+### Material distributions colored by archetype
+
+```{r by-arch, fig.width=11, fig.height=11, warning=FALSE, message=FALSE}
+long_a <- df %>% filter(!is.na(rule_archetype)) %>% select(rule_archetype, all_of(names(MATERIALS))) %>%
+  pivot_longer(-rule_archetype, names_to="material", values_to="qty") %>%
+  filter(!is.na(qty), qty>0) %>% mutate(material=factor(MATERIALS[material], levels=MATERIALS))
+ggplot(long_a, aes(qty, fill=rule_archetype)) +
+  geom_density(alpha=.4, color=NA) + facet_wrap(~material, scales="free", ncol=2) +
+  scale_x_log10(labels=comma) + scale_fill_manual(values=ARCHETYPE, name="Archetype") +
+  labs(title="Material-quantity distributions by archetype", x="Quantity (log10)", y="Density") +
+  theme_minimal(base_size=12) + theme(legend.position="top", strip.text=element_text(face="bold"))
+```
+
+## Takeaway
+
+CSI's bids (blue) sit to the **right** of the field on MIX — it bids the larger asphalt jobs, and
+engages most on Large Volume & Complex/Messy. Interactive twins on **dashboard page 8**; the same
+ggplot exhibits are saved as PNGs in `outputs/` by the standalone `2026-06-15_distributions.R`.
