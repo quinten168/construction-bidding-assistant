@@ -144,3 +144,17 @@ necessity.
 longitude** (`orchestrator.py:173`) to reach pit-distance features. **Nothing in this repo converts
 stationing to coordinates.** The only path between them is a human typing coordinates through the
 `record_correction` tool. Do not write code that assumes the two modules share a location format.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (Tobias-V-Knight/csi-bid-intelligence) via the `gh` CLI; external PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root (neither exists yet, created lazily). See `docs/agents/domain.md`.
