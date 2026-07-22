@@ -137,15 +137,25 @@ Box ⑧ is empty on purpose. `plan_reader` emits **stationing**; `ci_model` requ
 nothing converts between them (§5). It is drawn as a labelled empty box rather than a missing arrow
 because it is **the next thing to build**, not an unknown.
 
+**Where it inserts is concrete.** A fifth stage in `process_pdf`, after `extract_rag`
+(`report.py:115`) and before the payload is assembled. Stationing has been extracted by that point,
+so the skill has its input. `run.py` would take the same insertion after `:129` to keep the CLI and
+the API on one sequence. What is missing is the stationing→coordinate conversion itself (§5), not a
+place to put it.
+
 ### 1.5 Three orchestrations, three different kinds of thing
 
 | # | Where | Kind | Who decides the order |
 |---|---|---|---|
 | 1 | `apps/api/backend/rag.py::agentic_answer` | **Dynamic** — a Claude tool-calling loop | The model, per turn |
 | 2 | `pipelines/ci_model/06_reporting/agent/orchestrator.py` | **Fixed** — hardcoded 5-stage sequence | The code |
-| 3 | `pipelines/plan_reader/04_tools/` | **None** — numbered scripts, run by hand | A human |
+| 3 | `apps/api/backend/report.py::process_pdf` | **Fixed**, hardcoded 4-stage sequence | The code |
 
-Orchestration 1 is the chatbot, and it is the closest thing this system has to a central process.
+All three are orchestrated. Orchestration 1 is the chatbot, and it is the only one where a model
+decides the order.
+
+`pipelines/plan_reader/04_tools/` is **not** a fourth orchestration and does not belong in this
+table. It is a set of standalone offline utilities that sit off the ingest path entirely (§4).
 
 ---
 
@@ -234,16 +244,47 @@ Line 173 is the seam. It reads `usecols=["job_id", "mix_tons", "project_latitude
 
 ---
 
-## 4. Orchestration 3 — plan_reader (NONE)
+## 4. Orchestration 3: the plan_reader ingest (FIXED)
 
-This is the honest gap, stated plainly: **`pipelines/plan_reader/04_tools/` has no orchestrator.**
+**The plan reader ingest is orchestrated.** The orchestrator is
+`apps/api/backend/report.py::process_pdf` (`:76`), and it runs a fixed four-stage sequence:
 
-There is no driver, no sequencer, no agent. The scripts are standalone CLI utilities run by hand, in
-an order that exists only in the operator's head. `pipelines/plan_reader/run.py` is not the missing
-orchestrator — it wires up `01_pipeline/` only (`run.py:34-42`) and never references `04_tools`.
+| # | Stage | Call site | Module |
+|---|---|---|---|
+| 1 | Convert | `report.py:102` | `01_pipeline/s1_convert.py`: `convert.convert_pages(pdf_path)` |
+| 2 | Ingest / index | `report.py:106` | `01_pipeline/s2_indexer.py`: `indexer.ingest_pdf(...)` |
+| 3 | Whole-doc extract | `report.py:113` | `01_pipeline/s3_extract.py`: `extract.fill_extract_fields(...)` |
+| 4 | RAG extract | `report.py:115` | `01_pipeline/s4_extract_rag.py`: `extract_rag.fill_rag_fields(...)` |
 
-The numbering is also not a sequence. There is **no `03` and no `04`**, and six prefixes are
-duplicated:
+The order is hardcoded in `process_pdf`'s body; nothing chooses it at runtime. It is entered from
+`apps/api/app.py:189` (`report_svc.process_pdf`, via `run_in_threadpool`) when a PDF is posted to
+`/api/report`. §1.1 tables the same path at finer grain, down to the individual model calls.
+
+**It caches by content hash.** `_payload_cache_path` keys the assembled payload on
+`convert._hash(pdf_path)` (`report.py:47`); a hit short-circuits at `report.py:82-83` and returns
+before stage 1, skipping convert, ingest and both extraction passes. The payload is written back at
+`report.py:152`. Re-dropping a seen PDF under a new filename therefore still hits, because the key
+is the bytes, not the path.
+
+**`run.py` is the same sequence as a CLI.** `pipelines/plan_reader/run.py` calls the identical four
+functions in the identical order (`:92`, `:112`, `:127`, `:129`) and imports the same four modules
+(`run.py:35-38`, matching `report.py:24-27`). Its docstring calls it "the Plan Reader's one-command
+driver." It exists to inspect one plan locally with an openable artifact at every step; `report.py`
+is the same read path invoked programmatically, minus the file writing.
+
+### 4.1 `04_tools/`: offline utilities, not the ingest path
+
+Scoped correctly, there is still a real finding here, and it is narrower than it once read:
+**`pipelines/plan_reader/04_tools/` has no orchestrator.**
+
+These are standalone CLI utilities run by hand. Nothing sequences them, and no artifact in the repo
+defines an intended order. **They are not on the ingest path**: `run.py` wires up `01_pipeline/`
+only (`run.py:32-40`) and never references `04_tools`, and neither does `report.py`. That is
+correct rather than a gap: `01_pipeline/` **is** the ingest, and `04_tools/` is corpus-level offline
+work alongside it.
+
+The numbering is a reading order, not an execution order. There is **no `03` and no `04`**, and six
+prefixes are duplicated:
 
 ```
 00_init_db.py                    07_gotcha_extract.py         09_build_material_crosswalk.py
@@ -258,9 +299,11 @@ Plus unnumbered scripts in the same directory: `_scan_field_locations.py`, `boil
 
 | Step | Script called | Instruction / prompt given | Tools available | Job — why |
 |---|---|---|---|---|
-| — | `04_tools/*.py`, run manually | **UNVERIFIED** — no orchestrator defines an order or an instruction | none — no agent exists at this layer | This is the gap. These were written while I worked out what extracts cleanly from a plan set, so the numbers are a reading order for me and not an execution order, which is why there are duplicates and missing values. Nothing defines the sequence. Building that is the next piece of work, and it is where Jay's midpoint skill would slot in. |
+| — | `04_tools/*.py`, run manually | **UNVERIFIED**, no orchestrator defines an order or an instruction | none, no agent exists at this layer | Offline corpus work, not ingest. These were written while I worked out what extracts cleanly from a plan set, so the numbers are a reading order for me and not an execution order, which is why there are duplicates and missing values. Their order is genuinely undefined, but that is a property of these utilities, not of the read path. |
 
-The one part of `plan_reader` that *is* orchestrated is `01_pipeline/`, driven by `run.py`:
+### 4.2 The stages themselves
+
+The four stages `process_pdf` and `run.py` both drive, in order:
 
 | Step | Script called | Instruction / prompt given | Tools available | Job — why |
 |---|---|---|---|---|
@@ -269,8 +312,19 @@ The one part of `plan_reader` that *is* orchestrated is `01_pipeline/`, driven b
 | 3 | `01_pipeline/s3_extract.py` | LLM prompt; call at `s3_extract.py:135` | — | Pulls the specific fields a bidder needs off the plan. First point where a model is required, because plan layouts vary too much for rules. |
 | 4 | `01_pipeline/s4_extract_rag.py` | delegates to `s3_extract.call_json` at `:158`, `:188`, `:194` | retriever | Retrieval-backed extraction for fields that are not on a predictable page. Falls back to searching the index when the direct read misses. |
 
-**This is the answer to "where is the agent workflow?" — for `plan_reader`, there isn't one.** That
-is the thing to fix before inserting any new module, because there is no defined place to insert it.
+**This is the answer to "where is the agent workflow for the plan reader?"** It is
+`report.py:102-115`, entered from `app.py:189`. There is a defined place to insert a new module, and
+it is that sequence (see §1.4).
+
+> **Correction to an earlier version of this document.** §4 previously declared plan_reader's
+> orchestration to be NONE, and stated the ingest had no driver, no sequencer, and ran in an order
+> that existed only in the operator's head. That was wrong. It generalised a true finding about
+> `04_tools/` into a false one about the whole workstream, because every check for an orchestrator
+> was run *inside* `pipelines/plan_reader/`, and the orchestrator lives in `apps/api/`, with the
+> endpoint that receives the upload. §1.1 documented the correct sequence the whole time; the two
+> sections were never reconciled. Same shape as rough edge 4: the check that was run verified a
+> property adjacent to the one that mattered, namely "is there an orchestrator *in this directory*"
+> rather than "is this sequence orchestrated *anywhere*".
 
 ---
 
@@ -409,6 +463,13 @@ untested:
 | 3 | `03_training/outputs/` routing | directory looked uniformly derived | one file was runtime-required |
 | 4 | `data/derived/outputs/` routing | provenance — authored vs generated | whether a fresh clone needs the file |
 | 5 | root `reference/` relocation | **filename collisions** (`comm -12`, empty) | **nine scripts reference the path by CWD-relative literal** |
+| 6 | "does plan_reader have an orchestrator?" (§4) | whether one existed **inside `pipelines/plan_reader/`** | whether the sequence is orchestrated **anywhere**. It is, in `apps/api/` |
+
+Case 6 is the same error pointed at a directory rather than a file, and it produced a false negative
+rather than a false positive: the answer looked absent because the search never left the module. The
+orchestrator lives with the endpoint that receives the upload, which is where a request-driven
+pipeline's driver belongs. **Scope the search to the behaviour, not to the folder that owns the
+nouns.**
 
 Cases 2–4 share one root cause: the `reference`/`derived` split classifies files by **how they were
 produced**, while every failure turned on **whether a fresh clone needs the file to run**. The
@@ -474,7 +535,8 @@ as a bare `*.html`, because an over-broad pattern is occurrence 1 in that same t
 ## 8. What is not verified
 
 - The intended execution order of `pipelines/plan_reader/04_tools/` — **UNVERIFIED**. No artifact in
-  the repo defines it.
+  the repo defines it. This is scoped to those offline utilities only; the ingest path's order is
+  verified and fixed (§4).
 - Whether the duplicated numeric prefixes in `04_tools/` (two `07`s, `08`s, `09`s, `10`s) encode
   alternatives or successive versions — **UNVERIFIED**.
 - The internal logic of `lib.page_sections` (`lib.py:363`), `lib.detect_doc_type` (`lib.py:450`),
