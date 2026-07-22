@@ -32,7 +32,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
-from .config import PLAN_READER, settings
+from .config import CSI_DB, settings
 from .observability import get_logger
 
 log = get_logger("bid_assistant.trace")
@@ -43,7 +43,7 @@ SCHEMA_VERSION = "1"          # bump when the TurnRecord shape changes
 # JSONL archive (the raw, append-only record) lives under the module; SQLite index reuses the
 # Plan Reader's csi_v2.db so conversation rows can join the plans/materials/gotchas tables.
 CONV_DIR = Path(__file__).resolve().parent.parent / "data" / "conversations"
-DB_PATH = PLAN_READER / "csi_v2.db"
+DB_PATH = CSI_DB          # one definition, shared with final_report.py, so the two cannot drift
 
 # The conversations table — kept IDENTICAL to 04_tools/00_init_db.py (that file documents the whole
 # DB; this one self-initializes at runtime so the assistant works even if init_db was never run).

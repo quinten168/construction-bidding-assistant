@@ -9,6 +9,7 @@ and the project's existing `.env` convention.
 from __future__ import annotations
 
 import os
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,6 +40,57 @@ PIPELINE = PLAN_READER / "01_pipeline"                  # importable: lib.py, re
 # bid_data.py, competitors.py and project_registry.py — so a path change fixed one and broke
 # three, which is the most confusing failure mode available. They now import this.
 MASTER_CSV = REPO / "data" / "reference" / "2026-06-03_csi_bid_master.csv"
+# The Plan Reader's SQLite database. Shared on purpose: backend/trace.py writes conversation rows
+# here so they can join plans/materials/gotchas (see the comment at the top of that file).
+CSI_DB = PLAN_READER / "csi_v2.db"
+
+# --- is the plan corpus actually loaded? ---------------------------------------------------------
+CORPUS_OK = "ok"
+CORPUS_NO_FILE = "no_file"
+CORPUS_NO_TABLE = "no_table"
+CORPUS_EMPTY = "empty"
+
+CORPUS_MESSAGES = {
+    CORPUS_NO_FILE: "database file not found",
+    CORPUS_NO_TABLE: "database has no `plans` table",
+    CORPUS_EMPTY: "`plans` table is empty",
+}
+
+
+def corpus_state(db_path: Path = CSI_DB) -> str:
+    """Answer "is the plan corpus loaded", not "does a file exist". Returns one of CORPUS_*.
+
+    File existence is not a usable proxy. backend/trace.py deliberately creates csi_v2.db on the
+    first chat turn so the assistant works even if 00_init_db.py was never run, which means the
+    path can exist while holding nothing but a `conversations` table. A guard on `.exists()` passes
+    against that decoy and the caller then renders a confident, wrong "zero gotchas". Issue #13 will
+    make process_pdf write here on every run, at which point the file always exists and a
+    path-existence guard is permanently useless.
+
+    Checks three states in order: file absent, no `plans` table, `plans` table with zero rows.
+
+    Deliberately not cached. trace.py can create the file mid-process, so an answer computed once at
+    import time would be wrong for the remaining life of the worker.
+    """
+    if not db_path.exists():
+        return CORPUS_NO_FILE
+    try:
+        # Read-only: a plain connect() on a missing path CREATES it, so a careless probe here would
+        # manufacture the very decoy this function exists to detect.
+        con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return CORPUS_NO_FILE
+    try:
+        found = con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='plans'").fetchone()
+        if found is None:
+            return CORPUS_NO_TABLE
+        (n_plans,) = con.execute("SELECT count(*) FROM plans").fetchone()
+    except sqlite3.Error:
+        return CORPUS_NO_TABLE
+    finally:
+        con.close()
+    return CORPUS_OK if n_plans else CORPUS_EMPTY
 # Competitor Intelligence reports (Quentin/Wenyu's pipeline output). The final report parses +
 # matches these `bid_report_P*.md` files to a plan. They can be pre-generated (static) OR generated
 # LIVE by invoking the CI team's agent (see CI_MODEL_REPO below) when a plan maps to a corpus job.
@@ -140,6 +192,24 @@ class Settings:
         master = MASTER_CSV
         if not master.exists():
             issues.append(f"Master bid CSV not found at {master} — bid-history/project tools will fail.")
+        # The two corpus failures need different fixes, so they get different messages. "File not
+        # found" is the obvious one; "file present but no plan corpus" is the confusing one, because
+        # trace.py creates that file and everything downstream looks healthy while the final report
+        # quietly reports zero gotchas for every plan.
+        # Passed explicitly, not left to the default argument: the default binds CSI_DB once at
+        # definition time, so a test or a caller that repoints the module global would be ignored.
+        state = corpus_state(CSI_DB)
+        if state == CORPUS_NO_FILE:
+            issues.append(
+                f"Plan corpus database not found at {CSI_DB}. The final report will show zero "
+                "gotchas for every plan. Run pipelines/plan_reader/04_tools/00_init_db.py, then "
+                "ingest the plans.")
+        elif state != CORPUS_OK:
+            issues.append(
+                f"Plan corpus database at {CSI_DB} exists but holds no plans "
+                f"({CORPUS_MESSAGES[state]}). The final report will show zero gotchas for every "
+                "plan. The file alone is not evidence the corpus loaded: the conversation tracer "
+                "creates it on the first chat turn. Ingest the plans.")
         return issues
 
 

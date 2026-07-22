@@ -28,12 +28,12 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import competitor_report as cr
-from .config import PLAN_READER
+from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
 
 log = get_logger("bid_assistant.final_report")
 
-DB_PATH = PLAN_READER / "csi_v2.db"
+DB_PATH = CSI_DB
 PLANS_DIR = PLAN_READER / "00_input" / "plans"
 GOTCHA_TAXONOMY = PLAN_READER / "05_knowledge" / "gotcha_taxonomy.csv"
 
@@ -79,9 +79,24 @@ def _rank_and_trim(items: list[dict]) -> list[dict]:
     return items[:_TOP_N_GOTCHAS]
 
 
+def _corpus_loaded(reader: str, plan_id: str) -> bool:
+    """True when csi_v2.db actually holds a plan corpus, checked fresh on every call.
+
+    Logs at warning level when it does not, once per reader call site (not once per row), so a
+    degraded read leaves a trace instead of silently rendering as a confident "zero gotchas".
+    """
+    state = corpus_state(DB_PATH)
+    if state == CORPUS_OK:
+        return True
+    log.warning("%s: no plan corpus (%s at %s), returning None for plan_id=%s. The report will "
+                "show no data for this plan, which is a setup problem, not an empty plan.",
+                reader, CORPUS_MESSAGES[state], DB_PATH, plan_id)
+    return False
+
+
 def _gotchas_from_db(plan_id: str) -> dict | None:
     """Pull deduped gotchas for a plan from SQLite, split Go/No-Go vs Pricing, top N each."""
-    if not DB_PATH.exists():
+    if not _corpus_loaded("_gotchas_from_db", plan_id):
         return None
     con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
@@ -112,7 +127,17 @@ def _resolve_corpus_plan_id(identity: dict) -> str | None:
     matching corpus plan_id that actually has gotcha rows, or None."""
     sp = (identity.get("sp_number") or "")
     m = re.search(r"\d{2,4}(?:[-\s]\d{2,4}){1,3}", sp)   # the numeric core, e.g. 021-600-023
-    if not m or not DB_PATH.exists():
+    if not m:
+        return None
+    # Unlike the other two readers, this one has a specific plan to look up, so it can tell "there
+    # is no corpus" (a setup problem) from "the corpus is loaded and this plan is not in it" (an
+    # ordinary miss). They are logged at different levels so the distinction survives into the log
+    # without anyone having to open the database.
+    state = corpus_state(DB_PATH)
+    if state != CORPUS_OK:
+        log.warning("_resolve_corpus_plan_id: no plan corpus (%s at %s), cannot re-link SP %r. "
+                    "This is a setup problem, not a corpus miss: run 00_init_db.py and ingest "
+                    "the plans.", CORPUS_MESSAGES[state], DB_PATH, sp)
         return None
     core = m.group(0).replace(" ", "-")
     con = sqlite3.connect(DB_PATH)
@@ -124,7 +149,11 @@ def _resolve_corpus_plan_id(identity: dict) -> str | None:
         return None
     finally:
         con.close()
-    return row[0] if row else None
+    if row is None:
+        log.info("_resolve_corpus_plan_id: corpus is loaded but holds no plan matching %r "
+                 "(from SP %r), treating as an ordinary corpus miss.", core, sp)
+        return None
+    return row[0]
 
 
 def _gotchas_from_payload(payload_gotchas: list[dict]) -> dict:
@@ -277,7 +306,7 @@ def _payload_from_plan_id(plan_id: str) -> dict | None:
 
 
 def _work_type_from_db(plan_id: str) -> str | None:
-    if not DB_PATH.exists():
+    if not _corpus_loaded("_work_type_from_db", plan_id):
         return None
     con = sqlite3.connect(DB_PATH)
     try:
