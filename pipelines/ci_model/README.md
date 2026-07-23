@@ -85,9 +85,11 @@ OR priority competitor
 ```
 
 The priority source is the hybrid-shortlist guardrail: client-designated top
-competitors from `reference/competitor_priority.csv` are always included in the
-candidate set, while geography, project-type, recency, and pit-location signals
-still allow auction-specific competitors to enter the shortlist.
+competitors — tagged `Top Competitors Tag = 1` in the competitor name registry
+(`pipelines/ci_model/01_candidates/outputs/competitor_name_registry - name_variants.csv`)
+and resolved to `competitor_unit_id` via `bidder_results.csv` — are always included
+in the candidate set, while geography, project-type, recency, and pit-location
+signals still allow auction-specific competitors to enter the shortlist.
 
 They are intended to compare recall against candidate-pool width without
 allowing recent activity in unrelated states to inflate every project.
@@ -235,10 +237,16 @@ Access rules:
 
 - `open`: available to every competitor.
 - `unknown`: treated as potentially available and flagged separately.
-- `competitor`: available only when `access_company` maps to the row's
-  `competitor_unit_id` through `reference/competitor_entities.csv`.
-- `knife_river_pending`: retained as a separate proximity signal until entity
-  ownership is confirmed.
+- `competitor`: available only when `access_company` matches a raw bidder name
+  in `bidder_results.csv` (via `build_bidder_name_map` in `build_pit_features.py`),
+  which resolves to the row's `competitor_unit_id`.
+- `knife_river_pending`: pits in the pit list marked as Knife River-affiliated
+  but not assigned to a specific division. Kept as its own proximity signal for
+  every competitor (`nearest_knife_river_pending_pit_miles`,
+  `knife_river_pending_pits_within_25mi`), *and* folded into the owned/accessible
+  pit pool specifically for Knife River division `competitor_unit_id`s (any ID
+  starting with "Knife River") — since all divisions can draw on this shared pool.
+  See `is_knife_river_unit()` in `build_pit_features.py`.
 - `client` and `closed`: excluded from competitor-accessible pit features.
 
 If project latitude/longitude columns are not available, the script can fall

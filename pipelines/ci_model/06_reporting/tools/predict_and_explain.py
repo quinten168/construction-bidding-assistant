@@ -3,8 +3,8 @@ Tool 1 — predict_and_explain
 
 Loads the logistic model JSON and computes per-feature log-odds contributions for one
 competitor × project row. Handles both model formats:
-  - sklearn format (tune_logistic.py):  keys  scaler_mean / scaler_std / intercept / feature_weights
-  - numpy  format (train_logistic_baseline.py): keys  feature_means / feature_stds / weights
+  - sklearn format (train_logistic_baseline.py, incl. --tune): keys  scaler_mean / scaler_std / intercept / feature_weights
+  - numpy  format (legacy): keys  feature_means / feature_stds / weights
 """
 from __future__ import annotations
 

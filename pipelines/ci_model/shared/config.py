@@ -18,8 +18,13 @@ V3_RECURRING_REGIONAL_WEIGHT = 1.5
 
 # Client company IDs — never appear as predicted competitors (the tool is used BY these companies).
 # Add more IDs here if the client operates under multiple entities.
+# competitor_unit_id is now the competitor_name_registry's comp_name (see
+# data/entity_resolution.py apply_registry_mapping) — "CENTRAL SPECIALTIES" is
+# where the client's raw bidder-name variants resolve to today. One variant,
+# "BRADFORD BAY CENTRAL SPECIALTIES", is still needs_review in the registry
+# and isn't merged in here — confirm in the registry before adding it.
 CLIENT_UNIT_IDS: frozenset[str] = frozenset({
-    "CMP_CENTRAL_SPECIALTIES_22205EA6",
+    "CENTRAL SPECIALTIES",
 })
 
 # Tiered competitor set

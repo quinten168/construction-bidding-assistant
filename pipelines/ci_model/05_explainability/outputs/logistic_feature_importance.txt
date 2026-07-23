@@ -1,32 +1,32 @@
 LOGISTIC BASELINE MODEL — Feature Importance Table
 Coefficients are for z-scored inputs: |coef| = impact of 1 SD shift on log-odds of bidding
-Intercept (base log-odds): -0.7027697756109413
+Intercept (base log-odds): -0.7344891346407204
 ==============================================================================================================
   Rank  Display Label                     Group            Std. Coeff  Direction
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-  1     Pit Distance Advantage vs Open    pit                0.980994  increases bid probability
-  2     Prior Bids — Same County          geography          0.643308  increases bid probability
-  3     Nearest Owned/Restricted Pit (miles)  pit               -0.508430  decreases bid probability
-  4     Ever Bid Same Project Type (0/1)  project_type       0.408294  increases bid probability
-  5     Overall Bid Rate                  activity           0.401865  increases bid probability
-  6     Nearest Unknown-Access Pit (miles)  pit                0.207689  increases bid probability
-  7     Avg Open Pit Rating (25 mi)       pit                0.206507  increases bid probability
-  8     Open Pits 25–50 mi                pit               -0.160530  decreases bid probability
-  9     Prior Bids — Same State           geography          0.129948  increases bid probability
-  10    Pit Data Applicable (MN only)     pit               -0.122471  decreases bid probability
-  11    Paving Scope Match                scope_match       -0.110240  decreases bid probability
-  12    Grading Scope Match               scope_match        0.103550  increases bid probability
-  13    Prior Bids — Same Project Type    project_type       0.100213  increases bid probability
-  14    Open Pits Within 10 mi            pit                0.086778  increases bid probability
-  15    Best Owned/Restricted Pit Rating (25 mi)  pit                0.074922  increases bid probability
-  16    Competitor Has Restricted Pit (25 mi)  pit               -0.051899  decreases bid probability
-  17    Nearest Open Pit (miles)          pit                0.048792  increases bid probability
-  18    Unknown-Access Pits Within 25 mi  pit               -0.031976  decreases bid probability
-  19    Days Since Last Bid               activity          -0.018309  decreases bid probability
-  20    Mix Ton Capacity Ratio            activity          -0.016333  decreases bid probability
-  21    Open Pits 10–25 mi                pit               -0.015186  decreases bid probability
-  22    Best Open Pit Rating (25 mi)      pit                0.015136  increases bid probability
-  23    owned_or_restricted_pits_within_25mi  pit                0.009787  increases bid probability
+  1     Pit Distance Advantage vs Open    pit                0.751578  increases bid probability
+  2     Prior Bids — Same County          geography          0.638882  increases bid probability
+  3     Ever Bid Same Project Type (0/1)  project_type       0.494084  increases bid probability
+  4     Nearest Unknown-Access Pit (miles)  pit                0.448295  increases bid probability
+  5     Overall Bid Rate                  activity           0.404322  increases bid probability
+  6     Nearest Open Pit (miles)          pit               -0.400692  decreases bid probability
+  7     Nearest Owned/Restricted Pit (miles)  pit               -0.395939  decreases bid probability
+  8     Pit Data Applicable (MN only)     pit               -0.302489  decreases bid probability
+  9     Prior Bids — Same Project Type    project_type       0.197050  increases bid probability
+  10    Grading Scope Match               scope_match        0.176034  increases bid probability
+  11    Avg Open Pit Rating (25 mi)       pit                0.138726  increases bid probability
+  12    Paving Scope Match                scope_match       -0.113741  decreases bid probability
+  13    Open Pits 25–50 mi                pit               -0.097283  decreases bid probability
+  14    Unknown-Access Pits Within 25 mi  pit               -0.083193  decreases bid probability
+  15    Open Pits Within 10 mi            pit                0.073739  increases bid probability
+  16    Owned/Restricted Pits Within 25 mi  pit               -0.069140  decreases bid probability
+  17    Best Open Pit Rating (25 mi)      pit                0.058864  increases bid probability
+  18    Days Since Last Bid               activity           0.052255  increases bid probability
+  19    Best Owned/Restricted Pit Rating (25 mi)  pit                0.049315  increases bid probability
+  20    Open Pits 10–25 mi                pit               -0.028671  decreases bid probability
+  21    Prior Bids — Same State           geography          0.013339  increases bid probability
+  22    Competitor Has Restricted Pit (25 mi)  pit               -0.006598  decreases bid probability
+  23    Mix Ton Capacity Ratio            activity          -0.006299  decreases bid probability
 
   ── Inactive features (zero weight) ──
     project_location_missing

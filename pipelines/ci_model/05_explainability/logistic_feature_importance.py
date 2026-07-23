@@ -89,6 +89,7 @@ FEATURE_LABELS = {
     "best_accessible_pit_rating_within_25mi":           "Best Accessible Pit Rating (25 mi)",
     "avg_accessible_pit_rating_within_25mi":            "Avg Accessible Pit Rating (25 mi)",
     "nearest_owned_or_restricted_pit_miles":            "Nearest Owned/Restricted Pit (miles)",
+    "owned_or_restricted_pits_within_25mi":             "Owned/Restricted Pits Within 25 mi",
     "best_owned_or_restricted_pit_rating_within_25mi":  "Best Owned/Restricted Pit Rating (25 mi)",
     "has_competitor_restricted_pit_within_25mi":        "Competitor Has Restricted Pit (25 mi)",
     "nearest_knife_river_pending_pit_miles":            "Nearest KR Pending Pit (miles)",

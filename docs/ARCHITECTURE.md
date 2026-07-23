@@ -492,15 +492,22 @@ This is the direct answer to whether the project wastes anything. The waste is n
 dependency classification, and in all five cases it failed silently — no error, no warning, correct-
 looking output.
 
-**5. Root `reference/` cannot be moved without coordinated edits.** Three CSVs are read by **nine
-argparse defaults** hardcoding the CWD-relative literal `reference/...`
-(`data/build_project_competitor_panel.py:575-577`, `data/entity_resolution.py:180`,
-`data/rebuild_reviewed_competitor_registry.py:40-42`,
-`pipelines/ci_model/01_candidates/build_candidate_panels.py:37`,
-`pipelines/ci_model/01_candidates/build_pit_features.py:600`,
-`research/model1/build_candidate_panels.py:21-22`). Because they are CWD-relative, running any
-`data/*.py` from inside `data/` silently resolves `reference/` to `data/reference/` — a different
-directory. Filenames do not collide, so nothing errors; the wrong file is read.
+**5. Root `reference/` — ✅ RESOLVED (directory removed).** It held three CSVs, all now gone:
+`competitor_aliases.csv` (removed earlier — superseded by the name registry), and
+`competitor_entities.csv` / `competitor_priority.csv` (removed — both were dead weight in the live
+pipeline: `competitor_priority.csv` was an empty header the live candidate-generation script never
+read, and `competitor_entities.csv` contributed zero unique pit-ownership resolutions beyond what
+`bidder_results.csv` already covers). Their CWD-relative argparse defaults and read calls were
+removed from `data/build_project_competitor_panel.py`,
+`pipelines/ci_model/01_candidates/build_candidate_panels.py`, and
+`pipelines/ci_model/01_candidates/build_pit_features.py`. `research/model1/build_candidate_panels.py`
+(frozen research code, not runtime) still references the old paths.
+
+Competitor identity resolution no longer uses fuzzy-match/manual-review scripts
+(`fuzzy_company_match.py`, `rebuild_reviewed_competitor_registry.py` — both removed). The competitor
+name registry (`pipelines/ci_model/01_candidates/outputs/competitor_name_registry - name_variants.csv`) is now
+the single source of truth: `entity_resolution.apply_registry_mapping()` maps each `raw_bidder_name` straight
+to the registry's `comp_name`, which **is** `competitor_unit_id` — there is no separate opaque ID.
 
 **6. Three of the CI orchestrator's four path defaults point at a layout that never existed here.**
 `_DEFAULT_PREDICTIONS` (`orchestrator.py:34-36`), `_DEFAULT_MODEL` (`:37-39`), and

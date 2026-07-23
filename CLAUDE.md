@@ -104,26 +104,19 @@ cuts off the exception line. A real `FileNotFoundError` was hidden this way.
 **→ Any verification that CI works must prove the subprocess RAN** — process observation, or a
 report mtime that advanced. A response coming back proves nothing.
 
-**3. `reference/` cannot be moved without coordinated edits.**
+**3. `reference/competitor_entities.csv` / `reference/competitor_priority.csv` — ✅ RESOLVED (removed).**
 
-Three CSVs at the repo root (`competitor_aliases.csv`, `competitor_entities.csv`,
-`competitor_priority.csv`) are read by **nine argparse defaults** that hardcode the literal
-CWD-relative string `reference/...`:
+Both were dead weight: `competitor_priority.csv` was an empty header-only file the live pipeline
+never actually consulted (priority now comes from the name registry's `Top Competitors Tag`), and
+`competitor_entities.csv` contributed zero unique pit-ownership resolutions beyond what
+`bidder_results.csv` already covers (verified empirically — 0 of 21 pit-owner names resolved only
+through it). Both files and their `--entities`/`--priority` CLI plumbing were removed from
+`data/build_project_competitor_panel.py`, `pipelines/ci_model/01_candidates/build_pit_features.py`,
+and `pipelines/ci_model/01_candidates/build_candidate_panels.py` (which had an already-unused
+`--entities` flag — `entities=None` was hardcoded regardless).
 
-```
-data/build_project_competitor_panel.py:575,576,577
-data/entity_resolution.py:180
-data/rebuild_reviewed_competitor_registry.py:40,41,42
-pipelines/ci_model/01_candidates/build_candidate_panels.py:37
-pipelines/ci_model/01_candidates/build_pit_features.py:600
-research/model1/build_candidate_panels.py:21,22
-```
-
-Because these are CWD-relative rather than repo-anchored, running any `data/*.py` script from
-**inside** `data/` silently resolves `reference/` to `data/reference/` — a different directory
-holding an unrelated bid-master CSV. The filenames do not collide, so nothing errors; the wrong
-file is simply read. **Run these scripts from the repo root.** Converting the nine defaults to
-repo-anchored paths is tracked as its own change.
+`research/model1/build_candidate_panels.py` (frozen research code, not runtime) still references
+the old paths and would need updating before anyone tries to run it standalone.
 
 **4. Three of the CI orchestrator's four path defaults point at a layout that never existed here.**
 

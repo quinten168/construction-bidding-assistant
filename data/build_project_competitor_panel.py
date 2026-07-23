@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from entity_resolution import apply_competitor_mapping
+from entity_resolution import apply_registry_mapping
 
 
 STATE_NAME_TO_ABBR = {
@@ -295,12 +295,12 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
 
 def build_bidder_results(
     long_bids: pd.DataFrame,
-    aliases: pd.DataFrame,
+    registry: pd.DataFrame,
     projects: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    mapped = apply_competitor_mapping(
+    mapped = apply_registry_mapping(
         bids=long_bids,
-        aliases=aliases,
+        registry=registry,
         bidder_col="BIDDER_NAME",
     )
     mapped["_project_identity"] = _project_identity(mapped)
@@ -340,6 +340,10 @@ def build_bidder_results(
         )
         .reset_index()
     )
+    # competitor_unit_id is now the registry's comp_name itself, so it already
+    # is the canonical name — kept as its own column for existing consumers
+    # (e.g. apps/api/backend/competitor_record.py) that read canonical_name.
+    bidder_results["canonical_name"] = bidder_results["competitor_unit_id"]
 
     return bidder_results, duplicate_actual_units
 
@@ -572,44 +576,25 @@ def main() -> None:
         description="Build project x competitor operating-unit label panel."
     )
     parser.add_argument("--bids", default="data/processed/CSI_data_long_format.csv")
-    parser.add_argument("--aliases", default="reference/competitor_aliases.csv")
-    parser.add_argument("--entities", default="reference/competitor_entities.csv")
-    parser.add_argument("--priority", default="reference/competitor_priority.csv")
+    parser.add_argument(
+        "--name-registry",
+        default="pipelines/ci_model/01_candidates/outputs/competitor_name_registry - name_variants.csv",
+    )
     parser.add_argument("--panel-output", default="data/processed/project_competitor_panel.parquet")
     parser.add_argument("--projects-output", default="data/processed/projects.csv")
     parser.add_argument("--bidder-results-output", default="data/processed/bidder_results.csv")
-    parser.add_argument("--audit-output", default="outputs/project_competitor_panel/panel_audit.json")
-    parser.add_argument("--project-type-audit-output", default="outputs/project_competitor_panel/project_type_audit.csv")
-    parser.add_argument("--bidder-count-output", default="outputs/project_competitor_panel/bidder_count_check.csv")
-    parser.add_argument("--duplicate-actual-output", default="outputs/project_competitor_panel/duplicate_actual_units.csv")
+    parser.add_argument("--audit-output", default="data/derived/outputs/project_competitor_panel/panel_audit.json")
+    parser.add_argument("--project-type-audit-output", default="data/derived/outputs/project_competitor_panel/project_type_audit.csv")
+    parser.add_argument("--bidder-count-output", default="data/derived/outputs/project_competitor_panel/bidder_count_check.csv")
+    parser.add_argument("--duplicate-actual-output", default="data/derived/outputs/project_competitor_panel/duplicate_actual_units.csv")
     args = parser.parse_args()
 
     long_bids = pd.read_csv(args.bids)
-    aliases = pd.read_csv(args.aliases)
-    entities = pd.read_csv(args.entities)
-    priority = pd.read_csv(args.priority)
+    registry = pd.read_csv(args.name_registry)
 
     projects = build_projects(long_bids)
-    bidder_results, duplicate_actual_units = build_bidder_results(long_bids, aliases, projects)
-
-    # Add canonical_name via competitor name registry
-    _registry_path = Path(
-        "ci_model/model_1_wenyu/01_candidates/outputs/competitor_name_registry - name_variants.csv"
-    )
-    if _registry_path.exists():
-        registry = pd.read_csv(_registry_path)
-        registry["_key"] = registry["raw_name_variant"].str.upper().str.strip()
-        bidder_results["_key"] = bidder_results["raw_bidder_name"].str.upper().str.strip()
-        bidder_results = bidder_results.merge(
-            registry[["_key", "comp_name"]].drop_duplicates("_key"),
-            on="_key", how="left"
-        ).rename(columns={"comp_name": "canonical_name"}).drop(columns="_key")
-        bidder_results["canonical_name"] = bidder_results["canonical_name"].fillna(
-            bidder_results["raw_bidder_name"]
-        )
-    else:
-        bidder_results["canonical_name"] = bidder_results["raw_bidder_name"]
-    panel = build_project_competitor_panel(projects, bidder_results, priority, entities)
+    bidder_results, duplicate_actual_units = build_bidder_results(long_bids, registry, projects)
+    panel = build_project_competitor_panel(projects, bidder_results)
     panel = add_gap_to_low(panel)
     audit = audit_panel(panel, bidder_results)
     project_type_audit = build_project_type_audit(projects)

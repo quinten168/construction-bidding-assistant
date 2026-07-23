@@ -157,18 +157,14 @@ def avg_rating_within(frame: pd.DataFrame, miles: float) -> float:
     return float(nearby.mean())
 
 
-def build_entity_name_map(entities: pd.DataFrame) -> dict[str, str]:
-    name_map: dict[str, str] = {}
-    for _, row in entities.iterrows():
-        unit_id = row.get("competitor_unit_id")
-        if pd.isna(unit_id):
-            continue
-        for col in ["standard_name", "parent_company"]:
-            if col in entities.columns:
-                key = normalize_key(row.get(col))
-                if key and key not in name_map:
-                    name_map[key] = str(unit_id)
-    return name_map
+def is_knife_river_unit(competitor_unit_id: str) -> bool:
+    """True for any Knife River division (e.g. 'KNIFE RIVER - ST. CLOUD').
+
+    competitor_unit_id is now the competitor_name_registry's comp_name itself
+    (see data/entity_resolution.py apply_registry_mapping), so this is a plain
+    name check — no separate ID lookup needed.
+    """
+    return normalize_key(competitor_unit_id).startswith("KNIFERIVER")
 
 
 def build_bidder_name_map(bidder_results: pd.DataFrame) -> dict[str, str]:
@@ -189,7 +185,6 @@ def build_bidder_name_map(bidder_results: pd.DataFrame) -> dict[str, str]:
 
 def prepare_pits(
     pits: pd.DataFrame,
-    entities: pd.DataFrame,
     bidder_results: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     result = pits.copy()
@@ -199,9 +194,7 @@ def prepare_pits(
     result["access_type"] = result.get("access_type", "unknown").fillna("unknown").astype(str)
     result["county_key"] = result.get("County", "").map(normalize_county)
 
-    # Build combined name map: bidder_results (TMP_ IDs) takes precedence over
-    # competitor_entities (CMP_ IDs) because the candidate panel uses TMP_ IDs.
-    name_map = build_entity_name_map(entities)
+    name_map: dict[str, str] = {}
     if bidder_results is not None and not bidder_results.empty:
         name_map.update(build_bidder_name_map(bidder_results))
 
@@ -386,8 +379,12 @@ def build_features_for_row(
         (pit_distances["access_type"] == "competitor")
         & (pit_distances["access_company_unit_id"] == competitor_unit_id)
     ]
-    accessible_pits = pd.concat([open_pits, unknown_pits, owned_pits], ignore_index=True)
     knife_pending = pit_distances[pit_distances["access_type"] == "knife_river_pending"]
+    if is_knife_river_unit(competitor_unit_id) and not knife_pending.empty:
+        # Pending pits aren't assigned to a specific division in the pit list,
+        # so every Knife River division shares access to the same pool.
+        owned_pits = pd.concat([owned_pits, knife_pending], ignore_index=True)
+    accessible_pits = pd.concat([open_pits, unknown_pits, owned_pits], ignore_index=True)
 
     aggregate_group("open", open_pits, features)
     aggregate_group("unknown_access", unknown_pits, features)
@@ -489,6 +486,11 @@ def build_features_for_project_rows(
             competitor_unit_id,
             pd.DataFrame(columns=pit_distances.columns),
         )
+        if is_knife_river_unit(competitor_unit_id) and not knife_pending.empty:
+            # Pending pits aren't assigned to a specific division in the pit
+            # list, so every Knife River division shares access to the same
+            # pool (computed independently per project distance).
+            owned_pits = pd.concat([owned_pits, knife_pending], ignore_index=True)
         if owned_pits.empty:
             features.update(shared_accessible_features)
             features.update(empty_owned_features)
@@ -537,7 +539,6 @@ def build_pit_features(
     panel: pd.DataFrame,
     projects: pd.DataFrame,
     pits: pd.DataFrame,
-    entities: pd.DataFrame,
     bidder_results: pd.DataFrame | None = None,
     county_centroids: pd.DataFrame | None = None,
     use_pit_county_centroids: bool = True,
@@ -547,7 +548,7 @@ def build_pit_features(
     if missing:
         raise ValueError(f"Panel is missing required columns: {sorted(missing)}")
 
-    prepared_pits = prepare_pits(pits, entities, bidder_results)
+    prepared_pits = prepare_pits(pits, bidder_results)
     rows = panel[["job_id", "competitor_unit_id"]].drop_duplicates().copy()
     rows["competitor_unit_id"] = rows["competitor_unit_id"].astype(str)
     rows = add_project_locations(
@@ -597,7 +598,6 @@ def main() -> None:
     parser.add_argument("--panel", default="data/processed/model1/ranking_training_panel.parquet")
     parser.add_argument("--projects", default="data/processed/projects.csv")
     parser.add_argument("--pits", default="data/processed/MN_pit_list_cleaned.csv")
-    parser.add_argument("--entities", default="reference/competitor_entities.csv")
     parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
     parser.add_argument("--candidate-rule", default=DEFAULT_CANDIDATE_RULE)
     parser.add_argument("--county-centroids", default=None)
@@ -610,7 +610,6 @@ def main() -> None:
         panel = panel[panel["candidate_rule_version"] == args.candidate_rule].copy()
     projects = pd.read_csv(args.projects)
     pits = pd.read_csv(args.pits)
-    entities = pd.read_csv(args.entities)
     bidder_results = pd.read_csv(args.bidder_results) if args.bidder_results else None
     county_centroids = load_county_centroids(args.county_centroids)
 
@@ -618,7 +617,6 @@ def main() -> None:
         panel=panel,
         projects=projects,
         pits=pits,
-        entities=entities,
         bidder_results=bidder_results,
         county_centroids=county_centroids,
         use_pit_county_centroids=not args.no_pit_county_centroid_fallback,

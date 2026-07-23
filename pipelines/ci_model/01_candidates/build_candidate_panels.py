@@ -34,7 +34,6 @@ def main() -> None:
     parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
     parser.add_argument("--registry", default=str(COMPETITOR_REGISTRY_PATH),
                         help="Path to competitor_name_registry - name_variants.csv")
-    parser.add_argument("--entities", default="reference/competitor_entities.csv")
     parser.add_argument(
         "--include-legacy-rules",
         action="store_true",
@@ -97,8 +96,7 @@ def main() -> None:
         .drop_duplicates()
     ) if "raw_bidder_name" in bidder_results.columns else pd.DataFrame(columns=["competitor_unit_id"])
 
-    # Entities use CMP_ IDs; bidder_results uses TMP_ IDs — no overlap, skip entity filter.
-    # Pass entities=None so _active_entity_ids_for_date returns None and the filter is skipped.
+    # No entity-active-date registry is maintained; entities=None skips that filter.
     v3_candidates = build_v3_candidate_set(
         projects=projects,
         bidder_results=bidder_results,

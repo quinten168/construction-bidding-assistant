@@ -1,35 +1,34 @@
 rank,feature_group,feature_name,display_label,standardized_coef,abs_importance,direction,description
-1,pit,competitor_pit_distance_advantage_vs_open,Pit Distance Advantage vs Open,0.981608,0.981608,increases bid probability,Nearest open pit distance minus competitor's nearest owned pit distance (positive = competitor closer than open market) — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-2,geography,same_county_prior_bid_count,Prior Bids — Same County,0.649034,0.649034,increases bid probability,Prior bids in the same county as this project
-3,pit,nearest_owned_or_restricted_pit_miles,Nearest Owned/Restricted Pit (miles),-0.508838,0.508838,decreases bid probability,Distance in miles to this competitor's nearest owned/restricted pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-4,activity,prior_bid_rate,Overall Bid Rate,0.434692,0.434692,increases bid probability,Fraction of all historical projects where this competitor submitted a bid
-5,project_type,ever_bid_same_project_type,Ever Bid Same Project Type (0/1),0.427076,0.427076,increases bid probability,Binary: competitor has at least one prior bid on the same project_type (0/1)
-6,pit,nearest_unknown_access_pit_miles,Nearest Unknown-Access Pit (miles),0.225474,0.225474,increases bid probability,Distance in miles to the nearest unknown-access pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-7,pit,avg_open_pit_rating_within_25mi,Avg Open Pit Rating (25 mi),0.193149,0.193149,increases bid probability,Average quality rating among open pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-8,pit,open_pits_25_50mi,Open Pits 25–50 mi,-0.141864,0.141864,decreases bid probability,Count of publicly open pits between 25 and 50 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-9,scope_match,paving_match,Paving Scope Match,-0.121376,0.121376,decreases bid probability,Competitor has paving history AND this project includes paving scope (0/1)
-10,pit,pit_applicable,Pit Data Applicable (MN only),-0.118566,0.118566,decreases bid probability,"1 if this project is in Minnesota (pit data available), 0 for other states (all pit features zeroed out)"
-11,geography,same_state_prior_bid_count,Prior Bids — Same State,0.110352,0.110352,increases bid probability,Prior bids in the same state as this project
-12,scope_match,grading_match,Grading Scope Match,0.108649,0.108649,increases bid probability,Competitor has grading history AND this project includes grading scope (0/1)
-13,project_type,same_project_type_bid_count,Prior Bids — Same Project Type,0.105677,0.105677,increases bid probability,Prior bids on the exact same project_type as this project (same state)
-14,pit,open_pits_lt_10mi,Open Pits Within 10 mi,0.085541,0.085541,increases bid probability,Count of publicly open pits within 10 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-15,pit,best_owned_or_restricted_pit_rating_within_25mi,Best Owned/Restricted Pit Rating (25 mi),0.072975,0.072975,increases bid probability,Highest quality rating among this competitor's owned pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-16,pit,unknown_access_pits_within_25mi,Unknown-Access Pits Within 25 mi,-0.052568,0.052568,decreases bid probability,Count of unknown-access pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-17,pit,has_competitor_restricted_pit_within_25mi,Competitor Has Restricted Pit (25 mi),-0.050514,0.050514,decreases bid probability,Flag: this competitor has an owned/restricted pit within 25 miles (0/1) — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-18,activity,days_since_last_bid,Days Since Last Bid,0.04577,0.04577,increases bid probability,Days since this competitor's most recent bid (9999 if no history)
-19,pit,nearest_open_pit_miles,Nearest Open Pit (miles),0.029423,0.029423,increases bid probability,Distance in miles to the nearest publicly open pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-20,pit,best_open_pit_rating_within_25mi,Best Open Pit Rating (25 mi),0.021045,0.021045,increases bid probability,Highest quality rating among open pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-21,pit,owned_or_restricted_pits_within_25mi,owned_or_restricted_pits_within_25mi,0.011608,0.011608,increases bid probability,Count of this competitor's owned/restricted pits within 25 miles
-22,pit,open_pits_10_25mi,Open Pits 10–25 mi,-0.007197,0.007197,decreases bid probability,Count of publicly open pits between 10 and 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
-23,scope_match,base_match,Base Scope Match,0.0,0.0,inactive (zero weight),Competitor has base/aggregate history AND this project includes base scope (0/1)
-24,project_size,log_grading_yards,Grading Yards (log scale),0.0,0.0,inactive (zero weight),Log-transformed grading cubic yards for this project (log1p scale)
-25,project_size,log_mix_tons,Asphalt Tonnage (log scale),0.0,0.0,inactive (zero weight),Log-transformed HMA/asphalt tonnage for this project (log1p scale)
-26,project_size,log_base_tons,Base Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed base aggregate tonnage for this project (log1p scale)
-27,pit,project_location_missing,Project Location Missing,0.0,0.0,inactive (zero weight),Flag: project has no geocoordinates so all pit distances are unknown (0/1)
-28,project_size,project_size_proxy,Project Size Proxy,0.0,0.0,inactive (zero weight),Sum of log_mix_tons and log_grading_yards as a combined paving+grading size signal
-29,activity,mix_ton_capacity_ratio,Mix Ton Capacity Ratio,0.0,0.0,inactive (zero weight),Ratio of asphalt tons won year-to-date vs. competitor's historical average annual tonnage; estimates how much capacity is already committed
-30,project_size,log_crush_tons,Crush Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed crushed aggregate tonnage for this project (log1p scale)
-31,project_size,log_mill_sy,Milling SY (log scale),0.0,0.0,inactive (zero weight),Log-transformed milling square yards for this project (log1p scale)
-32,project_size,log_shldr_tons,Shoulder Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed shoulder aggregate tonnage for this project (log1p scale)
+1,pit,competitor_pit_distance_advantage_vs_open,Pit Distance Advantage vs Open,0.751578,0.751578,increases bid probability,Nearest open pit distance minus competitor's nearest owned pit distance (positive = competitor closer than open market) — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+2,geography,same_county_prior_bid_count,Prior Bids — Same County,0.638882,0.638882,increases bid probability,Prior bids in the same county as this project
+3,project_type,ever_bid_same_project_type,Ever Bid Same Project Type (0/1),0.494084,0.494084,increases bid probability,Binary: competitor has at least one prior bid on the same project_type (0/1)
+4,pit,nearest_unknown_access_pit_miles,Nearest Unknown-Access Pit (miles),0.448295,0.448295,increases bid probability,Distance in miles to the nearest unknown-access pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+5,activity,prior_bid_rate,Overall Bid Rate,0.404322,0.404322,increases bid probability,Fraction of all historical projects where this competitor submitted a bid
+6,pit,nearest_open_pit_miles,Nearest Open Pit (miles),-0.400692,0.400692,decreases bid probability,Distance in miles to the nearest publicly open pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+7,pit,nearest_owned_or_restricted_pit_miles,Nearest Owned/Restricted Pit (miles),-0.395939,0.395939,decreases bid probability,Distance in miles to this competitor's nearest owned/restricted pit — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+8,pit,pit_applicable,Pit Data Applicable (MN only),-0.302489,0.302489,decreases bid probability,"1 if this project is in Minnesota (pit data available), 0 for other states (all pit features zeroed out)"
+9,project_type,same_project_type_bid_count,Prior Bids — Same Project Type,0.19705,0.19705,increases bid probability,Prior bids on the exact same project_type as this project (same state)
+10,scope_match,grading_match,Grading Scope Match,0.176034,0.176034,increases bid probability,Competitor has grading history AND this project includes grading scope (0/1)
+11,pit,avg_open_pit_rating_within_25mi,Avg Open Pit Rating (25 mi),0.138726,0.138726,increases bid probability,Average quality rating among open pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+12,scope_match,paving_match,Paving Scope Match,-0.113741,0.113741,decreases bid probability,Competitor has paving history AND this project includes paving scope (0/1)
+13,pit,open_pits_25_50mi,Open Pits 25–50 mi,-0.097283,0.097283,decreases bid probability,Count of publicly open pits between 25 and 50 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+14,pit,unknown_access_pits_within_25mi,Unknown-Access Pits Within 25 mi,-0.083193,0.083193,decreases bid probability,Count of unknown-access pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+15,pit,open_pits_lt_10mi,Open Pits Within 10 mi,0.073739,0.073739,increases bid probability,Count of publicly open pits within 10 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+16,pit,owned_or_restricted_pits_within_25mi,Owned/Restricted Pits Within 25 mi,-0.06914,0.06914,decreases bid probability,Count of this competitor's owned/restricted pits within 25 miles (includes the shared Knife River pending pool for Knife River divisions)
+17,pit,best_open_pit_rating_within_25mi,Best Open Pit Rating (25 mi),0.058864,0.058864,increases bid probability,Highest quality rating among open pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+18,activity,days_since_last_bid,Days Since Last Bid,0.052255,0.052255,increases bid probability,Days since this competitor's most recent bid (9999 if no history)
+19,pit,best_owned_or_restricted_pit_rating_within_25mi,Best Owned/Restricted Pit Rating (25 mi),0.049315,0.049315,increases bid probability,Highest quality rating among this competitor's owned pits within 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+20,pit,open_pits_10_25mi,Open Pits 10–25 mi,-0.028671,0.028671,decreases bid probability,Count of publicly open pits between 10 and 25 miles — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+21,geography,same_state_prior_bid_count,Prior Bids — Same State,0.013339,0.013339,increases bid probability,Prior bids in the same state as this project
+22,pit,has_competitor_restricted_pit_within_25mi,Competitor Has Restricted Pit (25 mi),-0.006598,0.006598,decreases bid probability,Flag: this competitor has an owned/restricted pit within 25 miles (0/1) — MN projects only (set to 9999/0 for ND/SD/IA/etc.)
+23,activity,mix_ton_capacity_ratio,Mix Ton Capacity Ratio,-0.006299,0.006299,decreases bid probability,Ratio of asphalt tons won year-to-date vs. competitor's historical average annual tonnage; estimates how much capacity is already committed
+24,pit,project_location_missing,Project Location Missing,0.0,0.0,inactive (zero weight),Flag: project has no geocoordinates so all pit distances are unknown (0/1)
+25,project_size,project_size_proxy,Project Size Proxy,0.0,0.0,inactive (zero weight),Sum of log_mix_tons and log_grading_yards as a combined paving+grading size signal
+26,project_size,log_crush_tons,Crush Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed crushed aggregate tonnage for this project (log1p scale)
+27,project_size,log_mill_sy,Milling SY (log scale),0.0,0.0,inactive (zero weight),Log-transformed milling square yards for this project (log1p scale)
+28,project_size,log_shldr_tons,Shoulder Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed shoulder aggregate tonnage for this project (log1p scale)
+29,project_size,log_base_tons,Base Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed base aggregate tonnage for this project (log1p scale)
+30,project_size,log_grading_yards,Grading Yards (log scale),0.0,0.0,inactive (zero weight),Log-transformed grading cubic yards for this project (log1p scale)
+31,project_size,log_mix_tons,Asphalt Tonnage (log scale),0.0,0.0,inactive (zero weight),Log-transformed HMA/asphalt tonnage for this project (log1p scale)
+32,scope_match,base_match,Base Scope Match,0.0,0.0,inactive (zero weight),Competitor has base/aggregate history AND this project includes base scope (0/1)
 33,project_size,log_stock_tons,Stock Tons (log scale),0.0,0.0,inactive (zero weight),Log-transformed stockpile tonnage for this project (log1p scale)
-,,,,,,2

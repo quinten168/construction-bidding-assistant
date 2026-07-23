@@ -1,24 +1,14 @@
 feature_name,group,description,formula
-prior_bid_count,activity,Total historical bids by this competitor across all time and locations,COUNT(bids WHERE competitor = c)
-prior_bid_rate,activity,Fraction of all historical projects where this competitor submitted a bid,prior_bid_count / COUNT(DISTINCT projects in history)
-recent_3m_bid_count,activity,Number of bids submitted in the 3 months before this project's bid date,COUNT(bids WHERE competitor = c AND bid_date >= project_bid_date - 90d)
-recent_6m_bid_count,activity,Number of bids submitted in the 6 months before this project's bid date,COUNT(bids WHERE competitor = c AND bid_date >= project_bid_date - 180d)
-recent_9m_bid_count,activity,Number of bids submitted in the 9 months before this project's bid date,COUNT(bids WHERE competitor = c AND bid_date >= project_bid_date - 270d)
-recent_12m_bid_count,activity,Number of bids submitted in the 12 months before this project's bid date,COUNT(bids WHERE competitor = c AND bid_date >= project_bid_date - 365d)
-recent_24m_bid_count,activity,Number of bids submitted in the 24 months before this project's bid date,COUNT(bids WHERE competitor = c AND bid_date >= project_bid_date - 730d)
+prior_bid_rate,activity,Fraction of all historical projects where this competitor submitted a bid,COUNT(bids WHERE competitor = c) / COUNT(DISTINCT projects in history)
+mix_ton_capacity_ratio,activity,Ratio of asphalt tons won year-to-date vs. competitor's historical average annual tonnage; estimates how much capacity is already committed,ytd_won_tons / avg_annual_won_tons; 0 if no bid_year data or no prior wins
 days_since_last_bid,activity,Days since this competitor's most recent bid (9999 if no history),project_bid_date - MAX(bid_date WHERE competitor = c); 9999 if no history
 same_state_prior_bid_count,geography,Prior bids in the same state as this project,COUNT(bids WHERE competitor = c AND state = project_state)
 same_county_prior_bid_count,geography,Prior bids in the same county as this project,COUNT(bids WHERE competitor = c AND county = project_county)
-same_type_prior_bid_count,project_type,Prior bids on the exact same project_type as this project,COUNT(bids WHERE competitor = c AND project_type = this_project_type)
-same_family_prior_bid_count,project_type,Prior bids on the same project_family as this project,COUNT(bids WHERE competitor = c AND project_family = this_project_family)
-same_primary_project_type,project_type,Binary: competitor has at least one prior bid on the same project_type (0/1),1 if same_type_prior_bid_count > 0 else 0
-same_project_family,project_type,Binary: competitor has at least one prior bid on the same project_family (0/1),1 if same_family_prior_bid_count > 0 else 0
+same_project_type_bid_count,project_type,Prior bids in the same state AND on the same project_type as this project,COUNT(bids WHERE competitor = c AND state = project_state AND project_type = this_project_type)
+ever_bid_same_project_type,project_type,Binary: competitor has at least one prior same-state bid on this project_type (0/1),1 if same_project_type_bid_count > 0 else 0
 paving_match,scope_match,Competitor has paving history AND this project includes paving scope (0/1),(comp_has_paving_history) AND (has_paving == 1)
 grading_match,scope_match,Competitor has grading history AND this project includes grading scope (0/1),(comp_has_grading_history) AND (has_grading == 1)
 base_match,scope_match,Competitor has base/aggregate history AND this project includes base scope (0/1),(comp_has_base_history) AND (has_base == 1)
-utility_match,scope_match,Competitor has utility history AND this project includes utility scope (0/1),(comp_has_utility_history) AND (has_utility == 1)
-structure_match,scope_match,Competitor has structure history AND this project includes structure scope (0/1),(comp_has_structure_history) AND (has_structure == 1)
-drainage_match,scope_match,Competitor has drainage history AND this project includes drainage scope (0/1),(comp_has_drainage_history) AND (has_drainage == 1)
 log_mix_tons,project_size,Log-transformed HMA/asphalt tonnage for this project (log1p scale),log1p(mix_tons)
 log_grading_yards,project_size,Log-transformed grading cubic yards for this project (log1p scale),log1p(grading_yards)
 log_base_tons,project_size,Log-transformed base aggregate tonnage for this project (log1p scale),log1p(base_tons)
@@ -27,41 +17,18 @@ log_mill_sy,project_size,Log-transformed milling square yards for this project (
 log_crush_tons,project_size,Log-transformed crushed aggregate tonnage for this project (log1p scale),log1p(crush_tons)
 log_stock_tons,project_size,Log-transformed stockpile tonnage for this project (log1p scale),log1p(stock_tons)
 project_size_proxy,project_size,Sum of log_mix_tons and log_grading_yards as a combined paving+grading size signal,log_mix_tons + log_grading_yards
-has_paving,project_flag,This project includes paving scope (0/1),1 if 'PAVING' in project scope else 0
-has_grading,project_flag,This project includes grading scope (0/1),1 if 'GRADING' in project scope else 0
-has_base,project_flag,This project includes base/aggregate scope (0/1 — present across all 5 archetypes in varying amounts),1 if BASE/SHLDR/AGGREGATE keyword in project name else 0
-has_utility,project_flag,This project includes utility scope (0/1),1 if 'UTILITY' in project scope else 0
-has_structure,project_flag,This project includes structure scope (0/1),1 if 'STRUCTURE' in project scope else 0
-has_drainage,project_flag,This project includes drainage scope (0/1),1 if 'DRAINAGE' in project scope else 0
-has_reclamation,project_flag,This project includes reclamation scope (0/1),1 if 'RECLAMATION' in project scope else 0
-has_trail,project_flag,This project includes trail scope (0/1),1 if 'TRAIL' in project scope else 0
-is_reconstruction,project_flag,This project is a reconstruction project (0/1),1 if project_type = 'RECONSTRUCTION' else 0
-is_structure_replacement,project_flag,This project involves structure replacement (0/1),1 if project involves structure replacement else 0
-mix_ton_capacity_ratio,activity,Ratio of asphalt tons won year-to-date vs. competitor's historical average annual tonnage; estimates how much capacity is already committed,ytd_won_tons / avg_annual_won_tons; 0 if no bid_year data or no prior wins
+pit_applicable,pit,"Flag: this project is in Minnesota, where pit location data exists (0/1). All other pit_* features below are zeroed out for non-MN projects since there's no pit coverage to compute them from.",1 if project_state == 'MN' else 0 (and all pit_* features zeroed when 0)
 project_location_missing,pit,Flag: project has no geocoordinates so all pit distances are unknown (0/1),1 if project_latitude is null else 0
 nearest_open_pit_miles,pit,Distance in miles to the nearest publicly open pit (9999 if no project coordinates),MIN(haversine_miles(project_loc; pit_loc) for pit in open_pits); 9999 if no coordinates
-open_pits_within_10mi,pit,Count of publicly open pits within 10 miles of this project,COUNT(open_pits WHERE distance <= 10 miles)
-open_pits_within_25mi,pit,Count of publicly open pits within 25 miles of this project,COUNT(open_pits WHERE distance <= 25 miles)
-open_pits_within_50mi,pit,Count of publicly open pits within 50 miles of this project,COUNT(open_pits WHERE distance <= 50 miles)
+open_pits_lt_10mi,pit,Count of publicly open pits less than 10 miles from this project (non-overlapping band),COUNT(open_pits WHERE distance < 10 miles)
+open_pits_10_25mi,pit,Count of publicly open pits 10-25 miles from this project (non-overlapping band),COUNT(open_pits WHERE 10 <= distance < 25 miles)
+open_pits_25_50mi,pit,Count of publicly open pits 25-50 miles from this project (non-overlapping band),COUNT(open_pits WHERE 25 <= distance < 50 miles)
 best_open_pit_rating_within_25mi,pit,Highest quality rating among open pits within 25 miles,MAX(pit.Rating for pit in open_pits WHERE distance <= 25 miles)
 avg_open_pit_rating_within_25mi,pit,Average quality rating among open pits within 25 miles,MEAN(pit.Rating for pit in open_pits WHERE distance <= 25 miles)
 nearest_unknown_access_pit_miles,pit,Distance in miles to the nearest pit with unknown access status (9999 if no coordinates),MIN(haversine_miles(project_loc; pit_loc) for pit in unknown_access_pits); 9999 if no coordinates
 unknown_access_pits_within_25mi,pit,Count of pits with unknown access status within 25 miles,COUNT(unknown_access_pits WHERE distance <= 25 miles)
-has_unknown_access_pit_within_25mi,pit,Flag: at least one unknown-access pit exists within 25 miles (0/1),1 if unknown_access_pits_within_25mi > 0 else 0
-nearest_accessible_pit_miles,pit,Distance in miles to the nearest accessible pit (open + unknown-access + competitor-owned) (9999 if no coordinates),MIN(haversine_miles(project_loc; pit_loc) for pit in accessible_pits); 9999 if no coordinates
-accessible_pits_within_10mi,pit,Count of accessible pits (open + unknown-access + competitor-owned) within 10 miles,COUNT(accessible_pits WHERE distance <= 10 miles)
-accessible_pits_within_25mi,pit,Count of accessible pits within 25 miles,COUNT(accessible_pits WHERE distance <= 25 miles)
-accessible_pits_within_50mi,pit,Count of accessible pits within 50 miles,COUNT(accessible_pits WHERE distance <= 50 miles)
-best_accessible_pit_rating_within_25mi,pit,Highest quality rating among accessible pits (open + unknown-access + competitor-owned) within 25 miles,MAX(pit.Rating for pit in accessible_pits WHERE distance <= 25 miles)
-avg_accessible_pit_rating_within_25mi,pit,Average quality rating among accessible pits within 25 miles,MEAN(pit.Rating for pit in accessible_pits WHERE distance <= 25 miles)
-nearest_owned_or_restricted_pit_miles,pit,Distance in miles to this competitor's nearest owned/restricted pit (9999 if none),MIN(haversine_miles(project_loc; pit_loc) for pit in competitor_owned_pits); 9999 if none
-owned_or_restricted_pits_within_10mi,pit,Count of this competitor's owned/restricted pits within 10 miles,COUNT(competitor_owned_pits WHERE distance <= 10 miles)
-owned_or_restricted_pits_within_25mi,pit,Count of this competitor's owned/restricted pits within 25 miles,COUNT(competitor_owned_pits WHERE distance <= 25 miles)
-owned_or_restricted_pits_within_50mi,pit,Count of this competitor's owned/restricted pits within 50 miles,COUNT(competitor_owned_pits WHERE distance <= 50 miles)
+nearest_owned_or_restricted_pit_miles,pit,"Distance in miles to this competitor's nearest owned/restricted pit (9999 if none). For Knife River divisions, also draws on the shared pool of pits marked 'pending' in the pit list (not assigned to a specific division there), since all divisions can use them.","MIN(haversine_miles(project_loc; pit_loc) for pit in competitor_owned_pits [+ shared knife_river_pending pits if competitor is a Knife River division]); 9999 if none"
+owned_or_restricted_pits_within_25mi,pit,Count of this competitor's owned/restricted pits within 25 miles (includes the shared Knife River pending pool for Knife River divisions),COUNT(competitor_owned_pits [+ shared knife_river_pending pits if Knife River division] WHERE distance <= 25 miles)
 best_owned_or_restricted_pit_rating_within_25mi,pit,Highest quality rating among this competitor's owned/restricted pits within 25 miles,MAX(pit.Rating for pit in competitor_owned_pits WHERE distance <= 25 miles)
 has_competitor_restricted_pit_within_25mi,pit,Flag: this competitor has an owned/restricted pit within 25 miles (0/1),1 if owned_or_restricted_pits_within_25mi > 0 else 0
-nearest_knife_river_pending_pit_miles,pit,Distance in miles to the nearest Knife River pending pit (9999 if no coordinates),MIN(haversine_miles(project_loc; pit_loc) for pit in knife_river_pending_pits); 9999 if no coordinates
-knife_river_pending_pits_within_25mi,pit,Count of Knife River pending pits within 25 miles,COUNT(knife_river_pending_pits WHERE distance <= 25 miles)
 competitor_pit_distance_advantage_vs_open,pit,Nearest open pit distance minus competitor's nearest owned pit distance (positive = competitor has a closer pit than the open market),nearest_open_pit_miles - nearest_owned_or_restricted_pit_miles
-competitor_pit_distance_advantage_vs_market_median,pit,Median distance to all pits minus competitor's nearest owned pit distance (positive = competitor is better-positioned than the median),MEDIAN(all_pit_distances) - nearest_owned_or_restricted_pit_miles
-has_clear_pit_advantage,pit,Flag: competitor's nearest owned pit is within 25 miles and at least 10 miles closer than the nearest open pit (0/1),1 if nearest_owned_or_restricted_pit_miles <= 25 AND (nearest_open_pit_miles - nearest_owned_or_restricted_pit_miles) >= 10 else 0
