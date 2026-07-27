@@ -596,9 +596,9 @@ def main() -> None:
         description="Build project × competitor pit-derived features for Model 1."
     )
     parser.add_argument("--panel", default="data/processed/model1/ranking_training_panel.parquet")
-    parser.add_argument("--projects", default="data/processed/projects.csv")
+    parser.add_argument("--projects", default="data/processed/projects.parquet")
     parser.add_argument("--pits", default="data/processed/MN_pit_list_cleaned.csv")
-    parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
+    parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--candidate-rule", default=DEFAULT_CANDIDATE_RULE)
     parser.add_argument("--county-centroids", default=None)
     parser.add_argument("--no-pit-county-centroid-fallback", action="store_true")
@@ -608,9 +608,9 @@ def main() -> None:
     panel = read_table(args.panel)
     if "candidate_rule_version" in panel.columns:
         panel = panel[panel["candidate_rule_version"] == args.candidate_rule].copy()
-    projects = pd.read_csv(args.projects)
+    projects = read_table(args.projects)
     pits = pd.read_csv(args.pits)
-    bidder_results = pd.read_csv(args.bidder_results) if args.bidder_results else None
+    bidder_results = read_table(args.bidder_results) if args.bidder_results else None
     county_centroids = load_county_centroids(args.county_centroids)
 
     features = build_pit_features(

@@ -82,14 +82,16 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from io_utils import read_table
+
 SHRINKAGE_K = 5.0
 MATERIALS = ["mix_tons", "grading_yards", "base_tons", "shldr_tons", "mill_sy", "crush_tons", "stock_tons"]
 MIN_MATERIAL_BIDS = 3
 
 
 def build_history(projects_path: str, bidder_results_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    projects = pd.read_csv(projects_path)
-    bidder_results = pd.read_csv(bidder_results_path)
+    projects = read_table(projects_path)
+    bidder_results = read_table(bidder_results_path)
     projects["bid_date"] = pd.to_datetime(projects["bid_date"], errors="coerce")
     for m in MATERIALS:
         projects[m] = pd.to_numeric(projects[m], errors="coerce").fillna(0)
@@ -215,8 +217,8 @@ def main() -> None:
     _STEP_OUT = Path(__file__).resolve().parent / "outputs"
     parser = argparse.ArgumentParser(description="Compute simple rule-based competitor score (segment win rates).")
     parser.add_argument("--predictions", default=str(_STEP_OUT / "ranking_predictions.csv"))
-    parser.add_argument("--projects", default="data/processed/projects.csv")
-    parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
+    parser.add_argument("--projects", default="data/processed/projects.parquet")
+    parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--predictions-output", default=str(_STEP_OUT / "ranking_predictions.csv"))
     args = parser.parse_args()
 

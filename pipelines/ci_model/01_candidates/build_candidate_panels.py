@@ -30,8 +30,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build Model 1 rule candidates, audit panel, and ranking panel."
     )
-    parser.add_argument("--projects", default="data/processed/projects.csv")
-    parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
+    parser.add_argument("--projects", default="data/processed/projects.parquet")
+    parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--registry", default=str(COMPETITOR_REGISTRY_PATH),
                         help="Path to competitor_name_registry - name_variants.csv")
     parser.add_argument(
@@ -75,8 +75,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    projects = pd.read_csv(args.projects)
-    bidder_results = pd.read_csv(args.bidder_results)
+    projects = read_table(args.projects)
+    bidder_results = read_table(args.bidder_results)
     registry = pd.read_csv(args.registry, dtype=str)
     # Propagate Top Competitors Tag across all raw_name_variants sharing the same comp_name.
     # If any variant of a company has tag=1, all variants get tag=1.

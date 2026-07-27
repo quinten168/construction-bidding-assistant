@@ -81,6 +81,11 @@ def build_training_audit_panel(
         *PROJECT_TYPE_FEATURE_COLUMNS,
         "mix_tons",
         "grading_yards",
+        "base_tons",
+        "shldr_tons",
+        "mill_sy",
+        "crush_tons",
+        "stock_tons",
         "estimated_value",
     ]
     available_project_cols = [col for col in project_cols if col in projects.columns]
@@ -97,6 +102,11 @@ def build_training_audit_panel(
             *[col for col in PROJECT_TYPE_FEATURE_COLUMNS if col in actual.columns],
             "mix_tons",
             "grading_yards",
+            "base_tons",
+            "shldr_tons",
+            "mill_sy",
+            "crush_tons",
+            "stock_tons",
             "estimated_value",
             "competitor_unit_id",
             "bid_amount",

@@ -116,6 +116,21 @@ PROJECT_TYPE_FEATURE_COLUMNS = [
     "has_grade_quantity",
 ]
 
+# Bid-schedule quantities — a separate list from PROJECT_TYPE_FEATURE_COLUMNS (which is work-type
+# flags, not quantities). Carried through the same per-project loop as those flags so
+# rule_candidate_set (and therefore the training panel) actually has mix/grading/base/etc. tonnage
+# on every candidate row, not just on missed_actual_bidder rows (build_training_panel.py's `actual`
+# gets these via project_lookup, but rule_candidates never did until this list existed).
+PROJECT_QUANTITY_COLUMNS = [
+    "mix_tons",
+    "grading_yards",
+    "base_tons",
+    "shldr_tons",
+    "mill_sy",
+    "crush_tons",
+    "stock_tons",
+]
+
 
 def _priority_ids_for_date(
     priority_competitors: pd.DataFrame | None,
@@ -296,7 +311,7 @@ def build_rule_candidate_set(
                 "project_type": project_type,
                 **{
                     col: project.get(col)
-                    for col in PROJECT_TYPE_FEATURE_COLUMNS
+                    for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
                     if col in projects.columns
                 },
                 "competitor_unit_id": competitor_unit_id,
@@ -313,7 +328,8 @@ def build_rule_candidate_set(
         "state",
         "county",
         "project_type",
-        *[col for col in PROJECT_TYPE_FEATURE_COLUMNS if col in projects.columns],
+        *[col for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
+          if col in projects.columns],
         "competitor_unit_id",
         "was_rule_candidate",
         "source_same_state",
@@ -521,7 +537,7 @@ def build_v3_candidate_set(
                 "project_type": project_type,
                 **{
                     col: project.get(col)
-                    for col in PROJECT_TYPE_FEATURE_COLUMNS
+                    for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
                     if col in projects.columns
                 },
                 "competitor_unit_id": competitor_id,
@@ -540,7 +556,8 @@ def build_v3_candidate_set(
     columns = [
         "candidate_rule_version", "job_id", "bid_date", "state", "county",
         "project_type",
-        *[col for col in PROJECT_TYPE_FEATURE_COLUMNS if col in projects.columns],
+        *[col for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
+          if col in projects.columns],
         "competitor_unit_id", "was_rule_candidate", *V3_SOURCE_COLUMNS,
         "history_days_available", "history_left_censored_12m", "fallback_score",
         "v3_in_default_90d", "v3_in_warmup_12m",

@@ -571,6 +571,16 @@ def write_panel(panel: pd.DataFrame, output_path: Path) -> Path:
         return fallback
 
 
+def write_sample_csv(df: pd.DataFrame, output_path: Path, n: int = 200, seed: int = 0) -> Path:
+    """A small, seeded random sample written as CSV, so the numbers in a parquet twin can be
+    eyeballed in a spreadsheet without opening the full file. Deterministic (fixed seed) so the
+    same rows come out on every regeneration."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    sample = df.sample(n=min(n, len(df)), random_state=seed) if len(df) else df
+    sample.to_csv(output_path, index=False)
+    return output_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build project x competitor operating-unit label panel."
@@ -604,6 +614,19 @@ def main() -> None:
     Path(args.projects_output).parent.mkdir(parents=True, exist_ok=True)
     projects.to_csv(args.projects_output, index=False)
     bidder_results.to_csv(args.bidder_results_output, index=False)
+    # Parquet twins purely for faster re-reads in pipelines/ci_model/ (which reads these files up
+    # to 6x per pipeline run) — the CSVs stay canonical, also read directly by apps/api/backend/.
+    # Not a format migration: nothing that reads the CSV path needs to change.
+    projects_parquet = write_panel(projects, Path(args.projects_output).with_suffix(".parquet"))
+    bidder_results_parquet = write_panel(
+        bidder_results, Path(args.bidder_results_output).with_suffix(".parquet")
+    )
+    projects_sample = write_sample_csv(
+        projects, Path(args.projects_output).with_name("projects_sample.csv")
+    )
+    bidder_results_sample = write_sample_csv(
+        bidder_results, Path(args.bidder_results_output).with_name("bidder_results_sample.csv")
+    )
     Path(args.project_type_audit_output).parent.mkdir(parents=True, exist_ok=True)
     project_type_audit.to_csv(args.project_type_audit_output, index=False)
 
@@ -635,7 +658,11 @@ def main() -> None:
     print("Project x competitor panel build complete")
     print(f"  panel output:          {panel_written}")
     print(f"  projects output:       {args.projects_output}")
+    print(f"  projects (parquet):    {projects_parquet}")
+    print(f"  projects (sample):     {projects_sample}")
     print(f"  bidder results output: {args.bidder_results_output}")
+    print(f"  bidder results (parquet): {bidder_results_parquet}")
+    print(f"  bidder results (sample):  {bidder_results_sample}")
     print(f"  audit output:          {audit_path}")
     print(f"  project type audit:    {args.project_type_audit_output}")
     print(f"  rows:                  {audit['rows']}")

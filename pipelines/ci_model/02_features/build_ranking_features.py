@@ -23,6 +23,21 @@ BASE_RANKING_FEATURE_COLUMNS = [
     col for col in RANKING_FEATURE_COLUMNS if col not in PIT_RANKING_FEATURE_COLUMNS
 ]
 
+# Scope-match features, keyed by the PURE quantity columns that back them (not the hybrid
+# has_paving/has_grading/has_base flags, which can be keyword-guess-triggered with zero real
+# tonnage — see the comment where this is used in build_ranking_features()).
+QUANTITY_MATCH_SPECS = {
+    "paving_match": ("mix_tons",),
+    "grading_match": ("grading_yards",),
+    "base_match": ("base_tons", "shldr_tons"),
+}
+
+# The 7 bid-schedule quantities project_size_proxy averages over (non-zero ones only).
+_SIZE_QUANTITIES = [
+    "mix_tons", "grading_yards", "base_tons", "shldr_tons",
+    "mill_sy", "crush_tons", "stock_tons",
+]
+
 
 def _safe_numeric(series: pd.Series | int | float, default: float = 0.0) -> pd.Series:
     if isinstance(series, pd.Series):
@@ -128,6 +143,9 @@ def build_ranking_features(
         "county",
         "project_type",
         "mix_tons",
+        "grading_yards",
+        "base_tons",
+        "shldr_tons",
         *PROJECT_FLAG_COLUMNS,
     ]
     history = bidder_results.merge(
@@ -139,7 +157,11 @@ def build_ranking_features(
     history["bid_date"] = pd.to_datetime(history["bid_date"], errors="coerce")
     history["competitor_unit_id"] = history["competitor_unit_id"].astype(str)
     history["did_win"] = pd.to_numeric(history["did_win"], errors="coerce").fillna(0)
-    history["mix_tons"] = pd.to_numeric(history.get("mix_tons", 0), errors="coerce").fillna(0)
+    # Quantities behind QUANTITY_MATCH_SPECS' historical (prior-project) side.
+    for _qcol in ("mix_tons", "grading_yards", "base_tons", "shldr_tons"):
+        if _qcol not in history.columns:
+            history[_qcol] = 0
+        history[_qcol] = pd.to_numeric(history[_qcol], errors="coerce").fillna(0)
     history["bid_year"] = history["bid_date"].map(date_to_bid_year)
     for col in PROJECT_FLAG_COLUMNS:
         if col not in history.columns:
@@ -215,19 +237,26 @@ def build_ranking_features(
         last_dates = candidate_ids.map(last_bid)
         base["days_since_last_bid"] = (bid_date - last_dates).dt.days.fillna(9999).to_numpy()
 
-        for flag in PROJECT_FLAG_COLUMNS:
-            prior_flag_count = prior.loc[prior[flag] == 1].groupby("competitor_unit_id").size()
-            flag_name = flag.replace("has_", "")
-            match_col = f"{flag_name}_match"
-            current_has_flag = int(pd.to_numeric(pd.Series([project.get(flag, 0)]), errors="coerce").fillna(0).iloc[0] > 0)
-            if match_col in RANKING_FEATURE_COLUMNS:
-                base[match_col] = (
-                    current_has_flag
-                    * (candidate_ids.map(prior_flag_count).fillna(0).to_numpy() > 0).astype(int)
-                )
-
         def _pv(key: str) -> float:
             return float(pd.to_numeric(pd.Series([project.get(key, 0)]), errors="coerce").fillna(0).iloc[0])
+
+        # Scope-match features, rebuilt on PURE quantities (mix_tons / grading_yards / base_tons+
+        # shldr_tons) rather than has_paving/has_grading/has_base. Those flags are HYBRID —
+        # quantity>0 OR a keyword match on the project name (data/build_project_competitor_panel.py)
+        # — so a project could show a "match" purely from a text guess with zero real tonnage.
+        # Quantities are actual bid-schedule data, never guessed.
+        for match_col, qcols in QUANTITY_MATCH_SPECS.items():
+            if match_col not in RANKING_FEATURE_COLUMNS:
+                continue
+            prior_mask = pd.Series(False, index=prior.index)
+            for qc in qcols:
+                prior_mask |= pd.to_numeric(prior.get(qc, 0), errors="coerce").fillna(0) > 0
+            prior_flag_count = prior.loc[prior_mask].groupby("competitor_unit_id").size()
+            current_has = any(_pv(qc) > 0 for qc in qcols)
+            base[match_col] = (
+                int(current_has)
+                * (candidate_ids.map(prior_flag_count).fillna(0).to_numpy() > 0).astype(int)
+            )
 
         base["log_mix_tons"]     = np.log1p(max(_pv("mix_tons"), 0))
         base["log_grading_yards"] = np.log1p(max(_pv("grading_yards"), 0))
@@ -236,7 +265,12 @@ def build_ranking_features(
         base["log_mill_sy"]      = np.log1p(max(_pv("mill_sy"), 0))
         base["log_crush_tons"]   = np.log1p(max(_pv("crush_tons"), 0))
         base["log_stock_tons"]   = np.log1p(max(_pv("stock_tons"), 0))
-        base["project_size_proxy"] = base["log_mix_tons"] + base["log_grading_yards"]
+        # Project size: average log1p(quantity) over whichever of the 7 quantities this project
+        # actually has (non-zero) — not a sum (rewards touching more material types, not true
+        # size) and not an average over all 7 including zeros (penalizes a narrow-scope project,
+        # e.g. milling-only, for legitimately lacking the other 6).
+        _present_logs = [v for v in (np.log1p(max(_pv(q), 0)) for q in _SIZE_QUANTITIES) if v > 0]
+        base["project_size_proxy"] = float(np.mean(_present_logs)) if _present_logs else 0.0
 
         for flag in [
             *PROJECT_FLAG_COLUMNS,
@@ -291,19 +325,22 @@ def build_ranking_features(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build leakage-safe Model 1 ranking features.")
     parser.add_argument("--ranking-panel", default="data/processed/model1/ranking_training_panel.parquet")
-    parser.add_argument("--projects", default="data/processed/projects.csv")
-    parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
+    parser.add_argument("--projects", default="data/processed/projects.parquet")
+    parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--pit-features", default="data/processed/model1/pit_features.parquet")
-    parser.add_argument("--combined-data", default="data/processed/CSI_data_combined.csv")
+    parser.add_argument("--combined-data", default="data/processed/CSI_data_combined.parquet")
     parser.add_argument("--candidate-rule", default=DEFAULT_CANDIDATE_RULE)
     parser.add_argument("--output", default="data/processed/model1/ranking_features.parquet")
     args = parser.parse_args()
 
     ranking_panel = read_table(args.ranking_panel)
-    projects = pd.read_csv(args.projects)
-    bidder_results = pd.read_csv(args.bidder_results)
+    projects = read_table(args.projects)
+    bidder_results = read_table(args.bidder_results)
     pit_features = read_table(args.pit_features) if args.pit_features else None
-    combined_data = pd.read_csv(args.combined_data, usecols=["DATE", "bid_year"]) if args.combined_data else None
+    # read_table falls back to the .csv twin automatically if no .parquet exists yet (see
+    # shared/io_utils.py) — CSI_data_combined.parquet isn't produced by any script yet, so this
+    # relies on that fallback rather than requiring a new writer.
+    combined_data = read_table(args.combined_data)[["DATE", "bid_year"]] if args.combined_data else None
     features = build_ranking_features(
         ranking_panel=ranking_panel,
         projects=projects,

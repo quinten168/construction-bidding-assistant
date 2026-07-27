@@ -16,17 +16,22 @@ from config import DEFAULT_CANDIDATE_RULE
 
 class CandidatePoolV3Test(unittest.TestCase):
     def setUp(self) -> None:
+        # mix_tons/grading_yards/base_tons carry distinct, non-uniform values per row so a
+        # pass-through test can assert an exact value round-trips for a known job_id (see
+        # test_quantity_columns_pass_through below) — the column being present but empty
+        # wouldn't catch a splice-list omission the way a specific value does.
         self.projects = pd.DataFrame(
             [
-                ("J0", "2023-01-01", "MN", "OLD CO", "old"),
-                ("J1", "2023-01-02", "MN", "OLD CO", "old"),
-                ("J2", "2023-01-03", "MN", "OLD CO", "old"),
-                ("JW", "2023-06-01", "MN", "WARM CO", "warm"),
-                ("JC", "2024-05-01", "MN", "RECENT CO", "recent"),
-                ("JP", "2024-06-15", "MN", "TARGET CO", "target"),
-                ("JF", "2024-07-01", "MN", "FUTURE CO", "future"),
+                ("J0", "2023-01-01", "MN", "OLD CO", "old", 100, 0, 0),
+                ("J1", "2023-01-02", "MN", "OLD CO", "old", 0, 200, 0),
+                ("J2", "2023-01-03", "MN", "OLD CO", "old", 0, 0, 50),
+                ("JW", "2023-06-01", "MN", "WARM CO", "warm", 300, 0, 0),
+                ("JC", "2024-05-01", "MN", "RECENT CO", "recent", 0, 400, 0),
+                ("JP", "2024-06-15", "MN", "TARGET CO", "target", 500, 0, 250),
+                ("JF", "2024-07-01", "MN", "FUTURE CO", "future", 0, 0, 0),
             ],
-            columns=["job_id", "bid_date", "state", "county", "project_type"],
+            columns=["job_id", "bid_date", "state", "county", "project_type",
+                     "mix_tons", "grading_yards", "base_tons"],
         )
         self.bids = pd.DataFrame(
             [
@@ -45,8 +50,8 @@ class CandidatePoolV3Test(unittest.TestCase):
         # Put A/B on synthetic projects to isolate each intended signal.
         extra = pd.DataFrame(
             [
-                ("JA", "2023-01-04", "MN", "TARGET CO", "other"),
-                ("JB", "2023-01-05", "MN", "OTHER CO", "target"),
+                ("JA", "2023-01-04", "MN", "TARGET CO", "other", 0, 0, 0),
+                ("JB", "2023-01-05", "MN", "OTHER CO", "target", 0, 0, 0),
             ],
             columns=self.projects.columns,
         )
@@ -87,6 +92,27 @@ class CandidatePoolV3Test(unittest.TestCase):
         self.assertIn("D_WARMUP", warmup.index)
         self.assertEqual(warmup.loc["D_WARMUP", "v3_in_warmup_12m"], 1)
         self.assertEqual(warmup.loc["D_WARMUP", "v3_in_default_90d"], 0)
+
+    def test_quantity_columns_pass_through(self) -> None:
+        # Regression guard for the bug where rule_candidate_set never carried mix_tons/
+        # grading_yards/etc. at all: PROJECT_QUANTITY_COLUMNS existing on `projects` but being
+        # omitted from the splice-and-select lists in candidate_filter.py would silently drop
+        # these columns with no error (the `if col in projects.columns` guard tolerates missing
+        # columns by design, so only an explicit presence+value assertion catches this).
+        result = build_v3_candidate_set(
+            self.projects, self.bids, self.priority, self.entities
+        )
+        for col in ("mix_tons", "grading_yards", "base_tons"):
+            self.assertIn(col, result.columns)
+
+        jp = result[result.job_id == "JP"]
+        self.assertEqual(jp["mix_tons"].iloc[0], 500)
+        self.assertEqual(jp["grading_yards"].iloc[0], 0)
+        self.assertEqual(jp["base_tons"].iloc[0], 250)
+
+        jc = result[result.job_id == "JC"]
+        self.assertEqual(jc["mix_tons"].iloc[0], 0)
+        self.assertEqual(jc["grading_yards"].iloc[0], 400)
 
 
 if __name__ == "__main__":

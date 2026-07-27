@@ -54,6 +54,7 @@ except ImportError:
         return float(precision_at_hits.sum() / positives)
 
 from config import COMPETITOR_REGISTRY_PATH, DISCOVERY_TIER, PRIORITY_TIER, TIER_COL, TOP_K_VALUES
+from io_utils import read_table
 import experiment_tracker
 
 # ============================================================================
@@ -532,7 +533,7 @@ def main() -> None:
     _PRED_INPUT = str(Path(__file__).resolve().parent.parent / "03_training" / "outputs" / "ranking_predictions.csv")
     parser = argparse.ArgumentParser(description="Evaluate Model 1 ranking models.")
     parser.add_argument("--predictions",  default=_PRED_INPUT)
-    parser.add_argument("--bidder-results", default="data/processed/bidder_results.csv")
+    parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--registry", default=str(COMPETITOR_REGISTRY_PATH),
                         help="Path to competitor_name_registry - name_variants.csv")
     parser.add_argument("--metrics-output", default=str(_STEP_OUT / "ranking_metrics.csv"))
@@ -548,7 +549,7 @@ def main() -> None:
     args = parser.parse_args()
 
     predictions    = pd.read_csv(args.predictions)
-    bidder_results = pd.read_csv(args.bidder_results)
+    bidder_results = read_table(args.bidder_results)
     actual_counts  = (
         bidder_results.groupby("job_id")["competitor_unit_id"]
         .nunique()
