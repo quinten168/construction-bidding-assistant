@@ -15,15 +15,17 @@ from build_ranking_features import build_ranking_features
 
 
 class QuantityMatchTest(unittest.TestCase):
-    """Regression guard for the pure-quantity rebuild of paving_match/grading_match/base_match.
+    """Regression guard for the pure-quantity, one-per-material rebuild of the old
+    paving_match/grading_match/base_match trio.
 
     Before this fix, `_match` was computed off has_paving/has_grading/has_base — HYBRID flags
-    that can be true from a keyword match on the project name alone, with zero real tonnage.
-    The rewrite keys strictly off the quantity columns (mix_tons/grading_yards/base_tons+
-    shldr_tons), for both the current project and each competitor's prior-bid history. This test
-    proves a competitor whose only prior activity has zero real base tonnage does NOT get
-    base_match, while one with real prior base tonnage does — the exact distinction the rewrite
-    exists to make.
+    that can be true from a keyword match on the project name alone, with zero real tonnage, and
+    grouped 3 categories together (base_tons + shldr_tons sharing one "base_match") even though
+    each has its own quantity column. The rewrite keys strictly off the quantity columns, one
+    match feature per material (mix_tons_match, grading_yards_match, base_tons_match, ...), for
+    both the current project and each competitor's prior-bid history. This test proves a
+    competitor whose only prior activity has zero real base tonnage does NOT get base_tons_match,
+    while one with real prior base tonnage does — the exact distinction the rewrite exists to make.
     """
 
     def setUp(self) -> None:
@@ -73,7 +75,7 @@ class QuantityMatchTest(unittest.TestCase):
             ]
         )
 
-    def test_base_match_requires_real_prior_quantity(self) -> None:
+    def test_base_tons_match_requires_real_prior_quantity(self) -> None:
         result = build_ranking_features(
             ranking_panel=self.ranking_panel,
             projects=self.projects,
@@ -81,8 +83,12 @@ class QuantityMatchTest(unittest.TestCase):
             candidate_rule=self.candidate_rule,
         ).set_index("competitor_unit_id")
 
-        self.assertEqual(result.loc["REAL_BASE", "base_match"], 1)
-        self.assertEqual(result.loc["NO_BASE", "base_match"], 0)
+        self.assertEqual(result.loc["REAL_BASE", "base_tons_match"], 1)
+        self.assertEqual(result.loc["NO_BASE", "base_tons_match"], 0)
+        # shldr_tons_match is now a SEPARATE feature from base_tons_match (previously grouped
+        # into one "base_match") -- neither competitor has real shldr_tons history, so both 0.
+        self.assertEqual(result.loc["REAL_BASE", "shldr_tons_match"], 0)
+        self.assertEqual(result.loc["NO_BASE", "shldr_tons_match"], 0)
 
     def test_project_size_proxy_averages_only_present_quantities(self) -> None:
         # J_TARGET has exactly one non-zero quantity (base_tons=250) — the average over the

@@ -43,13 +43,14 @@ FEATURE_LABELS = {
     # Project type match
     "same_project_type_bid_count":  "Prior Bids — Same Project Type",
     "ever_bid_same_project_type":   "Ever Bid Same Project Type (0/1)",
-    # Scope match
-    "paving_match":                 "Paving Scope Match",
-    "grading_match":                "Grading Scope Match",
-    "base_match":                   "Base Scope Match",
-    "utility_match":                "Utility Scope Match",
-    "structure_match":              "Structure Scope Match",
-    "drainage_match":               "Drainage Scope Match",
+    # Scope match — one per bid-schedule quantity
+    "mix_tons_match":               "Mix Tons Scope Match",
+    "grading_yards_match":          "Grading Yards Scope Match",
+    "base_tons_match":              "Base Tons Scope Match",
+    "shldr_tons_match":             "Shoulder Tons Scope Match",
+    "mill_sy_match":                "Mill SY Scope Match",
+    "crush_tons_match":             "Crush Tons Scope Match",
+    "stock_tons_match":             "Stock Tons Scope Match",
     # Project size
     "log_mix_tons":                 "Asphalt Tonnage (log scale)",
     "log_grading_yards":            "Grading Yards (log scale)",

@@ -23,13 +23,17 @@ BASE_RANKING_FEATURE_COLUMNS = [
     col for col in RANKING_FEATURE_COLUMNS if col not in PIT_RANKING_FEATURE_COLUMNS
 ]
 
-# Scope-match features, keyed by the PURE quantity columns that back them (not the hybrid
-# has_paving/has_grading/has_base flags, which can be keyword-guess-triggered with zero real
-# tonnage — see the comment where this is used in build_ranking_features()).
+# Scope-match features, one per bid-schedule quantity (not the coarser has_paving/has_grading/
+# has_base categories, and not those flags' hybrid quantity-OR-keyword definition — every material
+# we have real quantity data for gets its own match feature, keyed by that quantity alone).
 QUANTITY_MATCH_SPECS = {
-    "paving_match": ("mix_tons",),
-    "grading_match": ("grading_yards",),
-    "base_match": ("base_tons", "shldr_tons"),
+    "mix_tons_match": ("mix_tons",),
+    "grading_yards_match": ("grading_yards",),
+    "base_tons_match": ("base_tons",),
+    "shldr_tons_match": ("shldr_tons",),
+    "mill_sy_match": ("mill_sy",),
+    "crush_tons_match": ("crush_tons",),
+    "stock_tons_match": ("stock_tons",),
 }
 
 # The 7 bid-schedule quantities project_size_proxy averages over (non-zero ones only).
@@ -142,11 +146,7 @@ def build_ranking_features(
         "state",
         "county",
         "project_type",
-        "mix_tons",
-        "grading_yards",
-        "base_tons",
-        "shldr_tons",
-        *PROJECT_FLAG_COLUMNS,
+        *_SIZE_QUANTITIES,
     ]
     history = bidder_results.merge(
         projects[[col for col in history_cols if col in projects.columns]],
@@ -157,16 +157,13 @@ def build_ranking_features(
     history["bid_date"] = pd.to_datetime(history["bid_date"], errors="coerce")
     history["competitor_unit_id"] = history["competitor_unit_id"].astype(str)
     history["did_win"] = pd.to_numeric(history["did_win"], errors="coerce").fillna(0)
-    # Quantities behind QUANTITY_MATCH_SPECS' historical (prior-project) side.
-    for _qcol in ("mix_tons", "grading_yards", "base_tons", "shldr_tons"):
+    # Quantities behind QUANTITY_MATCH_SPECS' historical (prior-project) side — all 7, one per
+    # scope-match feature.
+    for _qcol in _SIZE_QUANTITIES:
         if _qcol not in history.columns:
             history[_qcol] = 0
         history[_qcol] = pd.to_numeric(history[_qcol], errors="coerce").fillna(0)
     history["bid_year"] = history["bid_date"].map(date_to_bid_year)
-    for col in PROJECT_FLAG_COLUMNS:
-        if col not in history.columns:
-            history[col] = 0
-        history[col] = pd.to_numeric(history[col], errors="coerce").fillna(0)
 
     feature_frames = []
     for job_id, frame in panel.groupby("job_id", sort=False):
@@ -240,11 +237,11 @@ def build_ranking_features(
         def _pv(key: str) -> float:
             return float(pd.to_numeric(pd.Series([project.get(key, 0)]), errors="coerce").fillna(0).iloc[0])
 
-        # Scope-match features, rebuilt on PURE quantities (mix_tons / grading_yards / base_tons+
-        # shldr_tons) rather than has_paving/has_grading/has_base. Those flags are HYBRID —
-        # quantity>0 OR a keyword match on the project name (data/build_project_competitor_panel.py)
-        # — so a project could show a "match" purely from a text guess with zero real tonnage.
-        # Quantities are actual bid-schedule data, never guessed.
+        # Scope-match features, one per bid-schedule quantity, rather than the coarser
+        # has_paving/has_grading/has_base flags. Those flags are HYBRID — quantity>0 OR a keyword
+        # match on the project name (data/build_project_competitor_panel.py) — so a project could
+        # show a "match" purely from a text guess with zero real tonnage. Quantities are actual
+        # bid-schedule data, never guessed, and we have one for every material, not just 3.
         for match_col, qcols in QUANTITY_MATCH_SPECS.items():
             if match_col not in RANKING_FEATURE_COLUMNS:
                 continue

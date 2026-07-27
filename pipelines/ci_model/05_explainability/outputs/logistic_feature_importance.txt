@@ -1,41 +1,45 @@
 LOGISTIC BASELINE MODEL — Feature Importance Table
 Coefficients are for z-scored inputs: |coef| = impact of 1 SD shift on log-odds of bidding
-Intercept (base log-odds): -0.7496173523150083
+Intercept (base log-odds): -0.77281188424895
 ==============================================================================================================
   Rank  Display Label                     Group            Std. Coeff  Direction
   ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-  1     Pit Distance Advantage vs Open    pit                0.749709  increases bid probability
-  2     Prior Bids — Same County          geography          0.621462  increases bid probability
-  3     Ever Bid Same Project Type (0/1)  project_type       0.464451  increases bid probability
-  4     Nearest Owned/Restricted Pit (miles)  pit               -0.419043  decreases bid probability
-  5     Overall Bid Rate                  activity           0.389609  increases bid probability
-  6     Nearest Unknown-Access Pit (miles)  pit                0.355447  increases bid probability
-  7     Asphalt Tonnage (log scale)       project_size      -0.296861  decreases bid probability
-  8     Nearest Open Pit (miles)          pit               -0.219875  decreases bid probability
-  9     Paving Scope Match                scope_match        0.196174  increases bid probability
-  10    Prior Bids — Same Project Type    project_type       0.190786  increases bid probability
-  11    Pit Data Applicable (MN only)     pit               -0.166161  decreases bid probability
-  12    Avg Open Pit Rating (25 mi)       pit                0.140662  increases bid probability
-  13    Unknown-Access Pits Within 25 mi  pit               -0.125984  decreases bid probability
-  14    Open Pits 25–50 mi                pit               -0.098525  decreases bid probability
-  15    Milling SY (log scale)            project_size       0.096063  increases bid probability
-  16    Crush Tons (log scale)            project_size      -0.094460  decreases bid probability
-  17    Owned/Restricted Pits Within 25 mi  pit               -0.069860  decreases bid probability
-  18    Open Pits Within 10 mi            pit                0.068912  increases bid probability
-  19    Days Since Last Bid               activity           0.066455  increases bid probability
-  20    Project Size Proxy                project_size       0.062418  increases bid probability
-  21    Grading Yards (log scale)         project_size       0.060720  increases bid probability
-  22    Best Open Pit Rating (25 mi)      pit                0.056622  increases bid probability
-  23    Best Owned/Restricted Pit Rating (25 mi)  pit                0.053184  increases bid probability
-  24    Base Scope Match                  scope_match       -0.050004  decreases bid probability
-  25    Prior Bids — Same State           geography          0.043762  increases bid probability
-  26    Stock Tons (log scale)            project_size       0.028299  increases bid probability
-  27    Base Tons (log scale)             project_size      -0.026093  decreases bid probability
-  28    Shoulder Tons (log scale)         project_size      -0.024599  decreases bid probability
-  29    Open Pits 10–25 mi                pit               -0.012503  decreases bid probability
-  30    Competitor Has Restricted Pit (25 mi)  pit               -0.009978  decreases bid probability
-  31    Grading Scope Match               scope_match        0.007232  increases bid probability
-  32    Mix Ton Capacity Ratio            activity          -0.000926  decreases bid probability
+  1     Pit Distance Advantage vs Open    pit                0.756272  increases bid probability
+  2     Prior Bids — Same County          geography          0.616859  increases bid probability
+  3     Ever Bid Same Project Type (0/1)  project_type       0.451391  increases bid probability
+  4     Nearest Owned/Restricted Pit (miles)  pit               -0.410404  decreases bid probability
+  5     Overall Bid Rate                  activity           0.378758  increases bid probability
+  6     Nearest Unknown-Access Pit (miles)  pit                0.374965  increases bid probability
+  7     Shoulder Tons Scope Match         scope_match        0.244027  increases bid probability
+  8     Asphalt Tonnage (log scale)       project_size      -0.231155  decreases bid probability
+  9     Shoulder Tons (log scale)         project_size      -0.227737  decreases bid probability
+  10    Nearest Open Pit (miles)          pit               -0.201957  decreases bid probability
+  11    Milling SY (log scale)            project_size       0.179686  increases bid probability
+  12    Prior Bids — Same Project Type    project_type       0.177526  increases bid probability
+  13    Avg Open Pit Rating (25 mi)       pit                0.136700  increases bid probability
+  14    Pit Data Applicable (MN only)     pit               -0.125718  decreases bid probability
+  15    Unknown-Access Pits Within 25 mi  pit               -0.124441  decreases bid probability
+  16    Open Pits 25–50 mi                pit               -0.102799  decreases bid probability
+  17    Mix Tons Scope Match              scope_match        0.100180  increases bid probability
+  18    Crush Tons (log scale)            project_size      -0.095904  decreases bid probability
+  19    Base Tons (log scale)             project_size      -0.094396  decreases bid probability
+  20    Mill SY Scope Match               scope_match       -0.086762  decreases bid probability
+  21    Days Since Last Bid               activity           0.071793  increases bid probability
+  22    Open Pits Within 10 mi            pit                0.071414  increases bid probability
+  23    Owned/Restricted Pits Within 25 mi  pit               -0.071078  decreases bid probability
+  24    Stock Tons Scope Match            scope_match        0.070019  increases bid probability
+  25    Project Size Proxy                project_size       0.065263  increases bid probability
+  26    Best Open Pit Rating (25 mi)      pit                0.064167  increases bid probability
+  27    Best Owned/Restricted Pit Rating (25 mi)  pit                0.061647  increases bid probability
+  28    Base Tons Scope Match             scope_match        0.059080  increases bid probability
+  29    Grading Yards (log scale)         project_size       0.049230  increases bid probability
+  30    Prior Bids — Same State           geography          0.029158  increases bid probability
+  31    Grading Yards Scope Match         scope_match       -0.023355  decreases bid probability
+  32    Open Pits 10–25 mi                pit               -0.016774  decreases bid probability
+  33    Crush Tons Scope Match            scope_match       -0.016735  decreases bid probability
+  34    Competitor Has Restricted Pit (25 mi)  pit               -0.016262  decreases bid probability
+  35    Stock Tons (log scale)            project_size      -0.013664  decreases bid probability
+  36    Mix Ton Capacity Ratio            activity          -0.001396  decreases bid probability
 
   ── Inactive features (zero weight) ──
     project_location_missing

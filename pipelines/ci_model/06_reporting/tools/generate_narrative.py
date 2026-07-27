@@ -15,9 +15,13 @@ _SYSTEM_PROMPT = (_HERE / "prompts" / "system_prompt.txt").read_text().strip()
 _POLISH_PROMPT = (_HERE / "prompts" / "polish_prompt.txt").read_text()
 
 _SCOPE_LABELS: dict[str, str] = {
-    "paving_match":    "paving",
-    "grading_match":   "grading",
-    "base_match":      "base",
+    "mix_tons_match":    "asphalt/paving",
+    "grading_yards_match": "grading",
+    "base_tons_match":   "base",
+    "shldr_tons_match":  "shoulder aggregate",
+    "mill_sy_match":     "milling",
+    "crush_tons_match":  "crushing",
+    "stock_tons_match":  "stockpile",
     "utility_match":   "utility",
     "structure_match": "structural",
     "drainage_match":  "drainage",

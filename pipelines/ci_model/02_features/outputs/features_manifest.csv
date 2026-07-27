@@ -6,9 +6,13 @@ same_state_prior_bid_count,geography,Prior bids in the same state as this projec
 same_county_prior_bid_count,geography,Prior bids in the same county as this project,COUNT(bids WHERE competitor = c AND county = project_county)
 same_project_type_bid_count,project_type,Prior bids in the same state AND on the same project_type as this project,COUNT(bids WHERE competitor = c AND state = project_state AND project_type = this_project_type)
 ever_bid_same_project_type,project_type,Binary: competitor has at least one prior same-state bid on this project_type (0/1),1 if same_project_type_bid_count > 0 else 0
-paving_match,scope_match,Competitor has paving history AND this project includes paving scope (0/1),(comp_has_paving_history) AND (has_paving == 1)
-grading_match,scope_match,Competitor has grading history AND this project includes grading scope (0/1),(comp_has_grading_history) AND (has_grading == 1)
-base_match,scope_match,Competitor has base/aggregate history AND this project includes base scope (0/1),(comp_has_base_history) AND (has_base == 1)
+mix_tons_match,scope_match,Competitor has a prior bid with real mix (asphalt) tonnage AND this project has mix tonnage in scope (0/1),(comp_prior_mix_tons > 0 for any prior bid) AND (mix_tons > 0)
+grading_yards_match,scope_match,Competitor has a prior bid with real grading yardage AND this project has grading yardage in scope (0/1),(comp_prior_grading_yards > 0 for any prior bid) AND (grading_yards > 0)
+base_tons_match,scope_match,Competitor has a prior bid with real base tonnage AND this project has base tonnage in scope (0/1),(comp_prior_base_tons > 0 for any prior bid) AND (base_tons > 0)
+shldr_tons_match,scope_match,Competitor has a prior bid with real shoulder tonnage AND this project has shoulder tonnage in scope (0/1),(comp_prior_shldr_tons > 0 for any prior bid) AND (shldr_tons > 0)
+mill_sy_match,scope_match,Competitor has a prior bid with real milling square yardage AND this project has milling in scope (0/1),(comp_prior_mill_sy > 0 for any prior bid) AND (mill_sy > 0)
+crush_tons_match,scope_match,Competitor has a prior bid with real crushing tonnage AND this project has crushing in scope (0/1),(comp_prior_crush_tons > 0 for any prior bid) AND (crush_tons > 0)
+stock_tons_match,scope_match,Competitor has a prior bid with real stockpile tonnage AND this project has stockpile tonnage in scope (0/1),(comp_prior_stock_tons > 0 for any prior bid) AND (stock_tons > 0)
 log_mix_tons,project_size,Log-transformed HMA/asphalt tonnage for this project (log1p scale),log1p(mix_tons)
 log_grading_yards,project_size,Log-transformed grading cubic yards for this project (log1p scale),log1p(grading_yards)
 log_base_tons,project_size,Log-transformed base aggregate tonnage for this project (log1p scale),log1p(base_tons)
@@ -16,7 +20,7 @@ log_shldr_tons,project_size,Log-transformed shoulder aggregate tonnage for this 
 log_mill_sy,project_size,Log-transformed milling square yards for this project (log1p scale),log1p(mill_sy)
 log_crush_tons,project_size,Log-transformed crushed aggregate tonnage for this project (log1p scale),log1p(crush_tons)
 log_stock_tons,project_size,Log-transformed stockpile tonnage for this project (log1p scale),log1p(stock_tons)
-project_size_proxy,project_size,Sum of log_mix_tons and log_grading_yards as a combined paving+grading size signal,log_mix_tons + log_grading_yards
+project_size_proxy,project_size,Average of log1p(quantity) across whichever of the 7 bid-schedule quantities are actually present (nonzero) for this project,"mean(log1p(q) for q in [mix_tons, grading_yards, base_tons, shldr_tons, mill_sy, crush_tons, stock_tons] if q > 0); 0 if none present"
 pit_applicable,pit,"Flag: this project is in Minnesota, where pit location data exists (0/1). All other pit_* features below are zeroed out for non-MN projects since there's no pit coverage to compute them from.",1 if project_state == 'MN' else 0 (and all pit_* features zeroed when 0)
 project_location_missing,pit,Flag: project has no geocoordinates so all pit distances are unknown (0/1),1 if project_latitude is null else 0
 nearest_open_pit_miles,pit,Distance in miles to the nearest publicly open pit (9999 if no project coordinates),MIN(haversine_miles(project_loc; pit_loc) for pit in open_pits); 9999 if no coordinates

@@ -78,10 +78,14 @@ RANKING_FEATURE_COLUMNS = [
     # Project type match
     "same_project_type_bid_count",
     "ever_bid_same_project_type",
-    # Scope match (quantity-backed only: mix_tons, grading_yards, base_tons/shldr_tons)
-    "paving_match",
-    "grading_match",
-    "base_match",
+    # Scope match — one per bid-schedule quantity, all quantity-backed (no keyword-guessed flags)
+    "mix_tons_match",
+    "grading_yards_match",
+    "base_tons_match",
+    "shldr_tons_match",
+    "mill_sy_match",
+    "crush_tons_match",
+    "stock_tons_match",
     # Project size
     "log_mix_tons",
     "log_grading_yards",

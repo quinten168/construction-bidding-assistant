@@ -53,15 +53,27 @@ NARRATIVE_TEMPLATES: dict[str, callable] = {
         if v == 1 else ""
     ),
 
-    # ── Scope match ─────────────────────────────────────────────────────────────
-    "paving_match": lambda v: (
-        "Their paving capability aligns with this project's scope." if v == 1 else ""
+    # ── Scope match (one per bid-schedule quantity) ───────────────────────────────
+    "mix_tons_match": lambda v: (
+        "Their asphalt/paving capability aligns with this project's scope." if v == 1 else ""
     ),
-    "grading_match": lambda v: (
+    "grading_yards_match": lambda v: (
         "Their grading capability aligns with this project's scope." if v == 1 else ""
     ),
-    "base_match": lambda v: (
+    "base_tons_match": lambda v: (
         "Their base/aggregate capability aligns with this project's scope." if v == 1 else ""
+    ),
+    "shldr_tons_match": lambda v: (
+        "Their shoulder-aggregate capability aligns with this project's scope." if v == 1 else ""
+    ),
+    "mill_sy_match": lambda v: (
+        "Their milling capability aligns with this project's scope." if v == 1 else ""
+    ),
+    "crush_tons_match": lambda v: (
+        "Their crushing capability aligns with this project's scope." if v == 1 else ""
+    ),
+    "stock_tons_match": lambda v: (
+        "Their stockpile-material capability aligns with this project's scope." if v == 1 else ""
     ),
     "utility_match": lambda v: (
         "Their utility work capability aligns with this project's scope." if v == 1 else ""
