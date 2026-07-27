@@ -290,8 +290,49 @@ def build_simple_rule_score(
     return predictions, fit_meta
 
 
+def _backfill_missing_winners(sample: pd.DataFrame, history: pd.DataFrame, job_ids) -> pd.DataFrame:
+    """Add a row for a project's actual winner when the candidate-selection rule never proposed
+    them as a candidate (candidate_recall < 1 -- see candidate_filter.py's own audit; this is
+    common, not a bug). This is display-only, for a REVIEWED sample: the model itself is
+    correctly trained only on rule-selected candidates (build_ranking_training_panel's own
+    leakage-safety rationale -- at real inference time you don't know the winner yet, so training
+    on a candidate pool that always includes them would teach the model something it can never
+    use). Backfilled rows are flagged `backfilled_winner=1` and left unscored (NaN in every
+    model's score column) rather than fabricating a score for a competitor the model never
+    actually evaluated -- the blank is itself the honest answer to "what did the model think of
+    them" (nothing; it never saw them).
+    """
+    sample = sample.copy()
+    sample["backfilled_winner"] = 0
+    winners = history[history["did_win"] == 1]
+    rows = []
+    for job_id in job_ids:
+        have = set(sample.loc[sample["job_id"] == job_id, "competitor_unit_id"].astype(str))
+        for _, w in winners[winners["job_id"] == job_id].iterrows():
+            cid = str(w["competitor_unit_id"])
+            if cid in have:
+                continue
+            row = {col: pd.NA for col in sample.columns}
+            row.update({
+                "job_id": job_id, "competitor_unit_id": cid,
+                "did_bid": 1, "did_win": 1, "backfilled_winner": 1,
+            })
+            if "bid_rank" in sample.columns:
+                row["bid_rank"] = w.get("bid_rank")
+            for col in ("time_split", "bid_date", "state", "county", "project_type"):
+                if col in sample.columns:
+                    existing = sample.loc[sample["job_id"] == job_id, col]
+                    if not existing.empty:
+                        row[col] = existing.iloc[0]
+            rows.append(row)
+    if rows:
+        sample = pd.concat([sample, pd.DataFrame(rows)], ignore_index=True)
+    return sample
+
+
 def write_predictions_sample(
     predictions: pd.DataFrame,
+    history: pd.DataFrame,
     output_path: Path,
     n_projects: int = 20,
     seed: int = 0,
@@ -303,6 +344,9 @@ def write_predictions_sample(
     the full ranked field -- who bid, who didn't, and how each model scored them -- side by side.
     Biased toward projects with at least one actual bidder (more informative to read); spans
     whichever time_splits are present. Deterministic (fixed seed).
+
+    Also backfills each chosen project's actual winner if the candidate pool is missing them --
+    see _backfill_missing_winners for why that's safe to do here but not in training.
     """
     has_bidder = predictions.groupby("job_id")["did_bid"].transform("max") > 0
     pool = predictions.loc[has_bidder, "job_id"].unique()
@@ -312,8 +356,9 @@ def write_predictions_sample(
     chosen = rng.choice(pool, size=min(n_projects, len(pool)), replace=False)
 
     sample = predictions[predictions["job_id"].isin(chosen)].copy()
+    sample = _backfill_missing_winners(sample, history, chosen)
     sort_col = "logistic_score" if "logistic_score" in sample.columns else "rule_score"
-    sample = sample.sort_values(["job_id", sort_col], ascending=[True, False])
+    sample = sample.sort_values(["job_id", sort_col], ascending=[True, False], na_position="last")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     sample.to_csv(output_path, index=False)
@@ -346,7 +391,7 @@ def main() -> None:
     # already merged their score columns in), so it's the right place to snapshot a reviewable
     # sample with every model's score present.
     sample_path = write_predictions_sample(
-        predictions, Path(args.predictions_sample_output), n_projects=args.sample_projects,
+        predictions, history, Path(args.predictions_sample_output), n_projects=args.sample_projects,
     )
 
     print(f"Simple rule-based score complete")
