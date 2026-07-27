@@ -290,6 +290,36 @@ def build_simple_rule_score(
     return predictions, fit_meta
 
 
+def write_predictions_sample(
+    predictions: pd.DataFrame,
+    output_path: Path,
+    n_projects: int = 20,
+    seed: int = 0,
+) -> Path:
+    """A reviewable slice of the (94 MB, 230k-row) ranking_predictions.csv: pick a handful of
+    whole projects rather than a flat random row sample -- a flat sample at this row count would
+    be ~97% non-bidder rows (did_bid's positive rate is ~2.7%) and wouldn't show what an actual
+    ranked project looks like. Keeps EVERY candidate row for each chosen project, so you can see
+    the full ranked field -- who bid, who didn't, and how each model scored them -- side by side.
+    Biased toward projects with at least one actual bidder (more informative to read); spans
+    whichever time_splits are present. Deterministic (fixed seed).
+    """
+    has_bidder = predictions.groupby("job_id")["did_bid"].transform("max") > 0
+    pool = predictions.loc[has_bidder, "job_id"].unique()
+    if len(pool) == 0:
+        pool = predictions["job_id"].unique()
+    rng = np.random.default_rng(seed)
+    chosen = rng.choice(pool, size=min(n_projects, len(pool)), replace=False)
+
+    sample = predictions[predictions["job_id"].isin(chosen)].copy()
+    sort_col = "logistic_score" if "logistic_score" in sample.columns else "rule_score"
+    sample = sample.sort_values(["job_id", sort_col], ascending=[True, False])
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    sample.to_csv(output_path, index=False)
+    return output_path
+
+
 def main() -> None:
     _STEP_OUT = Path(__file__).resolve().parent / "outputs"
     parser = argparse.ArgumentParser(description="Compute simple rule-based competitor score (segment win rates).")
@@ -298,6 +328,8 @@ def main() -> None:
     parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--predictions-output", default=str(_STEP_OUT / "ranking_predictions.csv"))
     parser.add_argument("--weights-output", default=str(_STEP_OUT / "simple_rule_baseline_weights.json"))
+    parser.add_argument("--predictions-sample-output", default=str(_STEP_OUT / "ranking_predictions_sample.csv"))
+    parser.add_argument("--sample-projects", type=int, default=20)
     args = parser.parse_args()
 
     predictions = pd.read_csv(args.predictions)
@@ -310,10 +342,18 @@ def main() -> None:
     Path(args.weights_output).parent.mkdir(parents=True, exist_ok=True)
     Path(args.weights_output).write_text(json.dumps(fit_meta, indent=2))
 
+    # This is the last stage to touch ranking_predictions.csv (after logistic + xgboost have
+    # already merged their score columns in), so it's the right place to snapshot a reviewable
+    # sample with every model's score present.
+    sample_path = write_predictions_sample(
+        predictions, Path(args.predictions_sample_output), n_projects=args.sample_projects,
+    )
+
     print(f"Simple rule-based score complete")
     print(f"  rows:    {len(predictions):,}")
     print(f"  output:  {args.predictions_output}")
     print(f"  weights: {args.weights_output}  {fit_meta['weights']}")
+    print(f"  sample:  {sample_path}  ({args.sample_projects} projects, all candidate rows)")
 
 
 if __name__ == "__main__":
