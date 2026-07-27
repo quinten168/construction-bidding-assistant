@@ -1,0 +1,24 @@
+{
+  "fit": true,
+  "features": [
+    "county",
+    "type",
+    "state",
+    "size_fit"
+  ],
+  "train_rows": 92262,
+  "train_positive_rate": 0.026988,
+  "sklearn_coef_standardized": {
+    "county": 0.28502160638408175,
+    "type": 0.2803503771639574,
+    "state": 0.343227418390135,
+    "size_fit": 0.41880677762433277
+  },
+  "sklearn_intercept": -0.397679136014852,
+  "weights": {
+    "county": 2.088147702847734,
+    "type": 0.6143090003326518,
+    "state": 0.5642742083649919,
+    "size_fit": 0.4890703318358544
+  }
+}

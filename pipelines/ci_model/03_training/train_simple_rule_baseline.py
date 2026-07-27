@@ -21,14 +21,23 @@ k = 5 pseudo-observations: with 5+ real bids in a segment the shrunk
 rate is dominated by the segment's own history; with 0 it collapses
 exactly to rate_state.
 
-Win counts lead the score; shrunk rates only break exact ties. An
-AUC decomposition on the test split showed the rate terms carry very
-little signal on their own (AUC ~0.53-0.56) while raw win counts are
-strong (AUC 0.71-0.80) -- in this market, established volume/experience
-predicts winning far better than any win rate does. Tie-break weighting
-follows the same tiny-epsilon convention already used for
+Win counts lead the score; shrunk rates only break exact ties. Tie-break
+weighting follows the same tiny-epsilon convention already used for
 tree_score_tiebreak in train_decision_tree_baseline.py, so the rate
 terms can never overturn a count-based ordering.
+
+The four primary-term weights (county/type/state win counts + size fit)
+are FIT, not guessed: a small logistic regression on those 4 features
+(train split only, same class_weight="balanced"/C=1.0 convention as
+train_logistic_baseline.py) learns the coefficients, which are then
+un-standardized back into raw-feature-space weights so `primary` stays
+a plain, human-readable linear combination of the raw log1p(win_count)
+/ size_fit values -- see fit_primary_weights(). The fitted weights are
+written to outputs/simple_rule_baseline_weights.json for inspection.
+Falls back to the historical hand-picked weights (3/2/1/1 -- originally
+chosen from an ad hoc AUC decomposition: win counts AUC 0.71-0.80,
+rate terms only 0.53-0.56) if the train split is too small or single-class
+to fit.
 
 Project size is added as one combined, competitor-specific "size fit"
 term -- NOT the plain project-level log_mix_tons/log_grading_yards/etc.
@@ -68,6 +77,7 @@ Input:  outputs/model1/ranking_predictions.csv  (for job_id/competitor_unit_id/
                                                   bid_date/state/county/project_type keys)
         data/processed/projects.csv, data/processed/bidder_results.csv (history)
 Output: outputs/model1/ranking_predictions.csv  (adds simple_rule_score column)
+        outputs/simple_rule_baseline_weights.json (the fitted primary-term weights)
 
 Run alongside train_logistic_baseline.py / train_xgboost.py, before evaluate_ranking.py.
 """
@@ -78,15 +88,24 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "shared"))
 
 import argparse
+import json
 
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
 from io_utils import read_table
 
 SHRINKAGE_K = 5.0
 MATERIALS = ["mix_tons", "grading_yards", "base_tons", "shldr_tons", "mill_sy", "crush_tons", "stock_tons"]
 MIN_MATERIAL_BIDS = 3
+
+# Historical hand-picked fallback (see module docstring) — used only if the train split is too
+# small or single-class for fit_primary_weights() to fit a meaningful logistic regression.
+PRIMARY_FEATURES = ["county", "type", "state", "size_fit"]
+FALLBACK_WEIGHTS = {"county": 3.0, "type": 2.0, "state": 1.0, "size_fit": 1.0}
+MIN_FIT_ROWS = 50
 
 
 def build_history(projects_path: str, bidder_results_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -107,11 +126,58 @@ def build_history(projects_path: str, bidder_results_path: str) -> tuple[pd.Data
     return history, projects.set_index("job_id")
 
 
+def fit_primary_weights(
+    primary_features: pd.DataFrame,
+    did_bid: np.ndarray,
+    train_mask: np.ndarray,
+) -> tuple[dict[str, float], dict]:
+    """Fit a small logistic regression on the 4 primary-term features (train split only) and
+    return raw-feature-space weights -- i.e. weights that apply directly to the UNSTANDARDIZED
+    columns of `primary_features`, so the caller can keep computing `primary` as a plain linear
+    combination (matching the historical hand-picked-constant formula's shape) instead of having
+    to carry a fitted scaler through to scoring time.
+
+    Un-standardizing: for a fitted decision function coef @ ((x - mean) / std), the equivalent
+    raw-space weight per feature is coef / std (mean folds into the intercept, which is dropped --
+    a ranking score's absolute scale doesn't matter, only its ordering, and ROC-AUC/PR-AUC are
+    invariant to a per-row-constant shift).
+
+    Falls back to FALLBACK_WEIGHTS (with a printed warning) if the train split is too small or
+    single-class to fit meaningfully -- this is a baseline model; it should degrade gracefully,
+    not crash a multi-stage pipeline run over a data quirk.
+    """
+    X_train = primary_features.to_numpy()[train_mask]
+    y_train = np.asarray(did_bid)[train_mask]
+
+    if len(y_train) < MIN_FIT_ROWS or len(np.unique(y_train)) < 2:
+        print(f"  WARNING: train split too small/single-class for fit_primary_weights "
+              f"({len(y_train)} rows, {len(np.unique(y_train))} classes) -- "
+              f"falling back to hand-picked weights {FALLBACK_WEIGHTS}.")
+        return dict(FALLBACK_WEIGHTS), {"fit": False, "reason": "insufficient_train_data"}
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X_train)
+    clf = LogisticRegression(C=1.0, class_weight="balanced")
+    clf.fit(X_scaled, y_train)
+
+    raw_coef = clf.coef_[0] / scaler.scale_
+    weights = dict(zip(PRIMARY_FEATURES, raw_coef.tolist()))
+    meta = {
+        "fit": True,
+        "features": PRIMARY_FEATURES,
+        "train_rows": int(len(y_train)),
+        "train_positive_rate": round(float(y_train.mean()), 6),
+        "sklearn_coef_standardized": dict(zip(PRIMARY_FEATURES, clf.coef_[0].tolist())),
+        "sklearn_intercept": float(clf.intercept_[0]),
+    }
+    return weights, meta
+
+
 def build_simple_rule_score(
     predictions: pd.DataFrame,
     history: pd.DataFrame,
     projects_by_job: pd.DataFrame,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, dict]:
     predictions = predictions.copy()
     predictions["bid_date"] = pd.to_datetime(predictions["bid_date"], errors="coerce")
 
@@ -201,16 +267,27 @@ def build_simple_rule_score(
     neutral_fallback = np.nanmean(train_fit_values) if np.isfinite(np.nanmean(train_fit_values)) else 0.0
     size_fit_score = raw["size_fit_raw"].fillna(neutral_fallback).to_numpy()
 
+    primary_features = pd.DataFrame({
+        "county": np.log1p(raw["w_county"]).to_numpy(),
+        "type": np.log1p(raw["w_type"]).to_numpy(),
+        "state": np.log1p(raw["w_state"]).to_numpy(),
+        "size_fit": size_fit_score,
+    })
+    weights, fit_meta = fit_primary_weights(
+        primary_features, predictions["did_bid"].to_numpy(), train_mask,
+    )
+    fit_meta["weights"] = weights
+
     primary = (
-        3.0 * np.log1p(raw["w_county"]).to_numpy()
-        + 2.0 * np.log1p(raw["w_type"]).to_numpy()
-        + 1.0 * np.log1p(raw["w_state"]).to_numpy()
-        + 1.0 * size_fit_score
+        weights["county"] * primary_features["county"].to_numpy()
+        + weights["type"] * primary_features["type"].to_numpy()
+        + weights["state"] * primary_features["state"].to_numpy()
+        + weights["size_fit"] * primary_features["size_fit"].to_numpy()
     )
     tiebreak = rate_county_shrunk.to_numpy() + rate_type_shrunk.to_numpy() + rate_state
 
     predictions["simple_rule_score"] = primary + 1e-6 * tiebreak
-    return predictions
+    return predictions, fit_meta
 
 
 def main() -> None:
@@ -220,17 +297,23 @@ def main() -> None:
     parser.add_argument("--projects", default="data/processed/projects.parquet")
     parser.add_argument("--bidder-results", default="data/processed/bidder_results.parquet")
     parser.add_argument("--predictions-output", default=str(_STEP_OUT / "ranking_predictions.csv"))
+    parser.add_argument("--weights-output", default=str(_STEP_OUT / "simple_rule_baseline_weights.json"))
     args = parser.parse_args()
 
     predictions = pd.read_csv(args.predictions)
     history, projects_by_job = build_history(args.projects, args.bidder_results)
-    predictions = build_simple_rule_score(predictions, history, projects_by_job)
+    predictions, fit_meta = build_simple_rule_score(predictions, history, projects_by_job)
 
     Path(args.predictions_output).parent.mkdir(parents=True, exist_ok=True)
     predictions.to_csv(args.predictions_output, index=False)
+
+    Path(args.weights_output).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.weights_output).write_text(json.dumps(fit_meta, indent=2))
+
     print(f"Simple rule-based score complete")
-    print(f"  rows:   {len(predictions):,}")
-    print(f"  output: {args.predictions_output}")
+    print(f"  rows:    {len(predictions):,}")
+    print(f"  output:  {args.predictions_output}")
+    print(f"  weights: {args.weights_output}  {fit_meta['weights']}")
 
 
 if __name__ == "__main__":
