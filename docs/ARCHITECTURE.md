@@ -210,8 +210,13 @@ no Python imports between `apps/` and `pipelines/`. It communicates by CSV paths
 line and a written report file on disk.
 
 ```
---job-id --predictions --model --registry --bidder-results --output-dir --quiet [--skip-llm]
+--project-key --predictions --model --registry --bidder-results --output-dir --quiet [--skip-llm]
 ```
+
+`--project-key` takes a `project_natural_key` (e.g. `MN_STEARNS_CO_MELROSE_2023-08-03`), not
+`job_id` — `job_id` is CSI's local CSV row id, renumbered by row-sort-position on every
+regeneration, so it isn't a stable identifier across pipeline runs. This flag was `--job-id`
+before 2026-07-28.
 
 | Step | Script called | Instruction / prompt given | Tools available | Job — why |
 |---|---|---|---|---|
@@ -231,9 +236,10 @@ line and a written report file on disk.
 | `data/processed/projects.csv` | `orchestrator.py:171-173` (default `:47`) |
 | model JSON | `orchestrator.py:197` |
 
-Line 173 is the seam. It reads `usecols=["job_id", "mix_tons", "project_latitude",
-"project_longitude"]` and loads the coordinates into `project_info["lat"]/["lon"]`
-(`orchestrator.py:209-210`).
+This is the seam. It reads `usecols=["project_natural_key", "mix_tons", "project_latitude",
+"project_longitude"]` and loads the coordinates into `project_info["lat"]/["lon"]`. Line numbers
+in this section predate the 2026-07-28 job_id → project_natural_key migration and have not been
+re-verified; treat them as approximate until someone re-checks against current `orchestrator.py`.
 
 > **Correction to an earlier note:** `orchestrator.py:173` *consumes* coordinates; it does not
 > compute the pit-distance features. Those are built upstream at

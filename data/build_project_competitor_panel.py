@@ -30,19 +30,6 @@ PROJECT_TYPE_FEATURE_COLUMNS = [
     "rule_based_primary_project_type_v1",
     "project_type_source",
     "project_type_rule",
-    "matched_keywords",
-    "has_paving",
-    "has_grading",
-    "has_base",
-    "has_utility",
-    "has_structure",
-    "has_drainage",
-    "has_reclamation",
-    "has_trail",
-    "is_reconstruction",
-    "is_structure_replacement",
-    "has_mix",
-    "has_grade_quantity",
 ]
 
 
@@ -54,8 +41,7 @@ def _matched_terms(text: str, patterns: list[tuple[str, str]]) -> list[str]:
     return [label for label, pattern in patterns if re.search(pattern, text)]
 
 
-def _project_type_from_name(
-    project_name: object,
+def _project_type_from_quantities(
     mix_tons: object,
     grading_yards: object,
     base_tons: object = 0,
@@ -64,10 +50,10 @@ def _project_type_from_name(
     crush_tons: object = 0,
     stock_tons: object = 0,
 ) -> dict[str, object]:
-    """Assign CSI archetype project-type features — quantity-driven primary type plus keyword flags."""
-
-    text = "" if pd.isna(project_name) else str(project_name).upper()
-    text = re.sub(r"\s+", " ", text)
+    """Assign the CSI archetype primary project type — quantity-driven only. Keyword-matched
+    scope flags (has_paving, matched_keywords, etc.) were removed: unconfirmed by the client,
+    and dead in the reporting layer (predict_and_explain.py only ever surfaces contributions
+    from the trained model's RANKING_FEATURE_COLUMNS, which never included these)."""
 
     def _qty(v: object) -> float:
         val = pd.to_numeric(pd.Series([v]), errors="coerce").iloc[0]
@@ -80,41 +66,6 @@ def _project_type_from_name(
     mill_value    = _qty(mill_sy)
     crush_value   = _qty(crush_tons)
     stock_value   = _qty(stock_tons)
-
-    # Quantity signals — primary drivers of archetype classification
-    has_mix      = mix_value > 0
-    has_grade_qty = grading_value > 0
-    has_mill_qty  = mill_value > 0
-    has_agg_qty   = base_value > 0 or shldr_value > 0 or crush_value > 0 or stock_value > 0
-
-    # Keyword signals — fallback when quantities are missing
-    has_mill_kw = bool(re.search(r"\bMILL(?:ING)?\b", text))
-    has_agg_kw  = bool(re.search(
-        r"\bBASE COURSE\b|\bSHLDR\b|\bSHOULDER\b|\bAGGREGATE\b|\bAGG\b|\bGRAVEL\b|\bCRUSH\b|\bSTOCKPILE\b",
-        text,
-    ))
-
-    has_mill      = has_mill_qty or has_mill_kw
-    has_base_shldr = has_agg_qty or has_agg_kw
-
-    # Boolean scope flags — independent model features; use keyword OR quantity for maximum recall
-    has_paving = has_mix or bool(re.search(
-        r"\bASPHALT\b|\bBITUMINOUS\b|\bHMA\b|\bPAV(?:E|ING|EMENT)\b|\bSURFAC(?:E|ING)\b|\bOVERLAY\b|\bRESURFAC(?:E|ING)\b",
-        text,
-    ))
-    has_grading = has_grade_qty or bool(re.search(r"\bGRADING\b|\bGRADE\b|\bEARTHWORK\b|\bEXCAVATION\b", text))
-    # BASE is present as a component across all 5 archetypes in varying amounts;
-    # quantity-driven (BASE TN / SHLDR TN) with keyword fallback
-    has_base = (base_value > 0 or shldr_value > 0) or bool(re.search(
-        r"\bBASE COURSE\b|\bSHLDR\b|\bSHOULDER\b|\bBASE\b", text,
-    ))
-    has_utility = bool(re.search(r"\bUTILITY\b|\bUTILITIES\b|\bUTIL\b|\bWATER\b|\bSEWER\b|\bSANITARY\b", text))
-    has_structure = bool(re.search(r"\bSTRUCTURE\b|\bAPPROACH SLAB\b|\bSTRUCTURAL\b|\bBRIDGE\b|\bBOX CULVERT\b|\bRCBC\b", text))
-    has_drainage = bool(re.search(r"\bPIPE\b|\bDRAINAGE\b|\bDRAINTILE\b|\bSTORMWATER\b|\bSTORM SEWER\b|\bCULVERT\b", text))
-    has_trail = bool(re.search(r"\bTRAIL\b|\bSIDEWALK\b|\bSHARED USE\b|\bSHARED USED\b|\bPATH\b|\bBIKE\b|\bPEDESTRIAN\b", text))
-    has_reclamation = bool(re.search(r"\bRECLAIM|\bRECLAMATION\b|\bFDR\b|\bCIR\b|COLD IN-PLACE", text))
-    is_reconstruction = bool(re.search(r"\bRECONSTRUCT|\bRECONSTRUCTION\b|\bRECONST\b", text))
-    is_structure_replacement = has_structure and bool(re.search(r"\bREPLACE\b|\bREPLACEMENT\b|REMOVE AND REPLACE|\bNEW BRIDGE\b", text))
 
     # CSI archetype primary type — mix-share-driven paving gate, then quantity waterfall
     MIX_SHARE_MIN = 0.15   # mix >= 15% of total tonnage -> paving job
@@ -147,36 +98,11 @@ def _project_type_from_name(
             primary_type = "other"                   # utility, structure, trail, etc.
             rule = "not_paving_no_grade_no_base"
 
-    matched = []
-    if has_mill: matched.append("mill")
-    if has_base_shldr: matched.append("base_shldr")
-    if has_paving: matched.append("paving")
-    if has_grading: matched.append("grading")
-    if has_utility: matched.append("utility")
-    if has_structure: matched.append("structure")
-    if has_drainage: matched.append("drainage")
-    if has_trail: matched.append("trail")
-    if has_reclamation: matched.append("reclamation")
-    if is_reconstruction: matched.append("reconstruction")
-
     return {
         "rule_based_primary_project_type_v1": primary_type,
         "project_type": primary_type,
         "project_type_source": "csi_archetype_v3_mix_share_driven",
         "project_type_rule": rule,
-        "matched_keywords": "|".join(matched),
-        "has_paving": int(has_paving),
-        "has_grading": int(has_grading),
-        "has_base": int(has_base),
-        "has_utility": int(has_utility),
-        "has_structure": int(has_structure),
-        "has_drainage": int(has_drainage),
-        "has_reclamation": int(has_reclamation),
-        "has_trail": int(has_trail),
-        "is_reconstruction": int(is_reconstruction),
-        "is_structure_replacement": int(is_structure_replacement),
-        "has_mix": int(has_mix),
-        "has_grade_quantity": int(has_grade_qty),
     }
 
 
@@ -216,6 +142,36 @@ def _project_identity(df: pd.DataFrame) -> pd.Series:
         + "|"
         + df["PROJECT"].astype("string").fillna("")
     )
+
+
+def _slug(value: object) -> str:
+    text = re.sub(r"[^A-Za-z0-9]+", "_", str(value or "").strip())
+    return text.strip("_").upper()
+
+
+def build_project_natural_key(row: pd.Series) -> str:
+    """state_county_city_date base key for the Supabase scratch schema (see
+    data/push_supabase_bid_data.py). Not always unique on its own -- some DOTs (e.g. Iowa's
+    CALL lettings) bundle multiple distinct projects under one state+county+city+date -- so
+    disambiguate_natural_keys() below appends a numeric suffix, but only to the rows that
+    actually collide, keeping the common case a clean, readable key."""
+    parts = str(row.get("_project_identity", "")).split("|")
+    city = parts[3] if len(parts) >= 5 else ""
+    bid_date = row.get("bid_date")
+    date_str = bid_date.strftime("%Y-%m-%d") if pd.notna(bid_date) else "UNKNOWN-DATE"
+    return f"{_slug(row.get('state'))}_{_slug(row.get('county'))}_{_slug(city)}_{date_str}"
+
+
+def disambiguate_natural_keys(keys: pd.Series) -> pd.Series:
+    """Append a numeric suffix (_2, _3, ...) only to keys that collide, in stable row order --
+    verified against real data: 287 of 1,591 projects (18%) collide on state_county_city_date
+    alone, concentrated in 132 groups (mostly Iowa CALL lettings bundling separate routes under
+    one county/city/date). The other 82% keep a plain, suffix-free key."""
+    counts = keys.groupby(keys).cumcount() + 1
+    is_dup = keys.duplicated(keep=False)
+    result = keys.copy()
+    result.loc[is_dup] = keys.loc[is_dup] + "_" + counts.loc[is_dup].astype(str)
+    return result
 
 
 def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
@@ -266,17 +222,20 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
             mill_sy=("MILL SY", "first"),
             crush_tons=("CRUSH TN", "first"),
             stock_tons=("STOCK TN", "first"),
-            estimated_value=("BID_AMOUNT", "min"),
+            low_bid_amount=("BID_AMOUNT", "min"),
         )
         .reset_index()
         .sort_values(["bid_date", "_project_identity"])
         .reset_index(drop=True)
     )
     projects.insert(0, "job_id", [f"P{i:06d}" for i in range(1, len(projects) + 1)])
+    projects.insert(
+        1, "project_natural_key",
+        disambiguate_natural_keys(projects.apply(build_project_natural_key, axis=1)),
+    )
     type_features = pd.DataFrame(
         [
-            _project_type_from_name(
-                row.get("project_name"),
+            _project_type_from_quantities(
                 row.get("mix_tons"),
                 row.get("grading_yards"),
                 row.get("base_tons", 0),
@@ -305,7 +264,7 @@ def build_bidder_results(
     )
     mapped["_project_identity"] = _project_identity(mapped)
     mapped = mapped.merge(
-        projects[["_project_identity", "job_id"]],
+        projects[["_project_identity", "job_id", "project_natural_key"]],
         on="_project_identity",
         how="left",
         validate="many_to_one",
@@ -332,6 +291,7 @@ def build_bidder_results(
     bidder_results = (
         mapped.groupby(["job_id", "competitor_unit_id"], dropna=False)
         .agg(
+            project_natural_key=("project_natural_key", "first"),
             bid_amount=("bid_amount", "min"),
             bid_rank=("bid_rank", "min"),
             did_win=("did_win_row", "max"),
@@ -439,7 +399,7 @@ def build_project_competitor_panel(
                     },
                     "mix_tons": project.get("mix_tons"),
                     "grading_yards": project.get("grading_yards"),
-                    "estimated_value": project.get("estimated_value"),
+                    "project_low_bid_amount": project.get("low_bid_amount"),
                     "competitor_unit_id": competitor_unit_id,
                     "did_bid": int(bid_record is not None),
                     "did_win": int(bid_record.get("did_win", 0)) if bid_record is not None else 0,
@@ -502,18 +462,6 @@ def build_project_type_audit(projects: pd.DataFrame) -> pd.DataFrame:
         "rule_based_primary_project_type_v1",
         "mix_tons",
         "grading_yards",
-        "has_mix",
-        "has_grade_quantity",
-        "has_paving",
-        "has_grading",
-        "has_utility",
-        "has_structure",
-        "has_drainage",
-        "has_reclamation",
-        "has_trail",
-        "is_reconstruction",
-        "is_structure_replacement",
-        "matched_keywords",
         "project_type_rule",
     ]
     available = [col for col in cols if col in projects.columns]

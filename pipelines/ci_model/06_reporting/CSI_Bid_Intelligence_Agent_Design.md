@@ -530,7 +530,7 @@ All components are complete as of 2026-06-21. The pipeline has been run end-to-e
 | `get_competitor_profile()` | ✓ Done | `tools/get_competitor_profile.py` |
 | `generate_narrative()` | ✓ Done | `tools/generate_narrative.py` |
 | `generate_report_section()` + `export_report()` | ✓ Done | `tools/export_report.py` |
-| `narrative_templates.py` (40-feature mapping) | ✓ Done | `templates/narrative_templates.py` |
+| `narrative_templates.py` (40-feature mapping) | ✗ Removed 2026-07-28 | never called by `generate_narrative.py` or anywhere else — dead code (`render_template()`/`NARRATIVE_TEMPLATES` had zero callers) |
 | Planner, Executor, Reflector, Reporter agents | ✓ Done | `agent/*.py` |
 | Orchestrator (full pipeline runner) | ✓ Done | `agent/orchestrator.py` |
 | System, reflection, and polish prompts | ✓ Done | `prompts/*.txt` |

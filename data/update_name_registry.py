@@ -29,7 +29,7 @@ import pandas as pd
 from rapidfuzz import fuzz
 
 REGISTRY_FILE = (
-    "ci_model/competitor_prediction_model/01_candidates/outputs/"
+    "pipelines/ci_model/01_candidates/outputs/"
     "competitor_name_registry - name_variants.csv"
 )
 COMBINED_FILE = "data/processed/CSI_data_combined.csv"

@@ -102,18 +102,6 @@ PROJECT_TYPE_FEATURE_COLUMNS = [
     "rule_based_primary_project_type_v1",
     "project_type_source",
     "project_type_rule",
-    "matched_keywords",
-    "has_paving",
-    "has_grading",
-    "has_utility",
-    "has_structure",
-    "has_drainage",
-    "has_reclamation",
-    "has_trail",
-    "is_reconstruction",
-    "is_structure_replacement",
-    "has_mix",
-    "has_grade_quantity",
 ]
 
 # Bid-schedule quantities — a separate list from PROJECT_TYPE_FEATURE_COLUMNS (which is work-type
@@ -222,6 +210,7 @@ def build_rule_candidate_set(
 
     for _, project in projects.sort_values("bid_date").iterrows():
         job_id = project["job_id"]
+        project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
         county = project.get("county")
@@ -305,6 +294,7 @@ def build_rule_candidate_set(
             row = {
                 "candidate_rule_version": rule.name,
                 "job_id": job_id,
+                "project_natural_key": project_natural_key,
                 "bid_date": bid_date,
                 "state": state,
                 "county": county,
@@ -324,6 +314,7 @@ def build_rule_candidate_set(
     columns = [
         "candidate_rule_version",
         "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",
@@ -423,6 +414,7 @@ def build_v3_candidate_set(
     rows: list[dict] = []
     for _, project in projects.sort_values(["bid_date", "job_id"]).iterrows():
         job_id = project["job_id"]
+        project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
         county = project.get("county")
@@ -531,6 +523,7 @@ def build_v3_candidate_set(
             row = {
                 "candidate_rule_version": DEFAULT_CANDIDATE_RULE,
                 "job_id": job_id,
+                "project_natural_key": project_natural_key,
                 "bid_date": bid_date,
                 "state": state,
                 "county": county,
@@ -554,7 +547,7 @@ def build_v3_candidate_set(
             rows.append(row)
 
     columns = [
-        "candidate_rule_version", "job_id", "bid_date", "state", "county",
+        "candidate_rule_version", "job_id", "project_natural_key", "bid_date", "state", "county",
         "project_type",
         *[col for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
           if col in projects.columns],

@@ -98,14 +98,3 @@ RANKING_FEATURE_COLUMNS = [
     # Pit geography (project_location_pit_county_centroid dropped: perfect mirror of project_location_missing)
     *PIT_RANKING_FEATURE_COLUMNS,
 ]
-
-PROJECT_FLAG_COLUMNS = [
-    "has_paving",
-    "has_grading",
-    "has_base",
-    "has_utility",
-    "has_structure",
-    "has_drainage",
-    "has_reclamation",
-    "has_trail",
-]

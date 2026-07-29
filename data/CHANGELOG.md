@@ -557,3 +557,127 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 - Knife River pits (95 rows, `access_type = "knife_river_pending"`) require disambiguation before use in modeling.
 - `NOT_IN_BIDDER_LIST` competitors (87 pits) own pits but do not appear as bidders in CSI's historical data — they will not match any competitor in the scoring model.
 - Name disambiguation for multi-entity companies (Ferguson: 4 entities, Northern Improvement: 2 locations) is a modeling decision; recommend treating all variants of the same family as one group during distance calculation.
+
+---
+
+## LOCATION State-Parsing Fix + Supabase `scratch` Push — 2026-07-28
+
+### Bug fixed: `run_cleaning_pipeline.py` `_parse_location()`
+
+- `STATE_ABBR` maps `"CO"` → `"Colorado"`. For `LOCATION` strings like `"MCKENZIE CO, CITY OF
+  ALEXANDER"`, after city-extraction the remaining text `"MCKENZIE CO"` was matched by the
+  trailing-2-letter state fallback as if `CO` were the Colorado state code, instead of what it
+  actually abbreviates in this dataset's convention: **County**. This silently pre-empted the
+  `MANUAL_OVERRIDES` dict (Kenmare/Collegeville/Alexander → ND/ND/MN), which existed specifically
+  to handle these 3 rows but never actually ran.
+- Fixed by excluding the literal token `"CO"` from both trailing-2-letter state-abbreviation
+  checks in `_parse_location()`. This dataset's entire footprint is IA/MN/MT/NE/ND/SD (see
+  `STATE_NAME_TO_ABBR` in `build_project_competitor_panel.py`), so `"Colorado"` should never be a
+  legitimate value.
+- Affected 3 of 1,661 rows (Ward Co ND, Stearns Co MN, McKenzie Co ND).
+
+### `project_natural_key` added to `projects.csv` and `bidder_results.csv`
+
+- `build_project_competitor_panel.py` now computes `project_natural_key` —
+  `{state}_{county}_{bid_date:%Y_%m_%d}_{city_or_normalized_project_name}` — and writes it into
+  both output CSVs. It reformats (not replaces) the already-unique `strict_key`/`_project_identity`
+  composite key into a human-readable, state/county/date-led form for use as the primary key in
+  the new Supabase tables (see below). The tiebreaker keeps both City and the normalized project
+  name (not either/or) — same-day/same-county/same-city collisions exist (e.g. two separate
+  Alexandria, MN street projects let the same day), so dropping either component reintroduces
+  collisions.
+
+### Pushed to Supabase `scratch` schema
+
+- New `data/push_supabase_bid_data.py`: upserts `projects.csv` / `bidder_results.csv` into
+  `scratch.bid_projects` / `scratch.bid_results`. The two tables are independently appendable
+  (`--projects` / `--bidder-results` are each optional). See `docs/DATA_ACCESS_SCRATCH.md`.
+- Fixed `data/update_name_registry.py`'s `REGISTRY_FILE` constant, which pointed at a nested
+  `ci_model/competitor_prediction_model/...` path that doesn't exist anywhere in this repo (same
+  class of stale path documented in `CLAUDE.md`'s rough edge #4 for the reporting orchestrator).
+  Now matches `build_project_competitor_panel.py`'s correct default.
+- Initial bulk load: 1,591 projects, 6,838 bid results. Verified idempotent (a repeat run reports
+  0 inserts / all updates) and independently appendable (`--bidder-results` alone, without
+  `--projects`, succeeds against projects already present in `scratch.bid_projects`).
+
+---
+
+## Competitor Name Registry Pushed to Supabase, With a Correction Pull-Back Path — 2026-07-28
+
+### Pushed to Supabase `scratch` schema
+
+- `data/push_supabase_bid_data.py` extended with a third independent, optional target:
+  `--registry <path>` upserts the competitor name registry into
+  `scratch.competitor_name_registry` (key: `raw_name_variant`), same upsert-based,
+  independently-appendable pattern as `--projects`/`--bidder-results`.
+- `raw_name_variant` had one exact-duplicate row ("Anderson Brothers" / pit_list, identical in
+  every column) — deduped on push (`keep="first"`); the local CSV itself is untouched.
+- Initial load: 891 rows (892 minus the 1 duplicate). Verified idempotent (repeat run: 0 inserted,
+  891 updated).
+
+### New: `data/pull_registry_corrections.py`
+
+- Reads `scratch.competitor_name_registry` back from Supabase and overwrites
+  `comp_name`/`source`/`top_competitors_tag`/`suggested_comp` on local rows wherever Supabase's
+  value differs — this is how the client's corrections (filling in `comp_name` for needs-review
+  rows, directly in Supabase) reach the local registry the pipeline actually reads.
+- Deliberately narrow: never adds or removes rows. Row existence stays locally authoritative
+  (`update_name_registry.py` is the only thing that creates new rows, by finding a real raw name
+  in the bid data or pit list). A `raw_name_variant` present in Supabase but not locally is
+  reported as a warning, not merged in.
+- Verified against a real edit (`PCIROADS LLC` → `PCI ROADS`, `Top Competitors Tag` 0 → 1): the
+  dry-run reported exactly that one row/two-column change; the real run applied it correctly and
+  left the CSV's `"Top Competitors Tag"` header, row order, and all other rows untouched.
+- Verification also re-ran `data/update_name_registry.py` against the corrected file to confirm no
+  schema drift — this incidentally surfaced 6 name variants (encoding artifacts, a price-suffix
+  duplicate) that the script had never processed because its `REGISTRY_FILE` path was broken until
+  earlier in this same session. Unrelated to the registry-push work; pushed to Supabase in the same
+  pass (`source_batch=sync_pit_list_names`). Registry is now 897 rows.
+
+---
+
+## MN Pit List Pushed to Supabase, With Duplicate Coordinates Flagged — 2026-07-29
+
+### `clean_mn_pit_list.py` Pass 4: flag `(Latitude, Longitude)` duplicates
+
+- New pass, `pass4_lat_lon_duplicates()`: `(Latitude, Longitude)` has no guaranteed uniqueness in
+  the source data — 14 of 2,398 rows shared coordinates with an earlier row. Rather than silently
+  dedupe, each later occurrence is flagged `duplicate_flag = 'duplicate_lat_lon'` and moved to the
+  bottom of the file, for a human to resolve.
+- 12 of the 14 flagged rows are exact full-row duplicates (harmless). 2 pairs ("Langaas pit",
+  "Lois Cater") carry a genuinely different `Rating` at the same coordinates — a real conflict
+  needing a decision, not noise. Applied directly to the existing
+  `data/processed/MN_pit_list_cleaned.csv` (2,398 rows, unchanged count — flagged rows reordered,
+  not removed); wired into `main()` for future full runs from raw.
+
+### Pushed to Supabase `scratch` schema
+
+- `data/push_supabase_bid_data.py` extended with a fourth independent, optional target:
+  `--pit-list <path>` upserts the pit list into `scratch.mn_pit_list`
+  (key: `(latitude, longitude)`), same pattern as the other three tables.
+  `load_pit_list()` excludes any `duplicate_flag = 'duplicate_lat_lon'` row from the push
+  entirely (reported, not kept-first) — a flagged row only reaches Supabase once the source file
+  is fixed.
+- Initial load: 2,384 rows (2,398 minus the 14 flagged). Verified idempotent (repeat run: 0
+  inserted, 2,384 updated). Spot-checked both Rating-conflict pairs in the live table: exactly one
+  row each, with the first-occurrence Rating preserved (5 and 4, not the flagged duplicate's 1).
+- The name-registry detection loop already covered the pit list before this change —
+  `update_name_registry.py` has scanned its `Access` column alongside bid data since it existed —
+  so no new code was needed there, only the pit list's own rows needed a path to Supabase.
+
+---
+
+## MN Pit List: Dropped Audit-Only Columns — 2026-07-29
+
+- `county_from_coords`, `county_match`, `county_flag`, `county_original` removed from
+  `MN_pit_list_cleaned.csv` and `scratch.mn_pit_list`. Verified unused downstream first:
+  `build_pit_features.py` (the only real consumer) derives its own `county_key` straight from the
+  already-corrected `County` column, never touches these. They were Pass 1-2 QA/audit intermediates
+  from the spatial-join county verification, not needed once `County` itself is corrected.
+- `data/clean_mn_pit_list.py` still computes them internally — Pass 2's correction logic depends
+  on them (e.g. `county_flag == "adjacent_boundary"` triggers overwriting `County` with
+  `county_from_coords`) — `main()` just drops them from the saved file now (`_AUDIT_ONLY_COLUMNS`).
+- Applied directly to the existing cleaned CSV (2,398 rows, unchanged) rather than a full
+  from-raw re-run, same reasoning as Pass 4 last turn. `push_supabase_bid_data.py`'s
+  `MN_PIT_LIST_DDL`/`PIT_LIST_COLUMNS` updated to match; live `scratch.mn_pit_list` columns
+  dropped and re-pushed (2,384 rows, 0 inserted / all updated — same rows, smaller schema).

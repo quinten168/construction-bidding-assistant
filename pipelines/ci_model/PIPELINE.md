@@ -179,7 +179,9 @@ registry's `Top Competitors Tag` column, resolved to `competitor_unit_id` via `b
 
 ## Stage 7 — Reporting Agent (`06_reporting/agent/`)
 
-**Entry point**: `orchestrator.py --job-id <PROJECT_ID>`
+**Entry point**: `orchestrator.py --project-key <PROJECT_NATURAL_KEY>` (e.g.
+`MN_STEARNS_CO_MELROSE_2023-08-03`; was `--job-id <JOB_ID>` before 2026-07-28 — job_id is CSI's
+local CSV row id, renumbered on every regeneration, so it isn't stable across pipeline runs)
 
 **Inputs**: `ranking_predictions.csv`, `logistic_baseline_model.json`, `competitor_name_registry.csv`, `bidder_results.csv`
 
@@ -194,23 +196,23 @@ Planner → Executor (ReAct loop) → Reflector → Reporter → Export
 | **Planner** | `planner.py` | Selects top-N competitors from scored rows; classifies threat level (high / medium / low) by bid probability |
 | **Executor** | `executor.py` | For each competitor: `predict_and_explain` (logistic feature contributions → top reasons to bid / not bid) then `generate_narrative` (Claude LLM writes a 2–3 sentence natural language explanation) |
 | **Reflector** | `reflector.py` | Claude LLM quality-checks each narrative for hallucination or vagueness; flags for human review if failed |
-| **Reporter** | `reporter.py` | Assembles full markdown report using narrative templates + optional LLM polishing pass |
+| **Reporter** | `reporter.py` | Assembles full markdown report from narratives + optional LLM polishing pass |
 | **Export** | `tools/export_report.py` | Saves to `.md` or `.docx` |
 
 | Output | Description |
 |---|---|
-| `06_reporting/outputs/reports/bid_report_<JOB_ID>.md` | Full competitor intelligence report with ranked list, narratives, and threat levels |
+| `06_reporting/outputs/reports/bid_report_<PROJECT_NATURAL_KEY>.md` | Full competitor intelligence report with ranked list, narratives, and threat levels |
 
 **CLI options**:
 ```bash
 # Standard run (top 10 competitors, markdown output)
-python orchestrator.py --job-id P001529
+python orchestrator.py --project-key MN_STEARNS_CO_MELROSE_2023-08-03
 
 # Top 15 competitors, docx format
-python orchestrator.py --job-id P001529 --top-n 15 --format docx
+python orchestrator.py --project-key MN_STEARNS_CO_MELROSE_2023-08-03 --top-n 15 --format docx
 
 # Skip LLM calls (deterministic output only, no API key needed)
-python orchestrator.py --job-id P001529 --skip-llm
+python orchestrator.py --project-key MN_STEARNS_CO_MELROSE_2023-08-03 --skip-llm
 ```
 
 ---
@@ -244,7 +246,7 @@ data/processed/model1/ranking_features.parquet           ← label: did_bid
     ├─▶ Stage 5: evaluate_ranking.py → metrics CSVs + plots
     ├─▶ Stage 6: logistic_feature_importance.py → feature importance CSV/TXT
     │
-    ▼ Stage 7: orchestrator.py --job-id <X>
+    ▼ Stage 7: orchestrator.py --project-key <X>
 06_reporting/outputs/reports/bid_report_<X>.md
 ```
 

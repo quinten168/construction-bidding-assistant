@@ -14,6 +14,8 @@ Passes:
     1. Structural cleanup + county verification via spatial join
     2. County spelling corrections + county_flag assignment
     3. Access field standardization → access_type + access_company
+    4. (Latitude, Longitude) duplicate detection — flags and sinks repeats so lat/lon can serve
+       as a clean unique key downstream (e.g. the Supabase push)
 """
 
 import os
@@ -171,10 +173,36 @@ def pass3_access_fields(df, lookup_file):
     return df
 
 
+def pass4_lat_lon_duplicates(df):
+    """Flag exact (Latitude, Longitude) repeats for manual review and sink them to the bottom of
+    the file, so latitude+longitude can serve as a clean unique key everywhere downstream (e.g.
+    the Supabase push). Keeps each coordinate pair's first occurrence in place, unflagged; every
+    later occurrence at that same coordinate is flagged 'duplicate_lat_lon' and moved down --
+    most are exact full-row duplicates, but a few carry a genuinely different Rating at the same
+    spot, which is exactly the kind of conflict that needs a human decision, not a silent drop."""
+    df = df.copy()
+    is_dup = df.duplicated(subset=["Latitude", "Longitude"], keep="first")
+    df["duplicate_flag"] = is_dup.map({True: "duplicate_lat_lon", False: "ok"})
+
+    print(f"\nPass 4 — {int(is_dup.sum())} row(s) share a (Latitude, Longitude) with an earlier "
+          f"row; flagged 'duplicate_lat_lon' and moved to the bottom for manual review.")
+
+    return pd.concat([df[~is_dup], df[is_dup]], ignore_index=True)
+
+
+# County columns are QA/audit intermediates from Pass 1-2's spatial verification -- Pass 2's
+# correction logic needs them internally (e.g. county_flag == "adjacent_boundary" triggers
+# overwriting County with county_from_coords), but nothing downstream reads them once County
+# itself is corrected. Dropped from the saved file as of 2026-07-29; not from the passes.
+_AUDIT_ONLY_COLUMNS = ["county_from_coords", "county_match", "county_flag", "county_original"]
+
+
 def main():
     df = pass1_structural(RAW_FILE, SHAPEFILE, SHAPEFILE_URL)
     df = pass2_county_corrections(df)
     df = pass3_access_fields(df, LOOKUP_FILE)
+    df = pass4_lat_lon_duplicates(df)
+    df = df.drop(columns=_AUDIT_ONLY_COLUMNS)
     os.makedirs("data/processed", exist_ok=True)
     df.to_csv(OUTPUT_FILE, index=False)
     print(f"\nSaved: {OUTPUT_FILE}")

@@ -243,9 +243,10 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         gotcha_source = "live"
 
     # --- competitor section: try LIVE generation first, else match a static report ---
-    # Live = invoke the CI team's agent for a fresh report keyed to this exact job (county+state+date
-    # → their job_id → generate). Falls back to matching a pre-generated report when the plan isn't
-    # in their corpus, the model repo is absent, or generation fails. Both share the parsed schema.
+    # Live = invoke the CI team's agent for a fresh report keyed to this exact project
+    # (county+state+date → their project_natural_key → generate). Falls back to matching a
+    # pre-generated report when the plan isn't in their corpus, the model repo is absent, or
+    # generation fails. Both share the parsed schema.
     when = bid_date or identity.get("construction_start") or identity.get("construction_end")
     comp = None
     if identity.get("county") or identity.get("state"):

@@ -106,24 +106,18 @@ compatibility alias for candidate-filter code.
 
 These labels are transparent and reviewable. They are candidate-filter
 features, not a claim that the project has one true business category.
-Mixed-scope projects are represented with one primary type plus multi-label
-flags.
 
-Current scope and treatment flags include:
-
-- `has_paving`
-- `has_grading`
-- `has_utility`
-- `has_structure`
-- `has_drainage`
-- `has_reclamation`
-- `has_trail`
-- `is_reconstruction`
-- `is_structure_replacement`
+The keyword-matched multi-label scope flags this section used to describe
+(`has_paving`, `has_grading`, `has_utility`, `has_structure`, `has_drainage`,
+`has_reclamation`, `has_trail`, `is_reconstruction`, `is_structure_replacement`)
+were removed 2026-07-28: unconfirmed by the client, and dead code in the
+reporting layer (`predict_and_explain.py` only ever surfaces contributions from
+the trained model's `RANKING_FEATURE_COLUMNS`, which never included them).
+`project_type` classification itself is unaffected — it's driven purely by
+bid-schedule quantities, not these flags.
 
 Audit lineage fields:
 
-- `matched_keywords`
 - `project_type_rule`
 - `project_type_source`
 - `project_family`

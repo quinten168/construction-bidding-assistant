@@ -215,6 +215,7 @@ def main() -> None:
         "candidate_rule_version",
         "time_split",
         "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",

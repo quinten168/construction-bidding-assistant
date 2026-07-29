@@ -46,11 +46,12 @@ def _compute_win_stats(
         return int((subset["did_win"] == 1).sum()), len(subset)
 
     def _season_tons(season_df: pd.DataFrame) -> float:
-        """Sum mix_tons for all won projects in a season slice using the tons_lookup."""
+        """Sum mix_tons for all won projects in a season slice using the tons_lookup
+        (tons_lookup is keyed by project_natural_key, not job_id -- see orchestrator.py)."""
         if not tons_lookup:
             return 0.0
         won = season_df[season_df["did_win"] == 1]
-        return sum(float(tons_lookup.get(jid, 0) or 0) for jid in won["job_id"])
+        return sum(float(tons_lookup.get(pk, 0) or 0) for pk in won["project_natural_key"])
 
     county = row.get("county")
     state  = row.get("state")

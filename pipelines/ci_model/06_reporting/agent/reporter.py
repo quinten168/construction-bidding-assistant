@@ -70,10 +70,6 @@ _NO_BID_REASON: dict[str, str] = {
     "utility_match":   "utility scope mismatch reduces likelihood",
     "structure_match": "structural scope mismatch reduces likelihood",
     "drainage_match":  "drainage scope mismatch reduces likelihood",
-    "has_paving":      "paving requirement narrows eligible bidder pool",
-    "has_utility":     "utility requirement narrows eligible bidder pool",
-    "has_structure":   "structural requirement narrows eligible bidder pool",
-    "has_reclamation": "reclamation requirement narrows eligible bidder pool",
     "log_mix_tons":    "project asphalt scope may exceed their typical contract size",
     "project_size_proxy": "project size outside their typical scale",
     "nearest_open_pit_miles": "distant pit access increases material cost risk",
@@ -96,7 +92,7 @@ def _prob_delta(total_prob: float, contrib: float) -> float:
 
 
 def _project_intro(project_info: dict, analyses: list[dict]) -> str:
-    job_id    = project_info.get("job_id", "—")
+    project_key = project_info.get("project_natural_key", "—")
     county    = project_info.get("county", "—")
     state     = project_info.get("state", "—")
     proj_type = project_info.get("project_type", "—")
@@ -138,7 +134,7 @@ def _project_intro(project_info: dict, analyses: list[dict]) -> str:
     )
 
     lines = (
-        f"**Project:**          {job_id} — {county}, {state}\n"
+        f"**Project:**          {project_key} — {county}, {state}\n"
         f"**Work Type:**        {type_label}\n"
         f"**Location:**         {county}, {state}\n"
         f"**Coordinates:**      {coords}\n"
@@ -166,7 +162,7 @@ def _exec_summary_llm(
     ]
 
     prompt = (
-        f"Project: {project_info.get('job_id')} | "
+        f"Project: {project_info.get('project_natural_key')} | "
         f"{project_info.get('county', '')} County, {project_info.get('state', '')} | "
         f"{project_info.get('project_type', '')}\n"
         f"Competitors analyzed: {len(analyses)}\n"
@@ -237,7 +233,7 @@ def _recommendations_llm(
 ) -> str:
     high_names = [a["display_name"] for a in analyses if a["threat_level"] == "HIGH"]
     summary = (
-        f"Project: {project_info.get('job_id')} | "
+        f"Project: {project_info.get('project_natural_key')} | "
         f"{project_info.get('county', '')} County, {project_info.get('state', '')} | "
         f"{project_info.get('project_type', '')}\n"
         f"High-threat competitors: {', '.join(high_names) if high_names else 'None'}\n"
@@ -298,8 +294,9 @@ def build_report(
     Assemble the full Bid Intelligence Report as a markdown string.
 
     Args:
-        project_info: {job_id, state, county, project_type, bid_date,
-                       lat (optional), lon (optional), materials (optional)}
+        project_info: {project_natural_key, job_id (informational only), state, county,
+                       project_type, bid_date, lat (optional), lon (optional),
+                       materials (optional)}
         analyses:     list of dicts from executor + reflector
         model_meta:   loaded model JSON (for appendix metadata)
         client:       anthropic.Anthropic client (None → static summaries)
@@ -308,8 +305,8 @@ def build_report(
     Returns:
         Full report as a string.
     """
-    now      = datetime.now().strftime("%Y-%m-%d %H:%M")
-    job_id   = project_info.get("job_id", "—")
+    now         = datetime.now().strftime("%Y-%m-%d %H:%M")
+    project_key = project_info.get("project_natural_key", "—")
     state    = project_info.get("state", "—")
     county   = project_info.get("county", "—")
     bid_date = project_info.get("bid_date", "—")
@@ -319,7 +316,7 @@ def build_report(
     # ── Header ────────────────────────────────────────────────────────────────
     sections.append(
         f"# Bid Intelligence Report\n"
-        f"Project: {job_id} | {county}, {state}\n"
+        f"Project: {project_key} | {county}, {state}\n"
         f"Bid Date: {bid_date} | Generated: {now}"
     )
 

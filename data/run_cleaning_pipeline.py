@@ -121,9 +121,13 @@ def _parse_location(loc):
     text = re.sub(r"\(.*?\)", "", str(loc)).strip()
 
     # Try state at end of string (simple case: "STEARNS CO MN")
+    # "CO" is excluded: this dataset's whole footprint is IA/MN/MT/NE/ND/SD (see
+    # STATE_NAME_TO_ABBR in build_project_competitor_panel.py), so a trailing "CO" is always the
+    # County abbreviation, never the state of Colorado -- matching it here silently overrode the
+    # MANUAL_OVERRIDES fallback below for the 3 rows it exists to handle.
     state = None
     m = re.search(r"\b([A-Z]{2})\s*$", text)
-    if m and m.group(1) in STATE_ABBR:
+    if m and m.group(1) in STATE_ABBR and m.group(1) != "CO":
         state = STATE_ABBR[m.group(1)]
         text = text[: m.start()].strip().rstrip(",").strip()
 
@@ -154,7 +158,7 @@ def _parse_location(loc):
     # Handles "GRAND FORKS ND, CITY OF GRAND FORKS" → after city: text="GRAND FORKS ND"
     if state is None:
         m2 = re.search(r"\b([A-Z]{2})\s*$", text)
-        if m2 and m2.group(1) in STATE_ABBR:
+        if m2 and m2.group(1) in STATE_ABBR and m2.group(1) != "CO":
             state = STATE_ABBR[m2.group(1)]
             text = text[: m2.start()].strip().rstrip(",").strip()
 

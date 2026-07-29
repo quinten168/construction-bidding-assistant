@@ -442,12 +442,9 @@ v3_90d_warmup_targeted_fallback,P000328,2024-03-19,MN,DOUGLAS CO,hma_resurface,C
 v3_90d_warmup_targeted_fallback,P000329,2024-03-19,MN,DOUGLAS CO,reconstruct_rebuild,CENTRAL SPECIALTIES,313824.03,1.0,1,0.0,1,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000330,2024-03-19,ND,BURKE CO,grading_earthwork,HANSON'S EXCAVATING INC,518262.0,1.0,1,0.0,1,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P000330,2024-03-19,ND,BURKE CO,grading_earthwork,CENTRAL SPECIALTIES,701902.2,2.0,0,0.3543385391944614,0,other,1,1,1,1,1,mill_overlay,1
-v3_90d_warmup_targeted_fallback,P000331,2024-03-20,CO,WARD,mill_overlay,MIKKELSEN AGGREGATES LLC,1159759.9,1.0,1,0.0,1,cross_state_bidder,0,0,0,1,1,,103
-v3_90d_warmup_targeted_fallback,P000331,2024-03-20,CO,WARD,mill_overlay,BLUESTONE CONSTRUCTION,1408368.2,2.0,0,0.21436186921103245,0,cross_state_bidder,0,0,0,1,1,,125
-v3_90d_warmup_targeted_fallback,P000331,2024-03-20,CO,WARD,mill_overlay,FARDEN CONSTRUCTION INC,1731563.28,5.0,0,0.4930359982268745,0,cross_state_bidder,0,0,0,1,1,,124
-v3_90d_warmup_targeted_fallback,P000333,2024-03-20,MN,KANDIYOHI CO,mill_overlay,LEVANEN UNDERGROUND LLC,719661.0,1.0,1,0.0,1,first_appearance_in_data,0,0,0,0,0,,
-v3_90d_warmup_targeted_fallback,P000335,2024-03-20,MN,OTTER TAIL CO,reconstruct_rebuild,CENTRAL SPECIALTIES,22053957.0,3.0,0,0.010851527430483201,1,other,1,1,1,1,1,reconstruct_rebuild,1
-v3_90d_warmup_targeted_fallback,P000336,2024-03-20,MN,WILKIN CO,reconstruct_rebuild,CENTRAL SPECIALTIES,2612149.01,3.0,0,0.050809806120679805,0,other,1,0,1,1,1,reconstruct_rebuild,1
+v3_90d_warmup_targeted_fallback,P000332,2024-03-20,MN,KANDIYOHI CO,mill_overlay,LEVANEN UNDERGROUND LLC,719661.0,1.0,1,0.0,1,first_appearance_in_data,0,0,0,0,0,,
+v3_90d_warmup_targeted_fallback,P000334,2024-03-20,MN,OTTER TAIL CO,reconstruct_rebuild,CENTRAL SPECIALTIES,22053957.0,3.0,0,0.010851527430483201,1,other,1,1,1,1,1,reconstruct_rebuild,1
+v3_90d_warmup_targeted_fallback,P000335,2024-03-20,MN,WILKIN CO,reconstruct_rebuild,CENTRAL SPECIALTIES,2612149.01,3.0,0,0.050809806120679805,0,other,1,0,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000337,2024-03-20,SD,"BON HOMME, HUTCHINSON CO",mill_overlay,CENTRAL SPECIALTIES,4718191.7,2.0,0,0.039082541576935366,1,other,1,0,1,1,1,mill_overlay,1
 v3_90d_warmup_targeted_fallback,P000338,2024-03-20,SD,"CAMPBELL, POTTER",aggregate_base_gravel,TRANSPORTATION CO,2584969.53,1.0,1,0.0,1,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P000339,2024-03-20,SD,HAMLIN CO,hma_resurface,CENTRAL SPECIALTIES,2982252.37,2.0,0,0.036598320286259034,1,other,1,0,1,1,1,mill_overlay,1
@@ -461,11 +458,9 @@ v3_90d_warmup_targeted_fallback,P000346,2024-03-22,MN,BIG STONE,reconstruct_rebu
 v3_90d_warmup_targeted_fallback,P000349,2024-03-22,MN,MORRISON CO,reconstruct_rebuild,CENTRAL SPECIALTIES,3265930.44,3.0,0,0.19138704686492616,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000350,2024-03-22,MN,POPE CO,reconstruct_rebuild,CENTRAL SPECIALTIES,4983545.75,2.0,0,0.05372561500759429,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000353,2024-03-22,ND,DUNN CO,aggregate_base_gravel,CENTRAL SPECIALTIES,4018826.55,2.0,0,0.1727725526577978,0,other,1,1,1,1,1,mill_overlay,1
-v3_90d_warmup_targeted_fallback,P000355,2024-03-25,CO,STEARNS,reconstruct_rebuild,OMG MIDWEST INC,1045967.62,1.0,1,0.0,1,cross_state_bidder,0,0,0,1,1,,4
-v3_90d_warmup_targeted_fallback,P000355,2024-03-25,CO,STEARNS,reconstruct_rebuild,KRAEMER EXCAVATING INC,1046059.82,2.0,0,8.814804420040597e-05,1,cross_state_bidder,0,0,0,1,1,,11
-v3_90d_warmup_targeted_fallback,P000355,2024-03-25,CO,STEARNS,reconstruct_rebuild,CRAIG BARDSON EXCAVATING INC,1079846.98,4.0,0,0.03239044818614938,1,cross_state_bidder,0,0,0,1,1,,55
-v3_90d_warmup_targeted_fallback,P000355,2024-03-25,CO,STEARNS,reconstruct_rebuild,CENTRAL SPECIALTIES,1325835.67,5.0,0,0.2675685601051397,0,cross_state_bidder,0,0,0,1,1,,3
-v3_90d_warmup_targeted_fallback,P000356,2024-03-25,MN,RENVILLE CO,reconstruct_rebuild,CENTRAL SPECIALTIES,8190286.6,1.0,1,0.0,1,other,1,0,1,1,1,reconstruct_rebuild,3
+v3_90d_warmup_targeted_fallback,P000355,2024-03-25,MN,RENVILLE CO,reconstruct_rebuild,CENTRAL SPECIALTIES,8190286.6,1.0,1,0.0,1,other,1,0,1,1,1,reconstruct_rebuild,3
+v3_90d_warmup_targeted_fallback,P000356,2024-03-25,MN,STEARNS CO,reconstruct_rebuild,CRAIG BARDSON EXCAVATING INC,1079846.98,4.0,0,0.03239044818614938,1,cross_state_bidder,0,0,0,1,1,,55
+v3_90d_warmup_targeted_fallback,P000356,2024-03-25,MN,STEARNS CO,reconstruct_rebuild,CENTRAL SPECIALTIES,1325835.67,5.0,0,0.2675685601051397,0,other,1,1,1,1,1,reconstruct_rebuild,3
 v3_90d_warmup_targeted_fallback,P000357,2024-03-26,MN,CLAY CO,mill_overlay,CENTRAL SPECIALTIES,1021004.5,3.0,0,0.09051268823543862,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000358,2024-03-26,MN,KANDIYOHI CO,reconstruct_rebuild,CENTRAL SPECIALTIES,5669103.7,1.0,1,0.0,1,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000361,2024-03-27,ND,WILLIAMS CO,mill_overlay,CENTRAL SPECIALTIES,4361846.96,1.0,1,0.0,1,other,1,1,1,1,1,mill_overlay,1
@@ -620,7 +615,7 @@ v3_90d_warmup_targeted_fallback,P000536,2024-06-06,SD,PERKINS CO,aggregate_base_
 v3_90d_warmup_targeted_fallback,P000536,2024-06-06,SD,PERKINS CO,aggregate_base_gravel,CENTRAL SPECIALTIES,1304818.0,3.0,0,0.11375953503673313,0,other,1,0,1,1,1,mill_overlay,1
 v3_90d_warmup_targeted_fallback,P000536,2024-06-06,SD,PERKINS CO,aggregate_base_gravel,BL CONTRACTING,1382037.0,4.0,0,0.17967171400422247,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P000538,2024-06-07,MN,LE SUEUR & BLUE EARTH CO,reconstruct_rebuild,CENTRAL SPECIALTIES,46390999.09,4.0,0,0.2573349070205385,0,other,1,0,1,1,1,reconstruct_rebuild,1
-v3_90d_warmup_targeted_fallback,P000540,2024-06-07,MN,MORRISON CO,reconstruct_rebuild,CENTRAL SPECIALTIES,8500471.63,4.0,0,0.16713278654420333,0,other,1,1,1,1,1,reconstruct_rebuild,1
+v3_90d_warmup_targeted_fallback,P000539,2024-06-07,MN,MORRISON CO,reconstruct_rebuild,CENTRAL SPECIALTIES,8500471.63,4.0,0,0.16713278654420333,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P000542,2024-06-11,MN,CARVER CO,reconstruct_rebuild,CENTRAL SPECIALTIES,64429034.72,5.0,0,0.09683961564390839,0,other,1,0,1,1,1,reconstruct_rebuild,4
 v3_90d_warmup_targeted_fallback,P000543,2024-06-11,MN,GRANT CO,mill_overlay,CENTRAL SPECIALTIES,1219243.25,2.0,0,0.09666218884820825,0,other,1,1,1,1,1,reconstruct_rebuild,4
 v3_90d_warmup_targeted_fallback,P000551,2024-06-18,IA,PLYMOUTH CO,mill_overlay,PETERSON CONTRACTORS INC,700165.21,1.0,1,0.0,1,first_appearance_in_data,0,0,0,0,0,,
@@ -1176,7 +1171,6 @@ v3_90d_warmup_targeted_fallback,P001012,2025-02-27,IA,CLAY CO,grading_earthwork,
 v3_90d_warmup_targeted_fallback,P001012,2025-02-27,IA,CLAY CO,grading_earthwork,LEROY & SONS,1067277.0,4.0,0,0.20147286884537247,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001012,2025-02-27,IA,CLAY CO,grading_earthwork,JB HOLLAD CONSTRUCTION,1102748.65,5.0,0,0.2414046064244441,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001012,2025-02-27,IA,CLAY CO,grading_earthwork,VEIT & COMPANY INC,1260851.6,6.0,0,0.4193868967852564,0,cross_state_bidder,0,0,0,1,1,,42
-v3_90d_warmup_targeted_fallback,P001013,2025-02-27,MN,STEARNS CO,reconstruct_rebuild,CRAIG BARDSON EXCAVATING INC,218479.7,1.0,1,0.0,1,cross_state_bidder,0,0,0,1,1,,336
 v3_90d_warmup_targeted_fallback,P001013,2025-02-27,MN,STEARNS CO,reconstruct_rebuild,CENTRAL SPECIALTIES,286789.5,5.0,0,0.3126597116345362,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P001013,2025-02-27,MN,STEARNS CO,reconstruct_rebuild,ASHWILL COMPANIES,332948.18,8.0,0,0.5239318801701026,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001014,2025-02-27,MN,STEARNS CO,reconstruct_rebuild,CENTRAL SPECIALTIES,2506604.37,1.0,1,0.0,1,other,1,1,1,1,1,reconstruct_rebuild,1
@@ -1241,10 +1235,10 @@ v3_90d_warmup_targeted_fallback,P001066,2025-03-11,MN,WADENA CO,mill_overlay,CEN
 v3_90d_warmup_targeted_fallback,P001067,2025-03-11,MN,WADENA CO,hma_resurface,CENTRAL SPECIALTIES,1324916.5,2.0,0,0.055389536965456315,0,other,1,0,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P001067,2025-03-11,MN,WADENA CO,hma_resurface,IDEAL CONSTRUCTION GROUP INC,1542045.52,5.0,0,0.22834813162373352,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001069,2025-03-11,ND,BURLEIGH CO,reconstruct_rebuild,CENTRAL SPECIALTIES,4104834.55,3.0,0,0.24984499622732553,0,other,1,1,1,1,1,mill_overlay,1
-v3_90d_warmup_targeted_fallback,P001070,2025-03-12,CO,MCKENZIE,grading_earthwork,CENTRAL SPECIALTIES,1596659.24,2.0,0,0.017555553374563364,1,no_prior_same_type,1,0,0,1,1,reconstruct_rebuild,1
-v3_90d_warmup_targeted_fallback,P001073,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,KORBY CONTRACTING,432808.4,1.0,1,0.0,1,older_than_12m,1,0,0,0,1,other,583
-v3_90d_warmup_targeted_fallback,P001073,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,M & K BRIDGE CONSTRUCTION INC,602096.0,4.0,0,0.3911375102701333,0,first_appearance_in_data,0,0,0,0,0,,
-v3_90d_warmup_targeted_fallback,P001073,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,THE TRADESMEN CONSTRUCTION INC,605758.27,5.0,0,0.39959915288150594,0,no_prior_same_type,1,0,0,1,1,other,168
+v3_90d_warmup_targeted_fallback,P001072,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,KORBY CONTRACTING,432808.4,1.0,1,0.0,1,older_than_12m,1,0,0,0,1,other,583
+v3_90d_warmup_targeted_fallback,P001072,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,M & K BRIDGE CONSTRUCTION INC,602096.0,4.0,0,0.3911375102701333,0,first_appearance_in_data,0,0,0,0,0,,
+v3_90d_warmup_targeted_fallback,P001072,2025-03-12,MN,DOUGLAS CO,aggregate_base_gravel,THE TRADESMEN CONSTRUCTION INC,605758.27,5.0,0,0.39959915288150594,0,no_prior_same_type,1,0,0,1,1,other,168
+v3_90d_warmup_targeted_fallback,P001076,2025-03-12,ND,MCKENZIE CO,grading_earthwork,CENTRAL SPECIALTIES,1596659.24,2.0,0,0.017555553374563364,1,other,1,1,1,1,1,mill_overlay,1
 v3_90d_warmup_targeted_fallback,P001081,2025-03-13,MN,MURRAY CO,mill_overlay,CENTRAL SPECIALTIES,2246316.7,1.0,1,0.0,1,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P001084,2025-03-13,ND,BARNES CO,aggregate_base_gravel,CENTRAL SPECIALTIES,580124.67,2.0,0,0.01643283514882388,1,other,1,1,1,1,1,mill_overlay,1
 v3_90d_warmup_targeted_fallback,P001085,2025-03-13,ND,BARNES CO,mill_overlay,CENTRAL SPECIALTIES,3209739.22,3.0,0,0.04970098636773391,1,other,1,1,1,1,1,mill_overlay,1
@@ -1474,7 +1468,7 @@ v3_90d_warmup_targeted_fallback,P001395,2025-05-13,MN,LINCOLN CO,mill_overlay,CE
 v3_90d_warmup_targeted_fallback,P001397,2025-05-13,MN,PIPESTONE CO,hma_resurface,CENTRAL SPECIALTIES,119636.0,2.0,0,0.006654033987068917,1,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P001398,2025-05-13,MN,PIPESTONE CO,mill_overlay,CENTRAL SPECIALTIES,2785048.15,3.0,0,0.05518050020442288,0,other,1,1,1,1,1,reconstruct_rebuild,1
 v3_90d_warmup_targeted_fallback,P001401,2025-05-13,ND,RICHLAND CO,hma_resurface,M & M CONTRACTORS LLC,145354.34,2.0,0,0.06830824274237238,0,first_appearance_in_data,0,0,0,0,0,,
-v3_90d_warmup_targeted_fallback,P001404,2025-05-13,ND,RICHLAND CO,mill_overlay,CENTRAL SPECIALTIES,1159104.41,4.0,0,0.11059294390126158,0,other,1,1,1,1,1,mill_overlay,1
+v3_90d_warmup_targeted_fallback,P001403,2025-05-13,ND,RICHLAND CO,mill_overlay,CENTRAL SPECIALTIES,1159104.41,4.0,0,0.11059294390126158,0,other,1,1,1,1,1,mill_overlay,1
 v3_90d_warmup_targeted_fallback,P001405,2025-05-13,ND,STARK CO,hma_resurface,MIKE COLEMAN CONSTRUCTION INC,2089431.47,2.0,0,0.13126913664468481,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001406,2025-05-14,MN,WATONWAN & BROWN CO,other,HODGMAN DRAINAGE INC,1297106.44,2.0,0,0.07774806528108051,0,first_appearance_in_data,0,0,0,0,0,,
 v3_90d_warmup_targeted_fallback,P001407,2025-05-14,ND,BURLEIGH CO,reconstruct_rebuild,BASARABA EXCAVATING,1550782.1,3.0,0,1.6011105333780613,0,first_appearance_in_data,0,0,0,0,0,,

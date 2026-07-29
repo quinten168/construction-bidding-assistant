@@ -163,4 +163,27 @@ Filtering: `df[df['location_flag'] == 'ok']` for strict location validation.
 
 ---
 
+## ☁️ Supabase (`scratch` schema)
+
+`data/processed/projects.csv`, `data/processed/bidder_results.csv` (produced by
+`build_project_competitor_panel.py`), the competitor name registry, and the MN pit list
+(`data/processed/MN_pit_list_cleaned.csv`) are pushed to Supabase's `scratch` schema — the team's
+writable workspace — as `scratch.bid_projects`, `scratch.bid_results`,
+`scratch.competitor_name_registry`, and `scratch.mn_pit_list`, via
+`data/push_supabase_bid_data.py`. All four tables are independently appendable and upsert-based
+(safe to re-run). See `docs/DATA_ACCESS_SCRATCH.md` for the table schemas, the
+`project_natural_key` design, and load/append usage.
+
+The registry table is meant to be edited by the client in Supabase — filling in `comp_name` for
+needs-review rows. `data/pull_registry_corrections.py` reads those edits back into the local CSV.
+`update_name_registry.py` already scans the pit list's `Access` column for new competitor names
+alongside bid data, so new names found there feed the same registry loop automatically.
+
+The pit list has no natural key; `(latitude, longitude)` is used instead.
+`data/clean_mn_pit_list.py`'s Pass 4 flags rows that share coordinates with an earlier row
+(`duplicate_flag = 'duplicate_lat_lon'`) and moves them to the bottom of the file for manual
+review — those rows are excluded from the Supabase push until fixed.
+
+---
+
 For detailed data cleaning decisions, see `../../docs/CHANGELOG.md`.

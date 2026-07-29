@@ -4,16 +4,23 @@ CSI Bid Intelligence Agent — Orchestrator
 
 Sequential pipeline: Planner → Executor → Reflector → Reporter → Export
 
+Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03), not job_id --
+job_id is CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
+projects.csv/ranking_predictions.csv, so it is not a stable identifier across pipeline runs.
+project_natural_key is deterministic (state_county_city_date[_N]) and stays the same across
+regenerations, which is what the live app's report cache (apps/api/backend/competitor_live.py)
+depends on.
+
 Usage:
     # From the repo root
-    python ci_model/competitor_prediction_model/06_reporting/agent/orchestrator.py --job-id P001529
+    python pipelines/ci_model/06_reporting/agent/orchestrator.py --project-key MN_STEARNS_CO_MELROSE_2023-08-03
 
     # Skip LLM calls (deterministic output only, no API key needed)
-    python ci_model/competitor_prediction_model/06_reporting/agent/orchestrator.py --job-id P001529 --skip-llm
+    python pipelines/ci_model/06_reporting/agent/orchestrator.py --project-key MN_STEARNS_CO_MELROSE_2023-08-03 --skip-llm
 
     # Top 15 competitors, docx export
-    python ci_model/competitor_prediction_model/06_reporting/agent/orchestrator.py \\
-        --job-id P001529 --top-n 15 --format docx
+    python pipelines/ci_model/06_reporting/agent/orchestrator.py \\
+        --project-key MN_STEARNS_CO_MELROSE_2023-08-03 --top-n 15 --format docx
 """
 from __future__ import annotations
 
@@ -129,7 +136,7 @@ def _load_client(skip_llm: bool):
 
 
 def run_report(
-    job_id: str,
+    project_key: str,
     predictions_path: str = _DEFAULT_PREDICTIONS,
     model_path: str = _DEFAULT_MODEL,
     registry_path: str = _DEFAULT_REGISTRY,
@@ -143,6 +150,9 @@ def run_report(
     """
     Run the full Bid Intelligence pipeline for one project.
 
+    project_key is a project_natural_key (see module docstring) -- stable across pipeline
+    regenerations, unlike job_id.
+
     Returns the path to the generated report file.
     """
     from agent.planner   import plan
@@ -155,14 +165,14 @@ def run_report(
     if verbose:
         print(f"\n{'='*60}")
         print(f"  CSI Bid Intelligence Agent")
-        print(f"  Project: {job_id}")
+        print(f"  Project: {project_key}")
         print(f"{'='*60}")
 
     predictions = pd.read_csv(predictions_path)
-    project_rows = predictions[predictions["job_id"] == job_id].copy()
+    project_rows = predictions[predictions["project_natural_key"] == project_key].copy()
 
     if project_rows.empty:
-        raise ValueError(f"No rows found for job_id='{job_id}' in {predictions_path}")
+        raise ValueError(f"No rows found for project_natural_key='{project_key}' in {predictions_path}")
 
     # Merge project-level mix_tons + coordinates from projects.csv; build tons_lookup for capacity
     _lat, _lon = None, None
@@ -170,9 +180,9 @@ def run_report(
     try:
         projects_df = pd.read_csv(
             _DEFAULT_PROJECTS,
-            usecols=["job_id", "mix_tons", "project_latitude", "project_longitude"],
+            usecols=["project_natural_key", "mix_tons", "project_latitude", "project_longitude"],
         )
-        proj_row = projects_df[projects_df["job_id"] == job_id].iloc[0]
+        proj_row = projects_df[projects_df["project_natural_key"] == project_key].iloc[0]
         mix_tons_val = proj_row["mix_tons"]
         project_rows["mix_tons"] = float(mix_tons_val) if not pd.isna(mix_tons_val) else 0.0
         import math
@@ -180,9 +190,9 @@ def run_report(
         lon_raw = proj_row.get("project_longitude")
         _lat = None if (lat_raw is None or (isinstance(lat_raw, float) and math.isnan(lat_raw))) else float(lat_raw)
         _lon = None if (lon_raw is None or (isinstance(lon_raw, float) and math.isnan(lon_raw))) else float(lon_raw)
-        # Build {job_id: mix_tons} lookup for all projects (used by capacity season-tons calc)
+        # Build {project_natural_key: mix_tons} lookup for all projects (capacity season-tons calc)
         _tons_lookup = {
-            str(r["job_id"]): float(r["mix_tons"]) if not pd.isna(r["mix_tons"]) else 0.0
+            str(r["project_natural_key"]): float(r["mix_tons"]) if not pd.isna(r["mix_tons"]) else 0.0
             for _, r in projects_df.iterrows()
         }
     except Exception:
@@ -199,7 +209,8 @@ def run_report(
 
     first_row = project_rows.iloc[0]
     project_info = {
-        "job_id":       job_id,
+        "project_natural_key": project_key,
+        "job_id":       str(first_row.get("job_id", "—")),  # informational only, not stable across runs
         "state":        str(first_row.get("state", "—")),
         "county":       str(first_row.get("county", "—")),
         "project_type": str(first_row.get("project_type", "—")),
@@ -258,7 +269,7 @@ def run_report(
     )
 
     # ── Export ────────────────────────────────────────────────────────────────
-    out_path = Path(output_dir) / f"bid_report_{job_id}"
+    out_path = Path(output_dir) / f"bid_report_{project_key}"
     out_file = export_report(report_text, out_path, fmt=fmt)
 
     if verbose:
@@ -274,8 +285,8 @@ def main() -> None:
         description="CSI Bid Intelligence Agent — generate a competitor report for a project."
     )
     parser.add_argument(
-        "--job-id", required=True,
-        help="Project ID to analyze (e.g. P001529)"
+        "--project-key", required=True,
+        help="project_natural_key to analyze (e.g. MN_STEARNS_CO_MELROSE_2023-08-03)"
     )
     parser.add_argument(
         "--predictions", default=_DEFAULT_PREDICTIONS,
@@ -316,7 +327,7 @@ def main() -> None:
     args = parser.parse_args()
 
     run_report(
-        job_id               = args.job_id,
+        project_key          = args.project_key,
         predictions_path     = args.predictions,
         model_path           = args.model,
         registry_path        = args.registry,

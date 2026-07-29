@@ -13,18 +13,6 @@ PROJECT_TYPE_FEATURE_COLUMNS = [
     "rule_based_primary_project_type_v1",
     "project_type_source",
     "project_type_rule",
-    "matched_keywords",
-    "has_paving",
-    "has_grading",
-    "has_utility",
-    "has_structure",
-    "has_drainage",
-    "has_reclamation",
-    "has_trail",
-    "is_reconstruction",
-    "is_structure_replacement",
-    "has_mix",
-    "has_grade_quantity",
 ]
 
 
@@ -86,15 +74,25 @@ def build_training_audit_panel(
         "mill_sy",
         "crush_tons",
         "stock_tons",
-        "estimated_value",
+        "low_bid_amount",
     ]
     available_project_cols = [col for col in project_cols if col in projects.columns]
-    project_lookup = projects[available_project_cols].drop_duplicates("job_id")
+    # Renamed on the way in: add_low_bid_labels() below computes its own low_bid_amount (min
+    # bid_amount among rule candidates, scoped to candidate_rule_version+job_id) -- this project-
+    # level one (min bid_amount across ALL bidders, from projects.csv) would collide into
+    # low_bid_amount_x/_y on the merge in add_low_bid_labels() otherwise.
+    project_lookup = projects[available_project_cols].drop_duplicates("job_id").rename(
+        columns={"low_bid_amount": "project_low_bid_amount"}
+    )
 
+    # bidder_results already carries project_natural_key (assigned in
+    # build_project_competitor_panel.py's build_bidder_results()) -- deliberately excluded from
+    # project_cols above so this merge doesn't collide into project_natural_key_x/_y.
     actual = bidder_results.merge(project_lookup, on="job_id", how="left")
     actual = actual[
         [
             "job_id",
+            "project_natural_key",
             "bid_date",
             "state",
             "county",
@@ -107,7 +105,7 @@ def build_training_audit_panel(
             "mill_sy",
             "crush_tons",
             "stock_tons",
-            "estimated_value",
+            "project_low_bid_amount",
             "competitor_unit_id",
             "bid_amount",
             "bid_rank",
@@ -168,7 +166,7 @@ def build_training_audit_panel(
 
     audit_panel = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     audit_panel["bid_date"] = pd.to_datetime(audit_panel["bid_date"], errors="coerce")
-    for col in ["mix_tons", "grading_yards", "estimated_value", "bid_amount", "bid_rank"]:
+    for col in ["mix_tons", "grading_yards", "project_low_bid_amount", "bid_amount", "bid_rank"]:
         if col in audit_panel.columns:
             audit_panel[col] = pd.to_numeric(audit_panel[col], errors="coerce")
 

@@ -13,7 +13,6 @@ import pandas as pd
 from config import (
     DEFAULT_CANDIDATE_RULE,
     PIT_RANKING_FEATURE_COLUMNS,
-    PROJECT_FLAG_COLUMNS,
     RANKING_FEATURE_COLUMNS,
 )
 from io_utils import read_table, write_table
@@ -23,9 +22,9 @@ BASE_RANKING_FEATURE_COLUMNS = [
     col for col in RANKING_FEATURE_COLUMNS if col not in PIT_RANKING_FEATURE_COLUMNS
 ]
 
-# Scope-match features, one per bid-schedule quantity (not the coarser has_paving/has_grading/
-# has_base categories, and not those flags' hybrid quantity-OR-keyword definition — every material
-# we have real quantity data for gets its own match feature, keyed by that quantity alone).
+# Scope-match features, one per bid-schedule quantity — every material we have real quantity
+# data for gets its own match feature, keyed by that quantity alone (no keyword-guessed flags;
+# those, e.g. has_paving/has_grading/has_base, were removed as unconfirmed by the client).
 QUANTITY_MATCH_SPECS = {
     "mix_tons_match": ("mix_tons",),
     "grading_yards_match": ("grading_yards",),
@@ -168,6 +167,7 @@ def build_ranking_features(
     feature_frames = []
     for job_id, frame in panel.groupby("job_id", sort=False):
         project = frame.iloc[0]
+        project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
         county = project.get("county")
@@ -178,6 +178,7 @@ def build_ranking_features(
         base = pd.DataFrame(
             {
                 "job_id": job_id,
+                "project_natural_key": project_natural_key,
                 "competitor_unit_id": candidate_ids,
             },
             index=frame.index,
@@ -237,11 +238,8 @@ def build_ranking_features(
         def _pv(key: str) -> float:
             return float(pd.to_numeric(pd.Series([project.get(key, 0)]), errors="coerce").fillna(0).iloc[0])
 
-        # Scope-match features, one per bid-schedule quantity, rather than the coarser
-        # has_paving/has_grading/has_base flags. Those flags are HYBRID — quantity>0 OR a keyword
-        # match on the project name (data/build_project_competitor_panel.py) — so a project could
-        # show a "match" purely from a text guess with zero real tonnage. Quantities are actual
-        # bid-schedule data, never guessed, and we have one for every material, not just 3.
+        # Scope-match features, one per bid-schedule quantity. Quantities are actual bid-schedule
+        # data, never guessed from keyword matches, and we have one for every material.
         for match_col, qcols in QUANTITY_MATCH_SPECS.items():
             if match_col not in RANKING_FEATURE_COLUMNS:
                 continue
@@ -268,17 +266,6 @@ def build_ranking_features(
         # e.g. milling-only, for legitimately lacking the other 6).
         _present_logs = [v for v in (np.log1p(max(_pv(q), 0)) for q in _SIZE_QUANTITIES) if v > 0]
         base["project_size_proxy"] = float(np.mean(_present_logs)) if _present_logs else 0.0
-
-        for flag in [
-            *PROJECT_FLAG_COLUMNS,
-            "is_reconstruction",
-            "is_structure_replacement",
-        ]:
-            val = frame.get(flag)
-            if isinstance(val, pd.Series):
-                base[flag] = pd.to_numeric(val, errors="coerce").fillna(0).to_numpy()
-            else:
-                base[flag] = 0.0
 
         # Mix ton capacity ratio: YTD won mix_tons in current bid_year ÷ mean won per prior bid_year
         if date_to_bid_year:

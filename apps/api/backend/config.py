@@ -92,14 +92,16 @@ def corpus_state(db_path: Path = CSI_DB) -> str:
         con.close()
     return CORPUS_OK if n_plans else CORPUS_EMPTY
 # Competitor Intelligence reports (Quentin/Wenyu's pipeline output). The final report parses +
-# matches these `bid_report_P*.md` files to a plan. They can be pre-generated (static) OR generated
-# LIVE by invoking the CI team's agent (see CI_MODEL_REPO below) when a plan maps to a corpus job.
+# matches these `bid_report_<project_natural_key>.md` files to a plan. They can be pre-generated
+# (static) OR generated LIVE by invoking the CI team's agent (see CI_MODEL_REPO below) when a plan
+# maps to a corpus project.
 COMPETITOR_REPORTS = REPO / "pipelines" / "ci_model" / "reports"
 
 # --- live competitor generation (the CI model, now in-repo) -------------------------------------
 # Their agent (`06_reporting/agent/orchestrator.py::run_report`) generates a fresh report for any
-# job_id already in their pre-computed corpus in ~1s (--skip-llm) / ~5-15s (with LLM). We invoke it
-# as a subprocess and drop the output into COMPETITOR_REPORTS so the matcher picks up the fresh file.
+# project_natural_key already in their pre-computed corpus in ~1s (--skip-llm) / ~5-15s (with LLM).
+# We invoke it as a subprocess and drop the output into COMPETITOR_REPORTS so the matcher picks up
+# the fresh file.
 #
 # This used to shell out to a separate clone at ~/dev/csi-ci-model — an undeclared runtime
 # dependency on a directory outside the repo, pinned to a 2026-06-30 checkout. Now that ci_model
