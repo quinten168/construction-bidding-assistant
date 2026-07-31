@@ -363,6 +363,10 @@ diagram; it is the gap the new module is meant to fill.
 further **6 files reach Anthropic indirectly**, through one of those 10, and are listed separately
 below. Earlier drafts stated 18/16 by counting callers and call sites together.
 
+Separately, **4 files** open a Postgres connection to Supabase. These are offline data-publishing
+scripts, not part of either request path (`/api/report`, `/api/chat`) — none of them run inside a
+user-facing call. See §9 for what they publish and why they're excluded from the counts above.
+
 There is **no** OpenAI, Gemini, Cohere, Replicate, LangChain, LiteLLM, or boto3 anywhere in the
 repo. Embeddings are computed **locally** (MiniLM via Chroma) and are not an API call.
 
@@ -421,6 +425,17 @@ These reach the API through another module or a subprocess.
 |---|---|---|---|
 | `data` | `clean_mn_pit_list.py` | 67 | US Census TIGER shapefile |
 | | `archived/clean_mn_pit_list_pass1.py` | 45 | same |
+
+### Postgres (Supabase) connections (4 files) — offline, not on either request path
+
+| Module | File | Direction | Schema |
+|---|---|---|---|
+| `data` | `push_supabase_bid_data.py` | write | `scratch` |
+| `data` | `pull_registry_corrections.py` | read | `scratch` |
+| `data` | `pull_supabase_table.py` | read | `scratch` or `public`, ad hoc |
+| `pipelines/plan_reader` | `04_tools/publish_to_supabase.py` | write | `public` |
+
+Full detail in §9.
 
 ### Builds a client or reads the key, but never calls (7 files)
 
@@ -560,6 +575,31 @@ as a bare `*.html`, because an over-broad pattern is occurrence 1 in that same t
   approach — **UNVERIFIED**. That it does not currently fire is verified (§1.1).
 - The `Job — why` column is design intent, not a claim about the code. It states why each step
   exists, and unlike every other column it cannot be verified against the source.
+
+---
+
+## 9. Cloud data publishing (Supabase)
+
+Two independent, one-way publishers copy local data into hosted Postgres (Supabase). **Neither is
+read by the running application** — both exist so people outside this repo can query the data
+directly, over a connection string, without a Python environment or this codebase.
+
+| Publisher | Schema | Tables | Source | Trigger | Notes |
+|---|---|---|---|---|---|
+| `pipelines/plan_reader/04_tools/publish_to_supabase.py` | `public` | 8: `plans`, `materials`, `plan_metrics`, `gotchas`, `location_intelligence`, `material_crosswalk`, `bucket_hierarchy`, `section_taxonomy` | local `csi_v2.db` (SQLite), opened strictly read-only | manual, full-replace in one transaction | Not live — does not update when a new plan is dropped into the app. Full detail: `docs/DATA_ACCESS.md`. |
+| `data/push_supabase_bid_data.py` | `scratch` | 4: `bid_projects`, `bid_results`, `competitor_name_registry`, `mn_pit_list` | `data/processed/*.csv` | manual, incremental upsert (`ON CONFLICT DO UPDATE`) keyed on `project_natural_key` / table-specific keys | Writable team workspace. `competitor_name_registry` is the one table meant to be edited directly by the client — blank `comp_name` rows are the signal for a human correction. Full detail: `docs/DATA_ACCESS_SCRATCH.md`. |
+
+Two more scripts exist purely to read the `scratch` schema back out: `data/pull_registry_corrections.py`
+(pulls the client's name-registry corrections into the local CSV, closing the loop) and
+`data/pull_supabase_table.py` (generic ad-hoc table dump, exploratory only, not part of any
+workflow).
+
+**The app does not read Supabase, in either schema.** `apps/api/backend/config.py`'s data sources
+are exclusively local: CSVs under `data/processed/`, `pipelines/plan_reader/csi_v2.db` (SQLite),
+and the local Chroma vector store. `competitor_live.py` invokes the CI model as a subprocess against
+those same local paths. Both publisher scripts state this explicitly in their own headers. If this
+ever changes, `conversation_db_url` in `config.py` — currently unset, unimplemented, and unrelated
+to Supabase — is the only DB-connection-shaped setting the live app has, and it is not it.
 
 ---
 
