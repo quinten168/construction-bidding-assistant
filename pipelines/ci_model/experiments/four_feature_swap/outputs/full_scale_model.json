@@ -1,0 +1,35 @@
+{
+  "model": "simple_rule_4feature_FULL_SCALE",
+  "feature_columns": [
+    "primary_county",
+    "primary_type",
+    "primary_state",
+    "primary_size_fit"
+  ],
+  "intercept": -0.3983703502385529,
+  "feature_weights": {
+    "primary_county": 0.2876467066346852,
+    "primary_type": 0.27670785185733254,
+    "primary_state": 0.3447176183281509,
+    "primary_size_fit": 0.4154593684105821
+  },
+  "scaler_mean": [
+    0.01995386144259099,
+    0.19762163545121178,
+    0.4720045502358453,
+    -2.089592161665246
+  ],
+  "scaler_std": [
+    0.13678792221942165,
+    0.45567798774397916,
+    0.6090075712386303,
+    0.8540887745211727
+  ],
+  "train_end_date": "2025-01-01",
+  "validation_end_date": "2025-05-01",
+  "split_rows": {
+    "train": 92671,
+    "validation": 87801,
+    "test": 49976
+  }
+}

@@ -133,7 +133,13 @@ CI_PROJECTS_CSV = REPO / "data" / "processed" / "projects.csv"
 # (`ci_model/competitor_prediction_model/…`), which has never existed here. competitor_live.py
 # passes these explicitly so we fix the paths without editing CI-team code.
 CI_PREDICTIONS_CSV = REPO / "pipelines" / "ci_model" / "03_training" / "outputs" / "ranking_predictions.csv"
-CI_MODEL_JSON = REPO / "pipelines" / "ci_model" / "03_training" / "outputs" / "logistic_baseline_model.json"
+# Swapped from logistic_baseline_model.json (36 features) to the 4-feature simple-rule baseline:
+# evaluation showed only a ~4pt winner-hit-rate@10 gap (61.7% vs 57.4% on the full test split) for
+# a model that's far more interpretable and easier to explain to an estimator. See
+# docs/adr (or KTD) for the full comparison against the other baselines tried (xgboost, decision
+# tree, SVM) -- none of them beat simple-rule by enough to justify the added complexity, so none of
+# them are wired in here; they stay evaluation-only artifacts in 03_training/outputs + 04_evaluation.
+CI_MODEL_JSON = REPO / "pipelines" / "ci_model" / "03_training" / "outputs" / "simple_rule_baseline_weights.json"
 CI_REGISTRY_CSV = (REPO / "pipelines" / "ci_model" / "01_candidates" / "outputs"
                    / "competitor_name_registry - name_variants.csv")
 # Authoritative bidder × project outcomes (every bidder, county, win) — backs the competitor_record

@@ -1,0 +1,6 @@
+# Large regenerable data dumps produced by the build_*.py scripts in this experiment -- same
+# reasoning as the repo-root .gitignore's "CI model: large regenerable training/eval outputs"
+# section. Re-run build_experiment_artifacts.py / build_full_scale_artifacts.py to recreate.
+outputs/experiment_predictions.csv
+outputs/full_scale_predictions.csv
+outputs/full_scale_predictions.parquet

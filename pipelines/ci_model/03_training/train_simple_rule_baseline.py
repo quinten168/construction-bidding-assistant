@@ -145,6 +145,12 @@ def fit_primary_weights(
     Falls back to FALLBACK_WEIGHTS (with a printed warning) if the train split is too small or
     single-class to fit meaningfully -- this is a baseline model; it should degrade gracefully,
     not crash a multi-stage pipeline run over a data quirk.
+
+    Also returns the fitted scaler + standardized-space coefficients/intercept in `meta`, under the
+    same key names `predict_and_explain.py` already reads from the sklearn-format model json
+    (feature_columns/intercept/feature_weights/scaler_mean/scaler_std) -- this is what lets this
+    baseline serve live reports (probability + per-feature contributions) through the existing
+    reporting pipeline unmodified, not just rank candidates.
     """
     X_train = primary_features.to_numpy()[train_mask]
     y_train = np.asarray(did_bid)[train_mask]
@@ -153,7 +159,16 @@ def fit_primary_weights(
         print(f"  WARNING: train split too small/single-class for fit_primary_weights "
               f"({len(y_train)} rows, {len(np.unique(y_train))} classes) -- "
               f"falling back to hand-picked weights {FALLBACK_WEIGHTS}.")
-        return dict(FALLBACK_WEIGHTS), {"fit": False, "reason": "insufficient_train_data"}
+        return dict(FALLBACK_WEIGHTS), {
+            "fit": False, "reason": "insufficient_train_data",
+            # Identity scaler + FALLBACK_WEIGHTS-as-coefs so predict_and_explain.py still runs (no
+            # KeyError) in this degraded case -- probability won't be calibrated, but won't crash.
+            "feature_columns": PRIMARY_FEATURES,
+            "intercept": 0.0,
+            "feature_weights": dict(FALLBACK_WEIGHTS),
+            "scaler_mean": [0.0] * len(PRIMARY_FEATURES),
+            "scaler_std": [1.0] * len(PRIMARY_FEATURES),
+        }
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X_train)
@@ -169,6 +184,12 @@ def fit_primary_weights(
         "train_positive_rate": round(float(y_train.mean()), 6),
         "sklearn_coef_standardized": dict(zip(PRIMARY_FEATURES, clf.coef_[0].tolist())),
         "sklearn_intercept": float(clf.intercept_[0]),
+        # Serving-ready fields (sklearn model-json format) -- see docstring.
+        "feature_columns": PRIMARY_FEATURES,
+        "intercept": float(clf.intercept_[0]),
+        "feature_weights": dict(zip(PRIMARY_FEATURES, clf.coef_[0].tolist())),
+        "scaler_mean": scaler.mean_.tolist(),
+        "scaler_std": scaler.scale_.tolist(),
     }
     return weights, meta
 
@@ -287,6 +308,11 @@ def build_simple_rule_score(
     tiebreak = rate_county_shrunk.to_numpy() + rate_type_shrunk.to_numpy() + rate_state
 
     predictions["simple_rule_score"] = primary + 1e-6 * tiebreak
+    # Persist the 4 raw (unstandardized) inputs as columns too -- serving-time predict_and_explain()
+    # reads feature values straight off the predictions row via model["feature_columns"], so this
+    # baseline can't produce a live probability/explanation without them sitting on the row.
+    for col in PRIMARY_FEATURES:
+        predictions[col] = primary_features[col].to_numpy()
     return predictions, fit_meta
 
 

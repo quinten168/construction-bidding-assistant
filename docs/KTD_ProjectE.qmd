@@ -301,7 +301,53 @@ The rule-based models are not a fallback for the ML model — they exist to answ
 
 ## Supervised ML Model
 
-[TODO: confirm final production model choice, features, and training/eval split — do not fabricate]
+The production model is a **4-feature logistic regression**, referred to in the codebase as the
+"simple-rule baseline" (`pipelines/ci_model/03_training/train_simple_rule_baseline.py`,
+`03_training/outputs/simple_rule_baseline_weights.json`). Its 4 inputs:
+
+| Feature | Definition |
+|:---|:---|
+| `county` | log1p(this competitor's historical win count in this county) |
+| `type` | log1p(this competitor's historical win count for this project type) |
+| `state` | log1p(this competitor's historical win count in this state) |
+| `size_fit` | how closely this competitor's typical historical material scale (mix tons, grading yards, etc.) matches the current project's active quantities |
+
+Coefficients are **data-fit**, not hand-picked: a `sklearn.linear_model.LogisticRegression`
+(`class_weight="balanced"`, `C=1.0`) is trained on the same time-based train/validation/test split
+used for every other model considered (train ends 2025-01-01, validation ends 2025-05-01).
+
+::: {.callout-note}
+**Why this model, not a more complex one.** Four alternatives were built and benchmarked against
+it on the identical pre-filtered candidate pool and time split, using Winner Hit Rate@10 (share of
+test-split projects where the actual winning bidder lands in the top 10 ranked competitors):
+
+| Model | Feature count | Winner Hit Rate@10 (test, 209 projects) |
+|:---|---:|---:|
+| **4-feature logistic (production)** | **4** | **57.4%** |
+| 36-feature logistic regression | 36 (adds pit-distance, per-material scope-match, recency windows) | 61.7% |
+| Linear SVM | 36 | 59.6% |
+| Shallow decision tree (max depth 5) | 36 | 56.7% |
+| XGBoost | 36 | [TODO: confirm final number for external use if reporting XGBoost to client] |
+| Random ranking baseline | — | 5.4% |
+
+The 32 additional engineered features in the 36-feature model buy roughly **4 percentage points**
+of Winner Hit Rate@10 over the 4-feature model — a real but modest gain. It was not judged worth
+the loss of interpretability: a 36-feature score mixes pit-distance and material-scope-match terms
+that are hard for an estimator to sanity-check by eye, while the 4-feature score reduces to a
+plain, auditable statement — "how often has this competitor won here / for this project type / in
+this state, and does their typical job size match this project" — with coefficients an estimator
+can read directly off the model file.
+
+**The more complex alternatives (36-feature logistic, decision tree, SVM, XGBoost) were built and
+evaluated but are intentionally not wired into the live report-generation pipeline.** They remain
+in the repository purely as comparison/evaluation artifacts (`03_training/outputs/*.json`,
+`04_evaluation/outputs/model_comparison_p10_winner_hitrate.csv`) so the choice of the simpler model
+stays checkable, not because they were abandoned mid-build.
+:::
+
+[TODO: confirm these are the final numbers approved for external/client-facing use before this
+document goes out — see `pipelines/ci_model/experiments/four_feature_swap/` for the full
+comparison methodology and re-run scripts if the underlying data changes before delivery.]
 
 ## Rule-Based Benchmark Models
 
@@ -385,6 +431,26 @@ Winner Hit Rate depends heavily on candidate pool size and definition. A rule ev
 ## Finding 2: [TODO]
 
 [TODO]
+
+## Finding 3: The Production Model Is the Simplest of Five Tested, Not the Most Accurate
+
+Five candidate models were built and benchmarked on the same pre-filtered candidate pool and
+train/validation/test split (see @sec-methodology for the full table): a 4-feature logistic
+regression, a 36-feature logistic regression, a linear SVM, a shallow decision tree, and XGBoost —
+all on top of the same 36 underlying engineered features except the 4-feature model, which uses
+only historical win counts by county/type/state plus a project-size-match term.
+
+The 4-feature model was selected for production despite scoring ~4 percentage points lower on
+Winner Hit Rate@10 than the best-performing alternative (57.4% vs. 61.7% on the 209-project test
+split). This was a deliberate interpretability-over-accuracy trade-off, not an oversight: the
+4-feature model's score is a plain, human-checkable combination an estimator can audit by eye,
+whereas the 4-point accuracy gain from the more complex models comes from pit-distance and
+material-scope features that are harder to explain in a client-facing narrative report. The other
+four models remain in the repository as evaluation artifacts (not wired into the live pipeline) so
+this trade-off stays checkable rather than a one-time decision that can't be revisited.
+
+[TODO: confirm this framing and these numbers are approved for external/client-facing use before
+this document goes out.]
 
 ## Finding N: Winner Hit Rate Is an Open Experimental Question, Not a Confirmed Finding
 
@@ -525,7 +591,8 @@ The rule-based and ML models are evaluated against who actually bid historically
 | File | Purpose |
 |:---|:---|
 | [TODO: config file path] | Authoritative configuration |
-| ML training scripts (`03_training/`) | Supervised bidding-probability model |
+| `03_training/train_simple_rule_baseline.py` | **Production** bidding-probability model (4-feature logistic regression) — the file actually read by the live report pipeline (`apps/api/backend/config.py: CI_MODEL_JSON`) |
+| Other `03_training/train_*.py` scripts (36-feature logistic, SVM, decision tree, XGBoost) | Comparison/evaluation models only — not read by the live pipeline; kept so the choice of the simpler production model stays checkable (see @sec-methodology) |
 | Rule-based benchmark scripts | Distance / capacity / historical win-rate rules |
 | `06_reporting/agent/*` | LLM report generator orchestration [TODO: confirm which files ship in the final handoff vs. remain internal] |
 | `06_reporting/prompts/*` | [TODO: should be superseded by single config file per externalization requirement — confirm] |

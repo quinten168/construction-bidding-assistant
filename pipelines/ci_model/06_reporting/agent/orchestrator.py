@@ -42,7 +42,7 @@ _DEFAULT_PREDICTIONS = str(
     _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/ranking_predictions.csv"
 )
 _DEFAULT_MODEL = str(
-    _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/logistic_baseline_model.json"
+    _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/simple_rule_baseline_weights.json"
 )
 _DEFAULT_REGISTRY = str(
     _REPO_ROOT / "ci_model/competitor_prediction_model/01_candidates/outputs/competitor_name_registry - name_variants.csv"
