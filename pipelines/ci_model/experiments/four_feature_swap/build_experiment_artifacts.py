@@ -49,7 +49,7 @@ def compute_primary_features(
     predictions["bid_date"] = pd.to_datetime(predictions["bid_date"], errors="coerce")
 
     raw_frames = []
-    for job_id, frame in predictions.groupby("job_id", sort=False):
+    for project_natural_key, frame in predictions.groupby("project_natural_key", sort=False):
         project = frame.iloc[0]
         bid_date = project["bid_date"]
         state = project.get("state")
@@ -90,7 +90,7 @@ def compute_primary_features(
         ]:
             base[col] = candidate_ids.map(values).fillna(0).to_numpy()
 
-        project_row = projects_by_job.loc[job_id]
+        project_row = projects_by_job.loc[project_natural_key]
         active_materials = [m for m in MATERIALS if project_row[m] > 0]
         fit_sums = pd.Series(0.0, index=candidate_ids.unique())
         fit_counts = pd.Series(0, index=candidate_ids.unique())
@@ -135,8 +135,8 @@ def main() -> None:
     sample = pd.read_csv(SAMPLE_PREDICTIONS)
     projects = pd.read_csv(PROJECTS_CSV)
     sample = sample.merge(
-        projects[["job_id", "project_natural_key", "project_latitude", "project_longitude"]],
-        on="job_id", how="left",
+        projects[["project_natural_key", "project_latitude", "project_longitude"]],
+        on="project_natural_key", how="left",
     )
 
     history, projects_by_job = build_history(str(PROJECTS_CSV), str(BIDDER_RESULTS_CSV))
@@ -178,7 +178,7 @@ def main() -> None:
     OUT_MODEL.write_text(json.dumps(model, indent=2))
 
     enriched.to_csv(OUT_PREDICTIONS, index=False)
-    print(f"wrote {OUT_PREDICTIONS} ({len(enriched)} rows, {enriched['job_id'].nunique()} projects)")
+    print(f"wrote {OUT_PREDICTIONS} ({len(enriched)} rows, {enriched['project_natural_key'].nunique()} projects)")
     print(f"wrote {OUT_MODEL}")
     print("\nsample project_natural_keys to try:")
     for key in enriched["project_natural_key"].dropna().unique()[:8]:

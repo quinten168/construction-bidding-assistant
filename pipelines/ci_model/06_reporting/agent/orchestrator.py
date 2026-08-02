@@ -4,9 +4,9 @@ CSI Bid Intelligence Agent — Orchestrator
 
 Sequential pipeline: Planner → Executor → Reflector → Reporter → Export
 
-Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03), not job_id --
-job_id is CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
-projects.csv/ranking_predictions.csv, so it is not a stable identifier across pipeline runs.
+Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03). There used to also be
+a job_id column (CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
+projects.csv/ranking_predictions.csv, not stable across pipeline runs) -- removed entirely.
 project_natural_key is deterministic (state_county_city_date[_N]) and stays the same across
 regenerations, which is what the live app's report cache (apps/api/backend/competitor_live.py)
 depends on.
@@ -151,7 +151,7 @@ def run_report(
     Run the full Bid Intelligence pipeline for one project.
 
     project_key is a project_natural_key (see module docstring) -- stable across pipeline
-    regenerations, unlike job_id.
+    regenerations.
 
     Returns the path to the generated report file.
     """
@@ -210,7 +210,6 @@ def run_report(
     first_row = project_rows.iloc[0]
     project_info = {
         "project_natural_key": project_key,
-        "job_id":       str(first_row.get("job_id", "—")),  # informational only, not stable across runs
         "state":        str(first_row.get("state", "—")),
         "county":       str(first_row.get("county", "—")),
         "project_type": str(first_row.get("project_type", "—")),

@@ -45,7 +45,7 @@ def score_with_model(df: pd.DataFrame, model: dict, feature_source: pd.DataFrame
 def winner_hit_rate_at_10(df: pd.DataFrame, score_col: str, split: str) -> tuple[float, int]:
     sub = df[df["time_split"] == split]
     hits, n = 0, 0
-    for job_id, g in sub.groupby("job_id"):
+    for project_natural_key, g in sub.groupby("project_natural_key"):
         if g["did_win"].sum() == 0:
             continue  # winner not in candidate pool at all -- excluded, not scored as a miss
         n += 1
@@ -70,11 +70,11 @@ def main() -> None:
 
     full_scale_model = json.loads(FULL_SCALE_MODEL_JSON.read_text())
     four_feat_preds = pd.read_parquet(FULL_SCALE_PREDICTIONS)[
-        ["job_id", "competitor_unit_id", *full_scale_model["feature_columns"]]
+        ["project_natural_key", "competitor_unit_id", *full_scale_model["feature_columns"]]
     ]
     features["competitor_unit_id"] = features["competitor_unit_id"].astype(str)
     four_feat_preds["competitor_unit_id"] = four_feat_preds["competitor_unit_id"].astype(str)
-    merged = features.merge(four_feat_preds, on=["job_id", "competitor_unit_id"], how="left")
+    merged = features.merge(four_feat_preds, on=["project_natural_key", "competitor_unit_id"], how="left")
     merged["logistic_score_4feat"] = score_with_model(merged, full_scale_model)
 
     for split in ("train", "validation", "test"):

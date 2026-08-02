@@ -84,7 +84,7 @@ def _merge_pit_features(
             result[col] = _feature_default(col)
         return result
 
-    keys = ["job_id", "competitor_unit_id"]
+    keys = ["project_natural_key", "competitor_unit_id"]
     missing = [col for col in keys if col not in pit_features.columns]
     if missing:
         raise ValueError(f"Pit features are missing required columns: {missing}")
@@ -140,7 +140,7 @@ def build_ranking_features(
         )
 
     history_cols = [
-        "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",
@@ -149,7 +149,7 @@ def build_ranking_features(
     ]
     history = bidder_results.merge(
         projects[[col for col in history_cols if col in projects.columns]],
-        on="job_id",
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
@@ -165,9 +165,8 @@ def build_ranking_features(
     history["bid_year"] = history["bid_date"].map(date_to_bid_year)
 
     feature_frames = []
-    for job_id, frame in panel.groupby("job_id", sort=False):
+    for project_natural_key, frame in panel.groupby("project_natural_key", sort=False):
         project = frame.iloc[0]
-        project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
         county = project.get("county")
@@ -177,14 +176,13 @@ def build_ranking_features(
 
         base = pd.DataFrame(
             {
-                "job_id": job_id,
                 "project_natural_key": project_natural_key,
                 "competitor_unit_id": candidate_ids,
             },
             index=frame.index,
         )
 
-        prior_project_count = max(int(prior["job_id"].nunique()), 1)
+        prior_project_count = max(int(prior["project_natural_key"].nunique()), 1)
         if prior.empty:
             for col in BASE_RANKING_FEATURE_COLUMNS:
                 base[col] = 0
@@ -293,7 +291,7 @@ def build_ranking_features(
         feature_frames.append(base)
 
     features = pd.concat(feature_frames).sort_index()
-    new_cols = features.drop(columns=["job_id", "competitor_unit_id"])
+    new_cols = features.drop(columns=["project_natural_key", "competitor_unit_id"])
     new_cols = new_cols.drop(
         columns=[col for col in new_cols.columns if col in panel.columns],
         errors="ignore",
@@ -338,7 +336,7 @@ def main() -> None:
     print(f"  candidate rule: {args.candidate_rule}")
     print(f"  output:         {written}")
     print(f"  rows:           {len(features):,}")
-    print(f"  projects:       {features['job_id'].nunique():,}")
+    print(f"  projects:       {features['project_natural_key'].nunique():,}")
     print(f"  positive rate:  {features['did_bid'].mean():.4f}")
 
 

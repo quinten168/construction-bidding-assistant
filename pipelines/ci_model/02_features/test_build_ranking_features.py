@@ -39,7 +39,7 @@ class QuantityMatchTest(unittest.TestCase):
                 ("J_PRIOR_BASE", "2024-01-01", "MN", "X CO", "other", 0, 0, 80),
                 ("J_PRIOR_NOBASE", "2024-01-02", "MN", "X CO", "other", 50, 0, 0),
             ],
-            columns=["job_id", "bid_date", "state", "county", "project_type",
+            columns=["project_natural_key", "bid_date", "state", "county", "project_type",
                      "mix_tons", "grading_yards", "base_tons"],
         )
         self.bidder_results = pd.DataFrame(
@@ -47,7 +47,7 @@ class QuantityMatchTest(unittest.TestCase):
                 ("J_PRIOR_BASE", "REAL_BASE", 0),
                 ("J_PRIOR_NOBASE", "NO_BASE", 0),
             ],
-            columns=["job_id", "competitor_unit_id", "did_win"],
+            columns=["project_natural_key", "competitor_unit_id", "did_win"],
         )
 
         # The target project itself: real base scope (base_tons=250), both competitors are
@@ -56,7 +56,7 @@ class QuantityMatchTest(unittest.TestCase):
             [
                 {
                     "candidate_rule_version": self.candidate_rule,
-                    "job_id": "J_TARGET",
+                    "project_natural_key": "J_TARGET",
                     "competitor_unit_id": comp,
                     "bid_date": "2024-06-01",
                     "state": "MN",

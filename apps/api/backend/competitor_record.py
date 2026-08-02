@@ -31,9 +31,9 @@ def available() -> bool:
 def _joined() -> pd.DataFrame:
     """bidder_results ⨝ projects, once. One row per (competitor, project) with win flag + county/year."""
     b = pd.read_csv(CI_BIDDER_RESULTS, dtype=str).fillna("")
-    p = (pd.read_csv(CI_PROJECTS_CSV, dtype=str, usecols=["job_id", "bid_date", "state", "county"])
+    p = (pd.read_csv(CI_PROJECTS_CSV, dtype=str, usecols=["project_natural_key", "bid_date", "state", "county"])
          .fillna(""))
-    j = b.merge(p, on="job_id", how="left")
+    j = b.merge(p, on="project_natural_key", how="left")
     j["won"] = j["did_win"].str.lower().isin(("true", "1", "yes"))
     j["year"] = j["bid_date"].str[:4]
     j["county_n"] = j["county"].map(cr.norm_county)

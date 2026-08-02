@@ -187,7 +187,7 @@ def _sample_weights(y: np.ndarray) -> np.ndarray:
 
 def _validation_score(predictions: pd.DataFrame, bidder_results: pd.DataFrame) -> dict:
     actual_counts = (
-        bidder_results.groupby("job_id")["competitor_unit_id"]
+        bidder_results.groupby("project_natural_key")["competitor_unit_id"]
         .nunique()
         .reset_index(name="actual_bidder_count")
     )

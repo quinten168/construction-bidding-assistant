@@ -158,7 +158,7 @@ Three distinct "who might bid" concepts appear in this system and should not be 
 
 | Relationship | Join Key | Purpose |
 |:---|:---|:---|
-| `projects` → `bidder_results` | `job_id` | Attach actual bidders/outcome to a project |
+| `projects` → `bidder_results` | `project_natural_key` | Attach actual bidders/outcome to a project |
 | `bidder_results` → competitor registry | `competitor_unit_id` | Resolve raw bidder name to canonical company identity |
 | `projects` → pit/PID reference | project state + location | Support the distance-based rule |
 | [TODO: any others specific to the final delivery schema] | | |

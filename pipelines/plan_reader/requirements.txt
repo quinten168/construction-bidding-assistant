@@ -6,6 +6,7 @@
 #   nltk                  — sentence-aware splitting (so chunks never cut mid-sentence)
 #   rapidfuzz             — fuzzy string matching for the extraction-accuracy eval
 #   anthropic             — Claude API for the synthesis/extraction step
+#   requests              — state DOT GIS API calls (04_tools/road_midpoint/road_midpoint.py)
 chromadb>=0.5
 sentence-transformers>=2.2
 pymupdf4llm>=0.0.27
@@ -13,3 +14,4 @@ pdfplumber>=0.10
 nltk>=3.8
 rapidfuzz>=3.0
 anthropic>=0.40
+requests>=2.31.0

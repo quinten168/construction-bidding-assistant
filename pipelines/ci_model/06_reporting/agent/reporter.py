@@ -294,7 +294,7 @@ def build_report(
     Assemble the full Bid Intelligence Report as a markdown string.
 
     Args:
-        project_info: {project_natural_key, job_id (informational only), state, county,
+        project_info: {project_natural_key, state, county,
                        project_type, bid_date, lat (optional), lon (optional),
                        materials (optional)}
         analyses:     list of dicts from executor + reflector

@@ -75,6 +75,23 @@ export type FinalReport = {
   competitor?: Competitor | null;
 };
 
+// ── Unverified extraction (POST /api/report, phase ①) — mirrors backend/report.py::process_pdf's
+// return shape BEFORE final_report.assemble runs. Same identity/quantities grain as FinalReport,
+// plus field_confidence (real 3-level confidence — "high"|"medium"|"low", not a percentage — and
+// the source page, per field) for the verify gate to flag what needs a human look. content_hash +
+// verified round-trip back to POST /api/report/{plan_id}/finalize unchanged.
+export type FieldMeta = { confidence: "high" | "medium" | "low" | null; page: number | null };
+export type Extraction = {
+  plan_id: string;
+  archetype: string;
+  identity: Record<string, string | number | boolean | null>;
+  quantities: { label: string; value: number | string; unit: string }[];
+  gotchas: FinalGotcha[];
+  field_confidence: Record<string, FieldMeta>;
+  content_hash: string;
+  verified: false;
+};
+
 export type ChatMessage = {
   id: string;
   role: Role;
@@ -84,7 +101,7 @@ export type ChatMessage = {
   tokens: number;
   attachedFileIds?: string[];
   turnId?: string; // backend turn id (for thumbs feedback → POST /api/feedback)
-  final?: FinalReport; // real assembled report from POST /api/report (replaces the mock PLAN)
+  final?: FinalReport; // real assembled report from POST /api/report/{id}/finalize (phase ②)
   reportError?: string; // set when /api/report failed (e.g. drawings-only plan set)
   // ── signature PDF→report flow ──
   // When set, this assistant turn renders the inline plan REPORT CARD instead of
@@ -95,6 +112,11 @@ export type ChatMessage = {
   narrationStep?: number;
   card?: boolean; // render the report card body
   planFile?: string; // the dropped file name, for the card header
+  // Human-in-the-loop verify gate, between extraction (phase ①) and assembly (phase ②).
+  // `verifying` true = extraction landed and is waiting on the human before finalize() runs;
+  // `extraction` is that phase-① payload, seeding the verify modal.
+  verifying?: boolean;
+  extraction?: Extraction;
 };
 
 export type UploadedFile = {

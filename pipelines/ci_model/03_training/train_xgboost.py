@@ -70,10 +70,10 @@ PARAM_DISTRIBUTIONS = {
 
 
 def _mean_precision_at_k(val_df: pd.DataFrame, scores: np.ndarray, k: int) -> float:
-    tmp = val_df[["job_id", "did_bid"]].copy()
+    tmp = val_df[["project_natural_key", "did_bid"]].copy()
     tmp["score"] = scores
     precisions = []
-    for _, grp in tmp.groupby("job_id", sort=False):
+    for _, grp in tmp.groupby("project_natural_key", sort=False):
         top = grp.nlargest(k, "score")
         precisions.append(int(top["did_bid"].sum()) / k)
     return float(np.mean(precisions)) if precisions else 0.0
@@ -213,12 +213,12 @@ def train_xgboost(
     print(f"\nMerging xgb_score into {predictions_path}...")
     if Path(predictions_path).exists():
         preds = pd.read_csv(predictions_path)
-        score_map = df.set_index(["job_id", "competitor_unit_id"])["xgb_score"]
-        preds["xgb_score"] = preds.set_index(["job_id", "competitor_unit_id"]).index.map(score_map)
+        score_map = df.set_index(["project_natural_key", "competitor_unit_id"])["xgb_score"]
+        preds["xgb_score"] = preds.set_index(["project_natural_key", "competitor_unit_id"]).index.map(score_map)
         global_mean = df["xgb_score"].mean()
         preds["xgb_score"] = preds["xgb_score"].fillna(global_mean)
     else:
-        preds = df[["job_id", "competitor_unit_id", "bid_date", "time_split",
+        preds = df[["project_natural_key", "competitor_unit_id", "bid_date", "time_split",
                     "did_bid", "xgb_score", *RANKING_FEATURE_COLUMNS]].copy()
 
     Path(predictions_path).parent.mkdir(parents=True, exist_ok=True)

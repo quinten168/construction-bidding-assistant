@@ -9,11 +9,9 @@ import { MessageBubble } from "./message-bubble";
 export function Thread({
   messages,
   onSend,
-  onVerify,
 }: {
   messages: ChatMessage[];
   onSend: (text: string) => void;
-  onVerify: () => void;
 }) {
   const endRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -43,7 +41,7 @@ export function Thread({
         const isReportCard = m.kind === "report" && m.card;
         return (
           <div key={m.id} ref={isReportCard ? reportRef : undefined} className="scroll-mt-4">
-            <MessageBubble m={m} onVerify={onVerify} />
+            <MessageBubble m={m} />
           </div>
         );
       })}

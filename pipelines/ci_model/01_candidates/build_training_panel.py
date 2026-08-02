@@ -22,11 +22,11 @@ def add_low_bid_labels(panel: pd.DataFrame, near_low_threshold: float = 0.05) ->
 
     low_bid = (
         result.loc[result["did_bid"] == 1]
-        .groupby(["candidate_rule_version", "job_id"])["bid_amount"]
+        .groupby(["candidate_rule_version", "project_natural_key"])["bid_amount"]
         .min()
         .rename("low_bid_amount")
     )
-    result = result.merge(low_bid, on=["candidate_rule_version", "job_id"], how="left")
+    result = result.merge(low_bid, on=["candidate_rule_version", "project_natural_key"], how="left")
     valid_low = result["low_bid_amount"].notna() & (result["low_bid_amount"] > 0)
     result["gap_to_low"] = pd.NA
     result.loc[valid_low, "gap_to_low"] = (
@@ -57,11 +57,11 @@ def build_training_audit_panel(
 
     candidate_keys = [
         "candidate_rule_version",
-        "job_id",
+        "project_natural_key",
         "competitor_unit_id",
     ]
     project_cols = [
-        "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",
@@ -78,20 +78,19 @@ def build_training_audit_panel(
     ]
     available_project_cols = [col for col in project_cols if col in projects.columns]
     # Renamed on the way in: add_low_bid_labels() below computes its own low_bid_amount (min
-    # bid_amount among rule candidates, scoped to candidate_rule_version+job_id) -- this project-
-    # level one (min bid_amount across ALL bidders, from projects.csv) would collide into
-    # low_bid_amount_x/_y on the merge in add_low_bid_labels() otherwise.
-    project_lookup = projects[available_project_cols].drop_duplicates("job_id").rename(
+    # bid_amount among rule candidates, scoped to candidate_rule_version+project_natural_key) --
+    # this project-level one (min bid_amount across ALL bidders, from projects.csv) would collide
+    # into low_bid_amount_x/_y on the merge in add_low_bid_labels() otherwise.
+    project_lookup = projects[available_project_cols].drop_duplicates("project_natural_key").rename(
         columns={"low_bid_amount": "project_low_bid_amount"}
     )
 
     # bidder_results already carries project_natural_key (assigned in
-    # build_project_competitor_panel.py's build_bidder_results()) -- deliberately excluded from
-    # project_cols above so this merge doesn't collide into project_natural_key_x/_y.
-    actual = bidder_results.merge(project_lookup, on="job_id", how="left")
+    # build_project_competitor_panel.py's build_bidder_results()) -- it's also project_lookup's
+    # merge key now, so pandas uses it directly rather than producing an _x/_y suffix pair.
+    actual = bidder_results.merge(project_lookup, on="project_natural_key", how="left")
     actual = actual[
         [
-            "job_id",
             "project_natural_key",
             "bid_date",
             "state",
@@ -126,14 +125,14 @@ def build_training_audit_panel(
         rule_candidates = rule_candidates.merge(
             actual[
                 [
-                    "job_id",
+                    "project_natural_key",
                     "competitor_unit_id",
                     "bid_amount",
                     "bid_rank",
                     "did_bid",
                 ]
             ],
-            on=["job_id", "competitor_unit_id"],
+            on=["project_natural_key", "competitor_unit_id"],
             how="left",
         )
         rule_candidates["did_bid"] = rule_candidates["did_bid"].fillna(0).astype(int)
@@ -189,7 +188,7 @@ def build_training_audit_panel(
 
     audit_panel = add_low_bid_labels(audit_panel, near_low_threshold=near_low_threshold)
     return audit_panel.sort_values(
-        ["candidate_rule_version", "job_id", "was_rule_candidate", "competitor_unit_id"],
+        ["candidate_rule_version", "project_natural_key", "was_rule_candidate", "competitor_unit_id"],
         ascending=[True, True, False, True],
     ).reset_index(drop=True)
 

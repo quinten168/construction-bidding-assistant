@@ -28,6 +28,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import competitor_report as cr
+from . import corrections
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
 
@@ -178,6 +179,17 @@ def _city_from_location(location: str) -> str:
     return seg if len(seg) > 1 else ""
 
 
+def _parse_lat_long(value: str) -> tuple[float, float] | None:
+    """Parse a user-typed 'lat,lon' string (corrections.py's lat_long field, e.g. '45.62,-95.05')."""
+    parts = re.split(r"[,\s]+", (value or "").strip())
+    if len(parts) != 2:
+        return None
+    try:
+        return float(parts[0]), float(parts[1])
+    except ValueError:
+        return None
+
+
 def _short_place(identity: dict) -> str:
     """A clean memorable place: 'Douglas County, MN', else the city 'White Shield, ND', else state."""
     county = (identity.get("county") or "").strip()
@@ -228,6 +240,15 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
 
     pid = plan_payload.get("plan_id") or plan_id or "unknown"
     identity = plan_payload.get("identity", {})
+    # Human correction always outranks the automated road_midpoint value, and can fill it in when
+    # automation found nothing (unsupported state, missing field, lookup failure). Applied HERE, not
+    # in report.py, because a correction can be recorded after the PDF was already cached — assemble()
+    # runs fresh on every render, so this is the only place that reliably sees a later correction.
+    corr_latlong = corrections.corrected_values(pid).get("lat_long")
+    if corr_latlong:
+        parsed = _parse_lat_long(corr_latlong)
+        if parsed:
+            identity["latitude"], identity["longitude"] = parsed
     archetype = plan_payload.get("archetype") or "Unknown/NoQty"
     quantities = plan_payload.get("quantities", [])
 
@@ -292,7 +313,8 @@ def _payload_from_plan_id(plan_id: str) -> dict | None:
                 "construction_end": val("construction_end"),
                 "bid_deadline": val("bid_deadline"),
                 "substantial_completion": val("substantial_completion"),
-                "final_completion": val("final_completion")}
+                "final_completion": val("final_completion"),
+                "latitude": val("latitude"), "longitude": val("longitude")}
     # backfill county/state from the plan_id (e.g. '2025_DOUGLAS-CO-MN_…') when extraction left
     # them blank — the matcher joins on county+state, so a missing county silently weakens it.
     if not identity["county"] or not identity["state"]:

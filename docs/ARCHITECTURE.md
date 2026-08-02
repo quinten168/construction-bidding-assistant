@@ -17,7 +17,7 @@ This is the centre of the document. **The question it answers is "where is the A
 
 The system has **two entry points**, and they do different things. Every external call below is
 marked in place. `○` = pure file transform, no call. `▣` = **local** model, no network.
-`◆` = **external Anthropic API call**.
+`◆` = **external Anthropic API call**. `◇` = **external non-Anthropic HTTP call**.
 
 ```mermaid
 flowchart TD
@@ -31,25 +31,33 @@ flowchart TD
 
     SUB["⑦ competitor_live.py:111<br/>subprocess → ci_model<br/>reporter.py:180,244 ◆ reflector.py:56 ◆"]
 
-    GAP["⑧ stationing → lat/long<br/>━━━━━━━━━━<br/>NOT BUILT — insert midpoint skill here"]
+    GAP["⑧ report.py 5th stage ◇<br/>midpoint_bridge.py →<br/>road_midpoint.py<br/>6 state DOT GIS endpoints<br/>MN/ND/SD/NE/IA/MT"]
+
+    VERIFY["human verify gate (2026-07-31)<br/>frontend only, no backend call<br/>apps/web/.../verify-extraction.tsx"]
+    FIN["POST /api/report/{plan_id}/finalize<br/>report.py::apply_verification<br/>→ final_report.py::assemble"]
 
     OUT["⑨ answer / bid_report_P*.md"]
 
-    DROP --> CONV --> IDX --> EXT --> OUT
+    DROP --> CONV --> IDX --> EXT --> GAP -->|"extraction (unverified)"| VERIFY --> FIN --> OUT
     CHATQ --> LOOP
     LOOP -->|search_plans → plan_reader_bridge| IDX
     LOOP -->|competitor_record → CSV reads| OUT
-    DROP -.->|final_report.py:225| SUB --> OUT
-    EXT -.->|emits project_stationing| GAP
-    GAP -.->|ci_model needs lat/long| SUB
-
-    style GAP stroke-dasharray: 6 6, fill:#00000000
+    FIN -.->|final_report.py:225| SUB --> OUT
+    GAP -.->|ci_model still reads only projects.csv, no override| SUB
 ```
 
-### 1.1 Path A — the PDF drop (`POST /api/report`)
+**Changed 2026-07-31: the PDF drop is two phases, not one call.** `POST /api/report` used to run extraction *and* assembly (including the competitor-intel subprocess) in a single blocking request. It now stops after extraction and returns it unverified for the human verify gate; a second call, `POST /api/report/{plan_id}/finalize`, is what actually triggers `assemble()` and therefore `SUB`. The one exception: a re-drop of content that was **already** verified before skips the gate and goes straight to `FIN`'s work inline within the first call (§1.1 below).
 
-Driven by `apps/api/backend/report.py::process_pdf` (`:76`). The CLI equivalent is
-`pipelines/plan_reader/run.py`.
+### 1.1 Path A — the PDF drop (`POST /api/report`, then `POST /api/report/{plan_id}/finalize`)
+
+**Phase ① — extraction.** Driven by `apps/api/backend/report.py::process_pdf` (`:93`). The CLI
+equivalent is `pipelines/plan_reader/run.py`. Stages 1-9 below are all `process_pdf`; nothing past
+stage 9 runs yet. `app.py`'s `report()` handler (`app.py:259-283`) returns the result as
+`{"ok": true, "extraction": rep}` — UNLESS this exact PDF content was already verified in a prior
+call, in which case `process_pdf`'s cache hit (`report.py:100-107`) returns a payload with
+`verified: true` already set, and the handler skips straight to calling `assemble()` itself
+(`app.py:278-279`) and returns `{"ok": true, "final": final}` instead — the pre-2026-07-31 behavior,
+preserved for that one case.
 
 | # | Stage | File : line | Call type |
 |---|---|---|---|
@@ -58,11 +66,52 @@ Driven by `apps/api/backend/report.py::process_pdf` (`:76`). The CLI equivalent 
 | 3 | Section + chunk | `s2_indexer.py:119` → `lib.page_sections` (`lib.py:363`) | `○` pure |
 | 4 | Embed + store | `s2_indexer.py:183` `collection.upsert` | `▣` **local** MiniLM (`lib.py:206`), writes `06_chroma` (`lib.py:52`) |
 | 5 | Whole-doc extract | `s3_extract.py:135` `client.messages.create` | `◆` **1 call**, `claude-sonnet-4-6`, `temperature=0` |
-| 6 | RAG extract — scalars | `s4_extract_rag.py:188`, preceded by retrieve at `:187` | `◆` **3 calls** (3 query groups, `:36-46`) |
+| 6 | RAG extract — scalars | `s4_extract_rag.py:188`, preceded by retrieve at `:187` | `◆` **4 calls** (4 query groups, `:36-50` — includes the route/milepost/gross-length group added for the midpoint feature) |
 | 7 | RAG extract — special reqs | `s4_extract_rag.py:194`, retrieve at `:193` | `◆` **1 call** |
 | 8 | RAG extract — gotchas | `s4_extract_rag.py:158`, retrieve at `:154` | `◆` **1 call** over the 20-type taxonomy |
+| 9 | Midpoint lookup | `midpoint_bridge.py::compute_midpoint`, called from `report.py`'s 5th stage (`report.py:139-157`) | `◇` **0-6 calls** to state DOT GIS REST APIs (MN/ND/SD/NE/IA/MT); skipped entirely if `route_number`/`begin_milepost`/`total_gross_length` are blank or `state` isn't one of the 6 |
 
-**≈5 Anthropic calls per plan**, all through one shared client (`s3_extract.py:131`).
+**≈6 Anthropic calls per plan**, all through one shared client (`s3_extract.py:131`).
+
+**Phase ① now also preserves per-field confidence.** `_val()` (`report.py:58-60`) still unwraps
+`{value, confidence, page}` down to the bare value for `identity`/`quantities` (unchanged, so nothing
+downstream — `assemble`, `render_markdown`, exports — needed to change), but a new sibling
+`_conf()` (`report.py:63-69`) pulls the confidence/page pair into a new `field_confidence` dict
+returned alongside them, keyed the same way. This is what the verify-gate UI (phase ②, below) flags
+low/medium-confidence fields with — that data used to be extracted and then thrown away.
+
+**Phase ② — the verify gate, then assembly.** `apps/web/src/components/verify/verify-extraction.tsx`
+shows the extraction (real 3-level confidence, not a mockup as of 2026-07-31) and lets the user
+confirm or edit fields, plus enter `latitude`/`longitude` by hand if stage 9 came back null — this is
+frontend-only, no backend call happens while the user is looking at it. Skip is always allowed:
+coordinates don't feed the competitor-intel match for a freshly dropped plan (see the corrected §5
+below), so nothing in *this* report is blocked by skipping.
+
+Either way (confirm or skip) the frontend calls `POST /api/report/{plan_id}/finalize`
+(`app.py:285-292`), body `{extraction, edits}`. The handler calls `report.py::apply_verification`
+(`report.py:215-257`) — which overlays `edits` onto the extraction's `identity`/`quantities` **in
+place** (the same JSON, not `corrections.py`'s separate sidecar file — see the note on that split
+below), marks it `verified: true`, and writes it to the payload cache (`_payload_cache_path`,
+`report.py:54-55`) keyed on `content_hash` (computed once in `process_pdf`, `report.py:98`, so
+finalize never needs the original PDF file, only what phase ① already returned) — then calls
+`final_report.py::assemble()` (`app.py:292`), which is where the competitor-intel subprocess
+(`SUB` in the diagram above) actually fires.
+
+**The payload cache moved.** Before 2026-07-31, `process_pdf` wrote the cache itself, right after
+extraction. Now only `apply_verification` writes it — an extraction isn't cached until a human has
+been through the gate, so `process_pdf`'s cache-hit check at the top of the function (`report.py:
+100-107`) can never return an unverified payload. This is also why phase ① computes `content_hash`
+up front instead of `apply_verification` needing the original file: the hash round-trips through the
+frontend inside the `extraction` payload it already has in hand.
+
+**Where a corrected value lives now has two answers, not one.** A field edited through the verify
+gate (phase ②) is written into the SAME payload-cache JSON the auto-extracted quantities/identity
+already live in — by explicit request, so a user-entered `latitude`/`longitude` or corrected
+quantity is indistinguishable in storage from an auto-extracted one. A field corrected *later*,
+through chat's `record_correction` tool, still goes into `corrections.py`'s separate per-plan sidecar
+file and is merged in at render time by `assemble()` (unchanged — see below). These are genuinely
+different use cases (verify-before-first-generation vs. fix-after-the-fact) and neither replaced the
+other.
 
 **Why stage 6–8 exist at all:** `s3_extract` truncates the document — `smart_truncate`
 (`s3_extract.py:83-92`) keeps the first 60% and last 40% and **drops the middle**, which is exactly
@@ -85,13 +134,13 @@ prompt serves every document type. Two caveats worth stating rather than hiding:
 - **`s4_extract_rag.py:186` is dead code.** The `map_pages` restriction fires only when a field
   declares `doc == "plan_set"`, and **no field in `schema.py` does** — `traffic_level`, which its own
   docstring (`:179-181`) names as the motivating case, is `doc="either"` at `schema.py:85`. The
-  `map_pages` argument threaded in from `run.py:129` and `report.py:115` is therefore always
+  `map_pages` argument threaded in from `run.py:129` and `report.py:133` is therefore always
   discarded.
 
 **Fallback behaviour on this path.** A malformed model response is caught at `s3_extract.py:140-144`
 and returns `None`; every field then degrades to the empty cell at `s3_extract.py:110-111`. An
-outright API failure is caught at `report.py:116`, classified by `_classify_read_error`
-(`report.py:55-73`), and surfaces to the user as **`read_error` — "may be corrupt or an unsupported
+outright API failure is caught at `report.py:134`, classified by `_classify_read_error`
+(`report.py:72-90`), and surfaces to the user as **`read_error` — "may be corrupt or an unsupported
 format."** That message is misleading: an Anthropic outage is reported as a bad PDF. Non-fatal, but
 it points the user at the wrong cause. `--no-llm` skips stages 5–8 entirely (`run.py:121`) while
 still writing a row of empty cells (`run.py:138`).
@@ -125,23 +174,32 @@ This distinction is the thing most easily got wrong:
 | Join | Endpoint | Route | CI reached as |
 |---|---|---|---|
 | **Chat join** | `POST /api/chat` | `search_plans` → bridge → Chroma **and** `competitor_record` → CSVs | static data |
-| **Report join** | `POST /api/report` | `app.py:198` → `final_report.py:225` `cl.live_report` → `competitor_live.py:111` | **live subprocess** |
+| **Report join** | `POST /api/report/{plan_id}/finalize` (was `POST /api/report` before 2026-07-31 — see §1.1) | `app.py:292` `fr.assemble` → `final_report.py:225` `cl.live_report` → `competitor_live.py:111` | **live subprocess** |
 
 By default the subprocess makes **no LLM call** — `--skip-llm` is appended at
 `competitor_live.py:103-104` and `settings.ci_live_skip_llm` defaults on (`config.py:126`). With it
 off, `reporter.py:180`/`:244` and `reflector.py:56` fire.
 
-### 1.4 Where the midpoint skill inserts
+### 1.4 Where the midpoint skill inserts — built, on the emission side only
 
-Box ⑧ is empty on purpose. `plan_reader` emits **stationing**; `ci_model` requires **lat/long**;
-nothing converts between them (§5). It is drawn as a labelled empty box rather than a missing arrow
-because it is **the next thing to build**, not an unknown.
+Box ⑧ is a real 5th stage now: `report.py::process_pdf` calls `midpoint_bridge.compute_midpoint`
+right after the existing extract try/except closes (`report.py:134-157`, before the
+archetype/quantities computation) and splices `latitude`/`longitude` into the `identity` dict that
+phase ① returns (see §1.1 — as of 2026-07-31 this no longer means "before the payload is cached";
+nothing is cached until a human has been through the verify gate). `schema.py` gained four RAG
+fields (`route_number`, `begin_milepost`, `end_milepost`, `total_gross_length`) that feed it;
+`midpoint_bridge.py` wraps `04_tools/road_midpoint/road_midpoint.py` in a fail-safe call (never
+raises, returns `None` on any missing field, unsupported state, API failure, or timeout).
 
-**Where it inserts is concrete.** A fifth stage in `process_pdf`, after `extract_rag`
-(`report.py:115`) and before the payload is assembled. Stationing has been extracted by that point,
-so the skill has its input. `run.py` would take the same insertion after `:129` to keep the CLI and
-the API on one sequence. What is missing is the stationing→coordinate conversion itself (§5), not a
-place to put it.
+**`run.py` was deliberately NOT extended in this pass.** It already calls `s4_extract_rag.py` so a
+CLI-ingested plan gets the four new extracted fields, but it never calls `midpoint_bridge` — so
+CLI-ingested plans do not get `latitude`/`longitude` written into their per-plan JSON. Only plans
+processed through live `POST /api/report` get automated coordinates today. Giving `run.py` the same
+5th-stage call, to keep the CLI and the API on one sequence, is a small, flagged follow-up — not
+done here.
+
+**What this does NOT do**: feed coordinates into `ci_model`. See the corrected §5 below — that half
+of the seam is unchanged.
 
 ### 1.5 Three orchestrations, three different kinds of thing
 
@@ -191,8 +249,10 @@ The six tools (`apps/api/backend/tools.py:80-86`, exposed as `SCHEMAS` at `tools
 | `competitor_record` | a single competitor's detail |
 | `record_correction` | writes a user-confirmed value back |
 
-`record_correction` is the only tool that writes, and it is the only route by which a project's
-latitude/longitude enters the system. See §5.
+`record_correction` is the only tool in this chat loop that writes. It is no longer the *only* route
+a project's latitude/longitude can enter the system through, though — as of 2026-07-31 the
+verify-gate's finalize step (`report.py::apply_verification`, §1.1) is a second, earlier one, for a
+plan that's still being reviewed for the first time rather than already generated. See §5.
 
 ---
 
@@ -213,10 +273,10 @@ line and a written report file on disk.
 --project-key --predictions --model --registry --bidder-results --output-dir --quiet [--skip-llm]
 ```
 
-`--project-key` takes a `project_natural_key` (e.g. `MN_STEARNS_CO_MELROSE_2023-08-03`), not
-`job_id` — `job_id` is CSI's local CSV row id, renumbered by row-sort-position on every
-regeneration, so it isn't a stable identifier across pipeline runs. This flag was `--job-id`
-before 2026-07-28.
+`--project-key` takes a `project_natural_key` (e.g. `MN_STEARNS_CO_MELROSE_2023-08-03`). This flag
+was `--job-id` before 2026-07-28; `job_id` itself (CSI's local CSV row id, renumbered by
+row-sort-position on every regeneration, never a stable identifier across pipeline runs) was
+removed entirely on 2026-08-01.
 
 | Step | Script called | Instruction / prompt given | Tools available | Job — why |
 |---|---|---|---|---|
@@ -238,8 +298,9 @@ before 2026-07-28.
 
 This is the seam. It reads `usecols=["project_natural_key", "mix_tons", "project_latitude",
 "project_longitude"]` and loads the coordinates into `project_info["lat"]/["lon"]`. Line numbers
-in this section predate the 2026-07-28 job_id → project_natural_key migration and have not been
-re-verified; treat them as approximate until someone re-checks against current `orchestrator.py`.
+in this section predate both the 2026-07-28 job_id → project_natural_key migration and the
+2026-08-01 removal of the `job_id` column/concept entirely (which shifted lines again); treat them
+as approximate until someone re-checks against current `orchestrator.py`.
 
 > **Correction to an earlier note:** `orchestrator.py:173` *consumes* coordinates; it does not
 > compute the pit-distance features. Those are built upstream at
@@ -253,17 +314,17 @@ re-verified; treat them as approximate until someone re-checks against current `
 ## 4. Orchestration 3: the plan_reader ingest (FIXED)
 
 **The plan reader ingest is orchestrated.** The orchestrator is
-`apps/api/backend/report.py::process_pdf` (`:76`), and it runs a fixed four-stage sequence:
+`apps/api/backend/report.py::process_pdf` (`:93`), and it runs a fixed four-stage sequence:
 
 | # | Stage | Call site | Module |
 |---|---|---|---|
-| 1 | Convert | `report.py:102` | `01_pipeline/s1_convert.py`: `convert.convert_pages(pdf_path)` |
-| 2 | Ingest / index | `report.py:106` | `01_pipeline/s2_indexer.py`: `indexer.ingest_pdf(...)` |
-| 3 | Whole-doc extract | `report.py:113` | `01_pipeline/s3_extract.py`: `extract.fill_extract_fields(...)` |
-| 4 | RAG extract | `report.py:115` | `01_pipeline/s4_extract_rag.py`: `extract_rag.fill_rag_fields(...)` |
+| 1 | Convert | `report.py:120` | `01_pipeline/s1_convert.py`: `convert.convert_pages(pdf_path)` |
+| 2 | Ingest / index | `report.py:124` | `01_pipeline/s2_indexer.py`: `indexer.ingest_pdf(...)` |
+| 3 | Whole-doc extract | `report.py:131` | `01_pipeline/s3_extract.py`: `extract.fill_extract_fields(...)` |
+| 4 | RAG extract | `report.py:133` | `01_pipeline/s4_extract_rag.py`: `extract_rag.fill_rag_fields(...)` |
 
 The order is hardcoded in `process_pdf`'s body; nothing chooses it at runtime. It is entered from
-`apps/api/app.py:189` (`report_svc.process_pdf`, via `run_in_threadpool`) when a PDF is posted to
+`apps/api/app.py:269` (`report_svc.process_pdf`, via `run_in_threadpool`) when a PDF is posted to
 `/api/report`. §1.1 tables the same path at finer grain, down to the individual model calls.
 
 **It caches by content hash.** `_payload_cache_path` keys the assembled payload on
@@ -319,8 +380,9 @@ The four stages `process_pdf` and `run.py` both drive, in order:
 | 4 | `01_pipeline/s4_extract_rag.py` | delegates to `s3_extract.call_json` at `:158`, `:188`, `:194` | retriever | Retrieval-backed extraction for fields that are not on a predictable page. Falls back to searching the index when the direct read misses. |
 
 **This is the answer to "where is the agent workflow for the plan reader?"** It is
-`report.py:102-115`, entered from `app.py:189`. There is a defined place to insert a new module, and
-it is that sequence (see §1.4).
+`report.py:120-133`, entered from `app.py:269` (phase ① — see §1.1 for the 2026-07-31 phase split;
+this 4-stage sequence itself is unchanged). There is a defined place to insert a new module, and it
+is that sequence (see §1.4).
 
 > **Correction to an earlier version of this document.** §4 previously declared plan_reader's
 > orchestration to be NONE, and stated the ingest had no driver, no sequencer, and ran in an order
@@ -334,32 +396,39 @@ it is that sequence (see §1.4).
 
 ---
 
-## 5. The seam: where plan_reader and ci_model fail to meet
+## 5. The seam: where plan_reader and ci_model fail to meet — half bridged now
 
 | | |
 |---|---|
-| **What plan_reader emits** | `project_stationing` — `pipelines/plan_reader/04_tools/_scan_field_locations.py:111`, a numeric field scraped from title-sheet patterns like `BEGIN PROJECT … STA`, `STA 589+11` |
+| **What plan_reader emits** | `route_number`/`begin_milepost`/`end_milepost`/`total_gross_length` (`schema.py`, RAG fields) — and, for MN/ND/SD/NE/IA/MT, an automated `latitude`/`longitude` computed from them via `midpoint_bridge.py` → `04_tools/road_midpoint/road_midpoint.py`, surfaced in the report's `identity` (`report.py`'s 5th stage). Two independent human-override paths as of 2026-07-31: the verify gate (`report.py::apply_verification`, §1.1) if the plan is still being reviewed for the first time — written straight into the same payload as the auto-extracted value; or a later `record_correction` of `lat_long` via chat, which overrides at render time (`final_report.py::assemble`) instead. |
 | **What ci_model requires** | `project_latitude`, `project_longitude` — `orchestrator.py:173`, feeding the five `nearest_*_pit_miles` features |
-| **What converts one to the other** | **Nothing.** |
+| **What converts one to the other, INTO ci_model** | **Still nothing.** The bridge above lands coordinates in the *report*, not in `ci_model`'s input. |
 
-This was searched for and could not be found: no geospatial library (`pyproj`, `shapely`), no
-linear-referencing or route-milepost lookup, no DOT station-to-coordinate service, no
-`station_to_*` / `to_latlon` helper anywhere in the tree. Every other `stationing` hit is a regex
-definition, a docs mention, or a *noise filter* (`08_material_universe.py:69` discards
-station-looking cells).
+**The consumption side is unchanged and deliberately untouched.** `orchestrator.py` still only
+reads pre-computed coordinates from `data/processed/projects.csv` for historical projects already
+matched by a `project_natural_key` (via `competitor_live.py::find_project_key`) — there is no CLI
+flag or other mechanism to feed it an ad-hoc plan's coordinates, and doing so would mean editing
+CI-team-owned orchestrator code or mutating their shared static CSV. A freshly uploaded plan that
+isn't yet in the historical corpus still cannot get its coordinates into a competitor-prediction
+run. This is a structurally separate, larger problem (predicting competitors for a project with no
+historical `project_natural_key` at all), out of scope for the midpoint feature and not attempted
+here.
 
-The only existing path from a plan to usable coordinates is a **human typing them** into the chat,
-which reaches `record_correction` and is stored via the `lat_long` alias map at
-`apps/api/backend/corrections.py:26`.
-
-**This empty box is where the midpoint-determination skill inserts.** It is not a gap in the
-diagram; it is the gap the new module is meant to fill.
+For a plan the automated lookup can't resolve (unsupported state outside the 6, a field the model
+couldn't find, or a state DOT API failure/timeout), a human has two ways to fill it in, depending on
+when: **before the report is first generated**, the verify gate (§1.1) shows the missing
+`latitude`/`longitude` and lets the user type them in directly — `report.py::apply_verification`
+writes them straight into the payload, no separate override step at render time needed. **After** a
+report already exists, typing coordinates into chat still works as before — `record_correction` →
+`lat_long` alias map (`apps/api/backend/corrections.py:26`) — and that correction reaches the report
+by being merged in at render time (`final_report.py::assemble`), not by mutating the cached payload.
 
 ---
 
 ## 6. Where the external API calls happen
 
-**12 files** make a real outbound call: **10 call Anthropic**, 2 make non-LLM HTTP requests. A
+**13 files** make a real outbound call: **10 call Anthropic**, 3 make non-LLM HTTP requests (2 to
+the US Census TIGER endpoint, 1 — `midpoint_bridge.py` — to up to 6 state DOT GIS REST endpoints). A
 further **6 files reach Anthropic indirectly**, through one of those 10, and are listed separately
 below. Earlier drafts stated 18/16 by counting callers and call sites together.
 
@@ -378,14 +447,15 @@ The file count is not the bill.
 | When it fires | Call site | Cost note |
 |---|---|---|
 | **Every chat turn** | `rag.py:141` | the only billed call on this path |
-| **Per document** | `s3_extract.py:135`, via `report.py:113` | once per PDF processed |
+| **Per document** | `s3_extract.py:135`, via `report.py:131` | once per PDF processed |
 | **Offline tooling** | `04_tools/05_parse_bid_schedule.py:389`, `07_gotcha_prefilter.py:178`, `07_gotcha_extract.py:259`, `09_build_material_crosswalk.py:212` | run by hand; one-off corpus cost, not per user |
 | **Batch API** | `07_gotcha_extract.py:625` | 50% of standard rate, async, polls up to 24h |
 | **Evaluation only** | `retriever.py:88` `synthesize`, via `rag_report.py:148` and its own CLI | never runs in production. **Not** on the chat path: `plan_reader_bridge` exposes only `retrieve`/`build_context`, and `tools.py:55` calls `pr.retrieve` |
 | **Off by default** | `ci_model` `reporter.py:180`, `:244`, `reflector.py:56`, `generate_narrative.py:232` | gated by `--skip-llm`, which defaults ON (`config.py:126`) |
+| **Per document, non-LLM** | `apps/api/backend/midpoint_bridge.py`, via `report.py`'s 5th stage | up to 6 state DOT GIS calls per plan (MN/ND/SD/NE/IA/MT only); gated by `settings.midpoint_lookup_enabled`, skipped if route/milepost fields are blank |
 
-Not billed at all: embeddings (local MiniLM), the US Census TIGER endpoint (free), and the entire
-frontend (`apps/web` makes no model calls).
+Not billed at all: embeddings (local MiniLM), the US Census TIGER endpoint (free), the state DOT GIS
+endpoints (free), and the entire frontend (`apps/web` makes no model calls).
 
 ### Anthropic — direct calls (10 files)
 
@@ -408,19 +478,27 @@ These reach the API through another module or a subprocess.
 
 | Module | File | Line | Via |
 |---|---|---|---|
-| `apps/api` | `backend/report.py` | 113, 115 | plan_reader extract modules |
+| `apps/api` | `backend/report.py` | 131, 133 | plan_reader extract modules |
 | | `backend/competitor_live.py` | 111 | subprocess → ci_model orchestrator |
 | `pipelines/plan_reader` | `01_pipeline/s4_extract_rag.py` | 158, 188, 194 | `s3_extract.call_json` |
 | | `run.py` | 127 | `extract.fill_extract_fields` (`--no-llm` guards it) |
 | | `03_evaluation/eval_extraction.py` | 140 | same (`--fresh`) |
 | | `03_evaluation/rag_report.py` | 148 | `retriever.synthesize` (`--no-llm` guards it) |
 
-### Non-LLM external HTTP (2 files)
+### A new kind of outbound dependency, not HTTP: direct Postgres (2026-07-30)
+
+The three tables below predate this connection type in this backend, so it doesn't fit the
+LLM/non-LLM-HTTP split above. `apps/api/backend/ci_db.py` opens a plain `psycopg` connection to
+Supabase's `scratch` schema — the CI-data admin endpoints (§9) are the first place this backend
+talks to Postgres directly; every other read anywhere else in `apps/api` is a local CSV by path.
+
+### Non-LLM external HTTP (3 files)
 
 | Module | File | Line | Target |
 |---|---|---|---|
 | `data` | `clean_mn_pit_list.py` | 67 | US Census TIGER shapefile |
 | | `archived/clean_mn_pit_list_pass1.py` | 45 | same |
+| `apps/api` | `backend/midpoint_bridge.py` | via `road_midpoint.find_midpoint` | 6 state DOT GIS REST APIs (MN/ND/SD/NE/IA/MT) |
 
 ### Builds a client or reads the key, but never calls (7 files)
 
@@ -431,7 +509,8 @@ to reporter/reflector), `pipelines/ci_model/06_reporting/agent/executor.py` (thr
 `apps/api/backend/plan_reader_bridge.py`, `pipelines/plan_reader/01_pipeline/lib.py:203-210`
 (local MiniLM), `pipelines/plan_reader/01_pipeline/s2_indexer.py:183` (local embedding).
 
-`apps/web` makes **no** LLM calls. Its six `fetch` sites all target this system's own backend.
+`apps/web` makes **no** LLM calls. Its `fetch` sites to this system's own backend are unchanged; as
+of 2026-07-31 it also calls Google directly for the pit-list feature's map and geocoding — see §9.
 
 ---
 
@@ -560,6 +639,97 @@ as a bare `*.html`, because an over-broad pattern is occurrence 1 in that same t
   approach — **UNVERIFIED**. That it does not currently fire is verified (§1.1).
 - The `Job — why` column is design intent, not a claim about the code. It states why each step
   exists, and unlike every other column it cannot be verified against the source.
+
+---
+
+## 9. CI-data admin endpoints — bid results / pit list / competitor registry (new, 2026-07-30)
+
+Originally three in-product features so an estimator can maintain the data behind the
+competitor-intelligence model directly, instead of hand-editing Supabase or the local CSVs the
+batch scripts in `data/` work from — now four, with a Projects view added 2026-07-31 (below). Not
+an orchestration in the sense of §1–§4 (no LLM in the loop anywhere in this path) — plain CRUD over
+Supabase's `scratch` schema (`docs/DATA_ACCESS_SCRATCH.md`), reached from 4 `apps/web` pages through
+one catch-all proxy route.
+
+| Feature | Backend module | Endpoints |
+|---|---|---|
+| Bid results entry | `apps/api/backend/bid_results_admin.py` | `GET /api/ci-data/projects/missing-results`, `POST /api/ci-data/projects/{key}/bid-results` |
+| Bid results table (view + inline edit, 2026-07-31) | `apps/api/backend/bid_results_admin.py` | `GET /api/ci-data/bid-results` (one row per bidder, joined to project), `PATCH /api/ci-data/bid-results/{project_natural_key}/{competitor_unit_id}` |
+| Pit list CRUD | `apps/api/backend/pit_list_admin.py` | `GET/POST /api/ci-data/pits`, `PATCH/DELETE /api/ci-data/pits/{lat}/{lon}` |
+| Competitor registry CRUD | `apps/api/backend/competitor_registry_admin.py` | `GET/POST /api/ci-data/competitors`, `POST /api/ci-data/competitors/consolidate`, `DELETE /api/ci-data/competitors/{comp_name}` |
+| Projects table (view + edit materials only, 2026-07-31) | `apps/api/backend/project_admin.py` | `GET /api/ci-data/projects`, `PATCH /api/ci-data/projects/{project_natural_key}/materials` — every other `bid_projects` column (identity, location, `project_type`) is read-only from this endpoint; unknown field names are rejected outright, not silently ignored |
+
+All four share `apps/api/backend/ci_db.py` (connection + name normalization) and are wired into
+`apps/api/app.py`. The frontend reaches them through one catch-all proxy,
+`apps/web/src/app/api/ci-data/[...path]/route.ts`, forwarding method/query/body/status unchanged —
+the same buffered-JSON shape as the existing `api/report/route.ts`, just generalized across every
+verb instead of duplicated per resource.
+
+**The bid-results table's inline edit cascades within one project — 2026-07-31.** Editing a bid
+amount recomputes `bid_rank` for every bidder on that project (rank is relative, not a per-row
+value); marking a row as winner clears the flag on the project's other rows first, same one-winner
+rule `submit_bid_results` already enforced at insert time. Renaming a bidder re-resolves through the name registry and is blocked outright if the new
+name already has a row on that project — no merge flow, same "block, don't silently collide"
+pattern used elsewhere in this file (pit/competitor duplicate detection, below).
+
+**Consolidate is registry-only — changed 2026-07-31, by explicit request.**
+`competitor_registry_admin.consolidate()` renames the selected `raw_name_variant` rows' `comp_name`
+in `scratch.competitor_name_registry` and stops there. It used to also cascade the rename into
+`scratch.bid_results.competitor_unit_id` (joining on `raw_bidder_name`, not the old
+`competitor_unit_id` value, specifically so that two raw names sharing one old `comp_name` — a real
+case — wouldn't collide when only one of them was selected). That cascade has been removed.
+
+The consequence: `competitor_unit_id` in `bid_results` *is* the registry's `comp_name` (rough edge 5
+in the old architecture note) only held as an invariant while the cascade existed. Now, after a
+consolidate, a raw name's registry row can point at a new canonical `comp_name` while its historical
+`bid_results` rows still carry the *old* `competitor_unit_id` — the two go out of sync until the
+next batch re-run of `entity_resolution.apply_registry_mapping()`
+(`data/build_project_competitor_panel.py`) and a fresh `push_supabase_bid_data.py` load. Nothing in
+the live admin path reconciles this automatically. `test_competitor_registry_admin.py::
+test_consolidate_only_touches_the_selected_raw_name_and_leaves_bid_results_alone` now asserts both
+halves: the registry-only rename still targets exactly the selected raw name, and `bid_results` is
+never touched.
+
+Duplicate-prevention rules (both hard-block-plus-soft-warning, `force` overrides the warning):
+pits block on exact `(latitude, longitude)`, warn (not block) on a `name`+`county` match at
+different coordinates; competitors block on an exact normalized-name match against `raw_name_variant`
+*or* `comp_name`, warn (not block) on a `rapidfuzz` fuzzy match (threshold 80, reusing
+`data/update_name_registry.py`'s existing `suggest_comp()` approach). Removing a competitor is
+blocked outright (no reassignment flow) if any `bid_results` row still references it.
+
+**Explicit scope boundary:** writes land in Supabase `scratch.*` only. There is no path back into
+`ci_model`'s local training CSVs/parquet yet — same shape as §5's plan_reader/ci_model seam. See
+`CLAUDE.md` rough edge 7 for the full current-status/verification writeup (what's been checked vs.
+not, as of 2026-07-30).
+
+### Google Maps — the first non-Anthropic, non-`apps/api` outbound call (2026-07-31)
+
+The pit-list page (`apps/web/src/app/pit-list/page.tsx`) grew a required-field add form, a
+registry-restricted `access_company` picker, and an interactive map — the last two need Google
+Maps. Both call Google **directly from the browser**, not through `apps/api`:
+
+| What | Where | Google API |
+|---|---|---|
+| County/state auto-fill from lat/long | `pit-list/page.tsx`'s `geocode()` | Geocoding (via `google.maps.Geocoder`, part of the Maps JS bundle) |
+| All-pits map with markers | `apps/web/src/components/pit-list/pit-map.tsx` | Maps JavaScript API |
+
+Both share one `<Script src="https://maps.googleapis.com/maps/api/js?key=...">` tag loaded once in
+`pit-list/page.tsx` (`id="google-maps-script"`, `strategy="afterInteractive"`); `mapsReady` state
+gates both consumers so neither touches `window.google` before it exists.
+
+This is a deliberate exception to CLAUDE.md's "`apps/web` proxies to `apps/api` and nothing else"
+rule, not an oversight — see CLAUDE.md's folder-responsibilities table for why (map tiles can't
+reasonably be proxied through our own server). The key,
+`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (`apps/web/.env.example`), is **public by design**: Next.js
+inlines any `NEXT_PUBLIC_*` var into the browser bundle, and Google Maps keys are meant to be seen —
+they're secured by an HTTP-referrer restriction in Google Cloud Console, not by secrecy. This is a
+different trust model from every other credential in this repo (`ANTHROPIC_API_KEY`,
+`SUPABASE_TEAM_DB_URL`), which are server-only secrets — don't apply that pattern here, and don't
+apply this pattern there.
+
+The `access_company` picker itself does **not** call Google — it fetches
+`GET /api/ci-data/competitors` (the existing registry endpoint, §9 above) and filters client-side;
+Google is only geocoding and map rendering.
 
 ---
 

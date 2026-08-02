@@ -55,10 +55,10 @@ def assign_time_split(
 
 
 def _mean_precision_at_k(df: pd.DataFrame, scores: np.ndarray, k: int) -> float:
-    tmp = df[["job_id", "did_bid"]].copy()
+    tmp = df[["project_natural_key", "did_bid"]].copy()
     tmp["score"] = scores
     precisions = []
-    for _, grp in tmp.groupby("job_id", sort=False):
+    for _, grp in tmp.groupby("project_natural_key", sort=False):
         top = grp.nlargest(k, "score")
         precisions.append(int(top["did_bid"].sum()) / k)
     return float(np.mean(precisions)) if precisions else 0.0
@@ -214,7 +214,6 @@ def main() -> None:
     output_cols = [
         "candidate_rule_version",
         "time_split",
-        "job_id",
         "project_natural_key",
         "bid_date",
         "state",
@@ -252,7 +251,7 @@ def main() -> None:
         "validation_end_date": args.validation_end_date,
         "val_precision_at_10": val_p10,
         "split_rows":          features["time_split"].value_counts().to_dict(),
-        "split_projects":      features.groupby("time_split")["job_id"].nunique().to_dict(),
+        "split_projects":      features.groupby("time_split")["project_natural_key"].nunique().to_dict(),
     }
     Path(args.model_output).write_text(json.dumps(model_meta, indent=2) + "\n")
 

@@ -36,9 +36,9 @@ const MD = {
   a: (p: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a className="text-primary underline-offset-2 hover:underline" {...p} />,
 };
 
-export function MessageBubble({ m, onVerify }: { m: ChatMessage; onVerify: () => void }) {
+export function MessageBubble({ m }: { m: ChatMessage }) {
   if (m.role === "user") return <UserBubble m={m} />;
-  return <AssistantBubble m={m} onVerify={onVerify} />;
+  return <AssistantBubble m={m} />;
 }
 
 function UserBubble({ m }: { m: ChatMessage }) {
@@ -67,7 +67,7 @@ function UserBubble({ m }: { m: ChatMessage }) {
   );
 }
 
-function AssistantBubble({ m, onVerify }: { m: ChatMessage; onVerify: () => void }) {
+function AssistantBubble({ m }: { m: ChatMessage }) {
   const [copied, setCopied] = useState(false);
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const copy = () => {
@@ -109,7 +109,7 @@ function AssistantBubble({ m, onVerify }: { m: ChatMessage; onVerify: () => void
                 indent (-ml-10) so it uses the FULL thread width — big and easy to read. */}
             {isReport && m.card && (
               <div className="mt-3 -ml-10">
-                <ReportCard final={m.final} onVerify={onVerify} />
+                <ReportCard final={m.final} />
               </div>
             )}
 

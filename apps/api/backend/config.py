@@ -36,6 +36,7 @@ def _find_repo_root(start: Path) -> Path:
 REPO = _find_repo_root(HERE)
 PLAN_READER = REPO / "pipelines" / "plan_reader"
 PIPELINE = PLAN_READER / "01_pipeline"                  # importable: lib.py, retriever.py
+ROAD_MIDPOINT_DIR = PLAN_READER / "04_tools" / "road_midpoint"   # importable: road_midpoint.py
 # The single source of truth for the master bid CSV. Previously duplicated verbatim across
 # bid_data.py, competitors.py and project_registry.py — so a path change fixed one and broke
 # three, which is the most confusing failure mode available. They now import this.
@@ -186,10 +187,24 @@ class Settings:
     ci_live_skip_llm: bool = os.environ.get("CI_LIVE_SKIP_LLM", "1") not in ("0", "false", "False")
     ci_live_timeout: int = int(os.environ.get("CI_LIVE_TIMEOUT", "120"))
 
+    # Automated route/milepost → lat/long lookup (04_tools/road_midpoint/road_midpoint.py), the
+    # 5th process_pdf stage (report.py). Calls up to 6 state DOT GIS REST endpoints (MN/ND/SD/NE/
+    # IA/MT) — the first non-Anthropic outbound calls on the live report path. Fails safe:
+    # midpoint_bridge.compute_midpoint never raises, leaves latitude/longitude null on any error,
+    # and a human can always fill them in via record_correction regardless of this setting.
+    midpoint_lookup_enabled: bool = os.environ.get("MIDPOINT_LOOKUP_ENABLED", "1") not in ("0", "false", "False")
+    midpoint_lookup_timeout: int = int(os.environ.get("MIDPOINT_LOOKUP_TIMEOUT", "90"))
+
     # Conversation capture (see backend/trace.py). Empty = use the local SQLite csi_v2.db + JSONL.
     # Set CONVERSATION_DB_URL to a Postgres DSN when we deploy multi-user (same schema → JSONB);
     # the per-day JSONL archive is written in both worlds.
     conversation_db_url: str = os.environ.get("CONVERSATION_DB_URL", "")
+
+    # The CI-data admin endpoints (bid results / pit list / competitor registry — see
+    # backend/ci_db.py): read/write access to Supabase's scratch schema, docs/DATA_ACCESS_SCRATCH.md.
+    # Same DSN data/push_supabase_bid_data.py already uses (the csi_team login: read/write on
+    # scratch, read-only on public) — reused rather than provisioning a separate app role.
+    supabase_team_db_url: str = os.environ.get("SUPABASE_TEAM_DB_URL", "")
 
     def warnings(self) -> list[str]:
         """Config problems worth surfacing at startup (non-fatal, but the app won't fully work)."""
@@ -218,6 +233,10 @@ class Settings:
                 f"({CORPUS_MESSAGES[state]}). The final report will show zero gotchas for every "
                 "plan. The file alone is not evidence the corpus loaded: the conversation tracer "
                 "creates it on the first chat turn. Ingest the plans.")
+        if not self.supabase_team_db_url:
+            issues.append(
+                "SUPABASE_TEAM_DB_URL is not set — the bid-results/pit-list/competitor-registry "
+                "admin endpoints will fail on first write. See docs/DATA_ACCESS_SCRATCH.md.")
         return issues
 
 

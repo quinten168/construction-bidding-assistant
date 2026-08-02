@@ -3,37 +3,110 @@
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Check, MapPin, AlertTriangle, Pencil, ArrowRight, ShieldCheck } from "lucide-react";
-import { PLAN } from "@/lib/mock-plan";
+import { type Extraction } from "@/lib/chat-data";
 import { Glass, Eyebrow, Chip } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
-// Human-in-the-loop verification: the estimator confirms or corrects what the
-// model read before it's trusted downstream. Low-confidence fields are flagged
-// for review; location (which plans rarely state as lat/long) must be confirmed.
-// This is the trust gate — the research says it drives adoption in this industry.
+// Human-in-the-loop verification: the estimator confirms or corrects what the model read BEFORE
+// the rest of the report (competitor-intel generation, the slow part) runs — not as an afterthought
+// once a full report already exists. Low-confidence fields are flagged for review; location (which
+// plans rarely state as lat/long) gets its own dedicated block, and can always be filled in even
+// though — per 2026-07-31 decision — skipping past this screen never blocks anything downstream.
 
-const REVIEW_THRESHOLD = 0.85;
+// Mirrors report.py::process_pdf's `identity_fields` dict 1:1 — every key that carries
+// field_confidence — with a friendly label. Order: identity first, quantities appended separately.
+const FIELD_LABELS: [string, string][] = [
+  ["state", "State"],
+  ["county", "County"],
+  ["sp_number", "Project no."],
+  ["location", "Location"],
+  ["traffic_level", "Traffic level"],
+  ["prevailing_wages", "Prevailing wage"],
+  ["construction_start", "Construction start"],
+  ["construction_end", "Construction end"],
+  ["bid_deadline", "Bid deadline"],
+  ["substantial_completion", "Substantial completion"],
+  ["final_completion", "Final completion"],
+];
+
+type VerifyField = {
+  key: string;
+  label: string;
+  value: string;
+  unit?: string;
+  confidence: "high" | "medium" | "low" | null;
+  page: number | null;
+};
+
+function buildFields(extraction: Extraction): VerifyField[] {
+  const out: VerifyField[] = [];
+  for (const [key, label] of FIELD_LABELS) {
+    const raw = extraction.identity[key];
+    if (raw == null || raw === "") continue; // nothing extracted — nothing to verify here
+    const meta = extraction.field_confidence[key];
+    out.push({ key, label, value: String(raw), confidence: meta?.confidence ?? null, page: meta?.page ?? null });
+  }
+  for (const q of extraction.quantities) {
+    const meta = extraction.field_confidence[q.label];
+    out.push({
+      key: q.label, label: q.label, value: String(q.value), unit: q.unit,
+      confidence: meta?.confidence ?? null, page: meta?.page ?? null,
+    });
+  }
+  return out;
+}
+
+const needsReview = (c: "high" | "medium" | "low" | null) => c === "low" || c === "medium";
 
 type FieldState = { value: string; verified: boolean; edited: boolean };
 
-export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void; onSkip?: () => void }) {
-  // Seed editable state from the extraction. High-confidence fields are pre-accepted.
+export function VerifyExtraction({
+  extraction,
+  onConfirm,
+  onSkip,
+}: {
+  extraction: Extraction;
+  onConfirm: (edits: Record<string, string>) => void;
+  onSkip: () => void;
+}) {
+  const allFields = useMemo(() => buildFields(extraction), [extraction]);
+
   const [fields, setFields] = useState<Record<string, FieldState>>(() =>
     Object.fromEntries(
-      PLAN.fields.map((f) => [f.key, { value: f.value, verified: f.confidence >= REVIEW_THRESHOLD, edited: false }]),
+      allFields.map((f) => [f.key, { value: f.value, verified: !needsReview(f.confidence), edited: false }]),
     ),
   );
   const [editing, setEditing] = useState<string | null>(null);
-  const [loc, setLoc] = useState({ lat: "", lon: "", confirmed: false });
+
+  const origLat = extraction.identity.latitude;
+  const origLon = extraction.identity.longitude;
+  const [loc, setLoc] = useState({
+    lat: origLat != null ? String(origLat) : "",
+    lon: origLon != null ? String(origLon) : "",
+    confirmed: origLat != null && origLon != null,
+  });
 
   const setField = (k: string, patch: Partial<FieldState>) => setFields((p) => ({ ...p, [k]: { ...p[k], ...patch } }));
 
-  const fieldsDone = PLAN.fields.filter((f) => fields[f.key].verified).length;
-  const total = PLAN.fields.length + 1; // + location
+  const fieldsDone = allFields.filter((f) => fields[f.key]?.verified).length;
+  const total = allFields.length + 1; // + location
   const done = fieldsDone + (loc.confirmed ? 1 : 0);
   const allClear = done === total;
 
-  const lowConf = useMemo(() => PLAN.fields.filter((f) => f.confidence < REVIEW_THRESHOLD).length, []);
+  const lowConf = useMemo(() => allFields.filter((f) => needsReview(f.confidence)).length, [allFields]);
+
+  const buildEdits = (): Record<string, string> => {
+    const edits: Record<string, string> = {};
+    for (const f of allFields) {
+      const st = fields[f.key];
+      if (st?.edited) edits[f.key] = st.value;
+    }
+    if (loc.lat && loc.lon && (loc.lat !== (origLat != null ? String(origLat) : "") || loc.lon !== (origLon != null ? String(origLon) : ""))) {
+      edits.latitude = loc.lat;
+      edits.longitude = loc.lon;
+    }
+    return edits;
+  };
 
   return (
     <div>
@@ -43,8 +116,10 @@ export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void;
           <Eyebrow>Step 2 · Human-in-the-loop</Eyebrow>
           <h2 className="mt-1 font-serif text-[22px] tracking-tight">Review &amp; confirm the read</h2>
           <p className="mt-1 max-w-lg text-[13px] text-muted-foreground">
-            Your eyes on the AI&apos;s extraction before it&apos;s trusted. {lowConf} field{lowConf === 1 ? "" : "s"} flagged
-            for review and the location needs confirming — everything else is high-confidence.
+            Your eyes on the extraction before I pull competitor intel and build the rest of the
+            report. {lowConf} field{lowConf === 1 ? "" : "s"} flagged for review
+            {extraction.identity.latitude == null ? " and the location isn't detected" : ""} —
+            everything else is high-confidence.
           </p>
         </div>
         <div className="shrink-0 text-right">
@@ -62,19 +137,22 @@ export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void;
           {loc.confirmed ? (
             <Chip tone="positive"><Check className="h-3 w-3" /> confirmed</Chip>
           ) : (
-            <Chip tone="warn"><AlertTriangle className="h-3 w-3" /> not detected in plan</Chip>
+            <Chip tone="warn"><AlertTriangle className="h-3 w-3" /> not detected</Chip>
           )}
         </div>
         <p className="mt-1 text-[12px] text-muted-foreground">
-          {PLAN.county} County, {PLAN.state}. The plan shows a location map but no coordinates — enter the lat/long
-          (or paste a Google Maps pin) so haul-distance and competitor scoring can run.
+          {[extraction.identity.county, extraction.identity.state].filter(Boolean).join(", ") || "This plan"}.
+          {loc.confirmed
+            ? " Auto-computed from the route/milepost fields — confirm it or correct it below."
+            : " No coordinates could be computed automatically — enter the lat/long (or paste a Google Maps pin) so haul-distance and competitor scoring can run."}
         </p>
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
           <CoordInput label="Latitude" placeholder="47.3600" value={loc.lat} onChange={(v) => setLoc((p) => ({ ...p, lat: v, confirmed: false }))} />
           <CoordInput label="Longitude" placeholder="-102.6000" value={loc.lon} onChange={(v) => setLoc((p) => ({ ...p, lon: v, confirmed: false }))} />
           <button
-            onClick={() => setLoc((p) => ({ ...p, lat: p.lat || "47.3600", lon: p.lon || "-102.6000", confirmed: true }))}
-            className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[12px] font-medium text-primary-foreground transition-all hover:-translate-y-px"
+            onClick={() => setLoc((p) => ({ ...p, confirmed: Boolean(p.lat && p.lon) }))}
+            disabled={!loc.lat || !loc.lon}
+            className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[12px] font-medium text-primary-foreground transition-all hover:-translate-y-px disabled:opacity-40"
           >
             <Check className="h-3.5 w-3.5" /> Confirm location
           </button>
@@ -83,15 +161,12 @@ export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void;
 
       {/* Fields */}
       <div className="space-y-2">
-        {PLAN.fields.map((f) => {
+        {allFields.map((f) => {
           const st = fields[f.key];
-          const needsReview = f.confidence < REVIEW_THRESHOLD;
+          const review = needsReview(f.confidence);
           const isEditing = editing === f.key;
           return (
-            <Glass
-              key={f.key}
-              className={cn("p-3", needsReview && !st.verified && "ring-1 ring-[var(--warn)]/40")}
-            >
+            <Glass key={f.key} className={cn("p-3", review && !st.verified && "ring-1 ring-[var(--warn)]/40")}>
               <div className="flex items-center gap-3">
                 {/* confirm toggle */}
                 <button
@@ -107,13 +182,15 @@ export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void;
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] text-muted-foreground">{f.label}</span>
-                    {needsReview ? (
-                      <Chip tone="warn">review · {Math.round(f.confidence * 100)}%</Chip>
-                    ) : (
-                      <span className="font-mono text-[10px] text-[var(--positive)]">{Math.round(f.confidence * 100)}%</span>
-                    )}
+                    {f.confidence ? (
+                      review ? (
+                        <Chip tone="warn">{f.confidence} confidence</Chip>
+                      ) : (
+                        <span className="font-mono text-[10px] text-[var(--positive)]">{f.confidence} confidence</span>
+                      )
+                    ) : null}
                     {st.edited && <Chip tone="primary">edited</Chip>}
-                    <span className="ml-auto font-mono text-[10px] text-muted-foreground/60">p.{f.page}</span>
+                    {f.page != null && <span className="ml-auto font-mono text-[10px] text-muted-foreground/60">p.{f.page}</span>}
                   </div>
                   {isEditing ? (
                     <div className="mt-1 flex items-center gap-2">
@@ -163,22 +240,20 @@ export function VerifyExtraction({ onConfirm, onSkip }: { onConfirm: () => void;
           {allClear ? "All fields confirmed — extraction is trusted." : `${total - done} item${total - done === 1 ? "" : "s"} still need a human check.`}
         </span>
         <div className="flex items-center gap-2">
-          {onSkip && (
-            <button
-              onClick={onSkip}
-              className="rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Skip for now
-            </button>
-          )}
           <button
-            onClick={onConfirm}
+            onClick={onSkip}
+            className="rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Skip for now
+          </button>
+          <button
+            onClick={() => onConfirm(buildEdits())}
             className={cn(
               "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all",
               allClear ? "bg-primary text-primary-foreground elev-sm hover:-translate-y-px hover:elev-md" : "bg-secondary text-foreground hover:bg-secondary/70",
             )}
           >
-            {allClear ? "Confirm & save" : "Save anyway"} <ArrowRight className="h-4 w-4" />
+            {allClear ? "Confirm & continue" : "Save & continue"} <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </motion.div>

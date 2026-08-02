@@ -47,7 +47,7 @@ def _compute_win_stats(
 
     def _season_tons(season_df: pd.DataFrame) -> float:
         """Sum mix_tons for all won projects in a season slice using the tons_lookup
-        (tons_lookup is keyed by project_natural_key, not job_id -- see orchestrator.py)."""
+        (tons_lookup is keyed by project_natural_key -- see orchestrator.py)."""
         if not tons_lookup:
             return 0.0
         won = season_df[season_df["did_win"] == 1]

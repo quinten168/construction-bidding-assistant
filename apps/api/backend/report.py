@@ -15,8 +15,10 @@ import datetime
 import json
 from pathlib import Path
 
+from . import midpoint_bridge
 from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
 from . import project_registry
+from .config import settings
 from .observability import get_logger, timed
 
 import lib                # noqa: E402
@@ -40,16 +42,31 @@ _UNIT = {"MIX_TN": "t", "GRADE_CY": "CY", "BASE_TN": "t", "SHLDR_TN": "t", "MILL
 # payload by CONTENT HASH (reusing the converter's hash). A re-drop of a seen PDF then skips convert
 # + ingest + BOTH Claude passes and returns in ~0s — the single biggest win for the test loop, where
 # the same plan is dropped over and over under fresh UUID filenames.
+#
+# The cache is written ONLY by apply_verification() (below), not by process_pdf() itself — a payload
+# isn't "final" the moment extraction finishes, it's final once a human has been through the verify
+# gate. process_pdf() still checks the cache first (a re-drop of an already-verified plan skips the
+# whole pipeline AND the verify step, same instant-return behavior as before), it just never writes
+# it — an unverified extraction is never cached, so it can't be mistaken for a finished one.
 _PAYLOAD_CACHE = lib.DATA_DIR / "_report_payload_cache"
 
 
-def _payload_cache_path(pdf_path: Path) -> Path:
-    return _PAYLOAD_CACHE / (convert._hash(pdf_path) + ".json")
+def _payload_cache_path(content_hash: str) -> Path:
+    return _PAYLOAD_CACHE / (content_hash + ".json")
 
 
 def _val(field):
     """Scalar fields are {value, confidence, page}; unwrap to the value."""
     return field.get("value") if isinstance(field, dict) else field
+
+
+def _conf(field) -> dict:
+    """Scalar fields are {value, confidence, page}; pull confidence/page for the verify UI (the
+    value itself is handled separately by _val()). confidence is a 3-level string enum
+    ("high"|"medium"|"low") per s3_extract.py's extraction prompt, not a numeric score."""
+    if isinstance(field, dict):
+        return {"confidence": field.get("confidence"), "page": field.get("page")}
+    return {"confidence": None, "page": None}
 
 
 def _classify_read_error(e: Exception) -> tuple[str, str]:
@@ -78,8 +95,9 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
     {"ok": False, ...} for handled cases (e.g. a drawings-only plan set)."""
     pdf_path = Path(pdf_path)
     plan_id = plan_id or pdf_path.stem
+    content_hash = convert._hash(pdf_path)
 
-    cache = _payload_cache_path(pdf_path)                  # same content → same report
+    cache = _payload_cache_path(content_hash)               # same content → same (verified) report
     if cache.exists():
         try:
             rep = json.loads(cache.read_text())
@@ -118,13 +136,59 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         log.warning("report: read failed for %s — %s (%s)", plan_id, reason, e)
         return {"ok": False, "reason": reason, "plan_id": plan_id, "message": message}
 
+    # 5th stage: route/milepost fields → lat/long, via state DOT GIS lookups (midpoint_bridge.py).
+    # Never allowed to fail the report — a lookup miss just leaves latitude/longitude null, and a
+    # human can fill them in via record_correction (merged in at render time, final_report.py).
+    latitude = longitude = None
+    if settings.midpoint_lookup_enabled:
+        try:
+            with timed(log, f"midpoint {plan_id}"):
+                result = midpoint_bridge.compute_midpoint(
+                    state=_val(record.get("state")),
+                    route=_val(record.get("route_number")),
+                    begin_mp_raw=_val(record.get("begin_milepost")),
+                    total_length=_val(record.get("total_gross_length")),
+                    end_mp_raw=_val(record.get("end_milepost")),
+                )
+        except Exception as e:                                  # noqa: BLE001 — never break the report
+            log.warning("report: midpoint stage errored for %s — %s", plan_id, e)
+            result = None
+        if result:
+            latitude, longitude = result
+
     # archetype from the extracted quantities (v2 rule, reused from the resolver)
     qrow = {dst: _val(record.get(src)) for src, dst in _QMAP.items()}
     archetype = project_registry._archetype(qrow)
 
-    quantities = [{"label": dst.replace("_TN", "").replace("_CY", "").replace("_SY", ""),
-                   "value": _val(record.get(src)), "unit": _UNIT[dst]}
-                  for src, dst in _QMAP.items() if _val(record.get(src)) not in (None, "", 0)]
+    # Identity fields, keyed the way they're shown in the UI (e.g. "location", not the underlying
+    # record field "project_location") — built once here so field_confidence and identity below
+    # stay in lockstep instead of two separate lists of record.get(...) calls that could drift.
+    identity_fields = {
+        "state": record.get("state"), "county": record.get("county"),
+        "location": record.get("project_location"), "sp_number": record.get("sp_number"),
+        "prevailing_wages": record.get("prevailing_wages"),
+        "traffic_level": record.get("traffic_level"),
+        "construction_start": record.get("construction_start"),
+        "construction_end": record.get("construction_end"),
+        "bid_deadline": record.get("bid_deadline"),
+        "substantial_completion": record.get("substantial_completion"),
+        "final_completion": record.get("final_completion"),
+    }
+    # field_confidence: identity fields first, quantities appended below — for the verify-gate UI.
+    # latitude/longitude are deliberately absent here: they come from midpoint_bridge's lookup, not
+    # an extraction cell, so there's no comparable confidence value; the verify UI treats location
+    # as its own dedicated block instead of folding it into this confidence-flagged field list.
+    field_confidence = {k: _conf(v) for k, v in identity_fields.items()}
+
+    quantities = []
+    for src, dst in _QMAP.items():
+        field = record.get(src)
+        value = _val(field)
+        if value in (None, "", 0):
+            continue
+        label = dst.replace("_TN", "").replace("_CY", "").replace("_SY", "")
+        quantities.append({"label": label, "value": value, "unit": _UNIT[dst]})
+        field_confidence[label] = _conf(field)
 
     gotchas = [{"code": g.get("code"), "evidence": g.get("evidence"),
                 "page": g.get("page"), "confidence": g.get("confidence")}
@@ -134,22 +198,60 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         "ok": True, "plan_id": plan_id, "archetype": archetype,
         "structure": {k: structure[k] for k in ("type", "n_pages", "proposal_ranges", "map_ranges")},
         "identity": {
-            "state": _val(record.get("state")), "county": _val(record.get("county")),
-            "location": _val(record.get("project_location")), "sp_number": _val(record.get("sp_number")),
-            "prevailing_wages": _val(record.get("prevailing_wages")),
-            "traffic_level": _val(record.get("traffic_level")),
-            "construction_start": _val(record.get("construction_start")),
-            "construction_end": _val(record.get("construction_end")),
-            "bid_deadline": _val(record.get("bid_deadline")),
-            "substantial_completion": _val(record.get("substantial_completion")),
-            "final_completion": _val(record.get("final_completion")),
+            **{k: _val(v) for k, v in identity_fields.items()},
+            "latitude": latitude, "longitude": longitude,
         },
         "quantities": quantities,
         "gotchas": gotchas,
+        "field_confidence": field_confidence,
+        "content_hash": content_hash,
+        # False until a human has been through the verify gate and apply_verification() writes the
+        # cache below — see apply_verification()'s docstring for why caching moved out of here.
+        "verified": False,
     }
-    try:                                                   # cache for instant re-drops (best-effort)
-        _PAYLOAD_CACHE.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps(rep))
-    except Exception:
-        pass
+    return rep
+
+
+def apply_verification(rep: dict, edits: dict) -> dict:
+    """The verify-gate finalize step. `edits` is a flat {field: value} map from the verify UI —
+    identity field keys (matching process_pdf's identity_fields above) and/or quantity `label`s,
+    plus "latitude"/"longitude" — and is applied directly onto this payload's identity/quantities,
+    the SAME place auto-extracted values already live (by explicit 2026-07-31 request: a
+    user-entered lat/long or corrected quantity is written into the same payload-cache JSON as the
+    quantities, not into corrections.py's separate sidecar file — that mechanism is for a different,
+    later-in-time use case, fixing a field via chat *after* a report already exists).
+
+    Marks the payload verified and writes it to the payload cache — this is what makes a re-drop of
+    the same PDF, post-verification, return instantly with the verified values (process_pdf's
+    cache-hit check at the top of this file only ever finds payloads written from here)."""
+    rep = dict(rep)  # shallow copy — don't mutate the caller's in-memory extraction
+    identity = dict(rep.get("identity") or {})
+    quantities = [dict(q) for q in (rep.get("quantities") or [])]
+    by_label = {q["label"]: q for q in quantities}
+
+    for field, value in (edits or {}).items():
+        if field in ("latitude", "longitude"):
+            try:
+                identity[field] = float(value)
+            except (TypeError, ValueError):
+                identity[field] = value
+        elif field in by_label:
+            try:
+                by_label[field]["value"] = float(value)
+            except (TypeError, ValueError):
+                by_label[field]["value"] = value
+        else:
+            identity[field] = value
+
+    rep["identity"] = identity
+    rep["quantities"] = quantities
+    rep["verified"] = True
+
+    content_hash = rep.get("content_hash")
+    if content_hash:
+        try:
+            _PAYLOAD_CACHE.mkdir(parents=True, exist_ok=True)
+            _payload_cache_path(content_hash).write_text(json.dumps(rep))
+        except Exception:                                     # best-effort, same as the old cache write
+            pass
     return rep

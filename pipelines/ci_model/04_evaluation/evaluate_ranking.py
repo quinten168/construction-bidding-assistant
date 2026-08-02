@@ -147,7 +147,7 @@ def compute_random_baselines(
 
     split_rows: dict[str, list[dict]] = {"train": [], "validation": [], "test": []}
 
-    for _job_id, group in tier_preds.groupby("job_id", sort=False):
+    for _project_natural_key, group in tier_preds.groupby("project_natural_key", sort=False):
         split = str(group["time_split"].iloc[0])
         if split not in split_rows:
             continue
@@ -213,10 +213,10 @@ def build_topk_precision(
     score_col: str,
 ) -> pd.DataFrame:
     rows = []
-    merged = predictions.merge(actual_counts, on="job_id", how="left")
+    merged = predictions.merge(actual_counts, on="project_natural_key", how="left")
     merged["actual_bidder_count"] = merged["actual_bidder_count"].fillna(0).astype(int)
 
-    for job_id, group in merged.groupby("job_id", sort=False):
+    for project_natural_key, group in merged.groupby("project_natural_key", sort=False):
         actual_total = int(group["actual_bidder_count"].iloc[0])
         if actual_total == 0:
             continue
@@ -226,7 +226,7 @@ def build_topk_precision(
         row = {
             "method": method_name,
             "time_split": ordered["time_split"].iloc[0],
-            "job_id": job_id,
+            "project_natural_key": project_natural_key,
             "bid_date": ordered["bid_date"].iloc[0],
             "state": ordered.get("state", pd.Series([pd.NA])).iloc[0],
             "project_type": ordered.get("project_type", pd.Series([pd.NA])).iloc[0],
@@ -270,7 +270,7 @@ def build_winner_hit_rate(
     swapped = predictions.copy()
     swapped["did_bid"] = swapped["did_win"]
     winner_present = (
-        predictions.groupby("job_id")["did_win"].max()
+        predictions.groupby("project_natural_key")["did_win"].max()
         .reset_index(name="actual_bidder_count")
     )
     return build_topk_precision(swapped, winner_present, method_name, score_col)
@@ -298,7 +298,7 @@ def summarize_metrics(topk: pd.DataFrame, group_cols: list[str] | None = None) -
         if not isinstance(keys, tuple):
             keys = (keys,)
         row = dict(zip(["method", "time_split", *group_cols], keys))
-        row["projects"] = int(frame["job_id"].nunique())
+        row["projects"] = int(frame["project_natural_key"].nunique())
         if "candidate_count" in frame.columns:
             row["median_candidates"] = float(frame["candidate_count"].median())
         if "actual_bidder_count" in frame.columns:
@@ -327,7 +327,7 @@ def build_tier_topk_precision(
     tier_preds = predictions[predictions[TIER_COL] == tier].copy()
     has_bid_amounts = "bid_amount" in tier_preds.columns and "low_bid_amount" in tier_preds.columns
     rows = []
-    for job_id, group in tier_preds.groupby("job_id", sort=False):
+    for project_natural_key, group in tier_preds.groupby("project_natural_key", sort=False):
         ordered = group.sort_values(score_col, ascending=False).copy()
         actual_total = int((ordered["did_bid"] == 1).sum())
         if actual_total == 0:
@@ -346,7 +346,7 @@ def build_tier_topk_precision(
         row = {
             "method": method_name,
             "time_split": ordered["time_split"].iloc[0],
-            "job_id": job_id,
+            "project_natural_key": project_natural_key,
             "actual_bidder_count": actual_total,
             "candidate_count": len(ordered),
             "ndcg": _ndcg(relevance, actual_total),
@@ -551,7 +551,7 @@ def main() -> None:
     predictions    = pd.read_csv(args.predictions)
     bidder_results = read_table(args.bidder_results)
     actual_counts  = (
-        bidder_results.groupby("job_id")["competitor_unit_id"]
+        bidder_results.groupby("project_natural_key")["competitor_unit_id"]
         .nunique()
         .reset_index(name="actual_bidder_count")
     )
@@ -575,16 +575,16 @@ def main() -> None:
         print(f"  Tier 1 priority competitors resolved: {len(priority_ids)} unique IDs")
 
     # ── Merge bid_amount for graded NDCG ─────────────────────────────────
-    bid_info = bidder_results[["job_id", "competitor_unit_id", "bid_amount"]].copy()
+    bid_info = bidder_results[["project_natural_key", "competitor_unit_id", "bid_amount"]].copy()
     bid_info["bid_amount"] = pd.to_numeric(bid_info["bid_amount"], errors="coerce")
     low_bid = (
         bid_info[bid_info["bid_amount"] > 0]
-        .groupby("job_id")["bid_amount"].min()
+        .groupby("project_natural_key")["bid_amount"].min()
         .reset_index(name="low_bid_amount")
     )
-    bid_info = bid_info.merge(low_bid, on="job_id", how="left")
+    bid_info = bid_info.merge(low_bid, on="project_natural_key", how="left")
     predictions = predictions.merge(
-        bid_info, on=["job_id", "competitor_unit_id"], how="left", suffixes=("", "_br")
+        bid_info, on=["project_natural_key", "competitor_unit_id"], how="left", suffixes=("", "_br")
     )
     if "bid_amount_br" in predictions.columns:
         predictions["bid_amount"] = predictions["bid_amount"].fillna(predictions.pop("bid_amount_br"))

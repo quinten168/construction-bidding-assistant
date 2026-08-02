@@ -250,7 +250,7 @@ def add_project_locations(
     county_centroids: pd.DataFrame | None = None,
     use_pit_county_centroids: bool = True,
 ) -> pd.DataFrame:
-    project_cols = ["job_id", "state", "county"]
+    project_cols = ["project_natural_key", "state", "county"]
     lat_col = first_existing(list(projects.columns), ["project_latitude", "project_lat", "latitude", "lat"])
     lon_col = first_existing(list(projects.columns), ["project_longitude", "project_lon", "longitude", "lon", "lng"])
     if lat_col and lon_col:
@@ -258,8 +258,8 @@ def add_project_locations(
 
     available_cols = [col for col in project_cols if col in projects.columns]
     result = panel.merge(
-        projects[available_cols].drop_duplicates("job_id"),
-        on="job_id",
+        projects[available_cols].drop_duplicates("project_natural_key"),
+        on="project_natural_key",
         how="left",
         suffixes=("", "_project"),
     )
@@ -342,7 +342,7 @@ def build_features_for_row(
     pit_distances: pd.DataFrame | None = None,
 ) -> dict[str, object]:
     features: dict[str, object] = {
-        "job_id": row["job_id"],
+        "project_natural_key": row["project_natural_key"],
         "competitor_unit_id": str(row["competitor_unit_id"]),
         "project_location_source": row.get("project_location_source", "missing"),
         "project_location_confidence": row.get("project_location_confidence", "missing"),
@@ -478,7 +478,7 @@ def build_features_for_project_rows(
     for _, row in project_rows.iterrows():
         competitor_unit_id = str(row["competitor_unit_id"])
         features: dict[str, object] = {
-            "job_id": row["job_id"],
+            "project_natural_key": row["project_natural_key"],
             "competitor_unit_id": competitor_unit_id,
             **common,
         }
@@ -543,13 +543,13 @@ def build_pit_features(
     county_centroids: pd.DataFrame | None = None,
     use_pit_county_centroids: bool = True,
 ) -> pd.DataFrame:
-    required = {"job_id", "competitor_unit_id"}
+    required = {"project_natural_key", "competitor_unit_id"}
     missing = required.difference(panel.columns)
     if missing:
         raise ValueError(f"Panel is missing required columns: {sorted(missing)}")
 
     prepared_pits = prepare_pits(pits, bidder_results)
-    rows = panel[["job_id", "competitor_unit_id"]].drop_duplicates().copy()
+    rows = panel[["project_natural_key", "competitor_unit_id"]].drop_duplicates().copy()
     rows["competitor_unit_id"] = rows["competitor_unit_id"].astype(str)
     rows = add_project_locations(
         panel=rows,
@@ -560,10 +560,10 @@ def build_pit_features(
     )
 
     feature_rows = []
-    for _, project_rows in rows.groupby("job_id", sort=False):
+    for _, project_rows in rows.groupby("project_natural_key", sort=False):
         feature_rows.extend(build_features_for_project_rows(project_rows, prepared_pits))
     result = pd.DataFrame(feature_rows)
-    ordered_cols = ["job_id", "competitor_unit_id", *PIT_FEATURE_COLUMNS]
+    ordered_cols = ["project_natural_key", "competitor_unit_id", *PIT_FEATURE_COLUMNS]
     for col in ordered_cols:
         if col not in result.columns:
             result[col] = np.nan
@@ -571,8 +571,8 @@ def build_pit_features(
 
     # Pit data covers Minnesota only — zero out all pit features for other states
     # and add a binary flag so the model knows when pit features are meaningful.
-    state_map = rows[["job_id", "state"]].drop_duplicates("job_id")
-    result = result.merge(state_map, on="job_id", how="left")
+    state_map = rows[["project_natural_key", "state"]].drop_duplicates("project_natural_key")
+    result = result.merge(state_map, on="project_natural_key", how="left")
     non_mn = result["state"].fillna("").str.upper().ne("MN")
     result["pit_applicable"] = (~non_mn).astype(int)
     for col in DISTANCE_FEATURE_COLUMNS:
@@ -587,8 +587,8 @@ def build_pit_features(
     print(f"  pit_applicable: {(~non_mn).sum():,} MN rows ({mn_pct:.1f}%) — "
           f"{non_mn.sum():,} non-MN rows zeroed out")
 
-    final_cols = ["job_id", "competitor_unit_id", "pit_applicable", *PIT_FEATURE_COLUMNS]
-    return result[final_cols].sort_values(["job_id", "competitor_unit_id"]).reset_index(drop=True)
+    final_cols = ["project_natural_key", "competitor_unit_id", "pit_applicable", *PIT_FEATURE_COLUMNS]
+    return result[final_cols].sort_values(["project_natural_key", "competitor_unit_id"]).reset_index(drop=True)
 
 
 def main() -> None:
@@ -626,7 +626,7 @@ def main() -> None:
     print(f"  candidate rule:         {args.candidate_rule}")
     print(f"  output:                 {written}")
     print(f"  rows:                   {len(features):,}")
-    print(f"  projects:               {features['job_id'].nunique():,}")
+    print(f"  projects:               {features['project_natural_key'].nunique():,}")
     print(f"  competitors:            {features['competitor_unit_id'].nunique():,}")
     print("  location source counts:")
     print(features["project_location_source"].value_counts(dropna=False).to_string())

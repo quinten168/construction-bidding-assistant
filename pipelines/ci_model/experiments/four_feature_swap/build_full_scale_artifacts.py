@@ -49,12 +49,12 @@ def build_history(projects_path: str, bidder_results_path: str):
     for m in MATERIALS:
         projects[m] = pd.to_numeric(projects[m], errors="coerce").fillna(0)
     history = bidder_results.merge(
-        projects[["job_id", "bid_date", "state", "county", "project_type", *MATERIALS]],
-        on="job_id", how="left", validate="many_to_one",
+        projects[["project_natural_key", "bid_date", "state", "county", "project_type", *MATERIALS]],
+        on="project_natural_key", how="left", validate="many_to_one",
     )
     history["competitor_unit_id"] = history["competitor_unit_id"].astype(str)
     history["did_win"] = pd.to_numeric(history["did_win"], errors="coerce").fillna(0)
-    return history, projects.set_index("job_id")
+    return history, projects.set_index("project_natural_key")
 
 
 def main() -> None:
@@ -74,7 +74,7 @@ def main() -> None:
     )
     print("time_split row counts:\n", panel["time_split"].value_counts())
     print("time_split project counts:\n",
-          panel.groupby("time_split")["job_id"].nunique())
+          panel.groupby("time_split")["project_natural_key"].nunique())
     print("(production reference: rows train=92671 val=87801 test=49976; "
           "projects train=817 val=531 test=243)")
 

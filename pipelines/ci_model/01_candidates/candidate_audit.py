@@ -18,19 +18,19 @@ def audit_candidate_rules(training_audit_panel: pd.DataFrame) -> pd.DataFrame:
         winners = frame[frame["did_win"] == 1]
         rule_candidates = frame[frame["was_rule_candidate"] == 1]
 
-        project_group = frame.groupby("job_id")
-        candidate_counts = rule_candidates.groupby("job_id")["competitor_unit_id"].nunique()
+        project_group = frame.groupby("project_natural_key")
+        candidate_counts = rule_candidates.groupby("project_natural_key")["competitor_unit_id"].nunique()
 
-        actual_by_project = actual.groupby("job_id")["competitor_unit_id"].nunique()
-        captured_actual_by_project = actual[actual["was_rule_candidate"] == 1].groupby("job_id")[
+        actual_by_project = actual.groupby("project_natural_key")["competitor_unit_id"].nunique()
+        captured_actual_by_project = actual[actual["was_rule_candidate"] == 1].groupby("project_natural_key")[
             "competitor_unit_id"
         ].nunique()
         candidate_counts_all_projects = (
-            frame[["job_id"]]
+            frame[["project_natural_key"]]
             .drop_duplicates()
             .merge(
                 candidate_counts.rename("candidate_count"),
-                on="job_id",
+                on="project_natural_key",
                 how="left",
             )["candidate_count"]
             .fillna(0)
@@ -74,7 +74,7 @@ def audit_candidate_rules(training_audit_panel: pd.DataFrame) -> pd.DataFrame:
         rows.append(
             {
                 "candidate_rule_version": rule_name,
-                "projects": int(frame["job_id"].nunique()),
+                "projects": int(frame["project_natural_key"].nunique()),
                 "rule_candidate_rows": int(len(rule_candidates)),
                 "training_audit_rows": int(len(frame)),
                 "actual_bidder_rows": int(len(actual)),
@@ -165,10 +165,10 @@ def audit_candidate_rules_by_project_type(training_audit_panel: pd.DataFrame) ->
         actual = frame[frame["did_bid"] == 1]
         rule_candidates = frame[frame["was_rule_candidate"] == 1]
         winners = frame[frame["did_win"] == 1]
-        candidate_counts = rule_candidates.groupby("job_id")["competitor_unit_id"].nunique()
+        candidate_counts = rule_candidates.groupby("project_natural_key")["competitor_unit_id"].nunique()
 
-        actual_by_project = actual.groupby("job_id")["competitor_unit_id"].nunique()
-        captured_actual_by_project = actual[actual["was_rule_candidate"] == 1].groupby("job_id")[
+        actual_by_project = actual.groupby("project_natural_key")["competitor_unit_id"].nunique()
+        captured_actual_by_project = actual[actual["was_rule_candidate"] == 1].groupby("project_natural_key")[
             "competitor_unit_id"
         ].nunique()
         recall_check = (
@@ -187,7 +187,7 @@ def audit_candidate_rules_by_project_type(training_audit_panel: pd.DataFrame) ->
             {
                 "candidate_rule_version": rule_name,
                 "project_type": project_type,
-                "projects": int(frame["job_id"].nunique()),
+                "projects": int(frame["project_natural_key"].nunique()),
                 "actual_bidder_rows": int(len(actual)),
                 "missed_actual_bidders": int(
                     ((frame["did_bid"] == 1) & (frame["was_rule_candidate"] == 0)).sum()
@@ -233,7 +233,7 @@ def _safe_rate(numerator: int, denominator: int) -> float:
 def _project_capture_rate(winners: pd.DataFrame) -> float:
     if winners.empty:
         return 0.0
-    by_project = winners.groupby("job_id")["was_rule_candidate"].max()
+    by_project = winners.groupby("project_natural_key")["was_rule_candidate"].max()
     return float((by_project == 1).mean())
 
 
@@ -250,8 +250,8 @@ def classify_missed_reasons(
     bidder_results = bidder_results.copy()
     projects["bid_date"] = pd.to_datetime(projects["bid_date"], errors="coerce")
     history = bidder_results.merge(
-        projects[["job_id", "bid_date", "state", "county", "project_type"]],
-        on="job_id",
+        projects[["project_natural_key", "bid_date", "state", "county", "project_type"]],
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
@@ -380,7 +380,7 @@ def missed_actual_bidders(
 
     cols = [
         "candidate_rule_version",
-        "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",
@@ -401,5 +401,5 @@ def missed_actual_bidders(
         "days_since_last_bid",
     ]
     return missed[[col for col in cols if col in missed.columns]].sort_values(
-        ["candidate_rule_version", "job_id", "bid_rank", "competitor_unit_id"]
+        ["candidate_rule_version", "project_natural_key", "bid_rank", "competitor_unit_id"]
     )
