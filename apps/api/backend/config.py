@@ -168,9 +168,54 @@ CI_BIDDER_RESULTS = REPO / "data" / "processed" / "bidder_results.csv"
 # them. See competitor_live.py::ensure_fresh_local_data.
 PULL_SCRATCH_SCRIPT = REPO / "data" / "pull_scratch_updates.py"
 
-_ENV_FILES_FOUND = [f for f in (REPO / "apps" / "api" / ".env", REPO / ".env") if f.exists()]
+# THE CANONICAL .env IS THE REPO-ROOT ONE. Resolved from __file__ (via REPO, which walks up to the
+# .git marker), never from cwd -- teammates launch uvicorn from apps/api, from the repo root, and
+# through scripts/dev.sh, and a cwd-relative search reproduces the original bug with more confusion.
+#
+# apps/api/.env is loaded too, but ONLY for API-specific overrides. The Supabase DSN lives in the
+# root file and nowhere else; two copies of a DSN is a drift hazard, so _warn_on_env_drift below
+# shouts if a second copy appears.
+CANONICAL_ENV = REPO / ".env"
+_API_ENV = REPO / "apps" / "api" / ".env"
+
+# override=False is DELIBERATE, not the default taken by accident: a real environment variable must
+# beat a checked-out file, or Railway/CI could not override local config. The cost is that a stale
+# `export` silently wins over a freshly-edited .env, which is the next version of this bug -- so
+# that specific case is detected and reported rather than left silent. See _env_drift().
+_ENV_OVERRIDE = False
+
+_ENV_FILES_FOUND = [f for f in (CANONICAL_ENV, _API_ENV) if f.exists()]
+_ENV_SHADOWED: list[str] = []   # vars where a pre-existing env var beat the file, with a DIFFERENT value
+
+
+def _file_values(path: Path) -> dict:
+    """Parse a .env into {name: value} without applying it. Used only to detect drift/shadowing."""
+    out = {}
+    try:
+        for line in path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, _, v = line.partition("=")
+            out[k.strip()] = v.strip().strip("'").strip('"')
+    except OSError:
+        pass
+    return out
+
+
+_PRE_EXISTING = dict(os.environ)
 for _env_file in _ENV_FILES_FOUND:
-    _load_dotenv(_env_file, override=False)
+    _load_dotenv(_env_file, override=_ENV_OVERRIDE)
+    for _k, _v in _file_values(_env_file).items():
+        if _k in _PRE_EXISTING and _PRE_EXISTING[_k] != _v and _v and not _v.startswith("PASTE_"):
+            _ENV_SHADOWED.append(f"{_k} (exported value wins over {_env_file})")
+
+# A second copy of the DSN anywhere but the canonical file is a drift hazard, not a convenience.
+_DSN_VAR = "SUPABASE_TEAM_DB_URL"
+_ENV_DSN_DUPLICATES = [
+    str(f) for f in (_API_ENV, REPO / "data" / ".env", REPO / "pipelines" / "plan_reader" / ".env")
+    if f.exists() and _DSN_VAR in _file_values(f)
+]
 
 
 def _load_api_key() -> str:
@@ -244,6 +289,15 @@ class Settings:
     def warnings(self) -> list[str]:
         """Config problems worth surfacing at startup (non-fatal, but the app won't fully work)."""
         issues = []
+        if _ENV_SHADOWED:
+            issues.append(
+                "A shell environment variable is overriding your .env with a DIFFERENT value: "
+                + "; ".join(_ENV_SHADOWED)
+                + ". Run `unset <VAR>` if the file is the one you meant to edit.")
+        if _ENV_DSN_DUPLICATES:
+            issues.append(
+                f"{_DSN_VAR} is defined in {', '.join(_ENV_DSN_DUPLICATES)} as well as the canonical "
+                f"{CANONICAL_ENV}. Two copies of a DSN drift. Keep it in the canonical file only.")
         # A .env that is never read is worse than no .env: the operator believes it is configured.
         if _ENV_FILES_FOUND and not _DOTENV_AVAILABLE:
             issues.append(
@@ -282,3 +336,41 @@ class Settings:
 
 
 settings = Settings()
+
+
+# --- boot check ----------------------------------------------------------------------------------
+# Silent-unset is what produced the works-on-one-machine problem this function exists to end: a
+# teammate filled in a DSN, nothing read it, and the app started anyway and failed later with an
+# unrelated-looking error. This fails at BOOT, naming the exact file and variable.
+_DSN_SCHEMES = ("postgresql://", "postgres://")
+
+
+def require_supabase_dsn() -> None:
+    """Raise unless a plausible Supabase DSN is configured. Called from app.py's startup.
+
+    Set ALLOW_NO_SUPABASE=1 to boot without one -- the chat and PDF paths work fine without
+    Postgres; only the /api/ci-data/* admin endpoints need it.
+    """
+    if os.environ.get("ALLOW_NO_SUPABASE", "") in ("1", "true", "True"):
+        return
+
+    dsn = settings.supabase_team_db_url.strip()
+    where = (f"Expected {_DSN_VAR} in {CANONICAL_ENV}\n"
+             f"  (create it from the template: cp {REPO / '.env.example'} {CANONICAL_ENV})\n"
+             f"  Set ALLOW_NO_SUPABASE=1 to start without Postgres "
+             f"(chat and PDF upload work; the CI-data admin pages will not).")
+
+    if not dsn:
+        raise RuntimeError(f"{_DSN_VAR} is not set.\n  {where}")
+    # Catch every placeholder shape the templates have used: PASTE_..., PASSWORD_HERE, and the
+    # angle-bracket form (<project-ref>, <password>). A DSN that is syntactically a URL but still
+    # holds a placeholder is the most dangerous case -- it passes a naive scheme check and then
+    # fails at connect time, far from the cause.
+    _placeholders = ("PASTE_", "PASSWORD_HERE", "<", ">", "your-key-here")
+    if any(tok in dsn for tok in _placeholders):
+        raise RuntimeError(
+            f"{_DSN_VAR} still holds a template placeholder ({dsn[:40]}...).\n  {where}")
+    if not dsn.startswith(_DSN_SCHEMES):
+        raise RuntimeError(
+            f"{_DSN_VAR} is not a Postgres DSN -- it must start with one of {_DSN_SCHEMES}. "
+            f"Got: {dsn[:24]}...\n  {where}")

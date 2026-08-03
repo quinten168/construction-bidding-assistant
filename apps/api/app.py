@@ -33,6 +33,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
 
+from backend import config as config_mod
 from backend.config import settings
 from backend import plan_reader_bridge as pr, trace
 from backend import report as report_svc, final_report as fr
@@ -56,6 +57,10 @@ def _on_startup() -> None:
     log.info("starting · model=%s · k=%d", settings.chat_model, settings.retrieve_k)
     for w in settings.warnings():
         log.warning("config: %s", w)
+    # Hard-fail on a missing/placeholder Supabase DSN, naming the exact file and variable. Silent
+    # unset is what made this "works on one machine": the app booted fine and failed later with an
+    # error that pointed nowhere near the cause. ALLOW_NO_SUPABASE=1 opts out.
+    config_mod.require_supabase_dsn()
 
 
 # --- schemas (Pydantic gives validation + the auto-generated /docs) ------------------------------

@@ -7,6 +7,94 @@ before you build on it.
 You do not need this repo, a Python environment, or any of the pipeline code to use it. You need
 a connection string and anything that speaks Postgres.
 
+**If you want to run the app rather than just query the data, start with the next section.**
+
+---
+
+## Running the app locally — start here
+
+*Added 2026-08-03. This is the section to follow on a fresh machine.*
+
+### 1. One environment file, at the repo root
+
+```
+<repo root>/.env          <- CANONICAL. This is the only place the DSN goes.
+```
+
+Create it from the template and fill in the values:
+
+```bash
+cd /path/to/csi-bid-intelligence
+cp .env.example .env
+```
+
+| Variable | Required? | What it is |
+|---|---|---|
+| `SUPABASE_TEAM_DB_URL` | **yes** (or set `ALLOW_NO_SUPABASE=1`) | Postgres DSN for the `csi_team` login. Read/write on the `scratch` schema. Ask Tobias for the password. |
+| `ANTHROPIC_API_KEY` | yes | Chat agent + both extraction passes. |
+| `GOOGLE_GEOCODING_API_KEY` | no | Server-side key for the reverse-geocode stage. Unset just disables it (null city), it does not error. **Must not** be the same value as `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, which the browser sees. |
+
+**There is exactly one canonical file, on purpose.** `apps/api/.env` still exists for API-specific
+overrides, but it must **not** carry a second copy of the DSN — two copies drift. The backend
+detects a duplicate and warns at startup.
+
+The file is found relative to the backend source, not your shell's working directory, so it works
+no matter where you launch uvicorn from. Real environment variables still win over the file (needed
+for Railway/CI); if an exported variable shadows the file with a *different* value, the backend
+says so at startup rather than leaving you to guess.
+
+**`data/*.py` and `pipelines/plan_reader/04_tools/*.py` read `os.environ` directly and load no
+file.** Before running those, export the file into your shell:
+
+```bash
+set -a; source .env; set +a
+```
+
+### 2. Start both processes
+
+The app is **two** processes. Starting only one is the most common way to get a confusing error.
+
+```bash
+./scripts/dev.sh          # starts both, health-gates the API, Ctrl-C stops both
+```
+
+Or individually:
+
+```bash
+./scripts/api.sh          # FastAPI on :8010   (docs at http://localhost:8010/docs)
+./scripts/web.sh          # Next.js  on :3000
+```
+
+`web.sh` warns if no API is listening on :8010. Logs also go to `.dev-logs/`.
+
+> **Ignore `apps/api/README.md`'s port 8000.** It is stale. The port is **8010** everywhere else,
+> and the front end proxies to `http://127.0.0.1:8010` by default (override with `BIDINTEL_API_URL`).
+
+### 3. If the backend refuses to start
+
+That is deliberate. A missing or placeholder DSN now **fails at boot** naming the exact file and
+variable, rather than starting and failing later with an unrelated-looking error:
+
+```
+RuntimeError: SUPABASE_TEAM_DB_URL is not set.
+  Expected SUPABASE_TEAM_DB_URL in /path/to/repo/.env
+  (create it from the template: cp /path/to/repo/.env.example /path/to/repo/.env)
+  Set ALLOW_NO_SUPABASE=1 to start without Postgres (chat and PDF upload work;
+  the CI-data admin pages will not).
+```
+
+You will also see this if the value is still a template placeholder — `PASTE_…`, `PASSWORD_HERE`,
+or anything containing `<` / `>`.
+
+**Only the `/api/ci-data/*` admin pages need Postgres.** To work on chat or PDF upload without a
+DSN: `ALLOW_NO_SUPABASE=1 ./scripts/api.sh`.
+
+### 4. Known blocker on Python 3.9
+
+`apps/api` currently fails to import on Python 3.9 — `road_midpoint.py` uses `float | None` in a
+signature without `from __future__ import annotations`, which needs Python 3.10+. Tracked as
+issue #53. Use Python 3.10 or newer until that lands.
+
 ---
 
 ## What this is
