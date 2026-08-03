@@ -208,10 +208,13 @@ def run_report(
     model = json.loads(Path(model_path).read_text())
 
     first_row = project_rows.iloc[0]
+    # "state"/"county" on project_rows hold the simple-rule model's numeric input features, not
+    # the project's actual state/county abbreviation -- see train_simple_rule_baseline.py's
+    # project_state/project_county comment for why. Read the preserved identity columns instead.
     project_info = {
         "project_natural_key": project_key,
-        "state":        str(first_row.get("state", "—")),
-        "county":       str(first_row.get("county", "—")),
+        "state":        str(first_row.get("project_state", "—")),
+        "county":       str(first_row.get("project_county", "—")),
         "project_type": str(first_row.get("project_type", "—")),
         "bid_date":     str(first_row.get("bid_date", "—")),
         "lat":          _lat,

@@ -308,6 +308,13 @@ def build_simple_rule_score(
     tiebreak = rate_county_shrunk.to_numpy() + rate_type_shrunk.to_numpy() + rate_state
 
     predictions["simple_rule_score"] = primary + 1e-6 * tiebreak
+    # PRIMARY_FEATURES includes "county" and "state", which collide with the project's actual
+    # state/county abbreviation columns already on `predictions` (e.g. "MN"/"STEARNS") -- the
+    # overwrite loop below replaces those with the numeric feature values. Save the real identity
+    # under new names FIRST so orchestrator.py/executor.py can still read a place name after this
+    # function returns; see project_state/project_county at those call sites.
+    predictions["project_state"] = predictions["state"]
+    predictions["project_county"] = predictions["county"]
     # Persist the 4 raw (unstandardized) inputs as columns too -- serving-time predict_and_explain()
     # reads feature values straight off the predictions row via model["feature_columns"], so this
     # baseline can't produce a live probability/explanation without them sitting on the row.

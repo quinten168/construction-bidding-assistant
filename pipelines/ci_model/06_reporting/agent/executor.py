@@ -53,12 +53,15 @@ def _compute_win_stats(
         won = season_df[season_df["did_win"] == 1]
         return sum(float(tons_lookup.get(pk, 0) or 0) for pk in won["project_natural_key"])
 
-    county = row.get("county")
-    state  = row.get("state")
+    # "county"/"state" hold the simple-rule model's numeric input features, not the project's
+    # actual state/county abbreviation -- see train_simple_rule_baseline.py's project_state/
+    # project_county comment for why. Use the preserved identity columns instead.
+    county = row.get("project_county")
+    state  = row.get("project_state")
     ptype  = row.get("project_type")
 
-    county_w, county_b = _counts(comp["county"] == county) if county else (0, 0)
-    state_w,  state_b  = _counts(comp["state"]  == state)  if state  else (0, 0)
+    county_w, county_b = _counts(comp["project_county"] == county) if county else (0, 0)
+    state_w,  state_b  = _counts(comp["project_state"]  == state)  if state  else (0, 0)
     type_w,   type_b   = _counts(comp["project_type"] == ptype) if ptype else (0, 0)
 
     # ── Season capacity ────────────────────────────────────────────────────────
