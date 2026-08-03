@@ -10,6 +10,12 @@ Supports: MN, ND, SD, NE (M-value geometry interpolation from state DOT feature 
 Usage:
     python road_midpoint.py --state MN --route 94 --begin 71.00 --end 83.00
 """
+# PEP 604 ("float | None") is used in find_midpoint's signature below. Without this import that
+# annotation is EVALUATED at def-time and raises TypeError on Python 3.9, which took down the whole
+# FastAPI backend: midpoint_bridge imports this module at module scope, report.py imports that, and
+# app.py imports report. The project now pins >=3.10 (pyproject.toml), but this line makes the
+# module import-safe on 3.9 regardless, since it is also run standalone as a CLI. See issue #53.
+from __future__ import annotations
 
 import argparse
 import json

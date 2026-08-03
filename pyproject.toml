@@ -1,0 +1,19 @@
+# Minimal packaging metadata. This project is not installed as a package -- the file exists to
+# PIN THE PYTHON VERSION in one machine-readable place, so nobody silently runs 3.9 again.
+#
+# Why: road_midpoint.py used PEP 604 ("float | None") in a signature without
+# `from __future__ import annotations`, which is evaluated at def-time and raises TypeError on 3.9.
+# midpoint_bridge imports it at module scope and report.py imports that, so the entire FastAPI
+# backend failed to import with a traceback that pointed nowhere near the cause. Issue #53.
+#
+# 3.9 reached end of life in October 2025. PEP 604 is used throughout apps/api (guarded by
+# `from __future__ import annotations` in every file), so the codebase already assumes 3.10+ in
+# practice -- this makes the assumption explicit and enforceable.
+[project]
+name = "csi-bid-intelligence"
+version = "0.1.0"
+description = "Decision support for CSI's bid/no-bid decisions on Minnesota DOT highway lettings"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"

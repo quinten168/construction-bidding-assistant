@@ -204,17 +204,34 @@ def _file_values(path: Path) -> dict:
 
 
 _PRE_EXISTING = dict(os.environ)
+
+# A template placeholder must never shadow a real value. This bit us on 2026-08-03: the canonical
+# file still held `<project-ref>` while the real DSN sat in apps/api/.env, and because the canonical
+# file loads first with override=False, the placeholder won and the real value was silently ignored.
+# Placeholders are treated as absent.
+_PLACEHOLDER_TOKENS = ("PASTE_", "PASSWORD_HERE", "<", ">", "your-key-here", "sk-ant-...")
+
+
+def _is_placeholder(value: str) -> bool:
+    return any(tok in value for tok in _PLACEHOLDER_TOKENS)
+
+
 for _env_file in _ENV_FILES_FOUND:
     _load_dotenv(_env_file, override=_ENV_OVERRIDE)
+    # Re-apply any var this file defines concretely where the currently-set value is a placeholder.
     for _k, _v in _file_values(_env_file).items():
-        if _k in _PRE_EXISTING and _PRE_EXISTING[_k] != _v and _v and not _v.startswith("PASTE_"):
+        if _v and not _is_placeholder(_v) and _is_placeholder(os.environ.get(_k, "")):
+            os.environ[_k] = _v
+    for _k, _v in _file_values(_env_file).items():
+        if (_k in _PRE_EXISTING and _PRE_EXISTING[_k] != _v and _v
+                and not _is_placeholder(_v) and not _is_placeholder(_PRE_EXISTING[_k])):
             _ENV_SHADOWED.append(f"{_k} (exported value wins over {_env_file})")
 
 # A second copy of the DSN anywhere but the canonical file is a drift hazard, not a convenience.
 _DSN_VAR = "SUPABASE_TEAM_DB_URL"
 _ENV_DSN_DUPLICATES = [
     str(f) for f in (_API_ENV, REPO / "data" / ".env", REPO / "pipelines" / "plan_reader" / ".env")
-    if f.exists() and _DSN_VAR in _file_values(f)
+    if f.exists() and not _is_placeholder(_file_values(f).get(_DSN_VAR, "PASTE_"))
 ]
 
 

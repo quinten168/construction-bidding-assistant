@@ -40,3 +40,5 @@ psycopg[binary]>=3.1
 
 # .env loading for local dev (config.py). Optional at runtime — absent means env-vars-only.
 python-dotenv>=1.0.0
+
+# Python >=3.10 required -- see pyproject.toml and issue #53.
