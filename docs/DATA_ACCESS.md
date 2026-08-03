@@ -89,11 +89,14 @@ or anything containing `<` / `>`.
 **Only the `/api/ci-data/*` admin pages need Postgres.** To work on chat or PDF upload without a
 DSN: `ALLOW_NO_SUPABASE=1 ./scripts/api.sh`.
 
-### 4. Known blocker on Python 3.9
+### 4. Python version
 
-`apps/api` currently fails to import on Python 3.9 — `road_midpoint.py` uses `float | None` in a
-signature without `from __future__ import annotations`, which needs Python 3.10+. Tracked as
-issue #53. Use Python 3.10 or newer until that lands.
+**This project requires Python 3.10 or newer** (`pyproject.toml`, `requires-python = ">=3.10"`).
+3.9 reached end of life in October 2025 and PEP 604 syntax (`float | None`) is used throughout.
+
+If you are on 3.9 you will previously have seen `apps/api` fail to import with
+`TypeError: unsupported operand type(s) for |`. That specific instance is fixed (#53), but the
+version floor is real — install 3.10+.
 
 ---
 
