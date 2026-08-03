@@ -170,3 +170,57 @@ def test_missing_city_component_yields_none_city_not_a_crash(monkeypatch):
 def test_the_api_key_is_never_returned_in_the_result(monkeypatch):
     _stub(monkeypatch, STEARNS)
     assert "test-key-not-real" not in repr(rg.reverse_geocode_latlon(45.6752, -94.8083))
+
+
+# --- issue #56: a failed request and a genuine empty answer must not look alike -----------------
+
+REQUEST_DENIED = {
+    "status": "REQUEST_DENIED",
+    "results": [],
+    "error_message": "You must enable Billing on the Google Cloud Project ...",
+}
+
+
+def test_request_denied_is_logged_at_error_with_googles_verbatim_message(monkeypatch, caplog):
+    """The failure that hid the 2026-08-03 billing outage. HTTP 200, empty results, real cause
+    only in `status`/`error_message` — it must not be mistaken for 'no city at this coordinate'."""
+    _stub(monkeypatch, REQUEST_DENIED)
+    with caplog.at_level("DEBUG", logger="plan_reader.reverse_geocode"):
+        assert rg.reverse_geocode_latlon(47.2897, -101.0290) is None
+    errors = [r for r in caplog.records if r.levelname == "ERROR"]
+    assert errors, "a REQUEST_DENIED must log at ERROR, not pass silently"
+    msg = errors[0].getMessage()
+    assert "REQUEST_DENIED" in msg
+    assert "enable Billing" in msg, "Google's error_message must be surfaced verbatim"
+
+
+def test_zero_results_does_not_log_an_error(monkeypatch, caplog):
+    """The counterpart: a legitimately locality-free coordinate is not a failure and must stay
+    quiet, or the ERROR channel becomes noise and stops being read."""
+    _stub(monkeypatch, {"status": "ZERO_RESULTS", "results": []})
+    with caplog.at_level("DEBUG", logger="plan_reader.reverse_geocode"):
+        assert rg.reverse_geocode_latlon(0.0, 0.0) is None
+    assert not [r for r in caplog.records if r.levelname == "ERROR"]
+
+
+def test_a_failed_lookup_is_never_cached_so_it_recovers_after_the_outage(monkeypatch):
+    """The second-order bug. A cached failure survived the fix: every coordinate tried during an
+    outage kept returning None afterwards, so an in-flight batch could not recover."""
+    calls = []
+    _stub(monkeypatch, REQUEST_DENIED, recorder=calls)
+    assert rg.reverse_geocode_cached(45.0, -95.0) is None
+    assert rg.reverse_geocode_cached(45.0, -95.0) is None
+    assert len(calls) == 2, "a failure must be retried, not memoised"
+
+    # ...and once the outage clears, the same coordinate resolves without a restart.
+    _stub(monkeypatch, STEARNS, recorder=calls)
+    out = rg.reverse_geocode_cached(45.0, -95.0)
+    assert out is not None and out["city"] == "Melrose"
+
+
+def test_missing_api_key_logs_an_error_rather_than_disabling_silently(monkeypatch, caplog):
+    """An unset key made the stage a no-op and sent every natural key to the UNKNOWN sentinel."""
+    monkeypatch.delenv("GOOGLE_GEOCODING_API_KEY", raising=False)
+    with caplog.at_level("DEBUG", logger="plan_reader.reverse_geocode"):
+        assert rg.reverse_geocode_latlon(45.0, -95.0) is None
+    assert [r for r in caplog.records if r.levelname == "ERROR"]

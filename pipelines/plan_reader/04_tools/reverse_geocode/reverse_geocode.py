@@ -42,6 +42,7 @@ rotation and is deliberately not reproduced anywhere in this repo.
 """
 from __future__ import annotations
 
+import logging
 import os
 import time
 from typing import Optional
@@ -49,6 +50,23 @@ from typing import Optional
 import requests
 
 GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+
+# Every failure path here returns None (see reverse_geocode_latlon's docstring on why it must never
+# raise). That made a fixable misconfiguration and a legitimate empty answer indistinguishable, and
+# it hid a REQUEST_DENIED/billing-disabled outage until someone read the raw HTTP body by hand
+# (issue #56). The return value stays None; the LOG does the distinguishing. A real failure is
+# ERROR and names Google's verbatim status; ZERO_RESULTS is DEBUG, because it is not a failure.
+log = logging.getLogger("plan_reader.reverse_geocode")
+
+# Google's `status` values that mean "your request never ran" as opposed to "there is nothing here".
+# All are operator-actionable — a key, a billing account, a quota, or a malformed request.
+_HARD_FAILURE_STATUSES = frozenset({
+    "REQUEST_DENIED",       # bad/absent/restricted key, or billing not enabled on the GCP project
+    "OVER_QUERY_LIMIT",     # quota or rate cap
+    "OVER_DAILY_LIMIT",     # billing disabled / expired card / daily cap
+    "INVALID_REQUEST",      # malformed latlng
+    "UNKNOWN_ERROR",        # Google-side transient; retryable
+})
 
 # Google's address_components type -> the field we want. Order matters within each tuple: the first
 # type present wins. `postal_town` is the fallback for localities that Google does not tag as
@@ -105,19 +123,36 @@ def reverse_geocode_latlon(lat, lon, *, timeout: int = 30) -> Optional[dict]:
     natural key, never fail the report. Same fail-open convention as midpoint_bridge.compute_midpoint
     and competitor_live.generate.
     """
+    return _lookup(lat, lon, timeout=timeout)[0]
+
+
+def _lookup(lat, lon, *, timeout: int = 30) -> tuple[Optional[dict], bool]:
+    """(result, definitive). `definitive` is True when Google actually answered — an OK result or
+    a real ZERO_RESULTS — and False when the request never ran (no key, transport error, or an
+    operator-actionable status such as REQUEST_DENIED).
+
+    Only the caller can act on that difference, and exactly one does: reverse_geocode_cached, which
+    must memoise a definitive empty answer but must NOT memoise a failure. See issue #56 — the two
+    were previously identical Nones, so an outage poisoned the cache for the life of the process.
+    """
     if lat is None or lon is None:
-        return None
+        return None, False
     try:
         lat_f, lon_f = float(lat), float(lon)
     except (TypeError, ValueError):
-        return None
+        log.error("geocode: non-numeric coordinate (%r, %r) — stage skipped", lat, lon)
+        return None, False
     if lat_f != lat_f or lon_f != lon_f:  # NaN
-        return None
+        log.error("geocode: NaN coordinate (%r, %r) — stage skipped", lat, lon)
+        return None, False
 
     try:
         key = _api_key()
-    except GeocodeConfigError:
-        return None
+    except GeocodeConfigError as e:
+        # Operator-actionable and previously silent: with no key the stage is a no-op and every
+        # project_natural_key silently takes the UNKNOWN city sentinel.
+        log.error("geocode: DISABLED — %s", e)
+        return None, False
 
     try:
         resp = requests.get(
@@ -127,18 +162,36 @@ def reverse_geocode_latlon(lat, lon, *, timeout: int = 30) -> Optional[dict]:
         )
         resp.raise_for_status()
         body = resp.json()
-    except Exception:
-        return None
+    except Exception as e:                                    # noqa: BLE001 — must never raise
+        log.error("geocode: transport/HTTP failure for (%s, %s) — %s: %s",
+                  lat_f, lon_f, type(e).__name__, e)
+        return None, False
 
     # Google signals application errors in the body with HTTP 200 — the same "don't trust an HTTP
     # 200" failure class as CLAUDE.md rough edge 2 and rough edge 6 (road_midpoint's DOT lookups).
-    # ZERO_RESULTS is a legitimate empty answer; anything else is a real failure, and both return
-    # None here because the caller cannot act differently on them.
-    if body.get("status") not in ("OK", "ZERO_RESULTS"):
-        return None
+    # ZERO_RESULTS is a legitimate empty answer. Everything else is operator-actionable, and the
+    # two must not look alike in the logs even though both still return None (issue #56).
+    status = body.get("status")
+    if status in _HARD_FAILURE_STATUSES:
+        log.error(
+            "geocode: Google returned HTTP 200 with status=%s for (%s, %s) — THIS IS NOT "
+            "'no city here', it is a request that never ran. error_message=%r. "
+            "Until fixed, every project_natural_key takes the UNKNOWN city sentinel.",
+            status, lat_f, lon_f, body.get("error_message"),
+        )
+        return None, False
+    if status not in ("OK", "ZERO_RESULTS"):
+        log.error("geocode: unrecognised Google status=%r for (%s, %s) — error_message=%r",
+                  status, lat_f, lon_f, body.get("error_message"))
+        return None, False
+
     results = body.get("results") or []
     if not results:
-        return None
+        # The one genuinely-empty answer: Google ran the query and there is no locality here.
+        # Definitive, so the cache may keep it — re-asking cannot produce a different answer.
+        log.debug("geocode: ZERO_RESULTS for (%s, %s) — no locality at this coordinate",
+                  lat_f, lon_f)
+        return None, True
 
     comp = _components(results[0])
 
@@ -165,7 +218,7 @@ def reverse_geocode_latlon(lat, lon, *, timeout: int = 30) -> Optional[dict]:
         "zip": comp.get(_ZIP_TYPE, {}).get("long"),
         "provenance": PROVENANCE,
         "formatted_address": results[0].get("formatted_address"),
-    }
+    }, True
 
 
 def reverse_geocode_cached(lat, lon, *, timeout: int = 30) -> Optional[dict]:
@@ -180,11 +233,19 @@ def reverse_geocode_cached(lat, lon, *, timeout: int = 30) -> Optional[dict]:
     if key in _cache:
         return _cache[key]
 
-    info = reverse_geocode_latlon(lat, lon, timeout=timeout)
+    info, definitive = _lookup(lat, lon, timeout=timeout)
 
-    if len(_cache) >= _MAX_CACHE:
-        _cache.clear()
-    _cache[key] = info
+    # Cache definitive answers only (issue #56) — an OK result, or a real ZERO_RESULTS, both of
+    # which re-asking cannot change. A FAILURE is never cached: the REQUEST_DENIED seen on
+    # 2026-08-03 (billing disabled) used to be memoised for the life of the process, so every
+    # coordinate tried during the outage kept returning None even AFTER billing was fixed, and a
+    # batch begun before the fix could never recover without a restart. A true no-locality
+    # coordinate is still memoised, so this does not reintroduce the repeat-API-call cost that
+    # test_a_none_result_is_cached_too guards.
+    if definitive:
+        if len(_cache) >= _MAX_CACHE:
+            _cache.clear()
+        _cache[key] = info
     time.sleep(_THROTTLE_SECONDS)
     return info
 
