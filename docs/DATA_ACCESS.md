@@ -101,6 +101,46 @@ order by go_no_go desc;
 
 ---
 
+## Writing your own tables: the `scratch` schema
+
+The published tables in `public` are **read-only to everyone**. That is deliberate and it is not
+a credential problem to be worked around: the publisher drops and recreates every one of those
+eight tables on each run, so anything you put there is on a timer, and a mistake in `public`
+damages the snapshot for the whole team.
+
+You get a schema of your own instead. `scratch` is writable, and the publisher never names it.
+
+| | `public` | `scratch` |
+|---|---|---|
+| read the snapshot | yes | — |
+| create tables | **no** | yes |
+| survives a republish | n/a, it *is* the republish | your tables: yes. your views on `public`: **no** |
+
+Two roles exist. Ask Tobias for whichever you need:
+
+- **`csi_reader`** — read-only on `public`. For dashboards, BI tools, anything that only queries.
+- **`csi_team`** — the same read access, plus full DDL in `scratch`. For actual work.
+
+`csi_team` connects with `search_path = scratch, public`, so unqualified names do the right thing
+with no ceremony:
+
+```sql
+create table my_results (id serial primary key, note text);  -- lands in scratch
+select count(*) from plans;                                  -- reads public.plans
+```
+
+A statement that says `public.` explicitly still fails, and that is correct — it asked for
+something the role does not have:
+
+```sql
+create table public.my_results (...);
+-- ERROR: permission denied for schema public   [42501]
+```
+
+If you hit `42501`, you almost certainly wrote `public.` out of habit. Drop the qualifier.
+
+---
+
 ## Important: this store is not live
 
 > The published data comes from the offline `04_tools` scripts over the curated plan corpus. It
@@ -153,9 +193,35 @@ python pipelines/plan_reader/04_tools/publish_to_supabase.py
 The publisher replaces all published tables inside a single transaction, so it is safe to re-run
 and will not duplicate rows. Readers see either the whole previous snapshot or the whole new one.
 
+Before dropping anything it scans for views that depend on the published tables, wherever they
+live, and **refuses to run if it would destroy one** — printing the list and exiting non-zero.
+That is the intended outcome, not a bug: someone's work is in the way. Either have them convert
+it to a table (`create table ... as select ...`), or re-run with `--force` if you know it is
+disposable. `--force` destroys the listed objects unrecoverably.
+
 Because it is a full replacement, **anything you create inside those tables is destroyed on the
-next publish**. Build your views, derived tables and notebooks against a different schema, or be
-ready to recreate them.
+next publish**. Use the `scratch` schema described above.
+
+An earlier revision of this document told you to "build your views against a different schema".
+That advice was wrong and was corrected on 2026-07-27. A different schema does not save a view.
+`drop table ... cascade` follows dependencies across schema boundaries, so a view in `scratch`
+that selects from a published table is dropped along with that table. Verified against Postgres
+15 by `04_tools/test_team_access.sh`, which asserts the loss and captures the server's own
+`NOTICE: drop cascades to view scratch.plans_by_county`.
+
+**Tables in `scratch` survive. Views on published tables do not, wherever they live.** If a
+result matters, materialize it:
+
+```sql
+-- survives every publish: the rows are copied into your schema
+create table scratch.risk_by_county as
+select p.county, count(*) as go_no_go
+from public.plans p join public.gotchas g on g.plan_id = p.plan_id
+where g.decision_class = 'go_no_go' group by 1;
+
+-- does NOT survive: still depends on public.gotchas, so cascade takes it
+create view scratch.risk_by_county_v as ...;
+```
 
 The source is opened strictly read-only, so the publisher cannot damage the local database.
 

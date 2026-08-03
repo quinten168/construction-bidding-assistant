@@ -195,7 +195,65 @@ def human(n: int) -> str:
 
 # --- publish ------------------------------------------------------------------------------------
 
-def publish(dsn: str, payload: dict, ddl: dict) -> None:
+def find_dependent_objects(cur) -> list[tuple[str, str, str, str]]:
+    """Views and materialized views that depend on a table this publish is about to drop.
+
+    `drop table ... cascade` follows dependencies ACROSS SCHEMA BOUNDARIES. A view sitting in the
+    team's `scratch` schema that selects from `public.plans` is dropped along with `plans`, even
+    though the publisher never names `scratch`. The team's *tables* are safe from us; their
+    *views* are not. Nothing warns them, and the object is simply gone next time they look.
+
+    Returns (schema, name, kind, owner) per dependent object, ordered for stable output.
+    """
+    cur.execute("""
+        select distinct dn.nspname, dc.relname, dc.relkind, pg_get_userbyid(dc.relowner)
+        from pg_depend d
+        join pg_rewrite rw   on rw.oid = d.objid
+        join pg_class dc     on dc.oid = rw.ev_class
+        join pg_namespace dn on dn.oid = dc.relnamespace
+        join pg_class sc     on sc.oid = d.refobjid
+        join pg_namespace sn on sn.oid = sc.relnamespace
+        where d.classid = 'pg_rewrite'::regclass
+          and sn.nspname = 'public'
+          and sc.relname = any(%s)
+          and dc.relkind in ('v', 'm')
+          and dc.oid <> sc.oid
+        order by 1, 2
+    """, (PUBLISH_TABLES,))
+    return cur.fetchall()
+
+
+def handle_dependents(dependents: list[tuple[str, str, str, str]], force: bool) -> bool:
+    """Decide what a publish does when it would destroy someone else's view.
+
+    Called after the dependency scan and before any table is dropped. Returns True to continue,
+    False to abort cleanly — nothing has been written at that point, so aborting is free and
+    leaves the previous snapshot fully intact.
+
+    Policy, chosen by T on 2026-07-27: refuse by default, allow `--force` to override.
+
+    Refusing by default means nobody's work disappears without a person deciding it should.
+    Allowing an override means one forgotten view cannot wedge the refresh permanently, which
+    matters because publishing is the only way the team gets current data — and the person a
+    hard block would strand is whoever runs this, not whoever left the view behind.
+
+    The alternative of warning and continuing was rejected: a warning that scrolls past in a
+    terminal is indistinguishable from silence, and silent failure is this repo's recurring
+    wound (CLAUDE.md rough edge 2).
+    """
+    if force:
+        print(f"\n--force given: proceeding anyway. {len(dependents)} object(s) will be "
+              f"destroyed and are NOT recoverable from here.")
+        return True
+    print("\nRefusing to publish, because doing so would destroy the objects listed above.")
+    print("Pick one:")
+    print("  - ask their owners to re-create them as tables (`create table ... as select ...`),")
+    print("    which survives a publish, then re-run;")
+    print("  - or re-run with --force if you know they are disposable.")
+    return False
+
+
+def publish(dsn: str, payload: dict, ddl: dict, force: bool = False) -> bool:
     """Replace all five tables inside ONE transaction.
 
     Idempotency strategy: full table replacement (drop, create, bulk insert), not upsert.
@@ -223,6 +281,24 @@ def publish(dsn: str, payload: dict, ddl: dict) -> None:
 
     with psycopg.connect(dsn) as conn:
         with conn.cursor() as cur:
+            # Pre-flight: would this publish destroy anyone's work? Checked before the first
+            # drop, so aborting here costs nothing and leaves the previous snapshot whole.
+            #
+            # `handle_dependents` is only consulted when there is something to lose. With no
+            # dependent views — the state today — this is a no-op and the publisher behaves
+            # exactly as it always has. The unimplemented policy therefore cannot break a
+            # publish now; it forces the decision at the moment it first has consequences.
+            dependents = find_dependent_objects(cur)
+            if dependents:
+                print(f"\nWARNING: {len(dependents)} object(s) depend on tables about to be "
+                      f"dropped. `cascade` will destroy them:")
+                for schema, name, kind, owner in dependents:
+                    label = "matview" if kind == "m" else "view"
+                    print(f"    {schema}.{name}  ({label}, owner {owner})")
+                if not handle_dependents(dependents, force):
+                    print("\nPublish aborted. Nothing was written; the previous snapshot is intact.")
+                    return False
+
             for table in PUBLISH_TABLES:
                 cols, rows = payload[table]
                 cur.execute(f'drop table if exists "{table}" cascade;')
@@ -235,6 +311,7 @@ def publish(dsn: str, payload: dict, ddl: dict) -> None:
                 print(f"  published {table}: {len(rows):,} rows")
         conn.commit()
     print("\nPublish committed.")
+    return True
 
 
 # --- main ---------------------------------------------------------------------------------------
@@ -244,6 +321,10 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="Read SQLite, build the payload and DDL, report sizes, write nothing. "
                          "Does not require SUPABASE_DB_URL.")
+    ap.add_argument("--force", action="store_true",
+                    help="Publish even when it would destroy views that depend on the published "
+                         "tables. Without this, such a publish is refused. The destroyed objects "
+                         "are not recoverable, so read the list before using it.")
     args = ap.parse_args()
 
     src = os.environ.get("CSI_V2_DB", "").strip()
@@ -310,8 +391,10 @@ def main() -> int:
         print("=" * 78)
         print("publishing (full table replacement, single transaction)")
         print("=" * 78)
-        publish(dsn, payload, ddl)
-        return 0
+        # Exit non-zero on a refusal. A scheduled or scripted caller must be able to tell
+        # "published successfully" apart from "declined to publish", and both print plenty of
+        # text — the exit status is the only part a cron job actually reads.
+        return 0 if publish(dsn, payload, ddl, force=args.force) else 1
     finally:
         con.close()
 
