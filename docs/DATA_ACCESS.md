@@ -263,6 +263,38 @@ Moving the vector store to hosted pgvector is tracked as **issue #22**. No timel
 
 ---
 
+## Grants, and the trap in republishing
+
+*Added 2026-08-03.*
+
+`public` is **dropped and recreated** on every publish (`publish_to_supabase.py`). Table-level
+`GRANT`s are attributes of the table object and **do not survive a `DROP`**. That is why team access
+to `public` silently disappeared in the past: each republish created fresh tables with no grants,
+and the next teammate query returned `permission denied for table plans`.
+
+What keeps it working now is `ALTER DEFAULT PRIVILEGES`, installed by `04_tools/team_access.sql`:
+
+```
+pg_default_acl:  schema=public   owner=postgres   objtype=r
+                 -> csi_reader=r/postgres, csi_team=r/postgres
+```
+
+**Default privileges are scoped to the role that creates the table.** Publish as anything other than
+`postgres` and new tables inherit nothing — the publish succeeds, the data is correct, and everyone
+silently loses read access. `publish_to_supabase.py` now asserts `current_user = postgres` before the
+first drop and aborts with an explanation rather than producing that outcome.
+
+`scratch` has the equivalent default privileges as of 2026-08-03
+(`alter default privileges for role csi_team in schema scratch grant select on tables to csi_reader`),
+so a future `csi_reader` inherits SELECT on new CI tables too. `scratch` is upserted, never dropped,
+so it was never exposed to this failure — the default privileges are belt-and-braces.
+
+**Row Level Security is not involved.** RLS is disabled on all 12 tables in both schemas with zero
+policies attached. It was ruled out by direct inspection on 2026-08-03; if access breaks again, check
+grants and the creating role, not RLS.
+
+---
+
 ## Refreshing the snapshot
 
 Run by hand, from a machine that has `csi_v2.db`:

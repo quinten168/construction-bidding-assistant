@@ -47,6 +47,11 @@ from pathlib import Path
 
 # --- what we publish ----------------------------------------------------------------------------
 
+# The role this publisher MUST connect as. See the pre-flight check in publish() for why:
+# ALTER DEFAULT PRIVILEGES is scoped per creating-role, so publishing as anyone else
+# silently strips csi_reader's access on every republish.
+EXPECTED_PUBLISH_ROLE = "postgres"
+
 PUBLISH_TABLES = ["plans", "materials", "plan_metrics", "gotchas", "location_intelligence",
                   # reference/lookup tables: small, static, refreshed from local on every publish.
                   "material_crosswalk", "bucket_hierarchy", "section_taxonomy"]
@@ -281,6 +286,38 @@ def publish(dsn: str, payload: dict, ddl: dict, force: bool = False) -> bool:
 
     with psycopg.connect(dsn) as conn:
         with conn.cursor() as cur:
+            # Pre-flight 0: WHO ARE WE CONNECTED AS?
+            #
+            # This publisher drops and recreates every table (`drop table ... cascade` below), and
+            # table-level GRANTs do not survive a DROP -- they are attributes of the object. What
+            # keeps csi_reader's access alive across a republish is the DEFAULT PRIVILEGES installed
+            # by 04_tools/team_access.sql, and those are scoped to tables created BY THE `postgres`
+            # ROLE:
+            #
+            #     pg_default_acl: schema=public owner=postgres objtype=r
+            #                     -> csi_reader=r/postgres, csi_team=r/postgres
+            #
+            # Connect as any other role and the new tables inherit NOTHING. The publish succeeds,
+            # the data is correct, and every teammate silently loses read access until someone
+            # re-runs the grants by hand. That is exactly the failure this repo keeps producing:
+            # a success that is really a failure, discovered days later by someone else.
+            #
+            # So: fail here, loudly, before the first drop.
+            cur.execute("select current_user")
+            current_role = cur.fetchone()[0]
+            if current_role != EXPECTED_PUBLISH_ROLE:
+                raise SystemExit(
+                    f"\nERROR: connected as '{current_role}', expected "
+                    f"'{EXPECTED_PUBLISH_ROLE}'.\n"
+                    f"  This publisher drops and recreates every table. GRANTs do not survive a\n"
+                    f"  DROP; access is restored by the ALTER DEFAULT PRIVILEGES that are scoped to\n"
+                    f"  tables created by '{EXPECTED_PUBLISH_ROLE}'. Publishing as '{current_role}'\n"
+                    f"  would silently strip csi_reader's SELECT on every table.\n"
+                    f"  Fix: point SUPABASE_DB_URL at the {EXPECTED_PUBLISH_ROLE} login, or extend\n"
+                    f"  the default privileges to '{current_role}' first (see 04_tools/team_access.sql\n"
+                    f"  and docs/DATA_ACCESS.md)."
+                )
+
             # Pre-flight: would this publish destroy anyone's work? Checked before the first
             # drop, so aborting here costs nothing and leaves the previous snapshot whole.
             #
