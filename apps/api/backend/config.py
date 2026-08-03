@@ -13,6 +13,22 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
+# Load .env BEFORE any os.environ.get() below runs. Without this, apps/api/.env is an inert file:
+# nothing in this backend read it, so a teammate who filled in SUPABASE_TEAM_DB_URL there got the
+# "not set" warning anyway and had no way to tell why. Existing env vars always win, so an export
+# or a Railway dashboard value still overrides the file.
+#
+# Search order is nearest-first: apps/api/.env, then the repo-root .env that
+# ci_model/06_reporting/agent/orchestrator.py already loads, so one root file can serve both.
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _DOTENV_AVAILABLE = True
+except ImportError:                                   # optional dep; absent means env-vars-only
+    _DOTENV_AVAILABLE = False
+
+    def _load_dotenv(*_a, **_k):
+        return False
+
 # --- where things live --------------------------------------------------------------------------
 # We reuse the existing Plan Reader RAG backend (Chroma store + retriever) rather than rebuild it,
 # so we need to know where that module is on disk.
@@ -37,6 +53,7 @@ REPO = _find_repo_root(HERE)
 PLAN_READER = REPO / "pipelines" / "plan_reader"
 PIPELINE = PLAN_READER / "01_pipeline"                  # importable: lib.py, retriever.py
 ROAD_MIDPOINT_DIR = PLAN_READER / "04_tools" / "road_midpoint"   # importable: road_midpoint.py
+REVERSE_GEOCODE_DIR = PLAN_READER / "04_tools" / "reverse_geocode"  # importable: reverse_geocode.py
 # The single source of truth for the master bid CSV. Previously duplicated verbatim across
 # bid_data.py, competitors.py and project_registry.py — so a path change fixed one and broke
 # three, which is the most confusing failure mode available. They now import this.
@@ -151,6 +168,10 @@ CI_BIDDER_RESULTS = REPO / "data" / "processed" / "bidder_results.csv"
 # them. See competitor_live.py::ensure_fresh_local_data.
 PULL_SCRATCH_SCRIPT = REPO / "data" / "pull_scratch_updates.py"
 
+_ENV_FILES_FOUND = [f for f in (REPO / "apps" / "api" / ".env", REPO / ".env") if f.exists()]
+for _env_file in _ENV_FILES_FOUND:
+    _load_dotenv(_env_file, override=False)
+
 
 def _load_api_key() -> str:
     """Anthropic key resolution, in priority order:
@@ -197,6 +218,16 @@ class Settings:
     # midpoint_bridge.compute_midpoint never raises, leaves latitude/longitude null on any error,
     # and a human can always fill them in via record_correction regardless of this setting.
     midpoint_lookup_enabled: bool = os.environ.get("MIDPOINT_LOOKUP_ENABLED", "1") not in ("0", "false", "False")
+
+    # 6th process_pdf stage: coordinates -> city/county/state/zip, for project_natural_key's city
+    # component. Off when GOOGLE_GEOCODING_API_KEY is absent, so a teammate without the key gets a
+    # null city rather than a stack trace. That key is SERVER-SIDE and must not be the same value as
+    # NEXT_PUBLIC_GOOGLE_MAPS_API_KEY, which the pit-list page ships to the browser.
+    reverse_geocode_enabled: bool = (
+        os.environ.get("REVERSE_GEOCODE_ENABLED", "1") not in ("0", "false", "False")
+        and bool(os.environ.get("GOOGLE_GEOCODING_API_KEY", "").strip())
+    )
+    reverse_geocode_timeout: int = int(os.environ.get("REVERSE_GEOCODE_TIMEOUT", "20"))
     midpoint_lookup_timeout: int = int(os.environ.get("MIDPOINT_LOOKUP_TIMEOUT", "90"))
 
     # Conversation capture (see backend/trace.py). Empty = use the local SQLite csi_v2.db + JSONL.
@@ -213,6 +244,12 @@ class Settings:
     def warnings(self) -> list[str]:
         """Config problems worth surfacing at startup (non-fatal, but the app won't fully work)."""
         issues = []
+        # A .env that is never read is worse than no .env: the operator believes it is configured.
+        if _ENV_FILES_FOUND and not _DOTENV_AVAILABLE:
+            issues.append(
+                f"Found {', '.join(str(f) for f in _ENV_FILES_FOUND)} but python-dotenv is not "
+                "installed, so NOTHING in those files was loaded. Either `pip install python-dotenv` "
+                "(it is in apps/api/requirements.txt) or export the variables directly.")
         if not self.anthropic_api_key:
             issues.append("No Anthropic API key found (set ANTHROPIC_API_KEY or plan_reader/.env) "
                           "— the chat cannot answer.")

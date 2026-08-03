@@ -37,3 +37,6 @@ requests>=2.31.0
 # scratch.* in Supabase, see docs/DATA_ACCESS_SCRATCH.md). Same driver data/push_supabase_bid_data.py
 # already uses in its separate script environment; this is the first time apps/api itself needs it.
 psycopg[binary]>=3.1
+
+# .env loading for local dev (config.py). Optional at runtime — absent means env-vars-only.
+python-dotenv>=1.0.0

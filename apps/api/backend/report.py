@@ -15,6 +15,7 @@ import datetime
 import json
 from pathlib import Path
 
+from . import geocode_bridge
 from . import midpoint_bridge
 from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
 from . import project_registry
@@ -156,6 +157,23 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         if result:
             latitude, longitude = result
 
+    # 6th stage: coordinates → city / county / state / zip (geocode_bridge.py). Exists because
+    # scratch.bid_projects is keyed on project_natural_key = {state}_{county}_{city}_{bid_date},
+    # and city is the one component plan_reader cannot extract from a plan set.
+    #
+    # These NEVER overwrite an extracted value — they are carried alongside, with a provenance tag,
+    # per contract §4.5's coordinate_provenance pattern. county in particular is available from both
+    # sources and they disagree: 10 of the 117 corpus rows have an extracted county that is "?" or
+    # names two counties at once. Both values ship; the consumer chooses (contract §5).
+    geo = None
+    if latitude is not None and longitude is not None:
+        try:
+            with timed(log, f"geocode {plan_id}"):
+                geo = geocode_bridge.reverse_geocode_latlon(latitude, longitude)
+        except Exception as e:                                  # noqa: BLE001 — never break the report
+            log.warning("report: geocode stage errored for %s — %s", plan_id, e)
+            geo = None
+
     # archetype from the extracted quantities (v2 rule, reused from the resolver)
     qrow = {dst: _val(record.get(src)) for src, dst in _QMAP.items()}
     archetype = project_registry._archetype(qrow)
@@ -200,6 +218,14 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         "identity": {
             **{k: _val(v) for k, v in identity_fields.items()},
             "latitude": latitude, "longitude": longitude,
+            "coordinate_provenance": "midpoint" if latitude is not None else None,
+            # Geocoded, never overwriting the extracted equivalents above. Separate keys so an
+            # extracted county and a geocoded one stay distinguishable (contract §4.5 pattern).
+            "geocoded_city": (geo or {}).get("city"),
+            "geocoded_county": (geo or {}).get("county"),
+            "geocoded_state": (geo or {}).get("state"),
+            "geocoded_zip": (geo or {}).get("zip"),
+            "geocode_provenance": (geo or {}).get("provenance"),
         },
         "quantities": quantities,
         "gotchas": gotchas,
