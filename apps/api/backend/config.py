@@ -146,6 +146,10 @@ CI_REGISTRY_CSV = (REPO / "pipelines" / "ci_model" / "01_candidates" / "outputs"
 # Authoritative bidder × project outcomes (every bidder, county, win) — backs the competitor_record
 # chat tool. Broader than the CSI-centric master CSV (which only covers projects CSI also bid on).
 CI_BIDDER_RESULTS = REPO / "data" / "processed" / "bidder_results.csv"
+# Pulls admin-UI edits (bid-results entry, pit-list CRUD, competitor-registry CRUD — see
+# backend/ci_db.py) back from Supabase `scratch.*` into the CSVs above, before a live report reads
+# them. See competitor_live.py::ensure_fresh_local_data.
+PULL_SCRATCH_SCRIPT = REPO / "data" / "pull_scratch_updates.py"
 
 
 def _load_api_key() -> str:
