@@ -69,53 +69,84 @@ def _synthesize_bullets(
     else:
         bullets.append("**Recency:** No prior bid activity found in CSI data.")
 
-    # ── 4. Capacity — season-based project wins + tons (all project types) ───
+    # ── 4. Capacity — season-by-season project wins + tons (all project types) ───
     if True:
-        season_wins     = (win_stats or {}).get("season_wins")
-        season_tons     = (win_stats or {}).get("season_tons")
-        season_label    = (win_stats or {}).get("season_label", "current season")
-        historical_avg  = (win_stats or {}).get("historical_avg_wins")
-        historical_tons = (win_stats or {}).get("historical_avg_tons")
-        historical_n    = (win_stats or {}).get("historical_seasons", 0)
-        this_proj_tons  = float((win_stats or {}).get("mix_tons", 0) or 0)
+        capacity       = (win_stats or {}).get("capacity")
+        is_live        = (win_stats or {}).get("capacity_live", False)
+        this_proj_tons = float((win_stats or {}).get("mix_tons", 0) or 0)
 
         def _fmt_tons(t):
             return f"{t:,.0f} tons" if t and t > 0 else "—"
 
-        if season_wins is None or historical_n == 0:
+        prior_seasons = (capacity or {}).get("prior_seasons") or []
+        current       = (capacity or {}).get("current")   # None = off-season, no in-progress season
+        trend         = (capacity or {}).get("trend")
+
+        if not capacity or not prior_seasons:
             bullets.append(
                 "**Capacity (all project types):** Historical season baseline not available — "
                 "insufficient prior bidding seasons on record."
             )
         else:
-            sw_str      = f"{season_wins} project{'s' if season_wins != 1 else ''}"
-            avg_win_str = f"{historical_avg:.1f}" if historical_avg is not None else "—"
-            season_ton_str  = _fmt_tons(season_tons)
-            avg_ton_str     = _fmt_tons(historical_tons)
-            proj_ton_str    = _fmt_tons(this_proj_tons)
+            last_season = prior_seasons[0]
+            proj_ton_str = _fmt_tons(this_proj_tons)
+            source_str = "Supabase live" if is_live else "local snapshot"
 
-            if historical_avg and historical_avg > 0:
-                pct = season_wins / historical_avg
-                if pct < 0.40:
-                    pace = "early in their typical season pace"
-                elif pct < 0.80:
-                    pace = "approaching their typical season pace"
-                elif pct <= 1.20:
-                    pace = "at or near their typical season pace"
+            # Per-season history, most recent first, e.g. "2024–2025: 6 wins (42,000 tons); ..."
+            season_history_str = "; ".join(
+                f"{s['label']}: {s['wins']} win{'s' if s['wins'] != 1 else ''} ({_fmt_tons(s['tons'])})"
+                for s in prior_seasons
+            )
+
+            # Framing is "how much room does this competitor have left relative to their own
+            # recent capacity" -- NOT "is their win count going up or down" in the abstract. Doing
+            # LESS than a recent complete season means they're running below their own demonstrated
+            # capacity: they have room, and are a candidate to bid more aggressively to close that
+            # gap. Doing MORE than a recent season means they're already at or past their own
+            # demonstrated ceiling: less spare capacity, less likely to undercut on price.
+            trend_str = {
+                "decreasing": "running below their recent capacity — may have room to bid more "
+                              "aggressively to close the gap with last season",
+                "increasing": "already exceeding their recent capacity — may have less room to "
+                              "spare, less likely to be price-aggressive",
+                "flat":       "holding steady against last season's capacity",
+            }.get(trend, "not enough complete seasons on record to call a trend")
+
+            if current is not None:
+                # A bid placed inside an open season (Sept-Apr): compare in-progress pace to the
+                # last COMPLETE season, same "room vs. their own capacity" framing as trend_str.
+                cur_wins = current.get("wins", 0)
+                cur_tons_str = _fmt_tons(current.get("tons"))
+                last_wins = last_season.get("wins", 0)
+                if last_wins > 0:
+                    pct = cur_wins / last_wins
+                    if pct < 0.40:
+                        pace = "well below last season's pace — likely has room to bid aggressively to catch up"
+                    elif pct < 0.80:
+                        pace = "trailing last season's pace — some room still to close the gap"
+                    elif pct <= 1.20:
+                        pace = "at or near last season's pace — limited spare capacity"
+                    else:
+                        pace = "already ahead of last season's pace — capacity likely constrained"
                 else:
-                    pace = "above their typical season pace — capacity may be constrained"
+                    pace = "no wins last season to pace against"
                 bullets.append(
-                    f"**Capacity ({season_label}, all project types):** "
+                    f"**Capacity ({current.get('label')}, all project types, "
+                    f"source: {source_str}):** "
                     f"This project: {proj_ton_str}. "
-                    f"Won {sw_str} ({season_ton_str}) so far this season — "
-                    f"{pct:.0%} of typical pace ({avg_win_str} wins / {avg_ton_str} per season historically), {pace}."
+                    f"Won {cur_wins} project{'s' if cur_wins != 1 else ''} ({cur_tons_str}) so far this season, "
+                    f"{pace}. "
+                    f"By season — {season_history_str} — {trend_str}."
                 )
             else:
+                # A bid placed in the May-Aug gap between seasons: no season is in progress, so
+                # there's nothing to pace against -- report the season history and trend only.
                 bullets.append(
-                    f"**Capacity ({season_label}, all project types):** "
+                    f"**Capacity (off-season, all project types, source: {source_str}):** "
                     f"This project: {proj_ton_str}. "
-                    f"Won {sw_str} ({season_ton_str}) so far this season — "
-                    f"no prior season baseline to compare."
+                    f"No season currently in progress (last complete season: {last_season['label']}, "
+                    f"{last_season['wins']} win{'s' if last_season['wins'] != 1 else ''}). "
+                    f"By season — {season_history_str} — {trend_str}."
                 )
 
     # ── 5. Pit advantage (always shown for paving; shown only if private pit exists) ──

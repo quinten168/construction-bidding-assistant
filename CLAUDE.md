@@ -81,6 +81,17 @@ every other read in this backend is a local CSV by path; this is the first live 
 See `docs/ARCHITECTURE.md` §9 and rough edge 7 below for the cascade-rename detail and current
 verification status.
 
+**7. `pipelines/ci_model` now also makes a direct Postgres connection — new as of 2026-08-03.**
+`pipelines/ci_model/06_reporting/tools/capacity_live.py` queries `scratch.bid_results` /
+`scratch.bid_projects` live, once per report (batched for the whole competitor shortlist), so the
+report's Capacity bullet reflects the current database state instead of the local
+`ranking_predictions.csv` snapshot. Same `SUPABASE_TEAM_DB_URL` DSN as invariant 6 above, but its
+own standalone `connect()` — not an import of `apps/api/backend/ci_db.py` — matching the existing
+pattern of every Postgres-facing script in this repo owning its own connector rather than sharing
+one across the `apps/`/`pipelines/`/`data/` boundary. Fail-open: `orchestrator.py` falls back to
+the local-file computation on any connection or query error, same philosophy as invariant 2's CI
+subprocess fallback.
+
 ## Working rules
 
 - **Verify paths with `git ls-files` before writing them into code or docs.** Several documents in

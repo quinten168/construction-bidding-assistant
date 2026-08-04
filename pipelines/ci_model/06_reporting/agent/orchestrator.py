@@ -239,13 +239,30 @@ def run_report(
     if verbose:
         print(f"  Total selected: {len(competitor_ids)}")
 
+    # ── Live capacity (one batched query for the whole shortlist, not one per competitor) ──────
+    # Fail-open: any connection/query error falls back to the local ranking_predictions.csv +
+    # tons_lookup computation executor.py already had -- see tools/capacity_live.py's docstring.
+    from tools import capacity_live
+    live_capacity_df = None
+    try:
+        with capacity_live.connect() as conn:
+            live_capacity_df = capacity_live.fetch_capacity_history(
+                competitor_ids, str(project_info["bid_date"]), conn,
+            )
+        if verbose:
+            print(f"  Live capacity: fetched {len(live_capacity_df)} historical bid row(s) "
+                  f"from Supabase for {len(competitor_ids)} competitor(s)")
+    except Exception as e:
+        if verbose:
+            print(f"  [warn] live capacity fetch failed, using local fallback: {e}")
+
     # ── Executor ──────────────────────────────────────────────────────────────
     if verbose:
         print(f"\n[2/4] Executor — running predictions and narratives...")
     analyses = execute_all(
         competitor_ids, project_rows, model, client, _LLM_MODEL,
         verbose=verbose, name_lookup=name_lookup, all_predictions=predictions,
-        tons_lookup=_tons_lookup,
+        tons_lookup=_tons_lookup, live_capacity_df=live_capacity_df,
     )
     if verbose:
         print(f"  Completed: {len(analyses)} analyses")
