@@ -11,7 +11,10 @@
 #
 # version bumps whenever a mapping changes, and is written to bid_projects.mapping_version so a row
 # can be traced to the rules that produced it.
-version: 1
+#
+# v2 (2026-08-03): county transform corrected to the LIVE convention (see the `county` entry), and
+# bid_date_unparsed added to carry settled decision 3.
+version: 2
 generated_for: scratch.bid_projects
 
 # ---------------------------------------------------------------------------------------------
@@ -31,10 +34,21 @@ direct:
     target_type: text
     source: identity.county
     source_type: str
-    transform: strip_county_suffix   # contract §3 county rule, via 01_pipeline/join_key.py
+    transform: live_county_convention   # bid_projects_record._county_for_column
     notes: >
       EXTRACTED value, never the geocoded one. 10 of 117 corpus rows are '?' or name two counties.
       The geocoded second opinion lands in geocoded_county (case 2) so the two stay distinguishable.
+
+      CORRECTED IN v2. This entry previously said `transform: strip_county_suffix`, i.e.
+      join_key.normalize_county, which yields 'stearns'. THAT IS NOT WHAT THE LIVE COLUMN HOLDS: all
+      ~1,591 existing rows are uppercase with a ' CO' suffix -- 'STEARNS CO', 'MILLE LACS CO',
+      'CASS CO & CLAY CO'. Writing 'stearns' would have made this column inconsistent with every
+      other row and produced a project_natural_key unlike the existing
+      MN_STEARNS_CO_MELROSE_2023-08-03 shape. Owner's decision 2026-08-03: match the existing
+      convention, do not invent a cleaner one.
+
+      join_key.normalize_county is still used UNCHANGED for the join_key column -- that is the
+      contract §3 key, a different key with different rules. The two are deliberately not unified.
 
   - target: project_location
     target_type: text
@@ -235,6 +249,17 @@ new_columns:
     target_type: text
     nullable: true
     source: identity.construction_end
+
+  - target: bid_date_unparsed
+    target_type: boolean
+    nullable: false
+    default: false
+    source: computed
+    notes: >
+      ADDED IN v2, carrying settled decision 3: an unparseable bid_deadline never rejects the row.
+      bid_date takes the obviously-fake sentinel 1900-01-01 (sorts to the bottom, greps cleanly) and
+      THIS column marks why. Without it, a real 1900 date and a parse failure are indistinguishable,
+      and finding the failures means string-matching a magic value.
 
   # --- extracted fields with no home today -----------------------------------------------------
   - target: prevailing_wages
