@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Check, ChevronDown, Copy, Download, FileText, ShieldCheck, Users } from "lucide-react";
+import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
 import { type FinalReport, type FinalGotcha, type Competitor } from "@/lib/chat-data";
 import { Eyebrow, Chip } from "@/components/kit";
 
@@ -131,7 +131,7 @@ async function downloadReport(final: FinalReport, fmt: "md" | "csv" | "pdf"): Pr
   return null;
 }
 
-export function ReportCard({ final, onVerify }: { final?: FinalReport; onVerify: () => void }) {
+export function ReportCard({ final }: { final?: FinalReport }) {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [dlError, setDlError] = useState<string | null>(null);
@@ -312,20 +312,6 @@ export function ReportCard({ final, onVerify }: { final?: FinalReport; onVerify:
           {dlError && (
             <p className="mt-2 text-[12px] text-[var(--negative)]">{dlError} — try again or use Copy.</p>
           )}
-        </div>
-
-        {/* Verify gate */}
-        <div className="flex flex-col items-start justify-between gap-2.5 rounded-2xl border border-[var(--warn)]/30 bg-[var(--warn)]/[0.06] p-3.5 sm:flex-row sm:items-center">
-          <span className="flex items-center gap-2 text-[13.5px] text-foreground/80">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--warn)]" />
-            Verify before relying on this — confirm low-confidence fields and the project location.
-          </span>
-          <button
-            onClick={onVerify}
-            className="shrink-0 rounded-xl bg-primary px-3.5 py-2 text-[13.5px] font-medium text-primary-foreground transition-all hover:-translate-y-px hover:elev-md"
-          >
-            Verify extraction
-          </button>
         </div>
       </div>
     </motion.div>

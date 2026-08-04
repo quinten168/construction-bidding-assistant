@@ -1,0 +1,29 @@
+{
+  "model": "simple_rule_4feature_EXPERIMENT",
+  "feature_columns": [
+    "primary_county",
+    "primary_type",
+    "primary_state",
+    "primary_size_fit"
+  ],
+  "intercept": -0.6485823418083088,
+  "feature_weights": {
+    "primary_county": 0.7605804657679028,
+    "primary_type": 0.6140782097117747,
+    "primary_state": -0.4293665611528997,
+    "primary_size_fit": 0.7586209788557224
+  },
+  "scaler_mean": [
+    0.02844354563051931,
+    0.15451361101488412,
+    0.4412475478961949,
+    -1.9829795284038814
+  ],
+  "scaler_std": [
+    0.1552004058528887,
+    0.4210419929594619,
+    0.6026327863214204,
+    0.7498840346414992
+  ],
+  "note": "EXPERIMENT ONLY -- scaler/intercept refit on the 20-project reviewable sample, not the full training corpus. See ../README.md."
+}

@@ -31,10 +31,31 @@ from pathlib import Path
 from . import competitor_report as cr
 from .config import (CI_BIDDER_RESULTS, CI_MODEL_JSON, CI_MODEL_REPO, CI_ORCHESTRATOR,
                      CI_PREDICTIONS_CSV, CI_PROJECTS_CSV, CI_REGISTRY_CSV, COMPETITOR_REPORTS,
-                     settings)
+                     PULL_SCRATCH_SCRIPT, settings)
 from .observability import get_logger, timed
 
 log = get_logger("bid_assistant.competitor_live")
+
+
+def ensure_fresh_local_data() -> None:
+    """Refresh data/processed/*.csv + the registry from Supabase's `scratch.*` before a live
+    report reads them, so admin-UI edits (bid-results entry, pit-list CRUD, competitor-registry
+    CRUD) actually reach a report instead of being stranded in Supabase (see
+    docs/ARCHITECTURE.md §9's "no path back" gap). Fail-safe by design, same as the rest of this
+    module: any error here just means the report uses whatever local data already exists on
+    disk, identical to today's behavior. Never raises."""
+    if not settings.supabase_team_db_url:
+        return
+    try:
+        check = subprocess.run([sys.executable, str(PULL_SCRATCH_SCRIPT), "--check-only"],
+                               capture_output=True, timeout=5)
+        if check.returncode == 0:
+            return  # already fresh
+        subprocess.run([sys.executable, str(PULL_SCRATCH_SCRIPT), "--all"],
+                       capture_output=True, timeout=30, check=True)
+        _projects.cache_clear()
+    except Exception as e:                                   # noqa: BLE001 — must never block a report
+        log.warning("scratch data refresh failed, using existing local data: %s", e)
 
 
 def available() -> bool:
@@ -134,6 +155,7 @@ def live_report(county: str, state: str, bid_date: str | None) -> dict | None:
     `_match` block tagged basis='live-generated', or None so the caller falls back to static match."""
     if not (settings.ci_live_enabled and available()):
         return None
+    ensure_fresh_local_data()
     found = find_project_key(county, state, bid_date)
     if not found:
         log.info("ci live: no corpus project for %s/%s (%s) — falling back to static", county, state, bid_date)

@@ -221,7 +221,7 @@ Actual bidders are added after rule-candidate generation only for audit, not for
 
 ## Pit List Feature Block
 
-`build_pit_features.py` keeps the modeling unit at `job_id × competitor_unit_id`.
+`build_pit_features.py` keeps the modeling unit at `project_natural_key × competitor_unit_id`.
 It uses `data/processed/MN_pit_list_cleaned.csv` only to derive aggregated
 features such as nearest accessible pit distance, nearby open pit counts,
 restricted-access pit indicators, Knife River pending pit proximity, and clear

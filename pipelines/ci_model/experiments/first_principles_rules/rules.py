@@ -2,7 +2,7 @@
 """
 First-principles single-factor rule scorers.
 
-Each function computes a score for every (job_id, competitor_unit_id) pair in a
+Each function computes a score for every (project_natural_key, competitor_unit_id) pair in a
 full-universe candidate panel (all 700+ known competitors, no pre-filtering).
 Higher score = better competitor for that project. All computations use only
 information available strictly before the project's bid_date (as-of safe).

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   SEED_CONVERSATIONS, SEED_FILES, estTextTokens, pagesToTokens,
   REPORT_NARRATION,
-  type Conversation, type ChatMessage, type Citation, type FinalReport, type Usage, type UploadedFile,
+  type Conversation, type ChatMessage, type Citation, type Extraction, type FinalReport, type Usage,
+  type UploadedFile,
 } from "@/lib/chat-data";
 
 // Respect the user's reduced-motion preference for the timed narration cadence.
@@ -130,10 +131,13 @@ async function streamChat(
   }
 }
 
-// Upload a dropped PDF to the report endpoint (multipart) → the assembled report.
-// A new plan takes ~2 min (convert → index → 2 Claude passes); a re-drop of seen
-// content returns in ~0s (backend content-hash cache).
-async function uploadReport(file: File): Promise<{ ok: boolean; final?: FinalReport; message?: string }> {
+// Upload a dropped PDF to the report endpoint (multipart) — phase ① of the verify gate: extraction
+// only. A new plan takes ~2 min (convert → index → 2 Claude passes). Usually resolves with
+// `extraction` (unverified — the caller shows the verify gate next); a re-drop of previously
+// VERIFIED content resolves with `final` directly instead (backend content-hash cache, post-gate).
+async function uploadReport(
+  file: File,
+): Promise<{ ok: boolean; final?: FinalReport; extraction?: Extraction; message?: string }> {
   const form = new FormData();
   form.append("file", file, file.name);
   try {
@@ -142,6 +146,26 @@ async function uploadReport(file: File): Promise<{ ok: boolean; final?: FinalRep
     return await res.json();
   } catch {
     return { ok: false, message: "Network error reading the plan." };
+  }
+}
+
+// Phase ② of the verify gate: bake the human's confirmed/edited fields into the extraction payload
+// and assemble the final report (this is where competitor-intel generation actually runs).
+async function finalizeReport(
+  planId: string,
+  extraction: Extraction,
+  edits: Record<string, string>,
+): Promise<{ ok: boolean; final?: FinalReport; message?: string }> {
+  try {
+    const res = await fetch(`/api/report/${encodeURIComponent(planId)}/finalize`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ extraction, edits }),
+    });
+    if (!res.ok) return { ok: false, message: `Finalize request failed (${res.status}).` };
+    return await res.json();
+  } catch {
+    return { ok: false, message: "Network error finishing the report." };
   }
 }
 
@@ -332,6 +356,61 @@ export function useChatStore() {
   // ── Signature flow: drop a PDF → narrate processing → render the report card ──
   // Creates a "report" assistant turn, advances the narration step-by-step, then
   // flips the card on. Scoped to whichever file was dropped (header label).
+  // Shared by processPlan's cache-hit branch (re-drop of already-verified content, final arrives
+  // immediately) and confirmVerification (the normal path, final arrives after the verify gate) —
+  // both end the same way: render the card, scope the chat to the plan, rename the conversation.
+  const applyFinalReport = useCallback(
+    (convId: string, asstId: string, fileName: string, final: FinalReport) => {
+      setActivePlanId(final.plan_id);
+      // Replace the placeholder page count with the REAL one from the backend, and mark ready.
+      const realPages = final.pages;
+      setFiles((prev) => prev.map((x) =>
+        x.name === fileName && x.kind === "plan"
+          ? { ...x, status: "ready", ...(realPages ? { pages: realPages, tokens: pagesToTokens(realPages) } : {}) }
+          : x));
+      // Rename the conversation to the clean project name (e.g. "Chippewa Co, MN").
+      const projectName = final.title;
+      setConversations((prev) =>
+        prev.map((c) => (c.id === convId && projectName ? { ...c, title: projectName } : c)),
+      );
+      patchMessage(convId, asstId, {
+        status: "done", card: true, final, verifying: false, extraction: undefined,
+        content: `I read **${fileName}** end to end. Here's the full report — every figure pinned to its source page.`,
+        tokens: 90,
+      });
+      setBusy(false);
+    },
+    [patchMessage],
+  );
+
+  // Phase ② trigger: the verify modal's Confirm (edits from what the user actually changed) or
+  // Skip (edits: {}) both land here — the only difference is whether `edits` is empty.
+  const confirmVerification = useCallback(
+    async (messageId: string, edits: Record<string, string>) => {
+      const conv = conversations.find((c) => c.messages.some((m) => m.id === messageId));
+      const msg = conv?.messages.find((m) => m.id === messageId);
+      if (!conv || !msg?.extraction) return;
+      setBusy(true);
+      const res = await finalizeReport(msg.extraction.plan_id, msg.extraction, edits);
+      if (!res.ok || !res.final) {
+        patchMessage(conv.id, messageId, {
+          status: "done", verifying: false, card: false, kind: "text",
+          content: `⚠️ ${res.message || "Could not finish building the report."}`,
+          reportError: res.message, tokens: 24,
+        });
+        setBusy(false);
+        return;
+      }
+      applyFinalReport(conv.id, messageId, msg.planFile ?? "the plan", res.final);
+    },
+    [conversations, patchMessage, applyFinalReport],
+  );
+
+  const skipVerification = useCallback(
+    (messageId: string) => confirmVerification(messageId, {}),
+    [confirmVerification],
+  );
+
   const processPlan = useCallback(
     (file: File, targetConvId?: string) => {
       // No busy-guard: dropping a plan is an explicit intent. (The composer is
@@ -383,7 +462,7 @@ export function useChatStore() {
       timers.current.push(first);
 
       reportPromise.then((res) => {
-        if (!res.ok || !res.final) {
+        if (!res.ok || (!res.final && !res.extraction)) {
           patchMessage(convId, asstId, {
             status: "done", card: false, kind: "text",
             content: `⚠️ ${res.message || "I couldn't read that plan."}`,
@@ -392,28 +471,23 @@ export function useChatStore() {
           setBusy(false);
           return;
         }
-        // Real report in hand → render the card, scope chat to this plan.
-        setActivePlanId(res.final.plan_id);
-        // Replace the placeholder page count with the REAL one from the backend, and mark ready.
-        const realPages = res.final.pages;
-        setFiles((prev) => prev.map((x) =>
-          x.name === fileName && x.kind === "plan"
-            ? { ...x, status: "ready", ...(realPages ? { pages: realPages, tokens: pagesToTokens(realPages) } : {}) }
-            : x));
-        // Rename the conversation to the clean project name (e.g. "Chippewa Co, MN").
-        const projectName = res.final.title;
-        setConversations((prev) =>
-          prev.map((c) => (c.id === convId && projectName ? { ...c, title: projectName } : c)),
-        );
+        if (res.final) {
+          // Re-drop of content that was already verified before — skip the gate entirely, same
+          // instant-return feel as the old single-phase cache hit.
+          applyFinalReport(convId, asstId, fileName, res.final);
+          return;
+        }
+        // Normal path: extraction landed, unverified — hold here and let the verify modal (opened
+        // by chat-app.tsx off this message's `verifying` flag) drive what happens next.
         patchMessage(convId, asstId, {
-          status: "done", card: true, final: res.final,
-          content: `I read **${fileName}** end to end. Here's the extraction — every figure pinned to its source page. Verify the flagged fields before you rely on it.`,
-          tokens: 90,
+          status: "done", card: false, verifying: true, extraction: res.extraction,
+          content: `I read **${fileName}**. Before I pull competitor intel, take a look at what I extracted.`,
+          tokens: 40,
         });
         setBusy(false);
       });
     },
-    [activeId, patchMessage],
+    [activeId, patchMessage, applyFinalReport],
   );
 
   const attachFiles = useCallback(
@@ -470,6 +544,7 @@ export function useChatStore() {
   return {
     conversations, files, active, activeId, busy, lastUsage, sessionTokens,
     newConversation, selectConversation, deleteConversation, send, attachFiles, detachFile, processPlan,
+    confirmVerification, skipVerification,
   };
 }
 

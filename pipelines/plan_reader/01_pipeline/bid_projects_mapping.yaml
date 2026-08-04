@@ -1,0 +1,417 @@
+# plan_reader payload  ->  scratch.bid_projects
+#
+# THIS FILE IS THE MAPPING. The insert code reads it; it does not fuzzy-match column names.
+# Adding a field to the payload without adding it here means the field is NOT written — deliberately,
+# so a silent rename can never silently drop data (contract §5: a missing required field is an error,
+# not a zero).
+#
+# Companion prose + open questions: docs/2026-08-03_bid_projects_mapping.md
+# Target DDL: data/push_supabase_bid_data.py::BID_PROJECTS_DDL
+# Source payload: apps/api/backend/report.py::process_pdf return value
+#
+# version bumps whenever a mapping changes, and is written to bid_projects.mapping_version so a row
+# can be traced to the rules that produced it.
+#
+# v2 (2026-08-03): county transform corrected to the LIVE convention (see the `county` entry), and
+# bid_date_unparsed added to carry settled decision 3.
+# v3 (2026-08-03): the 8 unit columns wired up, carrying settled decision 5. They already existed in
+# the live table and the payload already carried the data; only the mapping entries were missing.
+# v4 (2026-08-03): key_provisional / key_provisional_reason, carrying the collision decision -- the
+# natural key gains a content-hash suffix when any component is a sentinel.
+version: 4
+generated_for: scratch.bid_projects
+
+# ---------------------------------------------------------------------------------------------
+# CASE 1 — plan_reader field maps to an EXISTING bid_projects column
+# ---------------------------------------------------------------------------------------------
+direct:
+  - target: state
+    target_type: text
+    source: identity.state
+    source_type: str
+    transform: upper_trim            # contract §3 state rule
+    notes: >
+      Corpus holds 4 rows of 'XX' and 1 of 'MT' that corrupt the key prefix. Not repaired here;
+      geocoded_state carries the independent second opinion. Tracked with #35.
+
+  - target: county
+    target_type: text
+    source: identity.county
+    source_type: str
+    transform: live_county_convention   # bid_projects_record._county_for_column
+    notes: >
+      EXTRACTED value, never the geocoded one. 10 of 117 corpus rows are '?' or name two counties.
+      The geocoded second opinion lands in geocoded_county (case 2) so the two stay distinguishable.
+
+      CORRECTED IN v2. This entry previously said `transform: strip_county_suffix`, i.e.
+      join_key.normalize_county, which yields 'stearns'. THAT IS NOT WHAT THE LIVE COLUMN HOLDS: all
+      ~1,591 existing rows are uppercase with a ' CO' suffix -- 'STEARNS CO', 'MILLE LACS CO',
+      'CASS CO & CLAY CO'. Writing 'stearns' would have made this column inconsistent with every
+      other row and produced a project_natural_key unlike the existing
+      MN_STEARNS_CO_MELROSE_2023-08-03 shape. Owner's decision 2026-08-03: match the existing
+      convention, do not invent a cleaner one.
+
+      join_key.normalize_county is still used UNCHANGED for the join_key column -- that is the
+      contract §3 key, a different key with different rules. The two are deliberately not unified.
+
+  - target: project_location
+    target_type: text
+    source: identity.location
+    source_type: str
+    transform: null
+    notes: Renamed from the record's project_location at report.py's identity_fields.
+
+  - target: source_project_id
+    target_type: text
+    source: identity.sp_number
+    source_type: str
+    transform: null
+    notes: >
+      Raw, NOT normalized -- contract §4.1 is explicit. The normalized form goes to join_key.
+      15 corpus rows hold a road name (CSAH82) rather than a project number; see #35.
+
+  - target: project_latitude
+    target_type: double precision
+    source: identity.latitude
+    source_type: float
+    transform: null
+    notes: From the 5th (midpoint) process_pdf stage. Null for non-MN/ND/SD/NE/IA/MT plans.
+
+  - target: project_longitude
+    target_type: double precision
+    source: identity.longitude
+    source_type: float
+    transform: null
+
+  # --- quantities -----------------------------------------------------------------------------
+  # payload.quantities is a LIST of {label, value, unit}, not a dict, and report.py:  drops any
+  # entry whose value is None/""/0. So an absent quantity and a genuine zero are indistinguishable
+  # in the payload. We therefore write NULL (not 0) when a label is absent, per contract §5.
+  - target: mix_tons
+    target_type: double precision
+    source: quantities[label=MIX].value
+    source_type: number
+    unit_in_payload: t
+    transform: null
+  - target: grading_yards
+    target_type: double precision
+    source: quantities[label=GRADE].value
+    source_type: number
+    unit_in_payload: CY
+    transform: null
+  - target: base_tons
+    target_type: double precision
+    source: quantities[label=BASE].value
+    source_type: number
+    unit_in_payload: t
+    transform: null
+  - target: shldr_tons
+    target_type: double precision
+    source: quantities[label=SHLDR].value
+    source_type: number
+    unit_in_payload: t
+    transform: null
+  - target: mill_sy
+    target_type: double precision
+    source: quantities[label=MILL].value
+    source_type: number
+    unit_in_payload: SY
+    transform: null
+  - target: crush_tons
+    target_type: double precision
+    source: quantities[label=CRUSH].value
+    source_type: number
+    unit_in_payload: t
+    transform: null
+  - target: stock_tons
+    target_type: double precision
+    source: quantities[label=STOCK].value
+    source_type: number
+    unit_in_payload: t
+    transform: null
+
+# ---------------------------------------------------------------------------------------------
+# CASE 2 — plan_reader field has NO column in bid_projects. Proposed additions.
+# Nothing is dropped silently. Every one of these is additive DDL (`add column if not exists`).
+# ---------------------------------------------------------------------------------------------
+new_columns:
+  # --- identity / provenance ------------------------------------------------------------------
+  - target: plan_uid
+    target_type: text
+    nullable: true
+    source: content_hash
+    notes: >
+      Contract D4 -- the PDF content hash, plan_reader's internal row identity. Stable across
+      re-uploads and renames. 16 chars, from s1_convert. This is what makes the dedupe guard work.
+
+  - target: join_key
+    target_type: text
+    nullable: true
+    source: computed
+    computed_by: join_key.normalize_join_key(state, county, sp_number)
+    notes: >
+      Contract §3. NOT the primary key -- project_natural_key is. Carried so the seam key stays
+      visible and so a bad key is inspectable rather than fatal.
+
+  - target: unkeyable_reason
+    target_type: text
+    nullable: true
+    source: computed
+    computed_by: join_key.normalize_join_key -> reason
+    notes: Set only when join_key is null. Today the only value is sp_number_has_no_digits.
+
+  - target: processed_at
+    target_type: timestamptz
+    nullable: false
+    default: now()
+    source: computed
+    notes: >
+      REQUESTED EXPLICITLY. When the plan went through the pipeline. Distinguishes new rows from
+      the ~1,591 historical ones and gives a stable ordering by processing run. Distinct from
+      updated_at, which changes on any later edit.
+
+  - target: source_file
+    target_type: text
+    nullable: true
+    source: source_file
+    notes: Original PDF filename, for humans (contract §4.1).
+
+  - target: mapping_version
+    target_type: integer
+    nullable: true
+    source: computed
+    notes: The `version` at the top of this file, so a row traces to the rules that produced it.
+
+  - target: row_source
+    target_type: text
+    nullable: false
+    source: computed
+    value: plan_reader
+    notes: >
+      Distinguishes plan_reader-written rows from the CI batch push. Without it the two writers are
+      indistinguishable in one table, and push_supabase_bid_data.py's upsert could clobber a
+      plan_reader row. THE SAFETY COLUMN -- see the prose doc's "two writers" section.
+
+  # --- geocoded second opinions (never overwrite the extracted values) -------------------------
+  - target: geocoded_city
+    target_type: text
+    nullable: true
+    source: identity.geocoded_city
+    notes: Feeds project_natural_key's city component. Null on a rural midpoint.
+  - target: geocoded_county
+    target_type: text
+    nullable: true
+    source: identity.geocoded_county
+    notes: >
+      The independent second opinion on county. Intended to resolve the 10 '?'/multi-county rows.
+      Reported, never silently substituted for the extracted county.
+  - target: geocoded_state
+    target_type: text
+    nullable: true
+    source: identity.geocoded_state
+  - target: geocoded_zip
+    target_type: text
+    nullable: true
+    source: identity.geocoded_zip
+  - target: coordinate_provenance
+    target_type: text
+    nullable: true
+    source: identity.coordinate_provenance
+    notes: >
+      Contract §4.5. midpoint | user_entered | null. Matters more than the coordinates: without it a
+      null latitude is indistinguishable between not-extracted, extraction-failed and substituted.
+  - target: geocode_provenance
+    target_type: text
+    nullable: true
+    source: identity.geocode_provenance
+    notes: reverse_geocode | null. Same reasoning applied to the geocoded fields.
+
+  # --- classification -------------------------------------------------------------------------
+  - target: plan_reader_archetype
+    target_type: text
+    nullable: true
+    source: archetype
+    notes: >
+      DELIBERATELY A NEW COLUMN, NOT MAPPED ONTO project_type. The two vocabularies are different
+      hierarchies and must stay visible side by side. Quinten is verifying the archetype logic
+      separately. plan_reader emits 6 values + Unknown/NoQty; README claims 10 project types while
+      the code emits 6. Do not reconcile these without a decision.
+
+  # --- dates, unparsed (contract §4.4) ---------------------------------------------------------
+  - target: bid_deadline_raw
+    target_type: text
+    nullable: true
+    source: identity.bid_deadline
+    notes: >
+      As written on the plan, e.g. '09:30AM Central Time on August 15, 2025'. Kept verbatim
+      alongside the parsed bid_date so a parse failure is always inspectable.
+  - target: construction_start_raw
+    target_type: text
+    nullable: true
+    source: identity.construction_start
+  - target: construction_end_raw
+    target_type: text
+    nullable: true
+    source: identity.construction_end
+
+  # --- units, one per quantity (settled decision 5) --------------------------------------------
+  # Decision 5, verbatim: "keep all 8. One global unit_source cannot say WHICH quantity's unit was
+  # assumed, and that is not recoverable later." All 8 columns already exist in the live table and
+  # payload.quantities[].unit already carries the value -- only these mapping entries were missing,
+  # so the units were being silently dropped on the floor.
+  #
+  # `observed` means the unit came from the plan's own bid schedule. There is no `assumed` path in
+  # plan_reader today: report.py emits a unit for every quantity it emits. unit_source is written
+  # only when at least one quantity is present, so a row with no quantities has NULL rather than a
+  # confident-looking 'observed' about nothing.
+  - target: mix_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=MIX].unit
+  - target: grading_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=GRADE].unit
+  - target: base_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=BASE].unit
+  - target: shldr_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=SHLDR].unit
+  - target: mill_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=MILL].unit
+  - target: crush_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=CRUSH].unit
+  - target: stock_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=STOCK].unit
+  - target: unit_source
+    target_type: text
+    nullable: true
+    source: computed
+    notes: >
+      observed | null. Contract §4.2 warns not to trust an `assumed` unit for arithmetic; carrying
+      the distinction per row means a consumer can tell. Null when the plan yielded no quantities.
+
+  - target: bid_date_unparsed
+    target_type: boolean
+    nullable: false
+    default: false
+    source: computed
+    notes: >
+      ADDED IN v2, carrying settled decision 3: an unparseable bid_deadline never rejects the row.
+      bid_date takes the obviously-fake sentinel 1900-01-01 (sorts to the bottom, greps cleanly) and
+      THIS column marks why. Without it, a real 1900 date and a parse failure are indistinguishable,
+      and finding the failures means string-matching a magic value.
+
+  # --- extracted fields with no home today -----------------------------------------------------
+  - target: prevailing_wages
+    target_type: boolean
+    nullable: true
+    source: identity.prevailing_wages
+  - target: traffic_level
+    target_type: text
+    nullable: true
+    source: identity.traffic_level
+  - target: gotcha_count
+    target_type: integer
+    nullable: true
+    source: computed
+    computed_by: len(payload.gotchas)
+    notes: >
+      The gotchas themselves are a list of {code, evidence, page, confidence} and do not belong in a
+      one-row-per-project table. Only the count crosses; the detail stays in the plan store.
+
+  # --- row completeness (contract §5) ----------------------------------------------------------
+  - target: row_status
+    target_type: text
+    nullable: false
+    source: computed
+    notes: complete | partial. Contract §5 -- the clause the contract calls the one that matters most.
+  - target: missing_fields
+    target_type: text
+    nullable: true
+    source: computed
+    notes: >
+      Comma-separated list of required fields that were absent. A consumer substituting a default
+      for a field named here is choosing to, rather than doing it by accident.
+
+  # --- provisional keys (collision decision, 2026-08-03) ---------------------------------------
+  - target: key_provisional
+    target_type: boolean
+    nullable: false
+    default: false
+    source: computed
+    notes: >
+      True when project_natural_key contains a sentinel component and therefore carries a
+      content-hash suffix. Exists so a later recomputation pass can find every provisional key with
+      `where key_provisional` -- a single indexed query rather than string-matching for 'UNKNOWN',
+      which would also catch any legitimate row that happens to contain the word.
+  - target: key_provisional_reason
+    target_type: text
+    nullable: true
+    source: computed
+    notes: >
+      Which components fell back, e.g. `sentinel:county,bid_date`. Names the fields so a
+      recomputation knows what to go looking for, rather than re-deriving it from the key string.
+
+  # --- dedupe visibility -----------------------------------------------------------------------
+  - target: duplicate_flag
+    target_type: boolean
+    nullable: false
+    default: false
+    source: computed
+    notes: >
+      Set when an equivalent row already exists but identity is ambiguous. We INSERT AND FLAG rather
+      than silently skip -- a visible duplicate is recoverable, a silently dropped plan is not.
+  - target: duplicate_reason
+    target_type: text
+    nullable: true
+    source: computed
+    notes: Why the row was flagged, e.g. same_join_key_different_plan_uid. See #41.
+
+# ---------------------------------------------------------------------------------------------
+# CASE 3 — bid_projects columns plan_reader CANNOT populate
+# ---------------------------------------------------------------------------------------------
+unpopulated:
+  - target: project_natural_key
+    resolution: computed
+    computed_by: "{state}_{county}_{geocoded_city}_{bid_date}, slugged; city sentinel when null"
+    notes: >
+      The primary key. Not sourced from the payload -- assembled. See the prose doc; the city
+      sentinel and the bid_date parse are the two soft spots.
+
+  - target: bid_date
+    resolution: parsed
+    source: identity.bid_deadline
+    notes: >
+      Parsed out of free text. NULL when unparseable, and bid_deadline_raw always retains the
+      original. A null bid_date degrades project_natural_key -- see the prose doc.
+
+  - target: bid_year
+    resolution: derived
+    computed_by: bid_date.year
+    notes: Null when bid_date is null.
+
+  - target: project_name
+    resolution: null_always
+    notes: >
+      No equivalent in the plan_reader payload or in schema.py. Historical rows get it from the CI
+      batch push. Confirmed nothing downstream requires it non-null.
+
+  - target: project_type
+    resolution: null_always
+    notes: >
+      LEFT NULL ON PURPOSE. This is the CI model's vocabulary; plan_reader's goes to
+      plan_reader_archetype. Mapping one onto the other is an open decision, not a transform.
+
+  - target: updated_at
+    resolution: db_default
+    notes: now(), set by the DDL. processed_at is the plan_reader-specific timestamp.

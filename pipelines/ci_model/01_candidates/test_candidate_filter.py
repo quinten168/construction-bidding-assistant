@@ -17,7 +17,7 @@ from config import DEFAULT_CANDIDATE_RULE
 class CandidatePoolV3Test(unittest.TestCase):
     def setUp(self) -> None:
         # mix_tons/grading_yards/base_tons carry distinct, non-uniform values per row so a
-        # pass-through test can assert an exact value round-trips for a known job_id (see
+        # pass-through test can assert an exact value round-trips for a known project_natural_key (see
         # test_quantity_columns_pass_through below) — the column being present but empty
         # wouldn't catch a splice-list omission the way a specific value does.
         self.projects = pd.DataFrame(
@@ -30,7 +30,7 @@ class CandidatePoolV3Test(unittest.TestCase):
                 ("JP", "2024-06-15", "MN", "TARGET CO", "target", 500, 0, 250),
                 ("JF", "2024-07-01", "MN", "FUTURE CO", "future", 0, 0, 0),
             ],
-            columns=["job_id", "bid_date", "state", "county", "project_type",
+            columns=["project_natural_key", "bid_date", "state", "county", "project_type",
                      "mix_tons", "grading_yards", "base_tons"],
         )
         self.bids = pd.DataFrame(
@@ -45,7 +45,7 @@ class CandidatePoolV3Test(unittest.TestCase):
                 ("JC", "C_RECENT", 0),
                 ("JF", "Q_FUTURE", 1),
             ],
-            columns=["job_id", "competitor_unit_id", "did_win"],
+            columns=["project_natural_key", "competitor_unit_id", "did_win"],
         )
         # Put A/B on synthetic projects to isolate each intended signal.
         extra = pd.DataFrame(
@@ -56,8 +56,8 @@ class CandidatePoolV3Test(unittest.TestCase):
             columns=self.projects.columns,
         )
         self.projects = pd.concat([self.projects, extra], ignore_index=True)
-        self.bids.loc[self.bids.competitor_unit_id == "A_COUNTY", "job_id"] = "JA"
-        self.bids.loc[self.bids.competitor_unit_id == "B_TYPE", "job_id"] = "JB"
+        self.bids.loc[self.bids.competitor_unit_id == "A_COUNTY", "project_natural_key"] = "JA"
+        self.bids.loc[self.bids.competitor_unit_id == "B_TYPE", "project_natural_key"] = "JB"
         all_ids = set(self.bids.competitor_unit_id) | {"P_PRIORITY", "I_INACTIVE"}
         self.entities = pd.DataFrame(
             {
@@ -73,7 +73,7 @@ class CandidatePoolV3Test(unittest.TestCase):
         result = build_v3_candidate_set(
             self.projects, self.bids, self.priority, self.entities
         )
-        jp = result[result.job_id == "JP"].set_index("competitor_unit_id")
+        jp = result[result.project_natural_key == "JP"].set_index("competitor_unit_id")
 
         self.assertEqual(set(result.candidate_rule_version), {DEFAULT_CANDIDATE_RULE})
         for expected in ["A_COUNTY", "B_TYPE", "C_RECENT", "E_WINNER", "F_RECURRING", "P_PRIORITY"]:
@@ -88,7 +88,7 @@ class CandidatePoolV3Test(unittest.TestCase):
         result = build_v3_candidate_set(
             self.projects, self.bids, self.priority, self.entities
         )
-        warmup = result[result.job_id == "JW"].set_index("competitor_unit_id")
+        warmup = result[result.project_natural_key == "JW"].set_index("competitor_unit_id")
         self.assertIn("D_WARMUP", warmup.index)
         self.assertEqual(warmup.loc["D_WARMUP", "v3_in_warmup_12m"], 1)
         self.assertEqual(warmup.loc["D_WARMUP", "v3_in_default_90d"], 0)
@@ -105,12 +105,12 @@ class CandidatePoolV3Test(unittest.TestCase):
         for col in ("mix_tons", "grading_yards", "base_tons"):
             self.assertIn(col, result.columns)
 
-        jp = result[result.job_id == "JP"]
+        jp = result[result.project_natural_key == "JP"]
         self.assertEqual(jp["mix_tons"].iloc[0], 500)
         self.assertEqual(jp["grading_yards"].iloc[0], 0)
         self.assertEqual(jp["base_tons"].iloc[0], 250)
 
-        jc = result[result.job_id == "JC"]
+        jc = result[result.project_natural_key == "JC"]
         self.assertEqual(jc["mix_tons"].iloc[0], 0)
         self.assertEqual(jc["grading_yards"].iloc[0], 400)
 

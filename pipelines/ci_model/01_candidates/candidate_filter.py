@@ -195,11 +195,10 @@ def build_rule_candidate_set(
     projects = projects.copy()
     bidder_results = bidder_results.copy()
     projects["bid_date"] = pd.to_datetime(projects["bid_date"], errors="coerce")
-    project_lookup = projects.set_index("job_id")
 
     bid_history = bidder_results.merge(
-        projects[["job_id", "bid_date", "state", "county", "project_type"]],
-        on="job_id",
+        projects[["project_natural_key", "bid_date", "state", "county", "project_type"]],
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
@@ -209,7 +208,6 @@ def build_rule_candidate_set(
     rows: list[dict] = []
 
     for _, project in projects.sort_values("bid_date").iterrows():
-        job_id = project["job_id"]
         project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
@@ -293,7 +291,6 @@ def build_rule_candidate_set(
         for competitor_unit_id, flags in source_map.items():
             row = {
                 "candidate_rule_version": rule.name,
-                "job_id": job_id,
                 "project_natural_key": project_natural_key,
                 "bid_date": bid_date,
                 "state": state,
@@ -313,7 +310,6 @@ def build_rule_candidate_set(
 
     columns = [
         "candidate_rule_version",
-        "job_id",
         "project_natural_key",
         "bid_date",
         "state",
@@ -334,7 +330,7 @@ def build_rule_candidate_set(
     if not rows:
         return pd.DataFrame(columns=columns)
     return pd.DataFrame(rows)[columns].sort_values(
-        ["candidate_rule_version", "job_id", "competitor_unit_id"]
+        ["candidate_rule_version", "project_natural_key", "competitor_unit_id"]
     )
 
 
@@ -390,16 +386,16 @@ def build_v3_candidate_set(
     projects = projects.copy()
     bidder_results = bidder_results.copy()
     projects["bid_date"] = pd.to_datetime(projects["bid_date"], errors="coerce")
-    projects = projects.dropna(subset=["job_id", "bid_date"])
+    projects = projects.dropna(subset=["project_natural_key", "bid_date"])
     history_start = projects["bid_date"].min()
 
     history_cols = [
-        "job_id", "bid_date", "state", "county", "project_type"
+        "project_natural_key", "bid_date", "state", "county", "project_type"
     ]
     available_history_cols = [col for col in history_cols if col in projects.columns]
     bid_history = bidder_results.merge(
         projects[available_history_cols],
-        on="job_id",
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
@@ -412,8 +408,7 @@ def build_v3_candidate_set(
     ).fillna(0)
 
     rows: list[dict] = []
-    for _, project in projects.sort_values(["bid_date", "job_id"]).iterrows():
-        job_id = project["job_id"]
+    for _, project in projects.sort_values(["bid_date", "project_natural_key"]).iterrows():
         project_natural_key = project.get("project_natural_key")
         bid_date = project["bid_date"]
         state = project.get("state")
@@ -522,7 +517,6 @@ def build_v3_candidate_set(
 
             row = {
                 "candidate_rule_version": DEFAULT_CANDIDATE_RULE,
-                "job_id": job_id,
                 "project_natural_key": project_natural_key,
                 "bid_date": bid_date,
                 "state": state,
@@ -547,7 +541,7 @@ def build_v3_candidate_set(
             rows.append(row)
 
     columns = [
-        "candidate_rule_version", "job_id", "project_natural_key", "bid_date", "state", "county",
+        "candidate_rule_version", "project_natural_key", "bid_date", "state", "county",
         "project_type",
         *[col for col in (*PROJECT_TYPE_FEATURE_COLUMNS, *PROJECT_QUANTITY_COLUMNS)
           if col in projects.columns],
@@ -559,5 +553,5 @@ def build_v3_candidate_set(
     if not rows:
         return pd.DataFrame(columns=columns)
     return pd.DataFrame(rows)[columns].sort_values(
-        ["candidate_rule_version", "job_id", "competitor_unit_id"]
+        ["candidate_rule_version", "project_natural_key", "competitor_unit_id"]
     ).reset_index(drop=True)

@@ -51,6 +51,30 @@ SCALAR_FIELDS = [
        "Project work-type: one of Reconstruct/Rebuild, Mill & Overlay, HMA Overlay/Resurface, "
        "Grading/Earthwork, Aggregate/Base/Gravel (see 05_knowledge/project_archetypes.csv).",
        golden=None, evalkind=None, group="identity"),
+    # location — RAG despite being "identity": these live on the title sheet, which per
+    # 05_knowledge/2026-06-17_field_locations_README.md can be a tabloid map page the whole-doc
+    # pass never sees (s3_extract.py is fed only structure["proposal_pages"], report.py:110-111).
+    _f("route_number", "str", "rag",
+       "The route/highway number the project is on (e.g. '94' for TH 94 / I-94 / US-94) — digits "
+       "only, without the route-type prefix letters (I-/US-/TH/SH). Return as written; null if not stated.",
+       golden=None, evalkind=None, group="identity"),
+    _f("begin_milepost", "str", "rag",
+       "The project's OVERALL begin reference point (first SP/State-Project block if the plan has "
+       "more than one). State DOTs call this different things — return the value exactly as written, "
+       "do not convert format: MN 'REF. POINT' (station '71+00.444' or decimal '71.004'), ND/MT/NE "
+       "'RP' (decimal, e.g. '4.3'), SD 'MRM' (e.g. '406.32+0.022'), IA 'MP' (decimal, e.g. '18.70'). "
+       "Null if not stated.",
+       golden=None, evalkind=None, group="identity"),
+    _f("end_milepost", "str", "rag",
+       "The project's OVERALL end reference point (last SP/State-Project block if more than one), "
+       "same format/terminology as begin_milepost. Optional — null if not stated.",
+       golden=None, evalkind=None, group="identity"),
+    _f("total_gross_length", "num", "rag",
+       "Total project length in miles: SUM the GROSS LENGTH row(s) yourself across EVERY SP/"
+       "State-Project block on the title sheet (a plan with multiple SP blocks has one GROSS LENGTH "
+       "line per block — add them all together). Return ONE plain number in miles, not a list. "
+       "Null if no GROSS LENGTH value is stated anywhere.",
+       golden=None, evalkind=None, group="identity"),
     # quantities (the bid-schedule numbers — all auto-scored vs golden, ±10%)
     _f("hot_mix_tons", "num", "extract", "Total tons of hot mix asphalt (HMA) from the bid schedule.",
        golden="mix_tn", evalkind="num", group="quantities"),

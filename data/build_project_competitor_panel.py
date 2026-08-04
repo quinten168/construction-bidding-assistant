@@ -184,6 +184,8 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
     project_cols = [
         "_project_identity",
         "bid_date",
+        "bid_year",
+        "TIME",
         "state",
         "county",
         "LOCATION",
@@ -208,6 +210,13 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
         .groupby("_project_identity", dropna=False)
         .agg(
             bid_date=("bid_date", "first"),
+            # Source-file provenance (set in run_cleaning_pipeline.py from which CSI_data_<year>.csv
+            # a row came from), not calendar-year math on bid_date -- see push_supabase_bid_data.py's
+            # load_projects(), which used to recompute this from bid_date and got it wrong for any
+            # bid dated Aug-Dec (CSI's fiscal year runs Aug 1-Jul 31, one year ahead of the calendar
+            # year for those months).
+            bid_year=("bid_year", "first"),
+            bid_time=("TIME", "first"),
             state=("state", "first"),
             county=("county", "first"),
             project_location=("LOCATION", "first"),
@@ -228,9 +237,8 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
         .sort_values(["bid_date", "_project_identity"])
         .reset_index(drop=True)
     )
-    projects.insert(0, "job_id", [f"P{i:06d}" for i in range(1, len(projects) + 1)])
     projects.insert(
-        1, "project_natural_key",
+        0, "project_natural_key",
         disambiguate_natural_keys(projects.apply(build_project_natural_key, axis=1)),
     )
     type_features = pd.DataFrame(
@@ -264,7 +272,7 @@ def build_bidder_results(
     )
     mapped["_project_identity"] = _project_identity(mapped)
     mapped = mapped.merge(
-        projects[["_project_identity", "job_id", "project_natural_key"]],
+        projects[["_project_identity", "project_natural_key"]],
         on="_project_identity",
         how="left",
         validate="many_to_one",
@@ -273,15 +281,15 @@ def build_bidder_results(
     mapped["bid_rank"] = pd.to_numeric(mapped["bidder_sequence"], errors="coerce")
 
     duplicate_actual_units = (
-        mapped.groupby(["job_id", "competitor_unit_id"], dropna=False)
+        mapped.groupby(["project_natural_key", "competitor_unit_id"], dropna=False)
         .size()
         .reset_index(name="actual_rows")
         .query("actual_rows > 1")
-        .sort_values(["actual_rows", "job_id"], ascending=[False, True])
+        .sort_values(["actual_rows", "project_natural_key"], ascending=[False, True])
     )
 
-    low_bid = mapped.groupby("job_id")["bid_amount"].min().rename("low_bid_amount")
-    mapped = mapped.merge(low_bid, on="job_id", how="left")
+    low_bid = mapped.groupby("project_natural_key")["bid_amount"].min().rename("low_bid_amount")
+    mapped = mapped.merge(low_bid, on="project_natural_key", how="left")
     mapped["did_win_row"] = (
         mapped["bid_amount"].notna()
         & mapped["low_bid_amount"].notna()
@@ -289,9 +297,8 @@ def build_bidder_results(
     ).astype(int)
 
     bidder_results = (
-        mapped.groupby(["job_id", "competitor_unit_id"], dropna=False)
+        mapped.groupby(["project_natural_key", "competitor_unit_id"], dropna=False)
         .agg(
-            project_natural_key=("project_natural_key", "first"),
             bid_amount=("bid_amount", "min"),
             bid_rank=("bid_rank", "min"),
             did_win=("did_win_row", "max"),
@@ -350,21 +357,21 @@ def build_project_competitor_panel(
     rows: list[dict] = []
 
     for _, project in projects.sort_values("bid_date").iterrows():
-        job_id = project["job_id"]
+        project_natural_key = project["project_natural_key"]
         bid_date = project["bid_date"]
 
-        actual_bids = bidder_results[bidder_results["job_id"] == job_id].copy()
+        actual_bids = bidder_results[bidder_results["project_natural_key"] == project_natural_key].copy()
         actual_competitors = set(actual_bids["competitor_unit_id"].dropna().astype(str))
 
-        prior_job_ids = projects.loc[
+        prior_natural_keys = projects.loc[
             (projects["bid_date"] < bid_date)
             & (projects["state"] == project["state"]),
-            "job_id",
+            "project_natural_key",
         ]
 
         historical_competitors = set(
             bidder_results.loc[
-                bidder_results["job_id"].isin(prior_job_ids),
+                bidder_results["project_natural_key"].isin(prior_natural_keys),
                 "competitor_unit_id",
             ]
             .dropna()
@@ -387,7 +394,7 @@ def build_project_competitor_panel(
             bid_record = bid_lookup.get(competitor_unit_id)
             rows.append(
                 {
-                    "job_id": job_id,
+                    "project_natural_key": project_natural_key,
                     "bid_date": bid_date,
                     "state": project.get("state"),
                     "county": project.get("county"),
@@ -439,12 +446,12 @@ def add_gap_to_low(panel: pd.DataFrame) -> pd.DataFrame:
 
     low_bid = (
         result.loc[result["did_bid"] == 1]
-        .groupby("job_id")["bid_amount"]
+        .groupby("project_natural_key")["bid_amount"]
         .min()
         .rename("low_bid_amount")
     )
 
-    result = result.merge(low_bid, on="job_id", how="left")
+    result = result.merge(low_bid, on="project_natural_key", how="left")
     result["gap_to_low"] = (
         result["bid_amount"] - result["low_bid_amount"]
     ) / result["low_bid_amount"]
@@ -453,7 +460,7 @@ def add_gap_to_low(panel: pd.DataFrame) -> pd.DataFrame:
 
 def build_project_type_audit(projects: pd.DataFrame) -> pd.DataFrame:
     cols = [
-        "job_id",
+        "project_natural_key",
         "bid_date",
         "state",
         "county",
@@ -465,13 +472,13 @@ def build_project_type_audit(projects: pd.DataFrame) -> pd.DataFrame:
         "project_type_rule",
     ]
     available = [col for col in cols if col in projects.columns]
-    return projects[available].sort_values(["project_type", "bid_date", "job_id"])
+    return projects[available].sort_values(["project_type", "bid_date", "project_natural_key"])
 
 
 def audit_panel(panel: pd.DataFrame, bidder_results: pd.DataFrame) -> dict:
     positive_rate = float(panel["did_bid"].mean())
-    actual_counts = bidder_results.groupby("job_id")["competitor_unit_id"].nunique()
-    positive_counts = panel.groupby("job_id")["did_bid"].sum()
+    actual_counts = bidder_results.groupby("project_natural_key")["competitor_unit_id"].nunique()
+    positive_counts = panel.groupby("project_natural_key")["did_bid"].sum()
     count_check = (
         pd.concat(
             [
@@ -487,20 +494,20 @@ def audit_panel(panel: pd.DataFrame, bidder_results: pd.DataFrame) -> dict:
         (count_check["actual_bidder_count"] != count_check["positive_rows_count"]).sum()
     )
 
-    winner_counts = panel.groupby("job_id")["did_win"].sum()
+    winner_counts = panel.groupby("project_natural_key")["did_win"].sum()
     winner_without_bid_errors = panel[(panel["did_win"] == 1) & (panel["did_bid"] != 1)]
 
     return {
         "rows": int(len(panel)),
-        "projects": int(panel["job_id"].nunique()),
+        "projects": int(panel["project_natural_key"].nunique()),
         "competitors": int(panel["competitor_unit_id"].nunique()),
         "positive_rate": positive_rate,
-        "average_candidates_per_project": float(panel.groupby("job_id").size().mean()),
+        "average_candidates_per_project": float(panel.groupby("project_natural_key").size().mean()),
         "missing_competitor_ids": int(panel["competitor_unit_id"].isna().sum()),
         "winner_without_bid_errors": int(len(winner_without_bid_errors)),
         "projects_with_multiple_winners": int((winner_counts > 1).sum()),
         "bidder_count_mismatched_projects": count_mismatches,
-        "bidder_count_summary": panel.groupby("job_id")["did_bid"].sum().describe().to_dict(),
+        "bidder_count_summary": panel.groupby("project_natural_key")["did_bid"].sum().describe().to_dict(),
     }
 
 
@@ -582,8 +589,8 @@ def main() -> None:
     audit_path.parent.mkdir(parents=True, exist_ok=True)
     audit_path.write_text(json.dumps(audit, indent=2, default=str) + "\n")
 
-    actual_counts = bidder_results.groupby("job_id")["competitor_unit_id"].nunique()
-    positive_counts = panel.groupby("job_id")["did_bid"].sum()
+    actual_counts = bidder_results.groupby("project_natural_key")["competitor_unit_id"].nunique()
+    positive_counts = panel.groupby("project_natural_key")["did_bid"].sum()
     count_check = (
         pd.concat(
             [

@@ -59,8 +59,8 @@ def load_data() -> dict[str, pd.DataFrame]:
     pit_list = pd.read_csv(DATA_DIR / "MN_pit_list_cleaned.csv")
 
     history = bidder_results.merge(
-        projects[["job_id", "bid_date", "state", "county", "project_type"] + MATERIAL_COLUMNS],
-        on="job_id",
+        projects[["project_natural_key", "bid_date", "state", "county", "project_type"] + MATERIAL_COLUMNS],
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
@@ -87,28 +87,28 @@ def build_full_universe_panel(projects: pd.DataFrame, history: pd.DataFrame) -> 
         universe = prior["competitor_unit_id"].dropna().astype(str).unique()
         if len(universe) == 0:
             continue
-        actual = history[(history["job_id"] == project["job_id"])]
+        actual = history[(history["project_natural_key"] == project["project_natural_key"])]
         did_bid_ids = set(actual["competitor_unit_id"].astype(str))
         did_win_ids = set(actual.loc[actual["did_win"] == 1, "competitor_unit_id"].astype(str))
 
         frame = pd.DataFrame({"competitor_unit_id": universe})
-        frame["job_id"] = project["job_id"]
+        frame["project_natural_key"] = project["project_natural_key"]
         frame["did_bid"] = frame["competitor_unit_id"].isin(did_bid_ids).astype(int)
         frame["did_win"] = frame["competitor_unit_id"].isin(did_win_ids).astype(int)
         rows.append(frame)
 
     panel = pd.concat(rows, ignore_index=True)
-    return panel.merge(test_projects, on="job_id", how="left")
+    return panel.merge(test_projects, on="project_natural_key", how="left")
 
 
 def compute_hit_rates(scored: pd.DataFrame, score_col: str) -> dict:
     """Winner Hit Rate@K and any-bidder Precision@K, restricted to projects with
     a resolvable winner inside the (possibly rule-restricted) candidate pool."""
     rows = []
-    for job_id, group in scored.groupby("job_id", sort=False):
+    for project_natural_key, group in scored.groupby("project_natural_key", sort=False):
         has_winner = int(group["did_win"].sum()) > 0
         ordered = group.sort_values(score_col, ascending=False)
-        row = {"job_id": job_id, "has_winner_in_pool": has_winner, "candidate_count": len(group)}
+        row = {"project_natural_key": project_natural_key, "has_winner_in_pool": has_winner, "candidate_count": len(group)}
         for k in TOP_K_VALUES:
             top = ordered.head(k)
             row[f"winner_in_top_{k}"] = int(top["did_win"].sum() > 0) if has_winner else np.nan
@@ -172,8 +172,8 @@ def main() -> None:
 
     print("Building full-universe (no pre-filtering) candidate panel for test-split projects...")
     panel = build_full_universe_panel(projects, history)
-    print(f"  test projects: {panel['job_id'].nunique():,}")
-    print(f"  candidate rows: {len(panel):,}  (median candidates/project: {panel.groupby('job_id').size().median():.0f})")
+    print(f"  test projects: {panel['project_natural_key'].nunique():,}")
+    print(f"  candidate rows: {len(panel):,}  (median candidates/project: {panel.groupby('project_natural_key').size().median():.0f})")
 
     company_pit_locations = build_company_pit_locations(pit_list, data["bidder_results"])
     print(f"  companies with an owned MN pit (distance rule coverage): {len(company_pit_locations)}")
@@ -181,7 +181,7 @@ def main() -> None:
     results: list[dict] = []
     distance_frames, size_fit_frames, volume_frames, winrate_frames = [], [], [], []
 
-    for job_id, candidates in panel.groupby("job_id", sort=False):
+    for project_natural_key, candidates in panel.groupby("project_natural_key", sort=False):
         project_row = candidates.iloc[0]
         bid_date = project_row["bid_date"]
         prior_bids = history[history["bid_date"] < bid_date]

@@ -8,8 +8,10 @@ scratch.mn_pit_list are independently appendable: --projects, --bidder-results, 
 --pit-list can each be passed alone or in any combination. Both bid-data source files must already
 carry a project_natural_key column -- data/build_project_competitor_panel.py computes it for
 today's data; any future source (a plan_reader-driven project loader, a bid-results-entry feature)
-must compute and carry it too. job_id is never used as a key here: it is regenerated per-run by
-build_project_competitor_panel.py and is not stable across separate runs/appends.
+must compute and carry it too. (There used to be a job_id column here too -- a sequential row-id
+regenerated per-run and not stable across separate runs/appends. Removed entirely in favor of
+project_natural_key as the sole identifier, to avoid confusion with plan_reader's own, unrelated
+job_id concept.)
 
 The registry table is meant to be read *and edited* by the client in Supabase (filling in
 comp_name for needs-review rows) -- see data/pull_registry_corrections.py for reading those edits
@@ -51,9 +53,9 @@ SCHEMA = "scratch"
 BID_PROJECTS_DDL = """
 create table if not exists scratch.bid_projects (
     project_natural_key       text primary key,
-    job_id                    text,
     source_project_id         text,
     bid_date                  date,
+    bid_time                  text,
     bid_year                  integer,
     state                     text,
     county                    text,
@@ -68,12 +70,7 @@ create table if not exists scratch.bid_projects (
     mill_sy                   double precision,
     crush_tons                double precision,
     stock_tons                double precision,
-    low_bid_amount            double precision,
     project_type              text,
-    project_type_source       text,
-    project_type_rule         text,
-    source_batch              text,
-    loaded_at                 timestamptz not null default now(),
     updated_at                timestamptz not null default now()
 )
 """
@@ -123,19 +120,17 @@ create table if not exists scratch.mn_pit_list (
     state               text,
     access_type         text,
     access_company      text,
-    source_batch        text,
-    loaded_at           timestamptz not null default now(),
     updated_at          timestamptz not null default now(),
     primary key (latitude, longitude)
 )
 """
 
 PROJECT_COLUMNS = [
-    "project_natural_key", "job_id", "source_project_id", "bid_date", "bid_year",
+    "project_natural_key", "source_project_id", "bid_date", "bid_time", "bid_year",
     "state", "county", "project_location", "project_name",
     "project_latitude", "project_longitude",
     "mix_tons", "grading_yards", "base_tons", "shldr_tons", "mill_sy", "crush_tons", "stock_tons",
-    "low_bid_amount", "project_type", "project_type_source", "project_type_rule",
+    "project_type",
 ]
 
 RESULT_COLUMNS = [
@@ -156,7 +151,7 @@ DATE_COLUMNS = {"bid_date"}
 INT_COLUMNS = {"bid_year", "bid_rank", "rating"}
 FLOAT_COLUMNS = {
     "project_latitude", "project_longitude", "mix_tons", "grading_yards", "base_tons",
-    "shldr_tons", "mill_sy", "crush_tons", "stock_tons", "low_bid_amount", "bid_amount",
+    "shldr_tons", "mill_sy", "crush_tons", "stock_tons", "bid_amount",
     "latitude", "longitude",
 }
 BOOL_COLUMNS = {"did_win"}
@@ -174,6 +169,9 @@ def connect() -> psycopg.Connection:
 def ensure_tables(conn: psycopg.Connection) -> None:
     with conn.cursor() as cur:
         cur.execute(BID_PROJECTS_DDL)
+        # bid_time was added after bid_projects already existed in some environments;
+        # CREATE TABLE IF NOT EXISTS above won't alter an existing table's columns.
+        cur.execute("alter table scratch.bid_projects add column if not exists bid_time text")
         cur.execute(BID_RESULTS_DDL)
         cur.execute(BID_RESULTS_INDEX_DDL)
         cur.execute(REGISTRY_DDL)
@@ -208,8 +206,11 @@ def _typed_value(col: str, value):
 
 def load_projects(path: str) -> pd.DataFrame:
     df = pd.read_csv(path, dtype=str)
-    _require_columns(df, {"project_natural_key", "bid_date", "state", "county"}, path)
-    df["bid_year"] = pd.to_datetime(df["bid_date"], errors="coerce").dt.year.astype("Int64").astype("string")
+    # bid_year must come from the CSV as-is (source-file provenance -- see build_projects() in
+    # data/build_project_competitor_panel.py), not be recomputed from bid_date here: CSI's fiscal
+    # year runs Aug 1-Jul 31, one year ahead of the calendar year for Aug-Dec bids, and plain
+    # calendar-year math on bid_date silently mislabeled every Aug-Dec row until this was fixed.
+    _require_columns(df, {"project_natural_key", "bid_date", "bid_year", "state", "county"}, path)
     return df
 
 
@@ -255,9 +256,11 @@ def upsert(
     all_cols: list[str],
     source_batch: str,
     dry_run: bool,
+    write_source_batch: bool = True,
 ) -> tuple[int, int]:
     payload = df[[c for c in all_cols if c in df.columns]].copy()
-    payload["source_batch"] = source_batch
+    if write_source_batch:
+        payload["source_batch"] = source_batch
     write_cols = list(payload.columns)
 
     if dry_run:
@@ -298,7 +301,8 @@ def upsert(
 
 
 def upsert_projects(conn, df: pd.DataFrame, source_batch: str, dry_run: bool) -> tuple[int, int]:
-    return upsert(conn, "bid_projects", df, ["project_natural_key"], PROJECT_COLUMNS, source_batch, dry_run)
+    return upsert(conn, "bid_projects", df, ["project_natural_key"], PROJECT_COLUMNS, source_batch, dry_run,
+                   write_source_batch=False)
 
 
 def upsert_bidder_results(
@@ -331,7 +335,7 @@ def upsert_registry(conn, df: pd.DataFrame, source_batch: str, dry_run: bool) ->
 
 def upsert_pit_list(conn, df: pd.DataFrame, source_batch: str, dry_run: bool) -> tuple[int, int]:
     return upsert(conn, "mn_pit_list", df, ["latitude", "longitude"],
-                  PIT_LIST_COLUMNS, source_batch, dry_run)
+                  PIT_LIST_COLUMNS, source_batch, dry_run, write_source_batch=False)
 
 
 def _existing_project_keys(conn: psycopg.Connection) -> set[str]:

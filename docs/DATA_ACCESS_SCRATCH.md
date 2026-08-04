@@ -26,7 +26,6 @@ foreign keys.
 ```sql
 create table scratch.bid_projects (
     project_natural_key       text primary key,
-    job_id                    text,               -- informational only, see below
     source_project_id         text,
     bid_date                  date,
     bid_year                  integer,
@@ -43,12 +42,8 @@ create table scratch.bid_projects (
     mill_sy                    double precision,
     crush_tons                 double precision,
     stock_tons                 double precision,
-    low_bid_amount               double precision,  -- min(bid_amount) across bidders on this project
     project_type                text,
-    project_type_source         text,
-    project_type_rule           text,
-    source_batch                 text,              -- provenance tag of the load/append that last touched the row
-    loaded_at, updated_at                            timestamptz
+    updated_at                                       timestamptz
 );
 
 create table scratch.bid_results (
@@ -83,22 +78,21 @@ create table scratch.mn_pit_list (
     state                 text,
     access_type           text,              -- open | unknown | client | competitor | closed | knife_river_pending
     access_company        text,
-    source_batch          text,
-    loaded_at, updated_at timestamptz,
+    updated_at            timestamptz,
     primary key (latitude, longitude)
 );
 ```
 
 ---
 
-## Key design: `project_natural_key`, not `job_id`
+## Key design: `project_natural_key`
 
-`job_id` (e.g. `P000123`) is CSI's local CSV row id, regenerated sequentially by date-sort every
-time `data/build_project_competitor_panel.py` runs. It is **not stable** across separate runs —
-do not join or key on it. It is carried into `bid_projects` purely for traceability back to a
-specific local CSV generation.
+There used to also be a `job_id` column (e.g. `P000123`) — CSI's local CSV row id, regenerated
+sequentially by date-sort every time `data/build_project_competitor_panel.py` ran, not stable
+across separate runs. Removed entirely (2026-08-01) in favor of `project_natural_key` as the sole
+identifier, to avoid confusion with plan_reader's own, unrelated `job_id` concept.
 
-The real key is `project_natural_key`, a deterministic, human-readable string built from fields
+The key is `project_natural_key`, a deterministic, human-readable string built from fields
 that don't change run to run:
 
 ```
@@ -124,9 +118,9 @@ for `competitor_name_registry`; `(latitude, longitude)` for `mn_pit_list`), so r
 same data is a no-op, and appending new data never wipes what's already there.
 
 Both bid-data source files must already carry a `project_natural_key` column — the script does not
-compute it or resolve it from `job_id`. `data/build_project_competitor_panel.py` computes it for
-today's data. Any future source (e.g. a plan_reader-driven project loader, or a bid-results-entry
-feature) must compute and carry it too before calling this script.
+compute it. `data/build_project_competitor_panel.py` computes it for today's data. Any future
+source (e.g. a plan_reader-driven project loader, or a bid-results-entry feature) must compute and
+carry it too before calling this script.
 
 `bid_results` rows whose `project_natural_key` doesn't already exist in `bid_projects` are reported
 and skipped rather than raising a raw foreign-key error, since `bid_results` can be pushed on its

@@ -43,8 +43,8 @@ def evaluate_method(
     score_col: str,
 ) -> list[dict]:
     rows: list[dict] = []
-    for job_id, group in predictions.groupby("job_id", sort=False):
-        actual_total = actual_count_by_job.get(str(job_id), 0)
+    for project_natural_key, group in predictions.groupby("project_natural_key", sort=False):
+        actual_total = actual_count_by_job.get(str(project_natural_key), 0)
         if actual_total <= 0:
             continue
         ordered = group.sort_values(score_col, ascending=False).copy()
@@ -58,7 +58,7 @@ def evaluate_method(
         row = {
             "method": method,
             "split": "test",
-            "job_id": str(job_id),
+            "project_natural_key": str(project_natural_key),
             "actual_bidder_count": actual_total,
             "actual_priority_count": actual_priority,
             "actual_discovery_count": actual_discovery,
@@ -104,7 +104,7 @@ def summarize(per_project: pd.DataFrame, candidate_rule: str, note: str) -> pd.D
             "candidate_rule": candidate_rule,
             "model": method,
             "split": "test",
-            "projects": int(frame["job_id"].nunique()),
+            "projects": int(frame["project_natural_key"].nunique()),
         }
         for col in metric_cols:
             row[col] = float(frame[col].mean(skipna=True))
@@ -127,13 +127,13 @@ def main() -> None:
     bidder_results = pd.read_csv(args.bidder_results, low_memory=False)
     priority = pd.read_csv(args.priority_registry, low_memory=False)
 
-    predictions["job_id"] = predictions["job_id"].astype(str)
+    predictions["project_natural_key"] = predictions["project_natural_key"].astype(str)
     predictions["competitor_unit_id"] = predictions["competitor_unit_id"].astype(str)
-    bidder_results["job_id"] = bidder_results["job_id"].astype(str)
+    bidder_results["project_natural_key"] = bidder_results["project_natural_key"].astype(str)
     bidder_results["competitor_unit_id"] = bidder_results["competitor_unit_id"].astype(str)
     priority_ids = set(priority["competitor_unit_id"].dropna().astype(str))
     actual_count_by_job = (
-        bidder_results.groupby("job_id")["competitor_unit_id"].nunique().to_dict()
+        bidder_results.groupby("project_natural_key")["competitor_unit_id"].nunique().to_dict()
     )
 
     frames = []

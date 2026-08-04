@@ -24,6 +24,21 @@ rapidfuzz>=3.0
 # (the app still starts, so this one only shows up when you actually upload a plan).
 python-multipart>=0.0.9
 
+# road_midpoint.py (pipelines/plan_reader/04_tools/road_midpoint/), imported directly by
+# midpoint_bridge.py in the SAME interpreter that runs the app — declared here too, not just in
+# pipelines/plan_reader/requirements.txt, for the same reason pandas/rapidfuzz are above.
+requests>=2.31.0
+
 # NOTE: chainlit was removed on the t/live-stack branch. The Chainlit UI that mounted at /chat
 # is gone (the Next.js frontend replaced it); nothing imports chainlit any more.
 # NOTE: deepeval was dropped with the eval/ harness (not needed to serve the app).
+
+# Postgres driver for the CI-data admin endpoints (bid results / pit list / competitor registry —
+# scratch.* in Supabase, see docs/DATA_ACCESS_SCRATCH.md). Same driver data/push_supabase_bid_data.py
+# already uses in its separate script environment; this is the first time apps/api itself needs it.
+psycopg[binary]>=3.1
+
+# .env loading for local dev (config.py). Optional at runtime — absent means env-vars-only.
+python-dotenv>=1.0.0
+
+# Python >=3.10 required -- see pyproject.toml and issue #53.

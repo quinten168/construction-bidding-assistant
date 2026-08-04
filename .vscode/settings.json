@@ -1,3 +1,38 @@
 {
-    "atlascode.jira.enabled": true
+    "atlascode.jira.enabled": true,
+
+    // Pylance was indexing ~3.1 GB of non-source data: .venv (993 MB), the Chroma vector store
+    // (1.5 GB) and node_modules (675 MB). None of it is code anyone edits here.
+    //
+    // These exclusions affect the EDITOR ONLY. 06_chroma in particular is gitignored but is
+    // required at runtime (CLAUDE.md rough edge 1) — it holds the embeddings the RAG path reads.
+    // Nothing here deletes it or changes how the app resolves it.
+    "python.analysis.exclude": [
+        "**/.venv/**",
+        "**/node_modules/**",
+        "**/pipelines/plan_reader/06_chroma/**",
+        "**/.pytest_cache/**",
+        "**/__pycache__/**"
+    ],
+
+    // Stop the file watcher polling the same trees. This is usually the bigger CPU win.
+    "files.watcherExclude": {
+        "**/.venv/**": true,
+        "**/node_modules/**": true,
+        "**/pipelines/plan_reader/06_chroma/**": true,
+        "**/.git/objects/**": true,
+        "**/__pycache__/**": true
+    },
+
+    // Keep Cmd-Shift-F results to actual source.
+    "search.exclude": {
+        "**/.venv": true,
+        "**/node_modules": true,
+        "**/pipelines/plan_reader/06_chroma": true,
+        "**/.pytest_cache": true,
+        "**/__pycache__": true
+    },
+
+    // Use the repo's venv, so imports still resolve even though .venv is not indexed as source.
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
 }

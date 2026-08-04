@@ -23,8 +23,8 @@ End-to-end reference. Edit this file to propose or track changes to each stage.
 | Output | Description |
 |---|---|
 | `data/processed/CSI_data_combined.csv` | 1,661 projects × 67 cols — primary project-level file |
-| `data/processed/projects.csv` | Clean project metadata (job_id, bid_date, state, county, project_type, material quantities) |
-| `data/processed/bidder_results.csv` | Bidder-level rows (job_id, competitor_unit_id, bid_amount, bid_rank, did_win, raw_bidder_name) |
+| `data/processed/projects.csv` | Clean project metadata (project_natural_key, bid_date, state, county, project_type, material quantities) |
+| `data/processed/bidder_results.csv` | Bidder-level rows (project_natural_key, competitor_unit_id, bid_amount, bid_rank, did_win, raw_bidder_name) |
 | `data/processed/MN_pit_list_cleaned.csv` | Cleaned pit list with lat/lon, access_type, Rating |
 
 ---
@@ -52,7 +52,7 @@ registry's `Top Competitors Tag` column, resolved to `competitor_unit_id` via `b
 
 | Output | Description |
 |---|---|
-| `data/processed/model1/rule_candidate_set.parquet` | Production V3 `(job_id, competitor_unit_id)` rows with entry flags and fallback score; legacy rules appear only when explicitly requested |
+| `data/processed/model1/rule_candidate_set.parquet` | Production V3 `(project_natural_key, competitor_unit_id)` rows with entry flags and fallback score; legacy rules appear only when explicitly requested |
 | `data/processed/model1/training_audit_panel.parquet` | Candidates + missed actual bidders (for recall auditing); label `did_bid` added here |
 | `data/processed/model1/ranking_training_panel.parquet` | Training-only rows (`was_rule_candidate=1`); negatives are non-bidders in the candidate pool |
 | `01_candidates/outputs/*.csv` | Audit reports: pool hit rate, recall, and missed-bidder reasons. `pool_hit_rate = captured actual bidders / pool rows`; it is not ranking P@5/P@10. |
@@ -76,13 +76,13 @@ registry's `Top Competitors Tag` column, resolved to `competitor_unit_id` via `b
 
 ## Stage 3a — Pit Features (`01_candidates/build_pit_features.py`)
 
-**What happens**: For each `(job_id, competitor_unit_id)` pair, compute geographic pit proximity using haversine distance. Pit access is categorized: open market, competitor-owned, unknown, Knife River pending. Falls back to county centroid if project coordinates are missing.
+**What happens**: For each `(project_natural_key, competitor_unit_id)` pair, compute geographic pit proximity using haversine distance. Pit access is categorized: open market, competitor-owned, unknown, Knife River pending. Falls back to county centroid if project coordinates are missing.
 
 **Inputs**: `ranking_training_panel.parquet`, `projects.csv`, `MN_pit_list_cleaned.csv`, `bidder_results.csv`
 
 | Output | Description |
 |---|---|
-| `data/processed/model1/pit_features.parquet` | 28 pit features per `(job_id, competitor_unit_id)` pair |
+| `data/processed/model1/pit_features.parquet` | 28 pit features per `(project_natural_key, competitor_unit_id)` pair |
 
 **Key pit features**:
 

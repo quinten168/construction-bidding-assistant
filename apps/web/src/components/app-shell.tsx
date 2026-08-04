@@ -8,14 +8,14 @@ import { motion } from "motion/react";
 import {
   LayoutDashboard,
   FileUp,
-  Target,
   Sparkles,
-  Map as MapIcon,
-  LineChart,
   Search,
-  MessageSquare,
   Plus,
   PanelLeft,
+  Trophy,
+  Mountain,
+  Users,
+  HardHat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,22 +27,15 @@ const NAV_GROUPS: {
   {
     items: [
       { href: "/", label: "Overview", icon: LayoutDashboard },
-      { href: "/chat", label: "Ask BidIntel", icon: MessageSquare },
     ],
   },
   {
-    title: "Workflow",
+    title: "Data",
     items: [
-      { href: "/ingest", label: "Ingest", icon: FileUp },
-      { href: "/opportunities", label: "Opportunities", icon: Target },
-    ],
-  },
-  {
-    title: "Intelligence",
-    items: [
-      { href: "/sweet-spot", label: "Sweet Spot", icon: Sparkles },
-      { href: "/map", label: "Territory", icon: MapIcon },
-      { href: "/pricing", label: "Pricing", icon: LineChart },
+      { href: "/projects", label: "Projects", icon: HardHat },
+      { href: "/bid-results", label: "Bid Results", icon: Trophy },
+      { href: "/pit-list", label: "Pit List", icon: Mountain },
+      { href: "/competitor-registry", label: "Competitors", icon: Users },
     ],
   },
 ];

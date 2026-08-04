@@ -44,7 +44,7 @@ def main() -> None:
         "missed actual bidders leaked into ranking_training_panel"
     )
 
-    key_cols = ["candidate_rule_version", "job_id", "competitor_unit_id"]
+    key_cols = ["candidate_rule_version", "project_natural_key", "competitor_unit_id"]
     assert not rule_candidates.duplicated(key_cols).any(), (
         "rule_candidate_set has duplicate candidate keys"
     )

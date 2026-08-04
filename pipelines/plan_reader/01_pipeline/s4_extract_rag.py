@@ -43,6 +43,10 @@ SCALAR_QUERIES = [
      "bid opening date bids due proposal deadline letting date substantial completion final "
      "completion contract time working days calendar days notice to proceed completion deadline "
      "liquidated damages complete the work by"),
+    (["route_number", "begin_milepost", "end_milepost", "total_gross_length"],
+     "title sheet route number highway REF POINT reference point begin project end project "
+     "station STA gross length net length project length mileage reference marker MRM mile "
+     "post MP design data"),
 ]
 
 # One broad query per gotcha family — union the hits, then one classification call over the taxonomy.

@@ -4,9 +4,9 @@ CSI Bid Intelligence Agent — Orchestrator
 
 Sequential pipeline: Planner → Executor → Reflector → Reporter → Export
 
-Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03), not job_id --
-job_id is CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
-projects.csv/ranking_predictions.csv, so it is not a stable identifier across pipeline runs.
+Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03). There used to also be
+a job_id column (CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
+projects.csv/ranking_predictions.csv, not stable across pipeline runs) -- removed entirely.
 project_natural_key is deterministic (state_county_city_date[_N]) and stays the same across
 regenerations, which is what the live app's report cache (apps/api/backend/competitor_live.py)
 depends on.
@@ -42,7 +42,7 @@ _DEFAULT_PREDICTIONS = str(
     _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/ranking_predictions.csv"
 )
 _DEFAULT_MODEL = str(
-    _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/logistic_baseline_model.json"
+    _REPO_ROOT / "ci_model/competitor_prediction_model/03_training/outputs/simple_rule_baseline_weights.json"
 )
 _DEFAULT_REGISTRY = str(
     _REPO_ROOT / "ci_model/competitor_prediction_model/01_candidates/outputs/competitor_name_registry - name_variants.csv"
@@ -151,7 +151,7 @@ def run_report(
     Run the full Bid Intelligence pipeline for one project.
 
     project_key is a project_natural_key (see module docstring) -- stable across pipeline
-    regenerations, unlike job_id.
+    regenerations.
 
     Returns the path to the generated report file.
     """
@@ -208,11 +208,13 @@ def run_report(
     model = json.loads(Path(model_path).read_text())
 
     first_row = project_rows.iloc[0]
+    # "state"/"county" on project_rows hold the simple-rule model's numeric input features, not
+    # the project's actual state/county abbreviation -- see train_simple_rule_baseline.py's
+    # project_state/project_county comment for why. Read the preserved identity columns instead.
     project_info = {
         "project_natural_key": project_key,
-        "job_id":       str(first_row.get("job_id", "—")),  # informational only, not stable across runs
-        "state":        str(first_row.get("state", "—")),
-        "county":       str(first_row.get("county", "—")),
+        "state":        str(first_row.get("project_state", "—")),
+        "county":       str(first_row.get("project_county", "—")),
         "project_type": str(first_row.get("project_type", "—")),
         "bid_date":     str(first_row.get("bid_date", "—")),
         "lat":          _lat,
@@ -237,13 +239,30 @@ def run_report(
     if verbose:
         print(f"  Total selected: {len(competitor_ids)}")
 
+    # ── Live capacity (one batched query for the whole shortlist, not one per competitor) ──────
+    # Fail-open: any connection/query error falls back to the local ranking_predictions.csv +
+    # tons_lookup computation executor.py already had -- see tools/capacity_live.py's docstring.
+    from tools import capacity_live
+    live_capacity_df = None
+    try:
+        with capacity_live.connect() as conn:
+            live_capacity_df = capacity_live.fetch_capacity_history(
+                competitor_ids, str(project_info["bid_date"]), conn,
+            )
+        if verbose:
+            print(f"  Live capacity: fetched {len(live_capacity_df)} historical bid row(s) "
+                  f"from Supabase for {len(competitor_ids)} competitor(s)")
+    except Exception as e:
+        if verbose:
+            print(f"  [warn] live capacity fetch failed, using local fallback: {e}")
+
     # ── Executor ──────────────────────────────────────────────────────────────
     if verbose:
         print(f"\n[2/4] Executor — running predictions and narratives...")
     analyses = execute_all(
         competitor_ids, project_rows, model, client, _LLM_MODEL,
         verbose=verbose, name_lookup=name_lookup, all_predictions=predictions,
-        tons_lookup=_tons_lookup,
+        tons_lookup=_tons_lookup, live_capacity_df=live_capacity_df,
     )
     if verbose:
         print(f"  Completed: {len(analyses)} analyses")

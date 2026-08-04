@@ -73,7 +73,7 @@ count terms, so it gets a matching moderate weight in primary:
 
 All history is strictly before each project's bid_date (no leakage).
 
-Input:  outputs/model1/ranking_predictions.csv  (for job_id/competitor_unit_id/
+Input:  outputs/model1/ranking_predictions.csv  (for project_natural_key/competitor_unit_id/
                                                   bid_date/state/county/project_type keys)
         data/processed/projects.csv, data/processed/bidder_results.csv (history)
 Output: outputs/model1/ranking_predictions.csv  (adds simple_rule_score column)
@@ -116,14 +116,14 @@ def build_history(projects_path: str, bidder_results_path: str) -> tuple[pd.Data
         projects[m] = pd.to_numeric(projects[m], errors="coerce").fillna(0)
 
     history = bidder_results.merge(
-        projects[["job_id", "bid_date", "state", "county", "project_type", *MATERIALS]],
-        on="job_id",
+        projects[["project_natural_key", "bid_date", "state", "county", "project_type", *MATERIALS]],
+        on="project_natural_key",
         how="left",
         validate="many_to_one",
     )
     history["competitor_unit_id"] = history["competitor_unit_id"].astype(str)
     history["did_win"] = pd.to_numeric(history["did_win"], errors="coerce").fillna(0)
-    return history, projects.set_index("job_id")
+    return history, projects.set_index("project_natural_key")
 
 
 def fit_primary_weights(
@@ -145,6 +145,12 @@ def fit_primary_weights(
     Falls back to FALLBACK_WEIGHTS (with a printed warning) if the train split is too small or
     single-class to fit meaningfully -- this is a baseline model; it should degrade gracefully,
     not crash a multi-stage pipeline run over a data quirk.
+
+    Also returns the fitted scaler + standardized-space coefficients/intercept in `meta`, under the
+    same key names `predict_and_explain.py` already reads from the sklearn-format model json
+    (feature_columns/intercept/feature_weights/scaler_mean/scaler_std) -- this is what lets this
+    baseline serve live reports (probability + per-feature contributions) through the existing
+    reporting pipeline unmodified, not just rank candidates.
     """
     X_train = primary_features.to_numpy()[train_mask]
     y_train = np.asarray(did_bid)[train_mask]
@@ -153,7 +159,16 @@ def fit_primary_weights(
         print(f"  WARNING: train split too small/single-class for fit_primary_weights "
               f"({len(y_train)} rows, {len(np.unique(y_train))} classes) -- "
               f"falling back to hand-picked weights {FALLBACK_WEIGHTS}.")
-        return dict(FALLBACK_WEIGHTS), {"fit": False, "reason": "insufficient_train_data"}
+        return dict(FALLBACK_WEIGHTS), {
+            "fit": False, "reason": "insufficient_train_data",
+            # Identity scaler + FALLBACK_WEIGHTS-as-coefs so predict_and_explain.py still runs (no
+            # KeyError) in this degraded case -- probability won't be calibrated, but won't crash.
+            "feature_columns": PRIMARY_FEATURES,
+            "intercept": 0.0,
+            "feature_weights": dict(FALLBACK_WEIGHTS),
+            "scaler_mean": [0.0] * len(PRIMARY_FEATURES),
+            "scaler_std": [1.0] * len(PRIMARY_FEATURES),
+        }
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X_train)
@@ -169,6 +184,12 @@ def fit_primary_weights(
         "train_positive_rate": round(float(y_train.mean()), 6),
         "sklearn_coef_standardized": dict(zip(PRIMARY_FEATURES, clf.coef_[0].tolist())),
         "sklearn_intercept": float(clf.intercept_[0]),
+        # Serving-ready fields (sklearn model-json format) -- see docstring.
+        "feature_columns": PRIMARY_FEATURES,
+        "intercept": float(clf.intercept_[0]),
+        "feature_weights": dict(zip(PRIMARY_FEATURES, clf.coef_[0].tolist())),
+        "scaler_mean": scaler.mean_.tolist(),
+        "scaler_std": scaler.scale_.tolist(),
     }
     return weights, meta
 
@@ -182,7 +203,7 @@ def build_simple_rule_score(
     predictions["bid_date"] = pd.to_datetime(predictions["bid_date"], errors="coerce")
 
     raw_frames = []
-    for job_id, frame in predictions.groupby("job_id", sort=False):
+    for project_natural_key, frame in predictions.groupby("project_natural_key", sort=False):
         project = frame.iloc[0]
         bid_date = project["bid_date"]
         state = project.get("state")
@@ -224,7 +245,7 @@ def build_simple_rule_score(
             base[col] = candidate_ids.map(values).fillna(0).to_numpy()
 
         # ── Size fit: competitor's typical scale vs. this project's active materials ──
-        project_row = projects_by_job.loc[job_id]
+        project_row = projects_by_job.loc[project_natural_key]
         active_materials = [m for m in MATERIALS if project_row[m] > 0]
         fit_sums = pd.Series(0.0, index=candidate_ids.unique())
         fit_counts = pd.Series(0, index=candidate_ids.unique())
@@ -287,10 +308,22 @@ def build_simple_rule_score(
     tiebreak = rate_county_shrunk.to_numpy() + rate_type_shrunk.to_numpy() + rate_state
 
     predictions["simple_rule_score"] = primary + 1e-6 * tiebreak
+    # PRIMARY_FEATURES includes "county" and "state", which collide with the project's actual
+    # state/county abbreviation columns already on `predictions` (e.g. "MN"/"STEARNS") -- the
+    # overwrite loop below replaces those with the numeric feature values. Save the real identity
+    # under new names FIRST so orchestrator.py/executor.py can still read a place name after this
+    # function returns; see project_state/project_county at those call sites.
+    predictions["project_state"] = predictions["state"]
+    predictions["project_county"] = predictions["county"]
+    # Persist the 4 raw (unstandardized) inputs as columns too -- serving-time predict_and_explain()
+    # reads feature values straight off the predictions row via model["feature_columns"], so this
+    # baseline can't produce a live probability/explanation without them sitting on the row.
+    for col in PRIMARY_FEATURES:
+        predictions[col] = primary_features[col].to_numpy()
     return predictions, fit_meta
 
 
-def _backfill_missing_winners(sample: pd.DataFrame, history: pd.DataFrame, job_ids) -> pd.DataFrame:
+def _backfill_missing_winners(sample: pd.DataFrame, history: pd.DataFrame, project_natural_keys) -> pd.DataFrame:
     """Add a row for a project's actual winner when the candidate-selection rule never proposed
     them as a candidate (candidate_recall < 1 -- see candidate_filter.py's own audit; this is
     common, not a bug). This is display-only, for a REVIEWED sample: the model itself is
@@ -306,22 +339,22 @@ def _backfill_missing_winners(sample: pd.DataFrame, history: pd.DataFrame, job_i
     sample["backfilled_winner"] = 0
     winners = history[history["did_win"] == 1]
     rows = []
-    for job_id in job_ids:
-        have = set(sample.loc[sample["job_id"] == job_id, "competitor_unit_id"].astype(str))
-        for _, w in winners[winners["job_id"] == job_id].iterrows():
+    for project_natural_key in project_natural_keys:
+        have = set(sample.loc[sample["project_natural_key"] == project_natural_key, "competitor_unit_id"].astype(str))
+        for _, w in winners[winners["project_natural_key"] == project_natural_key].iterrows():
             cid = str(w["competitor_unit_id"])
             if cid in have:
                 continue
             row = {col: pd.NA for col in sample.columns}
             row.update({
-                "job_id": job_id, "competitor_unit_id": cid,
+                "project_natural_key": project_natural_key, "competitor_unit_id": cid,
                 "did_bid": 1, "did_win": 1, "backfilled_winner": 1,
             })
             if "bid_rank" in sample.columns:
                 row["bid_rank"] = w.get("bid_rank")
             for col in ("time_split", "bid_date", "state", "county", "project_type"):
                 if col in sample.columns:
-                    existing = sample.loc[sample["job_id"] == job_id, col]
+                    existing = sample.loc[sample["project_natural_key"] == project_natural_key, col]
                     if not existing.empty:
                         row[col] = existing.iloc[0]
             rows.append(row)
@@ -348,17 +381,17 @@ def write_predictions_sample(
     Also backfills each chosen project's actual winner if the candidate pool is missing them --
     see _backfill_missing_winners for why that's safe to do here but not in training.
     """
-    has_bidder = predictions.groupby("job_id")["did_bid"].transform("max") > 0
-    pool = predictions.loc[has_bidder, "job_id"].unique()
+    has_bidder = predictions.groupby("project_natural_key")["did_bid"].transform("max") > 0
+    pool = predictions.loc[has_bidder, "project_natural_key"].unique()
     if len(pool) == 0:
-        pool = predictions["job_id"].unique()
+        pool = predictions["project_natural_key"].unique()
     rng = np.random.default_rng(seed)
     chosen = rng.choice(pool, size=min(n_projects, len(pool)), replace=False)
 
-    sample = predictions[predictions["job_id"].isin(chosen)].copy()
+    sample = predictions[predictions["project_natural_key"].isin(chosen)].copy()
     sample = _backfill_missing_winners(sample, history, chosen)
     sort_col = "logistic_score" if "logistic_score" in sample.columns else "rule_score"
-    sample = sample.sort_values(["job_id", sort_col], ascending=[True, False], na_position="last")
+    sample = sample.sort_values(["project_natural_key", sort_col], ascending=[True, False], na_position="last")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     sample.to_csv(output_path, index=False)

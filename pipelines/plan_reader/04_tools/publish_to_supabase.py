@@ -13,13 +13,22 @@ This is a PUBLISH, not a migration.
 Five tables are published:  plans, materials, plan_metrics, gotchas, location_intelligence.
 
 Deliberately excluded:
-  - `sections` (37,261 rows). It is bulk chunk text and it is RAG fodder. Note that the Chroma
-    store is self-contained: it holds the chunk text AND the embeddings, so retrieval never
-    reads this table. Publishing `sections` would hand the team text with no embeddings, which
-    is not RAG, just a large bill. Hosted vector search is tracked separately as issue #22.
-  - `plans.full_markdown` (75.8 MB of the 78.1 MB total, single cells up to 4.7 MB). Same
-    reasoning: it is the whole converted document, it lives in the vector store, and it is
-    the entire reason this publish would otherwise be too large to be useful.
+  - `sections` (37,261 rows). It is bulk chunk text and it is RAG fodder. The Chroma store holds
+    chunk text AND embeddings, so retrieval never reads this table, and publishing it would hand
+    the team text with no embeddings. Hosted vector search is tracked separately as issue #22.
+  - `plans.full_markdown` (75.3 MB of the 78.1 MB total, single cells up to 4.68 MB). Excluded
+    because it is ~97% of the payload, and for no other reason.
+
+    CORRECTED 2026-08-03. This block used to say full_markdown "lives in the vector store". THAT
+    IS FALSE, and it is the kind of false that gets a file deleted. Chroma holds CHUNKS: s2_indexer
+    splits with overlap, strips boilerplate paragraphs and drops DROP-sections before indexing (one
+    plan alone: 50 DROP-section chunks dropped, 699 boilerplate paragraphs stripped). The vector
+    store's text is derived and LOSSY and cannot reconstitute full_markdown. The same caveat applies
+    to `sections`.
+
+    So exclusion here is a payload-size decision, NOT a statement that the data is safe elsewhere.
+    csi_v2.db is the ONLY copy of both. See docs/DATA_ACCESS.md and #50 before treating either as
+    redundant.
 
 Usage
 -----
@@ -46,6 +55,11 @@ import urllib.parse
 from pathlib import Path
 
 # --- what we publish ----------------------------------------------------------------------------
+
+# The role this publisher MUST connect as. See the pre-flight check in publish() for why:
+# ALTER DEFAULT PRIVILEGES is scoped per creating-role, so publishing as anyone else
+# silently strips csi_reader's access on every republish.
+EXPECTED_PUBLISH_ROLE = "postgres"
 
 PUBLISH_TABLES = ["plans", "materials", "plan_metrics", "gotchas", "location_intelligence",
                   # reference/lookup tables: small, static, refreshed from local on every publish.
@@ -195,7 +209,65 @@ def human(n: int) -> str:
 
 # --- publish ------------------------------------------------------------------------------------
 
-def publish(dsn: str, payload: dict, ddl: dict) -> None:
+def find_dependent_objects(cur) -> list[tuple[str, str, str, str]]:
+    """Views and materialized views that depend on a table this publish is about to drop.
+
+    `drop table ... cascade` follows dependencies ACROSS SCHEMA BOUNDARIES. A view sitting in the
+    team's `scratch` schema that selects from `public.plans` is dropped along with `plans`, even
+    though the publisher never names `scratch`. The team's *tables* are safe from us; their
+    *views* are not. Nothing warns them, and the object is simply gone next time they look.
+
+    Returns (schema, name, kind, owner) per dependent object, ordered for stable output.
+    """
+    cur.execute("""
+        select distinct dn.nspname, dc.relname, dc.relkind, pg_get_userbyid(dc.relowner)
+        from pg_depend d
+        join pg_rewrite rw   on rw.oid = d.objid
+        join pg_class dc     on dc.oid = rw.ev_class
+        join pg_namespace dn on dn.oid = dc.relnamespace
+        join pg_class sc     on sc.oid = d.refobjid
+        join pg_namespace sn on sn.oid = sc.relnamespace
+        where d.classid = 'pg_rewrite'::regclass
+          and sn.nspname = 'public'
+          and sc.relname = any(%s)
+          and dc.relkind in ('v', 'm')
+          and dc.oid <> sc.oid
+        order by 1, 2
+    """, (PUBLISH_TABLES,))
+    return cur.fetchall()
+
+
+def handle_dependents(dependents: list[tuple[str, str, str, str]], force: bool) -> bool:
+    """Decide what a publish does when it would destroy someone else's view.
+
+    Called after the dependency scan and before any table is dropped. Returns True to continue,
+    False to abort cleanly — nothing has been written at that point, so aborting is free and
+    leaves the previous snapshot fully intact.
+
+    Policy, chosen by T on 2026-07-27: refuse by default, allow `--force` to override.
+
+    Refusing by default means nobody's work disappears without a person deciding it should.
+    Allowing an override means one forgotten view cannot wedge the refresh permanently, which
+    matters because publishing is the only way the team gets current data — and the person a
+    hard block would strand is whoever runs this, not whoever left the view behind.
+
+    The alternative of warning and continuing was rejected: a warning that scrolls past in a
+    terminal is indistinguishable from silence, and silent failure is this repo's recurring
+    wound (CLAUDE.md rough edge 2).
+    """
+    if force:
+        print(f"\n--force given: proceeding anyway. {len(dependents)} object(s) will be "
+              f"destroyed and are NOT recoverable from here.")
+        return True
+    print("\nRefusing to publish, because doing so would destroy the objects listed above.")
+    print("Pick one:")
+    print("  - ask their owners to re-create them as tables (`create table ... as select ...`),")
+    print("    which survives a publish, then re-run;")
+    print("  - or re-run with --force if you know they are disposable.")
+    return False
+
+
+def publish(dsn: str, payload: dict, ddl: dict, force: bool = False) -> bool:
     """Replace all five tables inside ONE transaction.
 
     Idempotency strategy: full table replacement (drop, create, bulk insert), not upsert.
@@ -223,6 +295,56 @@ def publish(dsn: str, payload: dict, ddl: dict) -> None:
 
     with psycopg.connect(dsn) as conn:
         with conn.cursor() as cur:
+            # Pre-flight 0: WHO ARE WE CONNECTED AS?
+            #
+            # This publisher drops and recreates every table (`drop table ... cascade` below), and
+            # table-level GRANTs do not survive a DROP -- they are attributes of the object. What
+            # keeps csi_reader's access alive across a republish is the DEFAULT PRIVILEGES installed
+            # by 04_tools/team_access.sql, and those are scoped to tables created BY THE `postgres`
+            # ROLE:
+            #
+            #     pg_default_acl: schema=public owner=postgres objtype=r
+            #                     -> csi_reader=r/postgres, csi_team=r/postgres
+            #
+            # Connect as any other role and the new tables inherit NOTHING. The publish succeeds,
+            # the data is correct, and every teammate silently loses read access until someone
+            # re-runs the grants by hand. That is exactly the failure this repo keeps producing:
+            # a success that is really a failure, discovered days later by someone else.
+            #
+            # So: fail here, loudly, before the first drop.
+            cur.execute("select current_user")
+            current_role = cur.fetchone()[0]
+            if current_role != EXPECTED_PUBLISH_ROLE:
+                raise SystemExit(
+                    f"\nERROR: connected as '{current_role}', expected "
+                    f"'{EXPECTED_PUBLISH_ROLE}'.\n"
+                    f"  This publisher drops and recreates every table. GRANTs do not survive a\n"
+                    f"  DROP; access is restored by the ALTER DEFAULT PRIVILEGES that are scoped to\n"
+                    f"  tables created by '{EXPECTED_PUBLISH_ROLE}'. Publishing as '{current_role}'\n"
+                    f"  would silently strip csi_reader's SELECT on every table.\n"
+                    f"  Fix: point SUPABASE_DB_URL at the {EXPECTED_PUBLISH_ROLE} login, or extend\n"
+                    f"  the default privileges to '{current_role}' first (see 04_tools/team_access.sql\n"
+                    f"  and docs/DATA_ACCESS.md)."
+                )
+
+            # Pre-flight: would this publish destroy anyone's work? Checked before the first
+            # drop, so aborting here costs nothing and leaves the previous snapshot whole.
+            #
+            # `handle_dependents` is only consulted when there is something to lose. With no
+            # dependent views — the state today — this is a no-op and the publisher behaves
+            # exactly as it always has. The unimplemented policy therefore cannot break a
+            # publish now; it forces the decision at the moment it first has consequences.
+            dependents = find_dependent_objects(cur)
+            if dependents:
+                print(f"\nWARNING: {len(dependents)} object(s) depend on tables about to be "
+                      f"dropped. `cascade` will destroy them:")
+                for schema, name, kind, owner in dependents:
+                    label = "matview" if kind == "m" else "view"
+                    print(f"    {schema}.{name}  ({label}, owner {owner})")
+                if not handle_dependents(dependents, force):
+                    print("\nPublish aborted. Nothing was written; the previous snapshot is intact.")
+                    return False
+
             for table in PUBLISH_TABLES:
                 cols, rows = payload[table]
                 cur.execute(f'drop table if exists "{table}" cascade;')
@@ -235,6 +357,7 @@ def publish(dsn: str, payload: dict, ddl: dict) -> None:
                 print(f"  published {table}: {len(rows):,} rows")
         conn.commit()
     print("\nPublish committed.")
+    return True
 
 
 # --- main ---------------------------------------------------------------------------------------
@@ -244,6 +367,10 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true",
                     help="Read SQLite, build the payload and DDL, report sizes, write nothing. "
                          "Does not require SUPABASE_DB_URL.")
+    ap.add_argument("--force", action="store_true",
+                    help="Publish even when it would destroy views that depend on the published "
+                         "tables. Without this, such a publish is refused. The destroyed objects "
+                         "are not recoverable, so read the list before using it.")
     args = ap.parse_args()
 
     src = os.environ.get("CSI_V2_DB", "").strip()
@@ -310,8 +437,10 @@ def main() -> int:
         print("=" * 78)
         print("publishing (full table replacement, single transaction)")
         print("=" * 78)
-        publish(dsn, payload, ddl)
-        return 0
+        # Exit non-zero on a refusal. A scheduled or scripted caller must be able to tell
+        # "published successfully" apart from "declined to publish", and both print plenty of
+        # text — the exit status is the only part a cron job actually reads.
+        return 0 if publish(dsn, payload, ddl, force=args.force) else 1
     finally:
         con.close()
 

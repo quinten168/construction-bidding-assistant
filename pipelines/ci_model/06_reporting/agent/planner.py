@@ -3,7 +3,11 @@ Planner Agent
 
 Given the full candidate pool for a project, decides which competitors to analyze
 and in what order. Priority competitors (Tier 1) always go first; within each tier
-competitors are sorted by logistic_score descending.
+competitors are sorted by simple_rule_score descending.
+
+score_col default switched from logistic_score (36-feature model) to simple_rule_score
+(4-feature: county/type/state/size_fit) -- see CI_MODEL_JSON in apps/api/backend/config.py
+for why.
 """
 from __future__ import annotations
 
@@ -21,7 +25,7 @@ def classify_threat(probability: float) -> str:
 def plan(
     project_rows: pd.DataFrame,
     top_n: int = 10,
-    score_col: str = "logistic_score",
+    score_col: str = "simple_rule_score",
 ) -> list[str]:
     """
     Return an ordered list of competitor_unit_ids to analyze.

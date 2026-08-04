@@ -3,6 +3,9 @@
 __pycache__/
 .python_packages/
 
+# Local sync-state marker for data/pull_scratch_updates.py (per-machine, not shared)
+data/processed/.scratch_sync_state.json
+
 # Large generated data files (reproduce by running the pipeline)
 ci_model/data/
 **/data/feature_store.csv

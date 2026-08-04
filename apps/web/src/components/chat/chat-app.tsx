@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { PanelRightClose, PanelRightOpen, PanelLeft, Gauge, X, SquarePen, MessageSquare } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, PanelLeft, Gauge, SquarePen, MessageSquare } from "lucide-react";
 import { useChatStore } from "./use-chat-store";
 import { ConversationList } from "./conversation-list";
 import { Thread } from "./thread";
@@ -19,7 +19,10 @@ export function ChatApp() {
   const [panelOpen, setPanelOpen] = useState(false);
   // First open = clean canvas: conversation rail collapsed too (open on demand).
   const [railOpen, setRailOpen] = useState(false);
-  const [verifyOpen, setVerifyOpen] = useState(false);
+  // Verify gate auto-opens off message state (set by processPlan once extraction lands) rather
+  // than a manual trigger — it's a required checkpoint between extraction and report generation,
+  // not an optional follow-up the user has to remember to click into.
+  const verifyingMsg = store.active.messages.filter((m) => m.verifying && m.extraction).at(-1);
 
   const activeFiles = store.files.filter((f) => store.active.fileIds.includes(f.id));
   // Composer only shows files that are still being read, or non-plan context (CSV/spec). A
@@ -147,7 +150,7 @@ export function ChatApp() {
         ) : (
           <>
             <div className="min-h-0 flex-1 overflow-y-auto">
-              <Thread messages={store.active.messages} onSend={store.send} onVerify={() => setVerifyOpen(true)} />
+              <Thread messages={store.active.messages} onSend={store.send} />
             </div>
 
             <Composer
@@ -178,13 +181,15 @@ export function ChatApp() {
         )}
       </AnimatePresence>
 
-      {/* Verify-extraction modal (the trust gate, opened from the report card) */}
+      {/* Verify-extraction gate — auto-opens once a plan's extraction lands (verifyingMsg above),
+          before the rest of the report (competitor-intel generation) runs. No backdrop/X dismiss:
+          Confirm or Skip are the only ways through, since either one actually finalizes the report
+          via the store — an accidental dismiss would leave the message stuck waiting forever. */}
       <AnimatePresence>
-        {verifyOpen && (
+        {verifyingMsg && (
           <>
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setVerifyOpen(false)}
               className="fixed inset-0 z-50 bg-black/25 backdrop-blur-[2px]"
             />
             <motion.div
@@ -194,13 +199,11 @@ export function ChatApp() {
               transition={{ type: "spring", stiffness: 280, damping: 30 }}
               className="glass-strong fixed left-1/2 top-1/2 z-50 max-h-[88vh] w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/50 p-5"
             >
-              <button
-                onClick={() => setVerifyOpen(false)}
-                className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <VerifyExtraction onConfirm={() => setVerifyOpen(false)} onSkip={() => setVerifyOpen(false)} />
+              <VerifyExtraction
+                extraction={verifyingMsg.extraction!}
+                onConfirm={(edits) => store.confirmVerification(verifyingMsg.id, edits)}
+                onSkip={() => store.skipVerification(verifyingMsg.id)}
+              />
             </motion.div>
           </>
         )}

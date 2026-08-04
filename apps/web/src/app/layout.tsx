@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
@@ -11,14 +12,17 @@ export const metadata: Metadata = {
   description: "Central Specialties' estimating copilot — ask the plans, flag the gotchas, cite every figure.",
 };
 
-// Chatbot-only MVP — no app shell. The whole product is the chat.
+// Chat is still the home route ("/"), but the CI-data admin pages (bid results, pit list,
+// competitor registry) need real navigation between pages, so the shell is on for all of them.
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="h-full">{children}</body>
+      <body className="h-full">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

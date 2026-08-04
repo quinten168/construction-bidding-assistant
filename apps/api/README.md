@@ -24,7 +24,10 @@ cd apps/api
 #   chat UI : http://localhost:8000/chat
 #   API docs: http://localhost:8000/docs   ·   health: /health
 ```
-Tests (no API calls): `../../.venv/bin/python3 -m pytest`
+Tests (no Anthropic calls): `../../.venv/bin/python3 -m pytest`. One exception:
+`tests/test_midpoint_bridge.py` makes real outbound HTTP calls to state DOT GIS endpoints (no
+mocking, by design) and can fail on their outages rather than a bug here — see `CLAUDE.md` rough
+edge 6.
 
 ## Architecture
 ```
