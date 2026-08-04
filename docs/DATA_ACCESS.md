@@ -137,6 +137,31 @@ This had never been written down, and it misleads in two specific ways:
 The only backup is `/Users/t/Desktop/csi_v2_backup_2026-08-03.db` (117 plans, `integrity_check ok`,
 SHA-256 identical to the iCloud source). **Run audits against the backup, not the symlink.**
 
+### ⛔ DO NOT DELETE `csi_v2.db`. The runtime repoint did NOT retire it.
+
+`apps/api` stopped opening this file on 2026-08-03 (#50). That is easy to mistake for "the file is
+now redundant." **It is not.** It holds content that exists nowhere else:
+
+| Held only in SQLite | Size | Why it matters |
+|---|---|---|
+| `plans.full_markdown` | **75.3 MB**, 100 of 117 plans | The **root of the regeneration chain**: `PDF → full_markdown → sections → embeddings`. Deliberately excluded from the publish. |
+| `sections` | **37,261 rows / 74.9 MB** | Input to gotcha prefiltering and bid-schedule parsing. Deliberately excluded from the publish. |
+| `section_intelligence` | 18 rows | Held out by a type bug (`low_sample_flag` declared `REAL`, stores `"Y"`/`""`). |
+| `conversations` | 46 historical turns | Never migrated. `scratch.conversations` is at 0, and the JSONL sidecar has only 7 turns. Logs — not regenerable from anything. |
+
+**Chroma cannot substitute for any of it.** The vector store's text is *derived and lossy*:
+`s2_indexer` strips boilerplate and drops DROP-sections before indexing (one plan alone: 50
+DROP-section chunks dropped, 699 boilerplate paragraphs stripped). It cannot reconstitute
+`full_markdown` or `sections`.
+
+**And 17 of 117 plans cannot be re-converted even with the source PDF in hand** — `convert_status`
+records 7 `conversion timeout (>300s; pathological PDF)`, 4 `PdfminerException`, 4
+`empty/near-empty conversion`, 2 `ValueError: Point: bad args`. A further 6 plans have no
+resolvable source PDF at all.
+
+Retiring this file requires publishing `sections` and `section_intelligence`, deciding what to do
+about `full_markdown`, and migrating the 46 conversation rows. Tracked in #50.
+
 ---
 
 ## What is in it

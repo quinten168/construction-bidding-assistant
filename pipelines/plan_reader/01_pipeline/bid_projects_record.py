@@ -171,6 +171,18 @@ def _valid(y, mo, d) -> tuple[Optional[str], bool]:
     return iso, True
 
 
+def _quantity_unit(payload: dict, label: str) -> Optional[str]:
+    """The unit as the plan itself stated it, per quantity (settled decision 5).
+
+    Eight columns rather than one global `unit_source`, because one global column cannot say WHICH
+    quantity's unit was assumed, and that distinction is not recoverable after the fact.
+    """
+    for item in payload.get("quantities") or []:
+        if (item or {}).get("label") == label:
+            return item.get("unit")
+    return None
+
+
 def _quantity(payload: dict, label: str):
     """payload.quantities is a LIST of {label, value, unit}, and report.py has already dropped any
     entry whose value is None/''/0. So an absent quantity and a genuine zero are indistinguishable
@@ -239,6 +251,17 @@ def build_record(payload: dict, *, content_hash: str = None, source_file: str = 
         "mill_sy": _quantity(payload, "MILL"),
         "crush_tons": _quantity(payload, "CRUSH"),
         "stock_tons": _quantity(payload, "STOCK"),
+        # Units, one per quantity (decision 5). Null where the quantity itself is null.
+        "mix_unit": _quantity_unit(payload, "MIX"),
+        "grading_unit": _quantity_unit(payload, "GRADE"),
+        "base_unit": _quantity_unit(payload, "BASE"),
+        "shldr_unit": _quantity_unit(payload, "SHLDR"),
+        "mill_unit": _quantity_unit(payload, "MILL"),
+        "crush_unit": _quantity_unit(payload, "CRUSH"),
+        "stock_unit": _quantity_unit(payload, "STOCK"),
+        # 'observed' only when the plan actually yielded a quantity to observe a unit on. A row with
+        # no quantities gets NULL, not a confident-looking 'observed' about nothing.
+        "unit_source": ("observed" if (payload.get("quantities") or []) else None),
         # --- case 3: assembled / derived ---
         "project_natural_key": build_project_natural_key(state, county_col, city, bid_date),
         "bid_date": bid_date_col,

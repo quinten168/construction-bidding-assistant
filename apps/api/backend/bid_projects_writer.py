@@ -161,11 +161,20 @@ def upsert(row: dict, declared_columns: Iterable[str], *, table: str = TABLE,
 
         cols = sorted(writable)
         updatable = [c for c in cols if c not in _NEVER_UPDATE]
+        set_parts = [f"{c} = excluded.{c}" for c in updatable]
+        # updated_at is `default now()` with NO trigger, so it fires on INSERT and never again —
+        # which made it identical to processed_at and destroyed the distinction the mapping doc
+        # draws between them (processed_at = when the plan was processed, stable; updated_at = last
+        # edit, moving). Set it explicitly here. This fixes OUR writer only; the CI side upserts
+        # into the same table and has the same defect, and the durable fix is a trigger owned by the
+        # CI workstream — see the ticket, same shape as #55.
+        if "updated_at" in table_cols:
+            set_parts.append("updated_at = now()")
         sql = (
             f"insert into {table} ({', '.join(cols)}) "
             f"values ({', '.join('%s' for _ in cols)}) "
             f"on conflict (project_natural_key) do update set "
-            + ", ".join(f"{c} = excluded.{c}" for c in updatable)
+            + ", ".join(set_parts)
             + " returning (xmax = 0) as inserted"
         )
         result = {"project_natural_key": writable["project_natural_key"],

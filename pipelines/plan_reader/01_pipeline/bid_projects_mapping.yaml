@@ -14,7 +14,9 @@
 #
 # v2 (2026-08-03): county transform corrected to the LIVE convention (see the `county` entry), and
 # bid_date_unparsed added to carry settled decision 3.
-version: 2
+# v3 (2026-08-03): the 8 unit columns wired up, carrying settled decision 5. They already existed in
+# the live table and the payload already carried the data; only the mapping entries were missing.
+version: 3
 generated_for: scratch.bid_projects
 
 # ---------------------------------------------------------------------------------------------
@@ -249,6 +251,52 @@ new_columns:
     target_type: text
     nullable: true
     source: identity.construction_end
+
+  # --- units, one per quantity (settled decision 5) --------------------------------------------
+  # Decision 5, verbatim: "keep all 8. One global unit_source cannot say WHICH quantity's unit was
+  # assumed, and that is not recoverable later." All 8 columns already exist in the live table and
+  # payload.quantities[].unit already carries the value -- only these mapping entries were missing,
+  # so the units were being silently dropped on the floor.
+  #
+  # `observed` means the unit came from the plan's own bid schedule. There is no `assumed` path in
+  # plan_reader today: report.py emits a unit for every quantity it emits. unit_source is written
+  # only when at least one quantity is present, so a row with no quantities has NULL rather than a
+  # confident-looking 'observed' about nothing.
+  - target: mix_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=MIX].unit
+  - target: grading_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=GRADE].unit
+  - target: base_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=BASE].unit
+  - target: shldr_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=SHLDR].unit
+  - target: mill_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=MILL].unit
+  - target: crush_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=CRUSH].unit
+  - target: stock_unit
+    target_type: text
+    nullable: true
+    source: quantities[label=STOCK].unit
+  - target: unit_source
+    target_type: text
+    nullable: true
+    source: computed
+    notes: >
+      observed | null. Contract §4.2 warns not to trust an `assumed` unit for arithmetic; carrying
+      the distinction per row means a consumer can tell. Null when the plan yielded no quantities.
 
   - target: bid_date_unparsed
     target_type: boolean
