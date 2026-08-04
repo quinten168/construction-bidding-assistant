@@ -110,8 +110,32 @@ else.
 This store is a **published snapshot** of the small structured tables from that file, copied into
 hosted Postgres so the team can query them over a connection string.
 
-It is a copy, not the system of record. The local SQLite file remains authoritative and the
-application does not read from Postgres.
+> **Superseded in part, 2026-08-03 (#50).** The last sentence used to read "the application does not
+> read from Postgres." That is no longer true. `apps/api` now reads the corpus from Postgres on the
+> live path — `config.corpus_state` → `public.plans`, and `final_report.py` → `public.gotchas` /
+> `public.plan_metrics` — and `backend/trace.py` writes chat turns to `scratch.conversations`.
+> Nothing in `apps/api` opens the SQLite file any more. SQLite is still the *production* source for
+> the publish step, so it remains the system of record for the eight published tables, but it is no
+> longer on the application's read path.
+
+### Where `csi_v2.db` actually lives — it is a symlink, not a local file
+
+`pipelines/plan_reader/csi_v2.db` is a **symbolic link into iCloud Drive**:
+
+```
+pipelines/plan_reader/csi_v2.db -> ~/Library/Mobile Documents/com~apple~CloudDocs/
+    00 MSBA + Coding/00_summer 2026/00_CSI_ELP/01_Summer_2026/02_modules/plan_reader/csi_v2.db
+```
+
+This had never been written down, and it misleads in two specific ways:
+
+- **`ls -l` reports 144 bytes** (the length of the link target's path), not the ~167 MB of the real
+  file. Anyone sanity-checking the size concludes the database is empty or truncated.
+- **It exists on exactly one machine.** A teammate who clones the repo gets a dangling link, not a
+  database — which is a different failure from "file not found" and reads as corruption.
+
+The only backup is `/Users/t/Desktop/csi_v2_backup_2026-08-03.db` (117 plans, `integrity_check ok`,
+SHA-256 identical to the iCloud source). **Run audits against the backup, not the symlink.**
 
 ---
 

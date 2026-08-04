@@ -294,7 +294,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         # curated set moved to Postgres in #50. Deliberately NOT renamed here: it is a wire value
         # this module branches on (_bar/note below) and apps/web carries (lib/chat-data.ts:74), so
         # renaming it is a behaviour change and belongs in its own commit, not a storage repoint.
-        # It means "curated corpus set" as opposed to 'live' (fresh RAG). See #60.
+        # It means "curated corpus set" as opposed to 'live' (fresh RAG). See #61.
         "gotcha_source": gotcha_source,              # 'sqlite[:id]' (curated) | 'live' (fresh RAG)
         "competitor": comp,                          # parsed report + ._match, or None
     }

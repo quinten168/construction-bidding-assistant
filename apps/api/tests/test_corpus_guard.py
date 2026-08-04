@@ -15,6 +15,50 @@ equivalent states are now produced by stubbing `ci_db.get_conn`:
     corpus empty         -> the count query returns 0
     corpus ok            -> the count query returns N > 0
 
+GUARANTEE MAP (SQLite version -> this version). Recorded because rewriting a test file is exactly
+where guarantees quietly weaken, and this needs to stay auditable later:
+
+  OLD test                                    GUARANTEE                        NEW test
+  ------------------------------------------  -------------------------------  ----------------------------------------
+  test_absent_file_is_no_file                 unreachable corpus is detected   test_unreachable_corpus_is_no_file
+  test_trace_created_decoy_is_no_table        reachable but no corpus table    test_missing_plans_table_is_no_table
+  test_initialised_but_unpopulated_is_empty   schema alone is not a corpus     test_present_but_unpopulated_is_empty
+  test_populated_corpus_is_ok                 the happy path still passes      test_populated_corpus_is_ok
+  test_state_is_not_cached_across_calls       state is re-read every call      test_state_is_not_cached_across_calls
+  test_readers_return_none_without_a_corpus   all 3 readers degrade + log      test_readers_return_none_without_a_corpus
+  test_no_corpus_and_corpus_miss_log_differ.  setup problem != ordinary miss   test_no_corpus_and_corpus_miss_log_differently
+  test_populated_corpus_reads_normally        no regression on the happy path  test_populated_corpus_reads_normally
+  test_warnings_distinguishes_missing_file…   startup warning distinguishes    test_warnings_distinguishes_unreachable_from_empty_corpus
+                                              unreachable from empty
+
+  test_probe_does_not_create_the_file         DROPPED, and deliberately: it asserted that probing
+                                              must not CREATE the SQLite file, which is the decoy
+                                              mechanism itself. Postgres has no file to create, so
+                                              the guarantee is now structural rather than tested.
+                                              trace.py's own commit (226f897) verifies the property
+                                              end-to-end by moving csi_v2.db away and confirming
+                                              nothing recreates it.
+  test_trace_and_final_report_share_one_db…   DROPPED: asserted trace.DB_PATH == final_report.DB_PATH
+                                              == config.CSI_DB so reader and writer could not drift
+                                              onto different files. Both now go through ci_db.get_conn
+                                              and a single DSN, so divergence is not expressible.
+
+TWO NEW CASES, covering states SQLite could not express:
+
+  test_connection_failure_is_no_file_not_an_exception
+      A dead network / auth failure mid-call must return CORPUS_NO_FILE, never raise into the
+      report. Under SQLite the only failure was a local file being absent, which cannot throw a
+      connection error; Postgres adds a whole class of transport failures on the read path.
+
+  test_a_query_failure_degrades_rather_than_raising
+      The corpus is present and healthy, but the gotchas/plan_metrics query itself fails mid-read
+      (e.g. the server closes the connection). The readers must return None, not propagate. SQLite
+      had no equivalent — a local file that opened successfully did not then fail mid-statement.
+
+  test_db_path_argument_is_accepted_and_ignored
+      corpus_state still takes db_path for signature compatibility and must ignore it. Guards
+      against someone "fixing" the unused parameter by reintroducing a file check.
+
 Run from the apps/api/ directory:   ../../.venv/bin/python3 -m pytest -q
 """
 from contextlib import contextmanager
