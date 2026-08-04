@@ -194,18 +194,63 @@ def _quantity(payload: dict, label: str):
     return None
 
 
-def build_project_natural_key(state, county_col, city, bid_date_iso) -> str:
-    """`{state}_{county}_{city}_{bid_date}`, slugged, with sentinels for the two soft spots.
+KEY_HASH_CHARS = 8   # of the 16-char plan_uid; 8 hex chars is 4e9 values, ample for one corpus
 
-    `county_col` is expected in the live column convention already ('STEARNS CO'), so the key
-    matches the existing MN_STEARNS_CO_MELROSE_2023-08-03 shape.
+
+def build_project_natural_key(state, county_col, city, bid_date_iso,
+                              plan_uid=None) -> tuple[str, bool, Optional[str]]:
+    """`{state}_{county}_{city}_{bid_date}` slugged → (key, provisional, reason).
+
+    `county_col` arrives in the live column convention already ('STEARNS CO'), so a fully-resolved
+    key matches the existing MN_STEARNS_CO_MELROSE_2023-08-03 shape exactly.
+
+    WHY A SUFFIX EXISTS (owner's decision, 2026-08-03)
+    -------------------------------------------------
+    The four components are not independently identifying once any of them falls back to a
+    sentinel. Two different ND plans with no extractable county and no parseable bid date both
+    assemble `ND_UNKNOWN_UNKNOWN_1900-01-01`, and because the writer upserts on this key, the
+    second plan OVERWRITES the first. Observed for real on 2026-08-03: three plans in, two rows
+    out, on the first three of seven fixtures. The sentinel path is the COMMON case on this corpus,
+    not a rare fallback, so the collision is not an edge case either.
+
+    "Never reject a row" was therefore producing a silently destroyed row one layer down. Appending
+    the content hash makes the key unique by construction:
+
+        ND_UNKNOWN_UNKNOWN_1900-01-01_e9ae6f09
+
+    Deliberately narrow:
+      * The suffix is added ONLY when at least one component is a sentinel. A fully-resolved key is
+        byte-identical to what it was before, so nothing changes for well-formed rows and the
+        existing 1,591 keys are untouched.
+      * It uses `plan_uid` (the PDF content hash), so it is deterministic and re-derivable — the
+        same PDF always produces the same key, and a re-drop upserts rather than duplicating.
+      * It does NOT change the PK structure and does NOT touch the bid_results FK, which is what
+        keeps this out of the CI workstream's way.
+
+    The caller records `provisional` / `reason` in their own columns so a later recomputation pass
+    finds every one of these with `where key_provisional`, rather than by string-matching for
+    'UNKNOWN'.
     """
-    return "_".join((
+    parts = [
         _slug(state) or CITY_SENTINEL,
         _slug(county_col) or CITY_SENTINEL,
         _slug(city) or CITY_SENTINEL,
         bid_date_iso or UNPARSED_BID_DATE,
-    ))
+    ]
+    names = ("state", "county", "city", "bid_date")
+    sentinel_parts = [n for n, p in zip(names, parts)
+                      if p in (CITY_SENTINEL, UNPARSED_BID_DATE)]
+    key = "_".join(parts)
+    if not sentinel_parts:
+        return key, False, None
+
+    reason = "sentinel:" + ",".join(sentinel_parts)
+    if not plan_uid:
+        # No hash to disambiguate with. Still mark it provisional — a caller that cannot supply a
+        # plan_uid has a bigger problem, and silently returning a colliding key would be the exact
+        # failure this function exists to prevent.
+        return key, True, reason + ";no_plan_uid_to_disambiguate"
+    return f"{key}_{str(plan_uid)[:KEY_HASH_CHARS]}", True, reason
 
 
 # --- the assembly ---------------------------------------------------------------------------------
@@ -236,6 +281,9 @@ def build_record(payload: dict, *, content_hash: str = None, source_file: str = 
     jkey, unkeyable = join_key.normalize_join_key(
         identity.get("state"), identity.get("county"), identity.get("sp_number"))
 
+    pnk, key_provisional, key_reason = build_project_natural_key(
+        state, county_col, city, bid_date, plan_uid=content_hash)
+
     row: dict[str, Any] = {
         # --- case 1: existing columns ---
         "state": state,
@@ -263,7 +311,9 @@ def build_record(payload: dict, *, content_hash: str = None, source_file: str = 
         # no quantities gets NULL, not a confident-looking 'observed' about nothing.
         "unit_source": ("observed" if (payload.get("quantities") or []) else None),
         # --- case 3: assembled / derived ---
-        "project_natural_key": build_project_natural_key(state, county_col, city, bid_date),
+        "project_natural_key": pnk,
+        "key_provisional": key_provisional,
+        "key_provisional_reason": key_reason,
         "bid_date": bid_date_col,
         "bid_year": int(bid_date[:4]) if bid_date else None,
         "project_name": None,      # null_always — no equivalent anywhere in schema.py

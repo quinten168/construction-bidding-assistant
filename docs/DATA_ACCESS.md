@@ -89,7 +89,32 @@ or anything containing `<` / `>`.
 **Only the `/api/ci-data/*` admin pages need Postgres.** To work on chat or PDF upload without a
 DSN: `ALLOW_NO_SUPABASE=1 ./scripts/api.sh`.
 
-### 4. Python version
+### 4. You do NOT need the 1.5 GB vector store
+
+**A teammate can run the full PDF-drop → report flow with an empty `pipelines/plan_reader/06_chroma/`
+directory.** Nothing to download, nothing to host, no setup. If the directory does not exist it is
+created on first use.
+
+Verified empirically on 2026-08-03: `process_pdf` was run against a genuinely empty store. It went
+**0 → 286 chunks**, self-populating, and extraction returned a complete result — archetype, state,
+location, prevailing wages, traffic level, quantities and gotchas.
+
+This works because of how extraction retrieves, not by luck. Every query in
+`01_pipeline/s4_extract_rag.py` is scoped to `{"doc_id": <the plan being processed>}`. The pipeline
+**indexes the plan it was handed and then retrieves against those chunks only** — it never consults
+the historical corpus. `report.py`'s ingest stage is unconditional, so every dropped PDF populates
+the store as a side effect.
+
+**The one real limitation.** Chat *about the plan you just dropped* works fine — the agent scopes to
+the active plan. **Cross-plan chat returns nothing until plans are indexed**, because a corpus-wide
+question searches the whole collection and an empty collection has nothing in it. So questions like
+"what do other Stearns County plans say about aggregate specs?" come back empty on a fresh machine
+and get better as you process plans.
+
+If you want the historical corpus locally, the store is regenerable — see
+`pipelines/plan_reader/README.md` — but you do not need it to be productive.
+
+### 5. Python version
 
 **This project requires Python 3.10 or newer** (`pyproject.toml`, `requires-python = ">=3.10"`).
 3.9 reached end of life in October 2025 and PEP 604 syntax (`float | None`) is used throughout.

@@ -16,7 +16,9 @@
 # bid_date_unparsed added to carry settled decision 3.
 # v3 (2026-08-03): the 8 unit columns wired up, carrying settled decision 5. They already existed in
 # the live table and the payload already carried the data; only the mapping entries were missing.
-version: 3
+# v4 (2026-08-03): key_provisional / key_provisional_reason, carrying the collision decision -- the
+# natural key gains a content-hash suffix when any component is a sentinel.
+version: 4
 generated_for: scratch.bid_projects
 
 # ---------------------------------------------------------------------------------------------
@@ -340,6 +342,25 @@ new_columns:
     notes: >
       Comma-separated list of required fields that were absent. A consumer substituting a default
       for a field named here is choosing to, rather than doing it by accident.
+
+  # --- provisional keys (collision decision, 2026-08-03) ---------------------------------------
+  - target: key_provisional
+    target_type: boolean
+    nullable: false
+    default: false
+    source: computed
+    notes: >
+      True when project_natural_key contains a sentinel component and therefore carries a
+      content-hash suffix. Exists so a later recomputation pass can find every provisional key with
+      `where key_provisional` -- a single indexed query rather than string-matching for 'UNKNOWN',
+      which would also catch any legitimate row that happens to contain the word.
+  - target: key_provisional_reason
+    target_type: text
+    nullable: true
+    source: computed
+    notes: >
+      Which components fell back, e.g. `sentinel:county,bid_date`. Names the fields so a
+      recomputation knows what to go looking for, rather than re-deriving it from the key string.
 
   # --- dedupe visibility -----------------------------------------------------------------------
   - target: duplicate_flag
