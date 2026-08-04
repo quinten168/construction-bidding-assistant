@@ -90,6 +90,16 @@ verification status.
   first, and check whether hits are reads or writes. Watch for basename collisions — `outputs/`
   produces false hits across four different modules.
 - **Prove a subprocess ran; do not trust an HTTP 200.** See rough edge 2.
+- **A success signal at the wrong layer is not evidence.** HTTP 200 is a transport fact, not an
+  application fact. A SQL statement completing is a syntax fact, not an effect fact. Five instances
+  are collected in #65, including `create table if not exists` never reconciling a table, and a
+  `REVOKE` by a non-grantor returning success while changing nothing. **Verify by observing the
+  changed state, and never let a failure and a legitimate empty answer share a return value.**
+- **A negative result from a fixed set of checks is not proof of absence.** When code answers "is
+  this safe / ambiguous / a duplicate?", enumerate the ways the underlying operation can lose data
+  and confirm each has a check — do not enumerate the checks and assume they cover it. This cost a
+  destroyed row on 2026-08-03: a duplicate check tested two conditions, neither of which was the one
+  that overwrites, and returned clean while a project disappeared.
 - **Do not add features while cleaning.** Cleanup commits and behavior commits stay separate.
 
 ---

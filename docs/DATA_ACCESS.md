@@ -11,9 +11,99 @@ a connection string and anything that speaks Postgres.
 
 ---
 
-## Running the app locally — start here
+## Fresh machine: the 10-minute runbook
 
-*Added 2026-08-03. This is the section to follow on a fresh machine.*
+*Added 2026-08-03, verified end to end on that date. Follow this in order.*
+
+**You do NOT need:** the 1.5 GB vector store, the 167 MB `csi_v2.db`, the plan corpus, or any
+Supabase table access to try the app. Those are for batch tooling and team data, not for running it.
+
+```bash
+# 1. clone
+git clone https://github.com/Tobias-V-Knight/csi-bid-intelligence.git
+cd csi-bid-intelligence
+
+# 2. Python 3.10+ (3.9 is EOL and PEP 604 syntax is used throughout)
+python3 --version          # need >= 3.10
+python3 -m venv .venv
+.venv/bin/pip install -r apps/api/requirements.txt
+
+# 3. env — ONE file, at the repo root
+cp .env.example .env
+#    edit .env:
+#      ANTHROPIC_API_KEY        REQUIRED  (chat + both extraction passes)
+#      SUPABASE_TEAM_DB_URL     optional  (only the /bid-results, /pit-list, /competitor-registry,
+#                                          /projects admin pages need it — ask Tobias)
+#      GOOGLE_GEOCODING_API_KEY optional  (city lookup; unset just yields a null city)
+
+# 4. run — BOTH processes. Starting only one is the usual confusing failure.
+./scripts/dev.sh
+```
+
+Then open **http://localhost:3000** and drop a plan PDF.
+
+### If you already have a `.venv`, do not rebuild it
+
+⚠️ On Tobias's machine the existing `.venv` is **Python 3.9.6** while `pyproject.toml` says
+`>=3.10`. It works — the import failure that used to break it was fixed (#53) — and `scripts/api.sh`
+invokes `.venv/bin/uvicorn` directly. **The mismatch looks like a bug and is not; rebuilding that
+venv breaks a working setup.** On a genuinely fresh machine, create it with 3.10+.
+
+### No Supabase DSN? Still runnable
+
+```bash
+ALLOW_NO_SUPABASE=1 ./scripts/api.sh
+```
+Chat and PDF upload work. Only the four CI-data admin pages need Postgres.
+
+### The vector store can be empty — this is supported, not a workaround
+
+`pipelines/plan_reader/06_chroma/` is gitignored and **does not need to exist**. It is created on
+first use and **self-populates**: `process_pdf` indexes every PDF you drop, and extraction retrieves
+only against the plan being processed (every query in `s4_extract_rag.py` is scoped to that plan's
+`doc_id`). Verified 2026-08-03 against a genuinely empty directory — it went 0 → 286 chunks and
+returned a complete extraction.
+
+**The one limitation:** chat *about the plan you just dropped* works fine. **Cross-plan chat returns
+nothing until plans are indexed** — corpus-wide questions ("what do other Stearns County plans say
+about aggregate specs?") come back empty on a fresh machine and improve as you process plans.
+
+### `csi_v2.db` is not needed either
+
+The app does not open it (as of #50). It is required only by the `pipelines/plan_reader/04_tools/`
+batch scripts. A fresh clone gets a dangling symlink where it would be — that is expected, not
+corruption. See the ⛔ section below before deleting anything.
+
+### Ports: 8010, not 8000
+
+API **:8010** (docs at http://localhost:8010/docs), web **:3000**. `apps/api/README.md` says 8000 —
+it is stale. Override with `API_PORT` / `WEB_PORT`.
+
+### What success looks like
+
+```bash
+curl -s http://localhost:8010/health
+{"status":"ok","model":"claude-sonnet-4-6","indexed_plans":205,"warnings":[]}
+```
+
+`indexed_plans` is **0 on a fresh machine and that is correct** — it counts what is in your local
+vector store. `warnings` should be `[]`; anything in it names its own fix.
+
+A successful PDF drop, in the UI:
+1. the file uploads and processing starts (convert → ingest → extract, ~60–90 s for a 250-page plan);
+2. a **verification modal opens by itself** showing extracted fields with confidence levels — you
+   confirm or edit, or skip;
+3. a report card renders: archetype, identity, quantities, gotchas;
+4. you can then chat about that plan.
+
+If extraction fails it returns a *classified* reason (scanned PDF, drawings-only plan set, timeout),
+not a stack trace. A drawings-only plan set is refused by design — feed it the bid proposal.
+
+---
+
+## Running the app locally — reference
+
+*The section below is the longer-form version of the runbook above.*
 
 ### 1. One environment file, at the repo root
 

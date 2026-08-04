@@ -35,11 +35,21 @@ class BidEntry:
 def list_projects_missing_results(search: str | None = None) -> list[dict]:
     """Projects in scratch.bid_projects with zero rows in scratch.bid_results — the picker for
     Feature 1. `search` optionally filters on county/project_name (ILIKE, either side)."""
+    # `key_provisional` rows are EXCLUDED, deliberately (2026-08-03). A provisional key is one whose
+    # city and/or bid_date fell back to a sentinel, so it carries a content-hash suffix and will be
+    # RECOMPUTED once title-sheet extraction lands (#70). Offering one to an estimator is bad twice
+    # over:
+    #   * bid results entered against it are keyed to a key that is about to change; and
+    #   * anyone "tidying up" an obviously-wrong UNKNOWN row by deleting it takes its bid_results
+    #     with it — scratch.bid_results has ON DELETE CASCADE on this column (#55 unresolved).
+    # The rows stay in the table and in the /projects admin view; they are simply not offered as a
+    # data-entry target. `is not true` rather than `= false` so a NULL (pre-migration row) is kept.
     sql = """
         select p.project_natural_key, p.project_name, p.county, p.state, p.bid_date, p.bid_year
         from scratch.bid_projects p
         left join scratch.bid_results r on r.project_natural_key = p.project_natural_key
         where r.project_natural_key is null
+          and p.key_provisional is not true
     """
     params: list = []
     if search:
