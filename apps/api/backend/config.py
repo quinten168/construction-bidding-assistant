@@ -9,7 +9,6 @@ and the project's existing `.env` convention.
 from __future__ import annotations
 
 import os
-import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,56 +57,73 @@ REVERSE_GEOCODE_DIR = PLAN_READER / "04_tools" / "reverse_geocode"  # importable
 # bid_data.py, competitors.py and project_registry.py — so a path change fixed one and broke
 # three, which is the most confusing failure mode available. They now import this.
 MASTER_CSV = REPO / "data" / "reference" / "2026-06-03_csi_bid_master.csv"
-# The Plan Reader's SQLite database. Shared on purpose: backend/trace.py writes conversation rows
-# here so they can join plans/materials/gotchas (see the comment at the top of that file).
+# The Plan Reader's legacy SQLite database. RETIRED as the runtime source on 2026-08-03 (#50):
+# corpus_state below, final_report.py and trace.py now all read Supabase Postgres instead. The path
+# is kept only so tooling that still refers to the local file has one name to import, and so the
+# retirement is greppable. Nothing on the live read path opens it any more.
 CSI_DB = PLAN_READER / "csi_v2.db"
 
 # --- is the plan corpus actually loaded? ---------------------------------------------------------
+# The names are unchanged so callers and log lines keep working, but the conditions they describe
+# are now Postgres conditions. CORPUS_NO_FILE in particular no longer means "no file" — it means
+# "could not reach the corpus at all" (no DSN configured, or the connection failed).
 CORPUS_OK = "ok"
 CORPUS_NO_FILE = "no_file"
 CORPUS_NO_TABLE = "no_table"
 CORPUS_EMPTY = "empty"
 
 CORPUS_MESSAGES = {
-    CORPUS_NO_FILE: "database file not found",
-    CORPUS_NO_TABLE: "database has no `plans` table",
-    CORPUS_EMPTY: "`plans` table is empty",
+    CORPUS_NO_FILE: "cannot reach Postgres (SUPABASE_TEAM_DB_URL unset or connection failed)",
+    CORPUS_NO_TABLE: "Postgres has no `public.plans` table",
+    CORPUS_EMPTY: "`public.plans` is empty",
 }
 
 
 def corpus_state(db_path: Path = CSI_DB) -> str:
-    """Answer "is the plan corpus loaded", not "does a file exist". Returns one of CORPUS_*.
+    """Answer "is the plan corpus loaded", not "can I reach a database". Returns one of CORPUS_*.
 
-    File existence is not a usable proxy. backend/trace.py deliberately creates csi_v2.db on the
-    first chat turn so the assistant works even if 00_init_db.py was never run, which means the
-    path can exist while holding nothing but a `conversations` table. A guard on `.exists()` passes
-    against that decoy and the caller then renders a confident, wrong "zero gotchas". Issue #13 will
-    make process_pdf write here on every run, at which point the file always exists and a
-    path-existence guard is permanently useless.
+    Reads Supabase Postgres (`public.plans`) as of 2026-08-03. Before that it opened the local
+    SQLite file, and the reason this function existed at all was that file existence was not a
+    usable proxy: trace.py created csi_v2.db on the first chat turn, so the path could exist while
+    holding nothing but a `conversations` table, and a guard on `.exists()` passed against that
+    decoy while the caller rendered a confident, wrong "zero gotchas".
 
-    Checks three states in order: file absent, no `plans` table, `plans` table with zero rows.
+    **That decoy cannot be manufactured any more** — trace.py now writes to Postgres too, and there
+    is no file to bring into being by accident. The three-state check is kept regardless, because
+    the failure it really guards against is not "no file" but "reachable but empty", which Postgres
+    reproduces exactly: a fresh database, or one where the plan load never ran, answers every query
+    with zero rows rather than an error.
 
-    Deliberately not cached. trace.py can create the file mid-process, so an answer computed once at
-    import time would be wrong for the remaining life of the worker.
+    `db_path` is retained for signature compatibility with callers that still pass it (and with the
+    existing tests). It is unused; the corpus location is now the DSN in settings.
+
+    Deliberately not cached, unchanged in spirit from the SQLite version: the corpus can be loaded
+    by another process mid-run, so an answer computed once at import time would be wrong for the
+    remaining life of the worker.
     """
-    if not db_path.exists():
-        return CORPUS_NO_FILE
+    del db_path  # unused since the Postgres move; kept so existing call sites still type-check.
+
+    # Imported here, not at module scope: ci_db imports settings from THIS module, so a top-level
+    # import would be circular. This is the only place config needs a connection.
+    from . import ci_db
+
     try:
-        # Read-only: a plain connect() on a missing path CREATES it, so a careless probe here would
-        # manufacture the very decoy this function exists to detect.
-        con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-    except sqlite3.Error:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            try:
+                cur.execute("select count(*) as n from public.plans")
+                n_plans = cur.fetchone()["n"]
+            except Exception:
+                # Undefined table, or no privilege to see it. Both mean the corpus is not usable
+                # here, and both are the Postgres analogue of the old "no `plans` table".
+                conn.rollback()
+                return CORPUS_NO_TABLE
+    except ci_db.ConfigError:
         return CORPUS_NO_FILE
-    try:
-        found = con.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='plans'").fetchone()
-        if found is None:
-            return CORPUS_NO_TABLE
-        (n_plans,) = con.execute("SELECT count(*) FROM plans").fetchone()
-    except sqlite3.Error:
-        return CORPUS_NO_TABLE
-    finally:
-        con.close()
+    except Exception:                                     # noqa: BLE001 — network/auth/DNS/timeout
+        # Deliberately broad and deliberately quiet: this function is a health check on the read
+        # path, and it must never raise into a report. The caller logs the returned state.
+        return CORPUS_NO_FILE
+
     return CORPUS_OK if n_plans else CORPUS_EMPTY
 # Competitor Intelligence reports (Quentin/Wenyu's pipeline output). The final report parses +
 # matches these `bid_report_<project_natural_key>.md` files to a plan. They can be pre-generated

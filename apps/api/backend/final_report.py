@@ -10,10 +10,10 @@ plan_id already in the corpus, attaches the competitor report matched on county+
 (`competitor_report.match_report`), and renders to markdown (the canonical view) with CSV + PDF
 exports. No Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
 
-Gotcha source of truth: the deduped `gotchas` table in csi_v2.db (it already carries
-`decision_class` = go_no_go|pricing, page lists, and confidence). For a freshly dropped PDF that
-isn't in SQLite yet, we fall back to the live record's gotchas and map decision_class by code via
-the taxonomy CSV.
+Gotcha source of truth: the deduped `public.gotchas` table in Supabase Postgres (it already
+carries `decision_class` = go_no_go|pricing, page lists, and confidence). Moved off the local
+csi_v2.db SQLite file on 2026-08-03 (#50). For a freshly dropped PDF that is not in the corpus yet,
+we fall back to the live record's gotchas and map decision_class by code via the taxonomy CSV.
 """
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ import csv
 import io
 import json
 import re
-import sqlite3
 import subprocess
 import tempfile
 from functools import lru_cache
 from pathlib import Path
 
+from . import ci_db
 from . import competitor_report as cr
 from . import corrections
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
@@ -34,6 +34,8 @@ from .observability import get_logger
 
 log = get_logger("bid_assistant.final_report")
 
+# Retained only so the retirement stays greppable and any stale import keeps resolving; no query
+# in this module opens it any more (#50). The corpus now lives in Postgres, reached via ci_db.
 DB_PATH = CSI_DB
 PLANS_DIR = PLAN_READER / "00_input" / "plans"
 GOTCHA_TAXONOMY = PLAN_READER / "05_knowledge" / "gotcha_taxonomy.csv"
@@ -81,34 +83,33 @@ def _rank_and_trim(items: list[dict]) -> list[dict]:
 
 
 def _corpus_loaded(reader: str, plan_id: str) -> bool:
-    """True when csi_v2.db actually holds a plan corpus, checked fresh on every call.
+    """True when Postgres actually holds a plan corpus, checked fresh on every call.
 
     Logs at warning level when it does not, once per reader call site (not once per row), so a
     degraded read leaves a trace instead of silently rendering as a confident "zero gotchas".
     """
-    state = corpus_state(DB_PATH)
+    state = corpus_state()
     if state == CORPUS_OK:
         return True
-    log.warning("%s: no plan corpus (%s at %s), returning None for plan_id=%s. The report will "
+    log.warning("%s: no plan corpus (%s), returning None for plan_id=%s. The report will "
                 "show no data for this plan, which is a setup problem, not an empty plan.",
-                reader, CORPUS_MESSAGES[state], DB_PATH, plan_id)
+                reader, CORPUS_MESSAGES[state], plan_id)
     return False
 
 
 def _gotchas_from_db(plan_id: str) -> dict | None:
-    """Pull deduped gotchas for a plan from SQLite, split Go/No-Go vs Pricing, top N each."""
+    """Pull deduped gotchas for a plan from Postgres, split Go/No-Go vs Pricing, top N each."""
     if not _corpus_loaded("_gotchas_from_db", plan_id):
         return None
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row
     try:
-        rows = con.execute(
-            "SELECT flag_type, family, decision_class, evidence, page, page_count, confidence "
-            "FROM gotchas WHERE plan_id=?", (plan_id,)).fetchall()
-    except sqlite3.Error:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select flag_type, family, decision_class, evidence, page, page_count, confidence "
+                "from public.gotchas where plan_id = %s", (plan_id,))
+            rows = cur.fetchall()
+    except Exception:                                     # noqa: BLE001 — never break the report
+        log.warning("_gotchas_from_db: query failed for plan_id=%s", plan_id, exc_info=True)
         return None
-    finally:
-        con.close()
     if not rows:
         return None
     buckets = {"go_no_go": [], "pricing": []}
@@ -122,7 +123,7 @@ def _gotchas_from_db(plan_id: str) -> dict | None:
 
 
 def _resolve_corpus_plan_id(identity: dict) -> str | None:
-    """A freshly dropped PDF gets a throwaway UUID plan_id, so its gotchas miss the curated SQLite
+    """A freshly dropped PDF gets a throwaway UUID plan_id, so its gotchas miss the curated corpus
     set. Re-link it to the corpus plan by its SP/contract number (the distinctive digit-dash token,
     e.g. 'SAP 021-600-023' -> '021-600-023', which is embedded in the corpus plan_id). Returns the
     matching corpus plan_id that actually has gotcha rows, or None."""
@@ -134,27 +135,27 @@ def _resolve_corpus_plan_id(identity: dict) -> str | None:
     # is no corpus" (a setup problem) from "the corpus is loaded and this plan is not in it" (an
     # ordinary miss). They are logged at different levels so the distinction survives into the log
     # without anyone having to open the database.
-    state = corpus_state(DB_PATH)
+    state = corpus_state()
     if state != CORPUS_OK:
-        log.warning("_resolve_corpus_plan_id: no plan corpus (%s at %s), cannot re-link SP %r. "
-                    "This is a setup problem, not a corpus miss: run 00_init_db.py and ingest "
-                    "the plans.", CORPUS_MESSAGES[state], DB_PATH, sp)
+        log.warning("_resolve_corpus_plan_id: no plan corpus (%s), cannot re-link SP %r. This is a "
+                    "setup problem, not a corpus miss: check SUPABASE_TEAM_DB_URL and that "
+                    "public.plans is populated.", CORPUS_MESSAGES[state], sp)
         return None
     core = m.group(0).replace(" ", "-")
-    con = sqlite3.connect(DB_PATH)
     try:
-        row = con.execute(
-            "SELECT plan_id FROM gotchas WHERE replace(plan_id,' ','-') LIKE ? "
-            "GROUP BY plan_id ORDER BY count(*) DESC LIMIT 1", (f"%{core}%",)).fetchone()
-    except sqlite3.Error:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select plan_id from public.gotchas where replace(plan_id,' ','-') like %s "
+                "group by plan_id order by count(*) desc limit 1", (f"%{core}%",))
+            row = cur.fetchone()
+    except Exception:                                     # noqa: BLE001 — never break the report
+        log.warning("_resolve_corpus_plan_id: query failed for core=%r", core, exc_info=True)
         return None
-    finally:
-        con.close()
     if row is None:
         log.info("_resolve_corpus_plan_id: corpus is loaded but holds no plan matching %r "
                  "(from SP %r), treating as an ordinary corpus miss.", core, sp)
         return None
-    return row[0]
+    return row["plan_id"]
 
 
 def _gotchas_from_payload(payload_gotchas: list[dict]) -> dict:
@@ -289,6 +290,11 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         "tldr": _tldr(identity, archetype, gotchas),
         "quantities": quantities,
         "gotchas": gotchas,
+        # NOTE: the literal 'sqlite' is HISTORICAL and is now a lie about the storage engine — the
+        # curated set moved to Postgres in #50. Deliberately NOT renamed here: it is a wire value
+        # this module branches on (_bar/note below) and apps/web carries (lib/chat-data.ts:74), so
+        # renaming it is a behaviour change and belongs in its own commit, not a storage repoint.
+        # It means "curated corpus set" as opposed to 'live' (fresh RAG). See #60.
         "gotcha_source": gotcha_source,              # 'sqlite[:id]' (curated) | 'live' (fresh RAG)
         "competitor": comp,                          # parsed report + ._match, or None
     }
@@ -325,20 +331,20 @@ def _payload_from_plan_id(plan_id: str) -> dict | None:
     # archetype: prefer plan_metrics.work_type, else recompute is overkill for the MVP loader
     archetype = _work_type_from_db(plan_id) or "Unknown/NoQty"
     return {"plan_id": plan_id, "identity": identity, "archetype": archetype,
-            "quantities": quantities, "gotchas": []}     # gotchas come from SQLite in assemble()
+            "quantities": quantities, "gotchas": []}     # gotchas come from Postgres in assemble()
 
 
 def _work_type_from_db(plan_id: str) -> str | None:
     if not _corpus_loaded("_work_type_from_db", plan_id):
         return None
-    con = sqlite3.connect(DB_PATH)
     try:
-        row = con.execute("SELECT work_type FROM plan_metrics WHERE plan_id=?", (plan_id,)).fetchone()
-    except sqlite3.Error:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select work_type from public.plan_metrics where plan_id = %s", (plan_id,))
+            row = cur.fetchone()
+    except Exception:                                     # noqa: BLE001 — never break the report
+        log.warning("_work_type_from_db: query failed for plan_id=%s", plan_id, exc_info=True)
         return None
-    finally:
-        con.close()
-    return row[0] if row else None
+    return row["work_type"] if row else None
 
 
 # --- markdown render ----------------------------------------------------------------------------
