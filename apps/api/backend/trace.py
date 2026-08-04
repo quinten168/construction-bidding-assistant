@@ -8,30 +8,40 @@ per turn and fans it out to two sinks:
 
   • a per-day JSONL archive  (data/conversations/YYYY-MM-DD.jsonl) — append-only, crash-safe, the
     raw record an analyst / the eval harness reads with pandas.read_json(lines=True);
-  • the existing SQLite store (plan_reader/csi_v2.db, table `conversations`) — top-level scalar
-    columns for fast filtering + a `payload` JSON column holding the full record.
+  • Supabase Postgres (table `scratch.conversations`) — top-level scalar columns for fast
+    filtering + a `payload` JSONB column holding the full record. Moved off the local
+    plan_reader/csi_v2.db SQLite file on 2026-08-03 (#50).
 
 The capture is deliberately:
   • framework-agnostic — it lives in the backend, called from the agent loop (rag.py), so it works
     identically under Chainlit today and the Next.js frontend tomorrow;
-  • non-blocking — the JSONL append + SQLite write run via asyncio.to_thread so a slow disk doesn't
-    stall the event loop / other users;
+  • non-blocking — the JSONL append + Postgres write run via asyncio.to_thread so a slow disk or
+    a slow network doesn't stall the event loop / other users;
   • fail-safe — a capture error is logged and swallowed; it must NEVER break a chat turn.
 
 The data is SEMI-STRUCTURED (stable ids/usage/timestamps + variable-length tool_calls/sources +
-free text), which is exactly why the storage shape is "a few indexed columns + one JSON blob". That
-same shape ports to Postgres `JSONB` unchanged when we outgrow SQLite (set CONVERSATION_DB_URL).
+free text), which is exactly why the storage shape is "a few indexed columns + one JSON blob". The
+move to Postgres took the `payload` column to real `JSONB`, which is what the SQLite version always
+said it was heading for.
+
+RETIREMENT NOTE: this module used to CREATE csi_v2.db on first use if it was absent. That is what
+manufactured the decoy database `config.corpus_state` exists to detect — a file holding only a
+`conversations` table, against which an `.exists()` guard passed while the report rendered a
+confident, wrong "zero gotchas". It no longer touches the filesystem for storage, so that decoy
+can no longer be created by this process at all.
 """
 from __future__ import annotations
 
 import asyncio
 import datetime as _dt
 import json
-import sqlite3
 import uuid
 from pathlib import Path
 from typing import Any, Optional
 
+from psycopg.types.json import Json
+
+from . import ci_db
 from .config import CSI_DB, settings
 from .observability import get_logger
 
@@ -40,45 +50,61 @@ log = get_logger("bid_assistant.trace")
 SCHEMA_VERSION = "1"          # bump when the TurnRecord shape changes
 
 # --- where captured turns live -----------------------------------------------------------------
-# JSONL archive (the raw, append-only record) lives under the module; SQLite index reuses the
-# Plan Reader's csi_v2.db so conversation rows can join the plans/materials/gotchas tables.
+# JSONL archive (the raw, append-only record) lives under the module; the queryable index is now
+# scratch.conversations in Supabase Postgres.
+#
+# Why `scratch` and not `public`: `public` holds the PUBLISHED plan-reader corpus and the app's role
+# (csi_team) has USAGE but not CREATE on it, so the self-initializing DDL below cannot run there.
+# That privilege split matches the intent — this is runtime data the app owns, not published corpus
+# data, and `scratch` is where the app already reads and writes. The original reason this table
+# shared csi_v2.db with plans/materials/gotchas was so conversation rows could join them; that still
+# works, because `scratch.conversations` ⨝ `public.plans` is an ordinary cross-schema join in
+# Postgres. Nothing is lost by the move.
 CONV_DIR = Path(__file__).resolve().parent.parent / "data" / "conversations"
-DB_PATH = CSI_DB          # one definition, shared with final_report.py, so the two cannot drift
+# Retained but UNUSED, so the retirement stays greppable and no stale import breaks. Nothing in
+# this module opens it any more — see the RETIREMENT NOTE above for why that specifically matters.
+DB_PATH = CSI_DB
 
-# The conversations table — kept IDENTICAL to 04_tools/00_init_db.py (that file documents the whole
-# DB; this one self-initializes at runtime so the assistant works even if init_db was never run).
-_SCHEMA_SQL = """
-CREATE TABLE IF NOT EXISTS conversations (
-  turn_id               TEXT PRIMARY KEY,
-  session_id            TEXT,
-  user_id               TEXT,
-  ts                    TEXT,
-  model_id              TEXT,
-  prompt_version        TEXT,
-  schema_version        TEXT,
-  question              TEXT,
-  answer                TEXT,
-  tool_names            TEXT,
-  n_tool_calls          INTEGER,
-  n_sources             INTEGER,
-  input_tokens          INTEGER,
-  output_tokens         INTEGER,
-  cache_read_tokens     INTEGER,
-  cache_creation_tokens INTEGER,
-  latency_ms            REAL,
-  n_steps               INTEGER,
-  active_plan_id        TEXT,
-  feedback_rating       INTEGER,
-  feedback_reason       TEXT,
-  error                 TEXT,
-  payload               TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_conversations_ts      ON conversations(ts);
-CREATE INDEX IF NOT EXISTS idx_conversations_session ON conversations(session_id);
-CREATE INDEX IF NOT EXISTS idx_conversations_model   ON conversations(model_id);
-"""
+# The conversations table, Postgres dialect. Still self-initializing at runtime (idempotent), which
+# is why the assistant works against a fresh database with no migration step — the same property
+# the SQLite version had. 04_tools/00_init_db.py still documents the legacy SQLite shape.
+# `payload` is JSONB here, not TEXT: this module's docstring always named that as the destination
+# and there is no other reader of this table to break (verified — the only other reference in the
+# tree is 00_init_db.py's SQLite DDL; apps/web's `conversations` is unrelated local UI state).
+_SCHEMA_STATEMENTS = (
+    """
+    create table if not exists scratch.conversations (
+      turn_id               text primary key,
+      session_id            text,
+      user_id               text,
+      ts                    text,
+      model_id              text,
+      prompt_version        text,
+      schema_version        text,
+      question              text,
+      answer                text,
+      tool_names            text,
+      n_tool_calls          integer,
+      n_sources             integer,
+      input_tokens          integer,
+      output_tokens         integer,
+      cache_read_tokens     integer,
+      cache_creation_tokens integer,
+      latency_ms            double precision,
+      n_steps               integer,
+      active_plan_id        text,
+      feedback_rating       integer,
+      feedback_reason       text,
+      error                 text,
+      payload               jsonb
+    )
+    """,
+    "create index if not exists idx_conversations_ts      on scratch.conversations(ts)",
+    "create index if not exists idx_conversations_session on scratch.conversations(session_id)",
+    "create index if not exists idx_conversations_model   on scratch.conversations(model_id)",
+)
 
-# The scalar columns we promote out of the payload into their own SQLite columns (the queryable
+# The scalar columns we promote out of the payload into their own Postgres columns (the queryable
 # index). Everything is also kept in `payload` so the JSONL and the row never disagree.
 _COLS = [
     "turn_id", "session_id", "user_id", "ts", "model_id", "prompt_version", "schema_version",
@@ -145,7 +171,7 @@ def make_record(
 
 # --- the two sinks (sync; called via to_thread) ------------------------------------------------
 def _row_from_record(rec: dict) -> dict:
-    """Flatten the nested TurnRecord into the scalar columns the SQLite index needs."""
+    """Flatten the nested TurnRecord into the scalar columns the Postgres index needs."""
     usage = rec.get("usage") or {}
     fb = rec.get("feedback") or {}
     tool_calls = rec.get("tool_calls") or []
@@ -172,7 +198,9 @@ def _row_from_record(rec: dict) -> dict:
         "feedback_rating": fb.get("rating"),
         "feedback_reason": fb.get("reason"),
         "error": rec.get("error"),
-        "payload": json.dumps(rec, default=str, ensure_ascii=False),
+        # Json() adapts the dict straight to JSONB. default=str keeps non-serialisable values
+        # (datetimes, Paths) from failing the write, exactly as the old json.dumps did.
+        "payload": Json(rec, dumps=lambda o: json.dumps(o, default=str, ensure_ascii=False)),
     }
 
 
@@ -185,32 +213,29 @@ def _append_jsonl(obj: dict) -> None:
         f.write(json.dumps(obj, default=str, ensure_ascii=False) + "\n")
 
 
-def _connect() -> sqlite3.Connection:
-    # WAL keeps the assistant's writes from blocking the dashboard's reads of the same csi_v2.db.
-    conn = sqlite3.connect(DB_PATH, timeout=10.0)
-    conn.execute("PRAGMA journal_mode=WAL")
-    return conn
+def _ensure_schema(cur) -> None:
+    """Idempotent; self-initializes on first use so the assistant works against a fresh database
+    with no migration step. Same property the SQLite version had, minus the ability to create a
+    decoy — see the RETIREMENT NOTE in the module docstring."""
+    for stmt in _SCHEMA_STATEMENTS:
+        cur.execute(stmt)
 
 
-def _upsert_sqlite(rec: dict) -> None:
+def _upsert_row(rec: dict) -> None:
     """Insert (or, on the rare id clash, refresh) the row — but never clobber feedback that a later
     /api/feedback call may already have written for this turn_id."""
     row = _row_from_record(rec)
-    placeholders = ", ".join("?" for _ in _COLS)
+    placeholders = ", ".join("%s" for _ in _COLS)
     # On conflict, update everything EXCEPT the feedback columns (those are owned by update_feedback).
     updatable = [c for c in _COLS if c not in ("turn_id", "feedback_rating", "feedback_reason")]
-    set_clause = ", ".join(f"{c}=excluded.{c}" for c in updatable)
+    set_clause = ", ".join(f"{c} = excluded.{c}" for c in updatable)
     sql = (
-        f"INSERT INTO conversations ({', '.join(_COLS)}) VALUES ({placeholders}) "
-        f"ON CONFLICT(turn_id) DO UPDATE SET {set_clause}"
+        f"insert into scratch.conversations ({', '.join(_COLS)}) values ({placeholders}) "
+        f"on conflict (turn_id) do update set {set_clause}"
     )
-    conn = _connect()
-    try:
-        conn.executescript(_SCHEMA_SQL)                      # idempotent; self-initialize on first use
-        conn.execute(sql, [row[c] for c in _COLS])
-        conn.commit()
-    finally:
-        conn.close()
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        _ensure_schema(cur)
+        cur.execute(sql, [row[c] for c in _COLS])
 
 
 def _write_sync(rec: dict) -> None:
@@ -220,9 +245,9 @@ def _write_sync(rec: dict) -> None:
     except Exception:                                        # noqa: BLE001
         log.exception("trace: JSONL append failed (turn_id=%s)", rec.get("turn_id"))
     try:
-        _upsert_sqlite(rec)
+        _upsert_row(rec)
     except Exception:                                        # noqa: BLE001
-        log.exception("trace: SQLite write failed (turn_id=%s)", rec.get("turn_id"))
+        log.exception("trace: Postgres write failed (turn_id=%s)", rec.get("turn_id"))
 
 
 # --- public async API (what rag.py / app.py call) ----------------------------------------------
@@ -236,29 +261,30 @@ async def record(rec: dict) -> None:
 
 
 def _update_feedback_sync(turn_id: str, rating: Optional[int], reason: Optional[str]) -> bool:
-    # Patch the SQLite columns…
-    conn = _connect()
-    try:
-        conn.executescript(_SCHEMA_SQL)
-        cur = conn.execute("SELECT payload FROM conversations WHERE turn_id=?", (turn_id,))
+    # Patch the promoted columns…
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        _ensure_schema(cur)
+        cur.execute("select payload from scratch.conversations where turn_id = %s", (turn_id,))
         found = cur.fetchone()
-        conn.execute(
-            "UPDATE conversations SET feedback_rating=?, feedback_reason=? WHERE turn_id=?",
+        cur.execute(
+            "update scratch.conversations set feedback_rating = %s, feedback_reason = %s "
+            "where turn_id = %s",
             (rating, reason, turn_id),
         )
+        n = cur.rowcount                                     # psycopg's equivalent of changes()
         # …and keep the payload's nested feedback in sync so the row never disagrees with itself.
-        if found and found[0]:
+        payload = (found or {}).get("payload")
+        if payload:
             try:
-                payload = json.loads(found[0])
+                # JSONB comes back already decoded; tolerate a str in case an older TEXT-column row
+                # survived a migration.
+                if isinstance(payload, str):
+                    payload = json.loads(payload)
                 payload["feedback"] = {"rating": rating, "reason": reason}
-                conn.execute("UPDATE conversations SET payload=? WHERE turn_id=?",
-                             (json.dumps(payload, default=str, ensure_ascii=False), turn_id))
+                cur.execute("update scratch.conversations set payload = %s where turn_id = %s",
+                            (Json(payload), turn_id))
             except Exception:                                # noqa: BLE001
                 pass
-        conn.commit()
-        n = conn.execute("SELECT changes()").fetchone()[0]
-    finally:
-        conn.close()
     # JSONL is append-only, so feedback is recorded as its own event line (keeps the archive whole).
     try:
         _append_jsonl({"type": "feedback", "turn_id": turn_id, "rating": rating,
