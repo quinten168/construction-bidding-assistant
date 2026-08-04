@@ -55,6 +55,7 @@ create table if not exists scratch.bid_projects (
     project_natural_key       text primary key,
     source_project_id         text,
     bid_date                  date,
+    bid_time                  text,
     bid_year                  integer,
     state                     text,
     county                    text,
@@ -125,7 +126,7 @@ create table if not exists scratch.mn_pit_list (
 """
 
 PROJECT_COLUMNS = [
-    "project_natural_key", "source_project_id", "bid_date", "bid_year",
+    "project_natural_key", "source_project_id", "bid_date", "bid_time", "bid_year",
     "state", "county", "project_location", "project_name",
     "project_latitude", "project_longitude",
     "mix_tons", "grading_yards", "base_tons", "shldr_tons", "mill_sy", "crush_tons", "stock_tons",
@@ -168,6 +169,9 @@ def connect() -> psycopg.Connection:
 def ensure_tables(conn: psycopg.Connection) -> None:
     with conn.cursor() as cur:
         cur.execute(BID_PROJECTS_DDL)
+        # bid_time was added after bid_projects already existed in some environments;
+        # CREATE TABLE IF NOT EXISTS above won't alter an existing table's columns.
+        cur.execute("alter table scratch.bid_projects add column if not exists bid_time text")
         cur.execute(BID_RESULTS_DDL)
         cur.execute(BID_RESULTS_INDEX_DDL)
         cur.execute(REGISTRY_DDL)

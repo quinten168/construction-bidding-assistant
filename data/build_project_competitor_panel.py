@@ -185,6 +185,7 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
         "_project_identity",
         "bid_date",
         "bid_year",
+        "TIME",
         "state",
         "county",
         "LOCATION",
@@ -215,6 +216,7 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
             # bid dated Aug-Dec (CSI's fiscal year runs Aug 1-Jul 31, one year ahead of the calendar
             # year for those months).
             bid_year=("bid_year", "first"),
+            bid_time=("TIME", "first"),
             state=("state", "first"),
             county=("county", "first"),
             project_location=("LOCATION", "first"),

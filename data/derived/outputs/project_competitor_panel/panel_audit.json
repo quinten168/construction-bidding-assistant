@@ -1,9 +1,9 @@
 {
-  "rows": 250673,
+  "rows": 250012,
   "projects": 1591,
-  "competitors": 717,
-  "positive_rate": 0.027278566100058643,
-  "average_candidates_per_project": 157.5568824638592,
+  "competitors": 715,
+  "positive_rate": 0.027350687167015983,
+  "average_candidates_per_project": 157.1414204902577,
   "missing_competitor_ids": 0,
   "winner_without_bid_errors": 0,
   "projects_with_multiple_winners": 0,
