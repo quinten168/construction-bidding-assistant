@@ -144,7 +144,7 @@ now redundant." **It is not.** It holds content that exists nowhere else:
 
 | Held only in SQLite | Size | Why it matters |
 |---|---|---|
-| `plans.full_markdown` | **75.3 MB**, 100 of 117 plans | The **root of the regeneration chain**: `PDF → full_markdown → sections → embeddings`. Deliberately excluded from the publish. |
+| `plans.full_markdown` | **75.3 MB**, 100 of 117 plans | The middle of the regeneration chain `PDF → full_markdown → sections → embeddings`. Deliberately excluded from the publish (payload size, ~97% of it). |
 | `sections` | **37,261 rows / 74.9 MB** | Input to gotcha prefiltering and bid-schedule parsing. Deliberately excluded from the publish. |
 | `section_intelligence` | 18 rows | Held out by a type bug (`low_sample_flag` declared `REAL`, stores `"Y"`/`""`). |
 | `conversations` | 46 historical turns | Never migrated. `scratch.conversations` is at 0, and the JSONL sidecar has only 7 turns. Logs — not regenerable from anything. |
@@ -158,6 +158,20 @@ DROP-section chunks dropped, 699 boilerplate paragraphs stripped). It cannot rec
 records 7 `conversion timeout (>300s; pathological PDF)`, 4 `PdfminerException`, 4
 `empty/near-empty conversion`, 2 `ValueError: Point: bad args`. A further 6 plans have no
 resolvable source PDF at all.
+
+**Precise scope, so nobody over- or under-states it.** There is currently **no plan for which
+`full_markdown` is the only surviving copy**: 111 of 117 source PDFs still resolve on disk, and all
+6 whose PDF is missing also have no `full_markdown` (they are already unrecoverable). The case for
+keeping it is not "it is the sole root" — it is that re-deriving it means hours of conversion, 17
+plans would fail again exactly as they did before, and the result would be a non-identical corpus.
+
+### The second copy
+
+A verified gzip of the backup — `csi_v2_2026-08-03.db.gz`, 29.8 MB, decompressed SHA-256 identical
+to source, restores to a database with `integrity_check ok` — is held by Tobias on **external
+media**. It is deliberately **not in any repo, any GitHub Release, or any cloud store**: the
+database is derived from CSI's data and CSI owns it under the current agreement. Do not go looking
+for it in git history, and do not upload it anywhere.
 
 Retiring this file requires publishing `sections` and `section_intelligence`, deciding what to do
 about `full_markdown`, and migrating the 46 conversation rows. Tracked in #50.

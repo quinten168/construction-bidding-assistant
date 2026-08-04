@@ -105,11 +105,15 @@ def _writable(row: dict, table_cols: set[str], declared: Iterable[str]) -> tuple
     return writable, unknown
 
 
-def find_conflicts(row: dict, *, conn) -> tuple[bool, Optional[str]]:
+def find_conflicts(row: dict, *, conn, table: str = TABLE) -> tuple[bool, Optional[str]]:
     """Is this row ambiguous against what is already in the table? (flag, reason).
 
-    Two questions, deliberately separate from "does the primary key already exist" — a PK match is
-    an ordinary upsert of the same project, not a duplicate:
+    `table` is a parameter and NOT the module constant. It was the constant until 2026-08-03, which
+    meant a dummy-table run silently probed the REAL scratch.bid_projects for conflicts — so it both
+    gave the wrong answer and read production during a run whose entire point was not to touch it.
+
+    Three questions, deliberately separate from "does the primary key already exist as the SAME
+    plan" — that is an ordinary upsert of one project, not a duplicate:
 
       * same `join_key`, different `plan_uid` → two different PDFs claim one project (#41's exact
         question: when are two PDFs one project?).
@@ -118,15 +122,30 @@ def find_conflicts(row: dict, *, conn) -> tuple[bool, Optional[str]]:
     """
     jkey, uid, pnk = row.get("join_key"), row.get("plan_uid"), row.get("project_natural_key")
     with conn.cursor() as cur:
+        # The dangerous one, and the reason this check exists at all. Two DIFFERENT plans can
+        # assemble the SAME project_natural_key whenever both take sentinels — e.g. two ND plans
+        # with no extractable county and no parseable bid date both key to
+        # ND_UNKNOWN_UNKNOWN_1900-01-01. `on conflict (project_natural_key) do update` then makes
+        # the second plan OVERWRITE the first, silently, and the corpus quietly loses a project.
+        # That is worse than the skip rule 4 forbids: a skip loses the new row, this loses the old
+        # one. Observed for real on the 3-plan dummy run of 2026-08-03.
+        if pnk and uid:
+            cur.execute(
+                f"select plan_uid, source_file from {table} "
+                "where project_natural_key = %s and plan_uid is distinct from %s limit 1",
+                (pnk, uid))
+            if hit := cur.fetchone():
+                return True, (f"same_key_different_plan_uid:{hit['plan_uid']}"
+                              f" ({hit.get('source_file')}) — THIS UPSERT OVERWRITES THAT ROW")
         if jkey and uid:
             cur.execute(
-                f"select project_natural_key, plan_uid from {TABLE} "
+                f"select project_natural_key, plan_uid from {table} "
                 "where join_key = %s and plan_uid is distinct from %s limit 1", (jkey, uid))
             if hit := cur.fetchone():
                 return True, f"same_join_key_different_plan_uid:{hit['project_natural_key']}"
         if uid and pnk:
             cur.execute(
-                f"select project_natural_key from {TABLE} "
+                f"select project_natural_key from {table} "
                 "where plan_uid = %s and project_natural_key is distinct from %s limit 1",
                 (uid, pnk))
             if hit := cur.fetchone():
@@ -149,7 +168,7 @@ def upsert(row: dict, declared_columns: Iterable[str], *, table: str = TABLE,
         if "project_natural_key" not in writable or not writable["project_natural_key"]:
             raise WriterError("row has no project_natural_key; refusing to write an unkeyed row")
 
-        dup, reason = find_conflicts(row, conn=c)
+        dup, reason = find_conflicts(row, conn=c, table=table)
         if dup:
             # Rule 4: flag, never skip. The row still lands.
             if "duplicate_flag" in table_cols:

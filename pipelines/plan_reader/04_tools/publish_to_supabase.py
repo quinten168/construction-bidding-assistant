@@ -13,13 +13,22 @@ This is a PUBLISH, not a migration.
 Five tables are published:  plans, materials, plan_metrics, gotchas, location_intelligence.
 
 Deliberately excluded:
-  - `sections` (37,261 rows). It is bulk chunk text and it is RAG fodder. Note that the Chroma
-    store is self-contained: it holds the chunk text AND the embeddings, so retrieval never
-    reads this table. Publishing `sections` would hand the team text with no embeddings, which
-    is not RAG, just a large bill. Hosted vector search is tracked separately as issue #22.
-  - `plans.full_markdown` (75.8 MB of the 78.1 MB total, single cells up to 4.7 MB). Same
-    reasoning: it is the whole converted document, it lives in the vector store, and it is
-    the entire reason this publish would otherwise be too large to be useful.
+  - `sections` (37,261 rows). It is bulk chunk text and it is RAG fodder. The Chroma store holds
+    chunk text AND embeddings, so retrieval never reads this table, and publishing it would hand
+    the team text with no embeddings. Hosted vector search is tracked separately as issue #22.
+  - `plans.full_markdown` (75.3 MB of the 78.1 MB total, single cells up to 4.68 MB). Excluded
+    because it is ~97% of the payload, and for no other reason.
+
+    CORRECTED 2026-08-03. This block used to say full_markdown "lives in the vector store". THAT
+    IS FALSE, and it is the kind of false that gets a file deleted. Chroma holds CHUNKS: s2_indexer
+    splits with overlap, strips boilerplate paragraphs and drops DROP-sections before indexing (one
+    plan alone: 50 DROP-section chunks dropped, 699 boilerplate paragraphs stripped). The vector
+    store's text is derived and LOSSY and cannot reconstitute full_markdown. The same caveat applies
+    to `sections`.
+
+    So exclusion here is a payload-size decision, NOT a statement that the data is safe elsewhere.
+    csi_v2.db is the ONLY copy of both. See docs/DATA_ACCESS.md and #50 before treating either as
+    redundant.
 
 Usage
 -----
