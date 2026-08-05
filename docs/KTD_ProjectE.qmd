@@ -305,16 +305,31 @@ The production model is a **4-feature logistic regression**, referred to in the 
 "simple-rule baseline" (`pipelines/ci_model/03_training/train_simple_rule_baseline.py`,
 `03_training/outputs/simple_rule_baseline_weights.json`). Its 4 inputs:
 
-| Feature | Definition |
-|:---|:---|
-| `county` | log1p(this competitor's historical win count in this county) |
-| `type` | log1p(this competitor's historical win count for this project type) |
-| `state` | log1p(this competitor's historical win count in this state) |
-| `size_fit` | how closely this competitor's typical historical material scale (mix tons, grading yards, etc.) matches the current project's active quantities |
+| Feature | Definition | Weight |
+|:---|:---|---:|
+| `county` | log1p(this competitor's historical win count in this county) | 2.1018 |
+| `type` | log1p(this competitor's historical win count for this project type) | 0.6061 |
+| `state` | log1p(this competitor's historical win count in this state) | 0.5647 |
+| `size_fit` | how closely this competitor's typical historical material scale (mix tons, grading yards, etc.) matches the current project's active quantities | 0.4857 |
 
 Coefficients are **data-fit**, not hand-picked: a `sklearn.linear_model.LogisticRegression`
 (`class_weight="balanced"`, `C=1.0`) is trained on the same time-based train/validation/test split
 used for every other model considered (train ends 2025-01-01, validation ends 2025-05-01).
+
+::: {.callout-note}
+**On the Weight column above.** These are the actual fitted values currently in
+`03_training/outputs/simple_rule_baseline_weights.json` (intercept: -0.3977; fit on 92,929 training
+rows), copied at the time of writing — they will change whenever the model is next retrained, so
+treat the *feature list* as the stable contract and re-check the JSON file directly for the current
+numbers rather than assuming these stay accurate. Whether/when this model gets retrained at all is
+itself an open, unresolved question (see @sec-limitations) — these weights could be current for a
+long time or could already be stale by the time this document is read.
+
+These are **not** the same as the `3.0 / 2.0 / 1.0 / 1.0` illustrative weights shown in
+`train_simple_rule_baseline.py`'s module docstring — that set is a **fallback**, only used if a
+future retrain's train split is too small or single-class to fit a regression
+(`MIN_FIT_ROWS = 50`). The values above are the real, currently-fitted production weights.
+:::
 
 ::: {.callout-note}
 **Why this model, not a more complex one.** Four alternatives were built and benchmarked against

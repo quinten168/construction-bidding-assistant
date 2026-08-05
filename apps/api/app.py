@@ -295,6 +295,7 @@ async def report_finalize(plan_id: str, req: ReportFinalizeIn):
     runs). `plan_id` is accepted for URL/logging clarity but the actual payload lookup is via
     `req.extraction["content_hash"]`, round-tripped from step ①'s response."""
     rep = await run_in_threadpool(report_svc.apply_verification, req.extraction, req.edits)
+    await run_in_threadpool(report_svc.write_bid_project, rep)
     final = await run_in_threadpool(fr.assemble, plan_payload=rep,
                                     manual_competitors=req.manual_competitors)
     return {"ok": True, "final": final}

@@ -281,3 +281,25 @@ def apply_verification(rep: dict, edits: dict) -> dict:
         except Exception:                                     # best-effort, same as the old cache write
             pass
     return rep
+
+
+def write_bid_project(rep: dict) -> dict | None:
+    """Best-effort: upsert this verified plan into scratch.bid_projects (#36/#37), so it becomes a
+    durable row a human can later attach real bid_results to and a future model retrain can learn
+    from. Never blocks or breaks finalize on failure — same fail-open philosophy as the CI
+    subprocess (competitor_live.py) and the midpoint lookup above."""
+    try:
+        import bid_projects_record as bpr          # noqa: E402 — sys.path via plan_reader_bridge
+        from . import bid_projects_writer as bpw
+        row = bpr.build_record(
+            rep, content_hash=rep.get("content_hash"),
+            source_file=rep.get("plan_id"),
+            processed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        )
+        result = bpw.upsert(row, bpr.mapped_columns())
+        log.info("bid_projects: wrote %s (inserted=%s, duplicate_flag=%s)",
+                  result.get("project_natural_key"), result.get("inserted"), result.get("duplicate_flag"))
+        return result
+    except Exception as e:                            # noqa: BLE001 — must never break finalize
+        log.warning("bid_projects write failed for %s: %s", rep.get("plan_id"), e)
+        return None
