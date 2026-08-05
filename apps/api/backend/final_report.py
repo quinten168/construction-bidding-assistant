@@ -272,11 +272,17 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         gotchas = _gotchas_from_payload(plan_payload.get("gotchas", []))
         gotcha_source = "live"
 
-    # --- competitor section: try LIVE generation first, else match a static report ---
+    # --- competitor section: LIVE generation, else a static match, else a live PREDICTION ---
     # Live = invoke the CI team's agent for a fresh report keyed to this exact project
     # (county+state+date → their project_natural_key → generate). Falls back to matching a
     # pre-generated report when the plan isn't in their corpus, the model repo is absent, or
-    # generation fails. Both share the parsed schema.
+    # generation fails. Both of those require the project to ALREADY be a row in the CI corpus
+    # (ranking_predictions.csv / data/processed/projects.csv) -- i.e. a historical letting CSI
+    # already has bid data for. A genuinely new plan (nothing in CSI's history under this
+    # county+state+date) matches neither, and previously left `comp` as None with no competitor
+    # section at all. competitor_predict_live.predict_report() is the third fallback for exactly
+    # that case: it builds its own candidate pool and scores it live against Postgres, using the
+    # SAME already-fitted weights the CI model uses, rather than requiring a precomputed row.
     when = bid_date or identity.get("construction_start") or identity.get("construction_end")
     comp = None
     if identity.get("county") or identity.get("state"):
@@ -288,6 +294,20 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         if comp is None:
             comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
                                    when, reports_dir=reports_dir)
+        if comp is None:
+            try:
+                from . import competitor_predict_live as cpl
+                qty_by_col = {
+                    cpl.LABEL_TO_MATERIAL_COL[q["label"]]: q["value"]
+                    for q in quantities if q.get("label") in cpl.LABEL_TO_MATERIAL_COL
+                }
+                comp = cpl.predict_report(
+                    county=identity.get("county", "") or "", state=identity.get("state", "") or "",
+                    project_type=archetype, bid_date=when or "", quantities=qty_by_col,
+                    source_id=pid,
+                )
+            except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
+                log.warning("live candidate prediction errored: %s", e)
 
     # --- manual competitors: the estimator's typed-in names get appended to the SAME flat
     # `competitors` list the model predicted -- no separate section, since they were never run
