@@ -102,6 +102,7 @@ class FeedbackRequest(BaseModel):
 class ReportFinalizeIn(BaseModel):
     extraction: dict                 # the unverified `extraction` payload from POST /api/report
     edits: Dict[str, str] = {}       # {field: value} — only what the user actually confirmed/changed
+    manual_competitors: List[str] = []  # names the estimator typed into the optional 2nd verify popup
 
 
 # --- CI-data admin schemas (bid results / pit list / competitor registry) -----------------------
@@ -294,7 +295,8 @@ async def report_finalize(plan_id: str, req: ReportFinalizeIn):
     runs). `plan_id` is accepted for URL/logging clarity but the actual payload lookup is via
     `req.extraction["content_hash"]`, round-tripped from step ①'s response."""
     rep = await run_in_threadpool(report_svc.apply_verification, req.extraction, req.edits)
-    final = await run_in_threadpool(fr.assemble, plan_payload=rep)
+    final = await run_in_threadpool(fr.assemble, plan_payload=rep,
+                                    manual_competitors=req.manual_competitors)
     return {"ok": True, "final": final}
 
 

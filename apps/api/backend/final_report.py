@@ -28,6 +28,7 @@ from pathlib import Path
 
 from . import ci_db
 from . import competitor_report as cr
+from . import competitor_stats_live
 from . import corrections
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
@@ -230,10 +231,14 @@ def _readable_title(plan_id: str, identity: dict) -> str:
 
 
 def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
-             bid_date: str | None = None, reports_dir: str | None = None) -> dict:
+             bid_date: str | None = None, reports_dir: str | None = None,
+             manual_competitors: list[str] | None = None) -> dict:
     """Build the structured final-report dict. Pass a live `plan_payload` (from report.process_pdf)
     OR a `plan_id` already in the corpus (loaded from its per-plan JSON). The competitor section is
-    attached when a report matches the plan's county+state(+date)."""
+    attached when a report matches the plan's county+state(+date). `manual_competitors` are names an
+    estimator typed in themselves (the optional second verify-gate popup) -- merged into the SAME
+    tiered list as the model-predicted names, all scored by the one unified live-stats query below,
+    not a second separate computation."""
     if plan_payload is None and plan_id:
         plan_payload = _payload_from_plan_id(plan_id)
     if plan_payload is None:
@@ -280,6 +285,51 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         if comp is None:
             comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
                                    when, reports_dir=reports_dir)
+
+    # --- manual competitors: the estimator's typed-in names get their OWN section (`tiers.user_added`)
+    # -- never blended into the model's priority/discovery tiers, since they were never run through the
+    # model's own prediction/ranking scoring (they don't need to be "predicted," the estimator already
+    # asserts they'll bid). But every competitor on the report -- predicted or manual alike -- gets its
+    # win_rate/bid_rate/capacity/pit_access from the SAME live-SQL retrieval process below, run ONCE
+    # over the whole merged list, not a separate stats computation per origin and not the old model
+    # "feature" columns (ranking_predictions.csv).
+    manual_names = [n.strip() for n in (manual_competitors or []) if n and n.strip()]
+    if manual_names and comp is None:
+        # No predicted report at all (e.g. county+state never matched anything) -- manual names are
+        # the only way stats show up for this plan, so build a bare skeleton for them to live in.
+        comp = {
+            "project_id": pid, "location": identity.get("location", ""),
+            "county": identity.get("county", ""), "state": identity.get("state", ""),
+            "bid_date": when or "", "work_type": "", "condition": "", "materials": [],
+            "pits": {}, "tiers": {"priority": [], "discovery": []},
+            "summary": {"priority": 0, "discovery": 0, "analyzed": 0, "narrative": ""},
+            "competitors": [], "attrs": {}, "deep_dives": {}, "source_file": "",
+        }
+    if manual_names and comp is not None:
+        existing_lower = {c["name"].strip().lower() for c in comp.get("competitors", [])}
+        new_names = []
+        for n in manual_names:
+            key = n.strip().lower()
+            if key in existing_lower:                    # dedup against predicted names AND
+                continue                                  # against earlier names in this same batch
+            existing_lower.add(key)
+            new_names.append(n)
+        if new_names:
+            comp.setdefault("tiers", {}).setdefault("user_added", []).extend(new_names)
+            comp.setdefault("competitors", []).extend(
+                {"name": n, "tier": "user_added"} for n in new_names)
+
+    if comp is not None and comp.get("competitors"):
+        try:
+            all_ids = [c["name"] for c in comp["competitors"]]
+            comp["stats"] = competitor_stats_live.compute_stats(
+                all_ids, county=identity.get("county", "") or "", state=identity.get("state", "") or "",
+                project_type=comp.get("work_type") or None, before_date=when or "",
+                project_lat=identity.get("latitude"), project_lon=identity.get("longitude"),
+            )
+        except Exception as e:                           # noqa: BLE001 -- stats must never break assembly
+            log.warning("unified competitor stats computation failed: %s", e)
+            comp["stats"] = {}
 
     return {
         "plan_id": pid,

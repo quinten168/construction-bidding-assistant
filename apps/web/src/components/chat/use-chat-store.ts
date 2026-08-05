@@ -155,12 +155,13 @@ async function finalizeReport(
   planId: string,
   extraction: Extraction,
   edits: Record<string, string>,
+  manualCompetitors: string[] = [],
 ): Promise<{ ok: boolean; final?: FinalReport; message?: string }> {
   try {
     const res = await fetch(`/api/report/${encodeURIComponent(planId)}/finalize`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ extraction, edits }),
+      body: JSON.stringify({ extraction, edits, manual_competitors: manualCompetitors }),
     });
     if (!res.ok) return { ok: false, message: `Finalize request failed (${res.status}).` };
     return await res.json();
@@ -375,6 +376,7 @@ export function useChatStore() {
       );
       patchMessage(convId, asstId, {
         status: "done", card: true, final, verifying: false, extraction: undefined,
+        awaitingCompetitors: false, pendingEdits: undefined,
         content: `I read **${fileName}** end to end. Here's the full report — every figure pinned to its source page.`,
         tokens: 90,
       });
@@ -383,18 +385,38 @@ export function useChatStore() {
     [patchMessage],
   );
 
-  // Phase ② trigger: the verify modal's Confirm (edits from what the user actually changed) or
-  // Skip (edits: {}) both land here — the only difference is whether `edits` is empty.
+  // Phase ② trigger, now deferred behind the optional "expected competitors" popup: the verify
+  // modal's Confirm/Skip no longer finalize directly — they stash the edits and hand off to that
+  // second, optional step. `submitCompetitors`/`skipCompetitors` (below) are what actually calls
+  // finalizeReport(), once that step completes (with or without any names).
   const confirmVerification = useCallback(
-    async (messageId: string, edits: Record<string, string>) => {
+    (messageId: string, edits: Record<string, string>) => {
+      patchMessage(
+        conversations.find((c) => c.messages.some((m) => m.id === messageId))?.id ?? activeId,
+        messageId,
+        { verifying: false, awaitingCompetitors: true, pendingEdits: edits },
+      );
+    },
+    [conversations, activeId, patchMessage],
+  );
+
+  const skipVerification = useCallback(
+    (messageId: string) => confirmVerification(messageId, {}),
+    [confirmVerification],
+  );
+
+  // The actual finalize call, shared by submitCompetitors/skipCompetitors below (the only
+  // difference between them is whether `manualCompetitors` is empty).
+  const runFinalize = useCallback(
+    async (messageId: string, manualCompetitors: string[]) => {
       const conv = conversations.find((c) => c.messages.some((m) => m.id === messageId));
       const msg = conv?.messages.find((m) => m.id === messageId);
       if (!conv || !msg?.extraction) return;
       setBusy(true);
-      const res = await finalizeReport(msg.extraction.plan_id, msg.extraction, edits);
+      const res = await finalizeReport(msg.extraction.plan_id, msg.extraction, msg.pendingEdits ?? {}, manualCompetitors);
       if (!res.ok || !res.final) {
         patchMessage(conv.id, messageId, {
-          status: "done", verifying: false, card: false, kind: "text",
+          status: "done", awaitingCompetitors: false, card: false, kind: "text",
           content: `⚠️ ${res.message || "Could not finish building the report."}`,
           reportError: res.message, tokens: 24,
         });
@@ -406,9 +428,14 @@ export function useChatStore() {
     [conversations, patchMessage, applyFinalReport],
   );
 
-  const skipVerification = useCallback(
-    (messageId: string) => confirmVerification(messageId, {}),
-    [confirmVerification],
+  const submitCompetitors = useCallback(
+    (messageId: string, names: string[]) => runFinalize(messageId, names),
+    [runFinalize],
+  );
+
+  const skipCompetitors = useCallback(
+    (messageId: string) => runFinalize(messageId, []),
+    [runFinalize],
   );
 
   const processPlan = useCallback(
@@ -544,7 +571,7 @@ export function useChatStore() {
   return {
     conversations, files, active, activeId, busy, lastUsage, sessionTokens,
     newConversation, selectConversation, deleteConversation, send, attachFiles, detachFile, processPlan,
-    confirmVerification, skipVerification,
+    confirmVerification, skipVerification, submitCompetitors, skipCompetitors,
   };
 }
 

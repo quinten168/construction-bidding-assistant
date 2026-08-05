@@ -40,8 +40,26 @@ export type FinalGotcha = {
 // The Competitor Intel team's model output, matched to this plan on county+state+date. Their v2
 // reports use two TIERS (Priority = tracked/active, Discovery = model-surfaced) + structured
 // per-competitor attributes — NO numeric threat scores.
-export type CompetitorTier = "priority" | "discovery";
+export type CompetitorTier = "priority" | "discovery" | "user_added";
 export type CompetitorEntry = { name: string; tier: CompetitorTier };
+
+// A rate scoped one way (state, county, or project_type) — raw counts alongside the percentage,
+// never just the percentage alone (a lone "37%" hides whether that's 3/8 or 300/800).
+export type ScopedRate = { wins?: number; bids?: number; total?: number; pct: number | null };
+export type CompetitorStats = {
+  win_rate: { state: ScopedRate; county: ScopedRate; project_type: ScopedRate } | null;
+  bid_rate: { state: ScopedRate; county: ScopedRate; project_type: ScopedRate } | null;
+  capacity: {
+    typical_capacity: number | null; ytd_won: number; capacity_pct: number | null;
+    last_year_total: number | null;
+  } | null;
+  pit_access: {
+    nearest_pit: { name: string; distance_miles: number; quality: number | null } | null;
+    pits_within_25mi_count: number;
+    pits_within_25mi_avg_quality: number | null;
+  } | null;
+};
+
 export type Competitor = {
   project_id: string;
   location: string;
@@ -52,13 +70,16 @@ export type Competitor = {
   condition: string;
   materials: string[];
   pits: { public?: string; private?: string };
-  tiers: { priority: string[]; discovery: string[] };
+  tiers: { priority: string[]; discovery: string[]; user_added?: string[] };
   summary: { priority: number; discovery: number; analyzed: number; narrative: string };
   competitors: CompetitorEntry[];
   // name → { "Bid Rate": "...", "Recency": "...", "Experience": "...", "Local Win Rate ...": "..." }
   attrs: Record<string, Record<string, string>>;
   deep_dives: Record<string, string[]>;
   source_file: string;
+  // name → live-retrieved win/bid rate, capacity, pit access — same retrieval for every competitor
+  // on the report regardless of tier (predicted or estimator-added).
+  stats?: Record<string, CompetitorStats>;
   // how confident the county+state(+date) join is — surface it so a wrong match is visible
   _match?: { confidence: "high" | "medium" | "low" | string; basis: string; date_gap_days: number | null };
 };
@@ -117,6 +138,11 @@ export type ChatMessage = {
   // `extraction` is that phase-① payload, seeding the verify modal.
   verifying?: boolean;
   extraction?: Extraction;
+  // Optional 2nd popup, between the verify-extraction gate and finalize: the estimator can type in
+  // competitors they personally expect to bid. `pendingEdits` carries phase-①'s edits through this
+  // extra step so finalize still gets them once this step completes (skip or submit).
+  awaitingCompetitors?: boolean;
+  pendingEdits?: Record<string, string>;
 };
 
 export type UploadedFile = {

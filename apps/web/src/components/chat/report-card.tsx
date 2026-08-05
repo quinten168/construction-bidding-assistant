@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
-import { type FinalReport, type FinalGotcha, type Competitor } from "@/lib/chat-data";
+import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate, type CompetitorTier } from "@/lib/chat-data";
 import { Eyebrow, Chip } from "@/components/kit";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -436,6 +436,7 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
   const matchTone = MATCH_TONE[conf] ?? "neutral";
   const priority = comp.tiers?.priority ?? [];
   const discovery = comp.tiers?.discovery ?? [];
+  const userAdded = comp.tiers?.user_added ?? [];
 
   return (
     <div>
@@ -482,7 +483,7 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
           </div>
           <div className="space-y-1.5">
             {priority.map((name) => (
-              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} accent="var(--warn)" />
+              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--warn)" />
             ))}
           </div>
         </div>
@@ -497,7 +498,24 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
           </div>
           <div className="space-y-1.5">
             {discovery.map((name) => (
-              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} accent="var(--muted-foreground)" />
+              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--muted-foreground)" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Estimator-added tier — never blended into the model's priority/discovery lists (these
+          were never run through the model's prediction/ranking scoring), but scored with the exact
+          same live win_rate/bid_rate/capacity/pit_access retrieval as everyone else above. */}
+      {userAdded.length > 0 && (
+        <div className="mt-2.5">
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            <span className="text-[11px] font-medium text-foreground/80">Added by you</span>
+          </div>
+          <div className="space-y-1.5">
+            {userAdded.map((name) => (
+              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--primary)" tier="user_added" />
             ))}
           </div>
         </div>
@@ -510,21 +528,32 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
   );
 }
 
-// One competitor: name + two key attributes inline, expandable to the full attribute set.
-function CompetitorRow({ name, attrs, accent }: { name: string; attrs: Record<string, string>; accent: string }) {
+// One competitor: name + two key attributes inline, expandable to the full attribute set +
+// the live-retrieved win/bid rate, capacity, and pit-access figures (same for every tier).
+function CompetitorRow({
+  name, attrs, stats, accent, tier,
+}: {
+  name: string;
+  attrs: Record<string, string>;
+  stats?: CompetitorStats;
+  accent: string;
+  tier?: CompetitorTier;
+}) {
   const [open, setOpen] = useState(false);
   const keys = Object.keys(attrs);
   const inline = KEY_ATTRS.map((k) => attrs[k]).filter(Boolean);
+  const expandable = keys.length > 0 || Boolean(stats);
 
   return (
     <div className="rounded-xl border border-black/[0.06] bg-card/70 p-2.5" style={{ borderLeft: `3px solid ${accent}` }}>
       <button
-        onClick={() => keys.length > 0 && setOpen((v) => !v)}
+        onClick={() => expandable && setOpen((v) => !v)}
         className="flex w-full items-center gap-2 text-left"
-        disabled={keys.length === 0}
+        disabled={!expandable}
       >
         <span className="text-[14px] font-medium">{name}</span>
-        {keys.length > 0 && (
+        {tier === "user_added" && <Chip tone="primary">you added</Chip>}
+        {expandable && (
           <ChevronDown className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         )}
       </button>
@@ -542,6 +571,74 @@ function CompetitorRow({ name, attrs, accent }: { name: string; attrs: Record<st
             </div>
           ))}
         </dl>
+      )}
+      {open && <CompetitorStatsBlock stats={stats} />}
+    </div>
+  );
+}
+
+function fmtPct(pct: number | null | undefined): string {
+  return pct == null ? "—" : `${Math.round(pct * 100)}%`;
+}
+
+function fmtScoped(r?: ScopedRate): string {
+  if (!r) return "—";
+  const raw = r.wins != null && r.bids != null ? `${r.wins}/${r.bids}` : r.bids != null && r.total != null ? `${r.bids}/${r.total}` : null;
+  return raw ? `${raw} · ${fmtPct(r.pct)}` : fmtPct(r.pct);
+}
+
+function fmtTons(t: number | null | undefined): string {
+  return t == null ? "—" : `${Math.round(t).toLocaleString()} tons`;
+}
+
+// The live-retrieved figures every competitor gets, regardless of tier — win rate / bid rate
+// (each scoped 3 ways: state, county, project type), capacity (this-year pace vs. historical
+// average), and pit access (nearest usable pit + count/quality within 25mi).
+function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
+  if (!stats) return null;
+  const { win_rate, bid_rate, capacity, pit_access } = stats;
+  if (!win_rate && !bid_rate && !capacity && !pit_access) return null;
+
+  return (
+    <div className="mt-2 grid grid-cols-1 gap-1.5 border-t border-black/[0.06] pt-2 text-[11px] sm:grid-cols-2">
+      {win_rate && (
+        <div>
+          <div className="font-medium text-foreground/70">Win rate</div>
+          <div className="text-muted-foreground">
+            State {fmtScoped(win_rate.state)} · County {fmtScoped(win_rate.county)} · Type {fmtScoped(win_rate.project_type)}
+          </div>
+        </div>
+      )}
+      {bid_rate && (
+        <div>
+          <div className="font-medium text-foreground/70">Bid rate</div>
+          <div className="text-muted-foreground">
+            State {fmtScoped(bid_rate.state)} · County {fmtScoped(bid_rate.county)} · Type {fmtScoped(bid_rate.project_type)}
+          </div>
+        </div>
+      )}
+      {capacity && (
+        <div>
+          <div className="font-medium text-foreground/70">Capacity</div>
+          <div className="text-muted-foreground">
+            {capacity.typical_capacity
+              ? `${fmtTons(capacity.ytd_won)} of ${fmtTons(capacity.typical_capacity)} typical · ${fmtPct(capacity.capacity_pct)}`
+              : `${fmtTons(capacity.ytd_won)} so far — no historical baseline yet`}
+            {capacity.last_year_total != null && ` (last year: ${fmtTons(capacity.last_year_total)})`}
+          </div>
+        </div>
+      )}
+      {pit_access && (
+        <div>
+          <div className="font-medium text-foreground/70">Pit access</div>
+          <div className="text-muted-foreground">
+            {pit_access.nearest_pit
+              ? `${pit_access.nearest_pit.name} · ${pit_access.nearest_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_pit.quality ?? "—"}`
+              : "No usable pit found"}
+            {" · "}{pit_access.pits_within_25mi_count} within 25mi
+            {pit_access.pits_within_25mi_avg_quality != null && ` (avg quality ${pit_access.pits_within_25mi_avg_quality.toFixed(1)})`}
+          </div>
+        </div>
       )}
     </div>
   );

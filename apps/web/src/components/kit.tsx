@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
 import NumberFlow from "@number-flow/react";
+import { Command } from "cmdk";
 import { cn } from "@/lib/utils";
 
 // ── Glass surface ──────────────────────────────────────────────
@@ -115,6 +117,64 @@ export function Chip({
     <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium", tones[tone], className)}>
       {children}
     </span>
+  );
+}
+
+// ── Name typeahead (originally competitor-registry/page.tsx, lifted here so it can be reused by
+// the verify-competitors popup too) ─────────────────────────────
+// A typeahead suggestion: `value` is what gets written into the input on select, `label` is what
+// renders in the dropdown (can carry more context than the plain value), `searchText` is what the
+// filter matches against (may include fields not shown in the label, e.g. comp_name).
+export type Suggestion = { key: string; value: string; label: React.ReactNode; searchText: string };
+
+export function NameTypeahead({
+  value,
+  onChange,
+  suggestions,
+  placeholder = "",
+  direction = "down",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  suggestions: Suggestion[];
+  placeholder?: string;
+  direction?: "up" | "down";
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        placeholder={placeholder}
+        className="w-56 rounded-lg border border-black/10 bg-white/80 px-2.5 py-1.5 text-[12.5px] outline-none focus:border-primary/50"
+      />
+      {open && value && (
+        <Command
+          className={cn(
+            "absolute left-0 z-20 w-72 overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg",
+            direction === "up" ? "bottom-full mb-1" : "top-full mt-1",
+          )}
+        >
+          <Command.List className="max-h-48 overflow-auto p-1">
+            {suggestions
+              .filter((s) => s.searchText.toLowerCase().includes(value.toLowerCase()))
+              .slice(0, 8)
+              .map((s) => (
+                <Command.Item
+                  key={s.key}
+                  onSelect={() => { onChange(s.value); setOpen(false); }}
+                  className="cursor-pointer rounded-md px-2 py-1.5 text-[12px] data-[selected=true]:bg-primary/10"
+                >
+                  {s.label}
+                </Command.Item>
+              ))}
+          </Command.List>
+        </Command>
+      )}
+    </div>
   );
 }
 

@@ -9,6 +9,7 @@ import { Thread } from "./thread";
 import { Composer } from "./composer";
 import { ContextPanel } from "./context-panel";
 import { VerifyExtraction } from "@/components/verify/verify-extraction";
+import { VerifyCompetitors } from "@/components/verify/verify-competitors";
 import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,9 @@ export function ChatApp() {
   // than a manual trigger — it's a required checkpoint between extraction and report generation,
   // not an optional follow-up the user has to remember to click into.
   const verifyingMsg = store.active.messages.filter((m) => m.verifying && m.extraction).at(-1);
+  // Optional 2nd popup, gated the same way as the first — auto-opens off message state once the
+  // verify-extraction gate hands off to it (see use-chat-store.ts's confirmVerification/skipVerification).
+  const awaitingCompetitorsMsg = store.active.messages.filter((m) => m.awaitingCompetitors).at(-1);
 
   const activeFiles = store.files.filter((f) => store.active.fileIds.includes(f.id));
   // Composer only shows files that are still being read, or non-plan context (CSV/spec). A
@@ -203,6 +207,32 @@ export function ChatApp() {
                 extraction={verifyingMsg.extraction!}
                 onConfirm={(edits) => store.confirmVerification(verifyingMsg.id, edits)}
                 onSkip={() => store.skipVerification(verifyingMsg.id)}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Expected-competitors gate — optional 2nd popup, same no-backdrop-dismiss treatment as the
+          verify-extraction gate above. Skip/Add are the only exits, both of which actually finalize
+          the report via the store. */}
+      <AnimatePresence>
+        {awaitingCompetitorsMsg && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/25 backdrop-blur-[2px]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 280, damping: 30 }}
+              className="glass-strong fixed left-1/2 top-1/2 z-50 max-h-[88vh] w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/50 p-5"
+            >
+              <VerifyCompetitors
+                onSubmit={(names) => store.submitCompetitors(awaitingCompetitorsMsg.id, names)}
+                onSkip={() => store.skipCompetitors(awaitingCompetitorsMsg.id)}
               />
             </motion.div>
           </>
