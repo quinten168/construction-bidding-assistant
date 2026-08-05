@@ -230,9 +230,59 @@ def _readable_title(plan_id: str, identity: dict) -> str:
     return state or plan_id
 
 
+# Sentinel for assemble()'s `predicted_competitors` param: distinguishes "caller has no cached
+# prediction, compute fresh" (the default) from "caller has a cache hit and the cascade found
+# nothing" (a legitimate `None` result that must NOT trigger a redundant recompute).
+_NO_CACHED_PREDICTION = object()
+
+
+def predict_competitors(identity: dict, archetype: str, quantities: list,
+                         bid_date: str | None, pid: str, reports_dir: str | None = None) -> dict | None:
+    """The three-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
+    (the predict-competitors endpoint calls this directly, before finalize, so the estimator sees the
+    predicted list instead of typing names blind). LIVE generation, else a static match, else a live
+    PREDICTION. Live = invoke the CI team's agent for a fresh report keyed to this exact project
+    (county+state+date → their project_natural_key → generate). Falls back to matching a
+    pre-generated report when the plan isn't in their corpus, the model repo is absent, or generation
+    fails. Both of those require the project to ALREADY be a row in the CI corpus
+    (ranking_predictions.csv / data/processed/projects.csv) -- i.e. a historical letting CSI already
+    has bid data for. A genuinely new plan (nothing in CSI's history under this county+state+date)
+    matches neither, and previously left `comp` as None with no competitor section at all.
+    competitor_predict_live.predict_report() is the third fallback for exactly that case: it builds
+    its own candidate pool and scores it live against Postgres, using the SAME already-fitted weights
+    the CI model uses, rather than requiring a precomputed row."""
+    when = bid_date or identity.get("construction_start") or identity.get("construction_end")
+    comp = None
+    if identity.get("county") or identity.get("state"):
+        try:
+            from . import competitor_live as cl
+            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when)
+        except Exception as e:                           # noqa: BLE001 — live path must never break assembly
+            log.warning("live competitor generation errored, falling back to static: %s", e)
+        if comp is None:
+            comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
+                                   when, reports_dir=reports_dir)
+        if comp is None:
+            try:
+                from . import competitor_predict_live as cpl
+                qty_by_col = {
+                    cpl.LABEL_TO_MATERIAL_COL[q["label"]]: q["value"]
+                    for q in quantities if q.get("label") in cpl.LABEL_TO_MATERIAL_COL
+                }
+                comp = cpl.predict_report(
+                    county=identity.get("county", "") or "", state=identity.get("state", "") or "",
+                    project_type=archetype, bid_date=when or "", quantities=qty_by_col,
+                    source_id=pid,
+                )
+            except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
+                log.warning("live candidate prediction errored: %s", e)
+    return comp
+
+
 def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
              bid_date: str | None = None, reports_dir: str | None = None,
-             manual_competitors: list[str] | None = None) -> dict:
+             manual_competitors: list[str] | None = None,
+             predicted_competitors: dict | None = _NO_CACHED_PREDICTION) -> dict:
     """Build the structured final-report dict. Pass a live `plan_payload` (from report.process_pdf)
     OR a `plan_id` already in the corpus (loaded from its per-plan JSON). The competitor section is
     attached when a report matches the plan's county+state(+date). `manual_competitors` are names an
@@ -272,42 +322,15 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         gotchas = _gotchas_from_payload(plan_payload.get("gotchas", []))
         gotcha_source = "live"
 
-    # --- competitor section: LIVE generation, else a static match, else a live PREDICTION ---
-    # Live = invoke the CI team's agent for a fresh report keyed to this exact project
-    # (county+state+date → their project_natural_key → generate). Falls back to matching a
-    # pre-generated report when the plan isn't in their corpus, the model repo is absent, or
-    # generation fails. Both of those require the project to ALREADY be a row in the CI corpus
-    # (ranking_predictions.csv / data/processed/projects.csv) -- i.e. a historical letting CSI
-    # already has bid data for. A genuinely new plan (nothing in CSI's history under this
-    # county+state+date) matches neither, and previously left `comp` as None with no competitor
-    # section at all. competitor_predict_live.predict_report() is the third fallback for exactly
-    # that case: it builds its own candidate pool and scores it live against Postgres, using the
-    # SAME already-fitted weights the CI model uses, rather than requiring a precomputed row.
+    # --- competitor section: a precomputed prediction (from the predict-competitors endpoint, run
+    # right after the verify gate so the estimator sees it before the manual-add popup) takes
+    # priority; otherwise run the same three-tier cascade here, unchanged from before this was
+    # extracted into predict_competitors() (see above).
     when = bid_date or identity.get("construction_start") or identity.get("construction_end")
-    comp = None
-    if identity.get("county") or identity.get("state"):
-        try:
-            from . import competitor_live as cl
-            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when)
-        except Exception as e:                           # noqa: BLE001 — live path must never break assembly
-            log.warning("live competitor generation errored, falling back to static: %s", e)
-        if comp is None:
-            comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
-                                   when, reports_dir=reports_dir)
-        if comp is None:
-            try:
-                from . import competitor_predict_live as cpl
-                qty_by_col = {
-                    cpl.LABEL_TO_MATERIAL_COL[q["label"]]: q["value"]
-                    for q in quantities if q.get("label") in cpl.LABEL_TO_MATERIAL_COL
-                }
-                comp = cpl.predict_report(
-                    county=identity.get("county", "") or "", state=identity.get("state", "") or "",
-                    project_type=archetype, bid_date=when or "", quantities=qty_by_col,
-                    source_id=pid,
-                )
-            except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
-                log.warning("live candidate prediction errored: %s", e)
+    if predicted_competitors is _NO_CACHED_PREDICTION:
+        comp = predict_competitors(identity, archetype, quantities, when, pid, reports_dir=reports_dir)
+    else:
+        comp = predicted_competitors
 
     # --- manual competitors: the estimator's typed-in names get appended to the SAME flat
     # `competitors` list the model predicted -- no separate section, since they were never run

@@ -151,6 +151,12 @@ export type ChatMessage = {
   // extra step so finalize still gets them once this step completes (skip or submit).
   awaitingCompetitors?: boolean;
   pendingEdits?: Record<string, string>;
+  // The model's predicted names, fetched from POST /api/report/{id}/predict-competitors right when
+  // `awaitingCompetitors` flips on, so the popup shows what was actually predicted instead of an
+  // empty list. `competitorsPredicting` is true while that call is in flight.
+  predictedCompetitors?: string[];
+  predictedCompetitorsMatch?: { confidence: string; basis: string } | null;
+  competitorsPredicting?: boolean;
 };
 
 export type UploadedFile = {

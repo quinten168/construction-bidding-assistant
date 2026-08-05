@@ -170,6 +170,28 @@ async function finalizeReport(
   }
 }
 
+// Between the two verify-gate popups: run the competitor-prediction cascade right after extraction
+// is confirmed/skipped, so the "expected competitors" popup can show what the model actually
+// predicted instead of an empty list. Fails open (empty list) — this step never blocks the flow.
+async function predictCompetitors(
+  planId: string,
+  extraction: Extraction,
+  edits: Record<string, string>,
+): Promise<{ ok: boolean; competitors: string[]; match?: { confidence: string; basis: string } | null }> {
+  try {
+    const res = await fetch(`/api/report/${encodeURIComponent(planId)}/predict-competitors`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ extraction, edits }),
+    });
+    if (!res.ok) return { ok: false, competitors: [] };
+    const data = await res.json();
+    return { ok: !!data.ok, competitors: data.competitors ?? [], match: data.match ?? null };
+  } catch {
+    return { ok: false, competitors: [] };
+  }
+}
+
 // Map the backend's retrieved passages onto the UI's Citation shape, de-duping
 // repeats of the same file+page and dropping any without a usable page number.
 function mapSources(sources: BackendSource[]): Citation[] {
@@ -396,13 +418,25 @@ export function useChatStore() {
   // modal's Confirm/Skip no longer finalize directly — they stash the edits and hand off to that
   // second, optional step. `submitCompetitors`/`skipCompetitors` (below) are what actually calls
   // finalizeReport(), once that step completes (with or without any names).
+  //
+  // The popup opens immediately in a loading state, then predictCompetitors() runs the same
+  // cascade finalize would otherwise run blind, so the estimator sees the model's predicted names
+  // before deciding whether to add anyone — instead of typing into what looks like an empty list.
   const confirmVerification = useCallback(
     (messageId: string, edits: Record<string, string>) => {
-      patchMessage(
-        conversations.find((c) => c.messages.some((m) => m.id === messageId))?.id ?? activeId,
-        messageId,
-        { verifying: false, awaitingCompetitors: true, pendingEdits: edits },
-      );
+      const convId = conversations.find((c) => c.messages.some((m) => m.id === messageId))?.id ?? activeId;
+      const msg = conversations.find((c) => c.id === convId)?.messages.find((m) => m.id === messageId);
+      patchMessage(convId, messageId, {
+        verifying: false, awaitingCompetitors: true, competitorsPredicting: true, pendingEdits: edits,
+      });
+      if (!msg?.extraction) return;
+      predictCompetitors(msg.extraction.plan_id, msg.extraction, edits).then((res) => {
+        patchMessage(convId, messageId, {
+          competitorsPredicting: false,
+          predictedCompetitors: res.competitors,
+          predictedCompetitorsMatch: res.match ?? null,
+        });
+      });
     },
     [conversations, activeId, patchMessage],
   );

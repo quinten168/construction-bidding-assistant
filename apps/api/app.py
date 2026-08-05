@@ -105,6 +105,11 @@ class ReportFinalizeIn(BaseModel):
     manual_competitors: List[str] = []  # names the estimator typed into the optional 2nd verify popup
 
 
+class ReportPredictCompetitorsIn(BaseModel):
+    extraction: dict                 # same unverified `extraction` payload finalize takes
+    edits: Dict[str, str] = {}       # same edits map — identity must be finalized before predicting
+
+
 # --- CI-data admin schemas (bid results / pit list / competitor registry) -----------------------
 class BidEntryIn(BaseModel):
     raw_bidder_name: str
@@ -288,16 +293,37 @@ async def report(file: UploadFile = File(...)):
     return {"ok": True, "extraction": rep}
 
 
+@app.post("/api/report/{plan_id}/predict-competitors", tags=["report"])
+async def report_predict_competitors(plan_id: str, req: ReportPredictCompetitorsIn):
+    """Between the two verify-gate popups: run the same three-tier competitor cascade finalize would
+    otherwise run blind, so the estimator sees the model's predicted names in the 2nd popup instead
+    of typing on top of an empty list. Result is cached by content_hash (report_svc.
+    cache_competitor_prediction) so finalize reuses it instead of re-invoking the CI subprocess /
+    live SQL a second time."""
+    rep = await run_in_threadpool(report_svc.apply_verification, req.extraction, req.edits)
+    identity = rep.get("identity", {})
+    archetype = rep.get("archetype") or "Unknown/NoQty"
+    quantities = rep.get("quantities", [])
+    when = identity.get("construction_start") or identity.get("construction_end")
+    comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, when, plan_id)
+    await run_in_threadpool(report_svc.cache_competitor_prediction, rep.get("content_hash"), comp)
+    return {"ok": True, "competitors": (comp or {}).get("competitors", []),
+            "match": (comp or {}).get("_match")}
+
+
 @app.post("/api/report/{plan_id}/finalize", tags=["report"])
 async def report_finalize(plan_id: str, req: ReportFinalizeIn):
     """Step ② of the verify gate: bake the human's confirmed/edited fields into the extraction
     payload, cache it, and assemble the final report (this is where the competitor-intel subprocess
-    runs). `plan_id` is accepted for URL/logging clarity but the actual payload lookup is via
-    `req.extraction["content_hash"]`, round-tripped from step ①'s response."""
+    runs — unless /predict-competitors already ran it for this content_hash, in which case that
+    cached prediction is reused). `plan_id` is accepted for URL/logging clarity but the actual
+    payload lookup is via `req.extraction["content_hash"]`, round-tripped from step ①'s response."""
     rep = await run_in_threadpool(report_svc.apply_verification, req.extraction, req.edits)
     await run_in_threadpool(report_svc.write_bid_project, rep)
+    found, cached_comp = report_svc.cached_competitor_prediction(rep.get("content_hash"))
+    assemble_kwargs = {"predicted_competitors": cached_comp} if found else {}
     final = await run_in_threadpool(fr.assemble, plan_payload=rep,
-                                    manual_competitors=req.manual_competitors)
+                                    manual_competitors=req.manual_competitors, **assemble_kwargs)
     return {"ok": True, "final": final}
 
 

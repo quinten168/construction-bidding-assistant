@@ -56,6 +56,7 @@ ci_model/03_training/outputs/ranking_predictions.csv
 **/00_input/plans/**/*.json
 **/00_input/_md_cache/
 **/00_input/_report_payload_cache/
+**/00_input/_report_competitor_prediction_cache/
 # 02_outputs/ is generated diagnostics + scorecards — regenerable, ignored wholesale.
 # The 7 files old `main` tracked here remain recoverable at d63b96c if ever needed as
 # cited evidence of extraction quality.

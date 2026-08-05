@@ -56,6 +56,43 @@ def _payload_cache_path(content_hash: str) -> Path:
     return _PAYLOAD_CACHE / (content_hash + ".json")
 
 
+# Sibling cache for the competitor-prediction cascade (final_report.predict_competitors), keyed the
+# same way (content hash) so the predict-competitors endpoint's result can be reused by finalize
+# instead of re-running the CI subprocess / live SQL a second time. Stores {"comp": <dict or null>} —
+# the null case (cascade ran and found nothing) is itself worth caching, so finalize doesn't retry it.
+_COMPETITOR_PREDICTION_CACHE = lib.DATA_DIR / "_report_competitor_prediction_cache"
+
+
+def _competitor_prediction_cache_path(content_hash: str) -> Path:
+    return _COMPETITOR_PREDICTION_CACHE / (content_hash + ".json")
+
+
+def cache_competitor_prediction(content_hash: str, comp: dict | None) -> None:
+    """Best-effort write, same fail-open convention as apply_verification's payload cache write."""
+    if not content_hash:
+        return
+    try:
+        _COMPETITOR_PREDICTION_CACHE.mkdir(parents=True, exist_ok=True)
+        _competitor_prediction_cache_path(content_hash).write_text(json.dumps({"comp": comp}))
+    except Exception:
+        pass
+
+
+def cached_competitor_prediction(content_hash: str) -> tuple[bool, dict | None]:
+    """Returns (found, comp). `found=False` means no cache entry exists (caller should compute
+    fresh); `found=True, comp=None` means the cascade already ran and found nothing (caller should
+    NOT recompute)."""
+    if not content_hash:
+        return False, None
+    path = _competitor_prediction_cache_path(content_hash)
+    try:
+        if not path.exists():
+            return False, None
+        return True, json.loads(path.read_text()).get("comp")
+    except Exception:
+        return False, None
+
+
 def _val(field):
     """Scalar fields are {value, confidence, page}; unwrap to the value."""
     return field.get("value") if isinstance(field, dict) else field

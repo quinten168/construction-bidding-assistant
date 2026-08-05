@@ -21,6 +21,7 @@ prediction still gets the rest of its report rather than a broken one.
 """
 from __future__ import annotations
 
+import datetime
 import json
 from math import log1p
 
@@ -179,10 +180,17 @@ def predict_report(
     weights = _load_weights()
     if not weights:
         return None
+    # A genuinely new plan often has no extracted construction_start/end yet -- this is exactly the
+    # case this module exists for, so a blank bid_date must not be fatal. `before_date` only exists
+    # to keep the candidate pool leakage-safe (no future bid data); "today" is the correct neutral
+    # cutoff when the actual letting date isn't known yet. Passing "" straight into the Postgres
+    # date comparisons below raised "invalid input syntax for type date" and was silently swallowed
+    # by the except below, so a missing date looked identical to "no candidates found."
+    before_date = bid_date or datetime.date.today().isoformat()
     try:
         with ci_db.get_conn() as conn:
-            candidates = _candidate_pool(conn, state, bid_date)
-            scored = _score_candidates(conn, candidates, county, state, project_type, bid_date,
+            candidates = _candidate_pool(conn, state, before_date)
+            scored = _score_candidates(conn, candidates, county, state, project_type, before_date,
                                        quantities, weights)
     except Exception as e:                                    # noqa: BLE001 — must never break assembly
         log.warning("predict_report: query failed, no live prediction: %s", e)
