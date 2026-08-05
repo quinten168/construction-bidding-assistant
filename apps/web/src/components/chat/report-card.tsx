@@ -424,12 +424,11 @@ function GotchaGroup({
 
 // ── Competitive landscape (§④) — CI team's v3 schema ────────────────────────
 // A single flat top-N ranking (no Priority/Discovery tiers — CSI's tracked-list membership never
-// drove the ranking, only a display grouping that's now gone). Each competitor expands to its
-// structured attributes (Bid Rate, Recency, Capacity, Experience, Win Rates). No invented scores
-// — their model dropped numeric threat.
+// drove the ranking, only a display grouping that's now gone). Selection/ranking is still the
+// planner's simple_rule_score model; every competitor's shown figures (win rate, bid rate,
+// capacity, pit access) come entirely from the live SQL retrieval in competitor_stats_live.py
+// (`comp.stats`) — no invented scores, and no more of the old markdown-parsed narrative bullets.
 const MATCH_TONE: Record<string, string> = { high: "positive", medium: "neutral", low: "warn" };
-// the two most decision-relevant attributes to surface inline (rest live in the expand)
-const KEY_ATTRS = ["Bid Rate", "Recency"];
 
 function CompetitorSection({ comp }: { comp: Competitor }) {
   const s = comp.summary ?? { analyzed: 0, narrative: "" };
@@ -481,7 +480,6 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
             <CompetitorRow
               key={name}
               name={name}
-              attrs={comp.attrs?.[name] ?? {}}
               stats={comp.stats?.[name]}
               accent={userAddedSet.has(name) ? "var(--primary)" : "var(--muted-foreground)"}
               isUserAdded={userAddedSet.has(name)}
@@ -497,21 +495,24 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
   );
 }
 
-// One competitor: name + two key attributes inline, expandable to the full attribute set +
-// the live-retrieved win/bid rate, capacity, and pit-access figures (same regardless of origin).
+// One competitor: name + a one-line state win/bid-rate summary inline, expandable to the full
+// live-retrieved win/bid rate, capacity, and pit-access figures (same regardless of origin).
 function CompetitorRow({
-  name, attrs, stats, accent, isUserAdded,
+  name, stats, accent, isUserAdded,
 }: {
   name: string;
-  attrs: Record<string, string>;
   stats?: CompetitorStats;
   accent: string;
   isUserAdded?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const keys = Object.keys(attrs);
-  const inline = KEY_ATTRS.map((k) => attrs[k]).filter(Boolean);
-  const expandable = keys.length > 0 || Boolean(stats);
+  const expandable = Boolean(stats && (stats.win_rate || stats.bid_rate || stats.capacity || stats.pit_access));
+  const stateWinRate = stats?.win_rate?.state;
+  const stateBidRate = stats?.bid_rate?.state;
+  const inline = [
+    stateWinRate ? `Win ${fmtScoped(stateWinRate)}` : null,
+    stateBidRate ? `Bid ${fmtScoped(stateBidRate)}` : null,
+  ].filter(Boolean) as string[];
 
   return (
     <div className="rounded-xl border border-black/[0.06] bg-card/70 p-2.5" style={{ borderLeft: `3px solid ${accent}` }}>
@@ -528,18 +529,8 @@ function CompetitorRow({
       </button>
       {inline.length > 0 && !open && (
         <p className="mt-1 line-clamp-1 text-[12.5px] text-muted-foreground" title={inline.join(" · ")}>
-          {inline.join(" · ")}
+          {inline.join(" · ")} <span className="opacity-60">(state)</span>
         </p>
-      )}
-      {open && keys.length > 0 && (
-        <dl className="mt-1.5 space-y-1">
-          {keys.map((k) => (
-            <div key={k} className="text-[11.5px] leading-snug">
-              <dt className="font-medium text-foreground/70">{k}</dt>
-              <dd className="text-muted-foreground">{attrs[k]}</dd>
-            </div>
-          ))}
-        </dl>
       )}
       {open && <CompetitorStatsBlock stats={stats} />}
     </div>

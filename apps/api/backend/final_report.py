@@ -421,6 +421,62 @@ def _gotcha_line(g: dict) -> str:
 _THREAT_EMOJI = {"HIGH": "🔴", "MEDIUM": "🟡", "LOW": "🟢"}
 
 
+# --- competitor_stats_live formatting (mirrors report-card.tsx's fmtPct/fmtScoped/fmtTons) ------
+def _fmt_pct(pct: float | None) -> str:
+    return "—" if pct is None else f"{round(pct * 100)}%"
+
+
+def _fmt_scoped(r: dict | None) -> str:
+    if not r:
+        return "—"
+    wins, bids, total = r.get("wins"), r.get("bids"), r.get("total")
+    if wins is not None and bids is not None:
+        raw = f"{wins}/{bids}"
+    elif bids is not None and total is not None:
+        raw = f"{bids}/{total}"
+    else:
+        raw = None
+    pct = _fmt_pct(r.get("pct"))
+    return f"{raw} · {pct}" if raw else pct
+
+
+def _fmt_tons(t: float | None) -> str:
+    return "—" if t is None else f"{round(t):,} tons"
+
+
+def _stats_lines(stats: dict) -> list[str]:
+    """Format one competitor's live-retrieved figures (competitor_stats_live.compute_stats output)
+    into export lines -- the SAME source report-card.tsx's CompetitorStatsBlock renders, so exports
+    and the chat card never disagree."""
+    lines = []
+    wr = stats.get("win_rate")
+    if wr:
+        lines.append(f"Win rate — State {_fmt_scoped(wr.get('state'))} · "
+                      f"County {_fmt_scoped(wr.get('county'))} · Type {_fmt_scoped(wr.get('project_type'))}")
+    br = stats.get("bid_rate")
+    if br:
+        lines.append(f"Bid rate — State {_fmt_scoped(br.get('state'))} · "
+                      f"County {_fmt_scoped(br.get('county'))} · Type {_fmt_scoped(br.get('project_type'))}")
+    cap = stats.get("capacity")
+    if cap:
+        if cap.get("typical_capacity"):
+            cap_line = (f"{_fmt_tons(cap.get('ytd_won'))} of {_fmt_tons(cap.get('typical_capacity'))} "
+                        f"typical · {_fmt_pct(cap.get('capacity_pct'))}")
+        else:
+            cap_line = f"{_fmt_tons(cap.get('ytd_won'))} so far — no historical baseline yet"
+        if cap.get("last_year_total") is not None:
+            cap_line += f" (last year: {_fmt_tons(cap.get('last_year_total'))})"
+        lines.append(f"Capacity — {cap_line}")
+    pa = stats.get("pit_access")
+    if pa:
+        nearest = pa.get("nearest_pit")
+        pit_line = (f"Nearest pit {nearest.get('name')} ({nearest.get('distance_miles', 0):.1f} mi)"
+                    if nearest else "No usable pit found")
+        pit_line += f" · {pa.get('pits_within_25mi_count', 0)} within 25mi"
+        lines.append(f"Pit access — {pit_line}")
+    return lines
+
+
 def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = True) -> str:
     """The canonical one-pager. Two render modes:
       • EXPORT (defaults: include_dives=True, ascii_bars=True) — self-contained: ASCII bars for
@@ -489,7 +545,7 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     s = comp["summary"]
     mt = comp.get("_match", {})
     names = comp.get("competitors", [])
-    attrs = comp.get("attrs", {})
+    stats_map = comp.get("stats", {})
     md.append(f"**Top {s.get('analyzed', 0)} likely competitors**")
     wt = comp.get("work_type") or ""
     cond = comp.get("condition") or ""
@@ -502,17 +558,18 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
               f"({mt.get('confidence')} confidence)._")
 
-    # exports get the full per-competitor attribute dives; chat stays compact (name + the two most
-    # decision-relevant attributes inline)
+    # exports get the full per-competitor stats dives; chat stays compact (name + a one-line
+    # state win-rate summary inline)
     for name in names:
-        a = attrs.get(name, {})
-        if include_dives and a:
+        st = stats_map.get(name)
+        lines = _stats_lines(st) if st else []
+        if include_dives and lines:
             md.append(f"\n### {name}")
-            for k, v in a.items():
-                md.append(f"- **{k}:** {v}")
+            for line in lines:
+                md.append(f"- {line}")
         else:
-            bits = [a.get("Bid Rate"), a.get("Recency")]
-            tail = " — " + " · ".join(b for b in bits if b) if any(bits) else ""
+            state_wr = ((st or {}).get("win_rate") or {}).get("state") if st else None
+            tail = f" — win rate {_fmt_scoped(state_wr)}" if state_wr else ""
             md.append(f"- **{name}**{tail}")
 
     return "\n".join(md)
@@ -557,11 +614,13 @@ def to_csv(final: dict) -> str:
                         (g.get("evidence") or "").replace("\n", " "), g.get("page") or ""])
     comp = final.get("competitor")
     if comp:
-        attrs = comp.get("attrs", {})
+        stats_map = comp.get("stats", {})
         for i, name in enumerate(comp["competitors"], start=1):
-            a = attrs.get(name, {})
+            st = stats_map.get(name) or {}
+            state_wr = (st.get("win_rate") or {}).get("state")
+            state_br = (st.get("bid_rate") or {}).get("state")
             w.writerow(["competitor", name, f"rank {i}",
-                        a.get("Bid Rate", ""), a.get("Recency", "")])
+                        _fmt_scoped(state_wr), _fmt_scoped(state_br)])
     return buf.getvalue()
 
 
