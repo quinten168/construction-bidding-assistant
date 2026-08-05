@@ -82,7 +82,11 @@ type Store = ReturnType<typeof useBidResultsStore>;
 
 export function BidResultsTable({ store }: { store: Store }) {
   const [page, setPage] = useState(0);
-  const [sort, setSort] = useState<SortState>({ key: null, dir: "asc" });
+  // Default to grouping by project (still a normal, clickable/cyclable column sort underneath —
+  // click "Project" again to reverse, or another column header to sort by that instead) so a
+  // project's several competitor rows land next to each other instead of interleaved by whatever
+  // order the API returned them in.
+  const [sort, setSort] = useState<SortState>({ key: "project_name", dir: "asc" });
   const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
 
   const [dateFilter, setDateFilter] = useState<DateRange>({ from: "", to: "" });

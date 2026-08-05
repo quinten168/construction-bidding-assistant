@@ -270,7 +270,11 @@ export default function PitListPage() {
   const [openFilterColumn, setOpenFilterColumn] = useState<string | null>(null);
   const [countyFilter, setCountyFilter] = useState<Set<string>>(new Set());
   const [stateFilter, setStateFilter] = useState<Set<string>>(new Set());
-  const [ratingFilter, setRatingFilter] = useState<NumRange>({ min: "", max: "" });
+  // Rating 1 makes up the bulk of this table (~68% of all pits) and was the main cost of rendering
+  // every pit as a map marker; default it filtered out so both the map and table start manageable.
+  // Still just the normal Rating column filter underneath — "Clear filters" or editing the Min box
+  // brings rating-1 pits back.
+  const [ratingFilter, setRatingFilter] = useState<NumRange>({ min: "2", max: "" });
   const [accessTypeFilter, setAccessTypeFilter] = useState<Set<string>>(new Set());
   const [accessCompanyFilter, setAccessCompanyFilter] = useState<Set<string>>(new Set());
 

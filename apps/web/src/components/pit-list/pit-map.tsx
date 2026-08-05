@@ -40,10 +40,25 @@ export function PitMap({ pits, mapsReady, hasKey }: { pits: Pit[]; mapsReady: bo
 
     if (pits.length === 0) return;
 
+    // Small brand-colored dots instead of Google's default full-size teardrop pin — with pits
+    // clustered densely across the state, the default ~41px pins visually merge into a solid mass.
+    const markerColor =
+      getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#c2410c";
+    const pitIcon = {
+      path: window.google.maps.SymbolPath.CIRCLE,
+      scale: 5,
+      fillColor: markerColor,
+      fillOpacity: 0.9,
+      strokeColor: "#ffffff",
+      strokeWeight: 1.5,
+    };
+
     const bounds = new window.google.maps.LatLngBounds();
     for (const pit of pits) {
       const position = { lat: pit.latitude, lng: pit.longitude };
-      const marker = new window.google.maps.Marker({ position, map, title: pit.name ?? undefined });
+      const marker = new window.google.maps.Marker({
+        position, map, title: pit.name ?? undefined, icon: pitIcon,
+      });
       marker.addListener("click", () => {
         infoRef.current.setContent(
           `<div style="font-size:12.5px;line-height:1.5">
