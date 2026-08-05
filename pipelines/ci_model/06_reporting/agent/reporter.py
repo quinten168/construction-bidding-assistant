@@ -323,70 +323,31 @@ def build_report(
     # ── Project Introduction ──────────────────────────────────────────────────
     sections.append("## PROJECT INTRODUCTION\n\n" + _project_intro(project_info, analyses))
 
-    # ── Threat Matrix ─────────────────────────────────────────────────────────
+    # ── Competitor List ───────────────────────────────────────────────────────
+    # A single flat ranking by bid_probability (== planner.py's simple_rule_score order) --
+    # no priority/discovery split. That tier field never drove this ordering (planner.py's plan()
+    # sorts purely by score); it only drove this display grouping, so removing the grouping changes
+    # nothing about which competitors are here or in what order.
     sorted_analyses = sorted(analyses, key=lambda x: x["bid_probability"], reverse=True)
-    tier1_all    = [a for a in sorted_analyses if a.get("tier", 2) == 1]
-    tier2_all    = [a for a in sorted_analyses if a.get("tier", 2) != 1]
-    tier1_active = [a for a in tier1_all if a["bid_probability"] >= 0.40]
-    tier1_low    = [a for a in tier1_all if a["bid_probability"] < 0.40]
 
-    def _matrix_rows(analysis_list: list[dict], label: str) -> list[str]:
-        if not analysis_list:
-            return []
-        out = [f"  ── {label} ──"]
-        for a in analysis_list:
-            flag = " ⚠ needs review" if a.get("reflection_passed") is False else ""
-            out.append(f"  {a['display_name']}{flag}")
-        return out
+    matrix_rows = []
+    for a in sorted_analyses:
+        flag = " ⚠ needs review" if a.get("reflection_passed") is False else ""
+        matrix_rows.append(f"  {a['display_name']}{flag}")
 
-    matrix_rows = _matrix_rows(tier1_active, "Priority Competitors")
-    if tier1_low:
-        matrix_rows += [""] + _matrix_rows(tier1_low, "Priority Competitors — Low Engagement Expected")
-    if tier2_all:
-        matrix_rows += [""] + _matrix_rows(tier2_all, "Discovery Competitors")
-
-    sections.append("## COMPETITOR LIST\n\n" + "\n".join(r for r in matrix_rows if r is not None))
+    sections.append("## COMPETITOR LIST\n\n" + "\n".join(matrix_rows))
 
     # ── Competitor Deep Dives ─────────────────────────────────────────────────
-    high_analyses = [a for a in sorted_analyses if a["threat_level"] == "HIGH"]
-    tier1_high    = [a for a in high_analyses if a.get("tier", 2) == 1]
-    tier2_high    = [a for a in high_analyses if a.get("tier", 2) != 1]
-    tier1_medium  = [a for a in sorted_analyses if a["threat_level"] == "MEDIUM" and a.get("tier", 2) == 1]
-    tier2_medium  = [a for a in sorted_analyses if a["threat_level"] == "MEDIUM" and a.get("tier", 2) != 1]
+    # Every analyzed competitor gets a full deep dive -- with the list already capped to top_n by
+    # the planner, gating further by threat_level (as the old tiered version did) would just hide
+    # some of the 5 the reader asked to see in detail.
+    blocks = []
+    for a in sorted_analyses:
+        narrative = _strip_dupe_header(a["narrative"])
+        flag = "\n  ⚠ Flagged for human review." if a.get("reflection_passed") is False else ""
+        blocks.append(f"### {a['display_name']}\n{narrative}{flag}")
 
-    def _deep_dive_block(analysis_list: list[dict]) -> str:
-        blocks = []
-        for a in analysis_list:
-            narrative = _strip_dupe_header(a["narrative"])
-            flag = "\n  ⚠ Flagged for human review." if a.get("reflection_passed") is False else ""
-            blocks.append(
-                f"### {a['display_name']}\n"
-                f"{narrative}{flag}"
-            )
-        return "\n\n".join(blocks)
-
-    priority_dives  = tier1_high + tier1_medium
-    priority_low    = [a for a in sorted_analyses if a["threat_level"] == "LOW" and a.get("tier", 2) == 1]
-    discovery_dives = tier2_high + tier2_medium
-
-    if priority_dives:
-        sections.append(
-            "## PRIORITY COMPETITORS — Deep Dives\n"
-            "*(Known top competitors tracked by CSI)*\n\n"
-            + _deep_dive_block(priority_dives)
-        )
-
-    if priority_low:
-        sections.append(
-            "## PRIORITY COMPETITORS — Low Engagement Expected\n"
-            "*(Tracked competitors with signals suggesting they will sit out this project)*\n\n"
-            + _deep_dive_block(priority_low)
-        )
-
-    if discovery_dives:
-        sections.append(
-            "## DISCOVERY COMPETITORS — Deep Dives\n\n"
-            + _deep_dive_block(discovery_dives)
-        )
+    if blocks:
+        sections.append("## COMPETITOR DEEP DIVES\n\n" + "\n\n".join(blocks))
 
     return "\n\n".join(sections) + "\n"

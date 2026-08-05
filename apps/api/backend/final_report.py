@@ -236,9 +236,12 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     """Build the structured final-report dict. Pass a live `plan_payload` (from report.process_pdf)
     OR a `plan_id` already in the corpus (loaded from its per-plan JSON). The competitor section is
     attached when a report matches the plan's county+state(+date). `manual_competitors` are names an
-    estimator typed in themselves (the optional second verify-gate popup) -- merged into the SAME
-    tiered list as the model-predicted names, all scored by the one unified live-stats query below,
-    not a second separate computation."""
+    estimator typed in themselves (the optional second verify-gate popup) -- appended to the SAME
+    flat, rank-ordered `competitors` list as the model-predicted names (no separate tier: v3 dropped
+    priority/discovery, and manual names never had a ranking score to begin with, so "tier" was
+    never a meaningful axis to sort on), all scored by the one unified live-stats query below, not a
+    second separate computation. A name that duplicates one already on the list is not re-added --
+    see `comp["duplicate_names"]`, which the caller surfaces back to the estimator."""
     if plan_payload is None and plan_id:
         plan_payload = _payload_from_plan_id(plan_id)
     if plan_payload is None:
@@ -286,13 +289,13 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
             comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
                                    when, reports_dir=reports_dir)
 
-    # --- manual competitors: the estimator's typed-in names get their OWN section (`tiers.user_added`)
-    # -- never blended into the model's priority/discovery tiers, since they were never run through the
-    # model's own prediction/ranking scoring (they don't need to be "predicted," the estimator already
-    # asserts they'll bid). But every competitor on the report -- predicted or manual alike -- gets its
-    # win_rate/bid_rate/capacity/pit_access from the SAME live-SQL retrieval process below, run ONCE
-    # over the whole merged list, not a separate stats computation per origin and not the old model
-    # "feature" columns (ranking_predictions.csv).
+    # --- manual competitors: the estimator's typed-in names get appended to the SAME flat
+    # `competitors` list the model predicted -- no separate section, since they were never run
+    # through the model's own prediction/ranking scoring (they don't need to be "predicted," the
+    # estimator already asserts they'll bid), but every competitor on the report -- predicted or
+    # manual alike -- gets its win_rate/bid_rate/capacity/pit_access from the SAME live-SQL
+    # retrieval process below, run ONCE over the whole merged list, not a separate stats
+    # computation per origin and not the old model "feature" columns (ranking_predictions.csv).
     manual_names = [n.strip() for n in (manual_competitors or []) if n and n.strip()]
     if manual_names and comp is None:
         # No predicted report at all (e.g. county+state never matched anything) -- manual names are
@@ -301,27 +304,30 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
             "project_id": pid, "location": identity.get("location", ""),
             "county": identity.get("county", ""), "state": identity.get("state", ""),
             "bid_date": when or "", "work_type": "", "condition": "", "materials": [],
-            "pits": {}, "tiers": {"priority": [], "discovery": []},
-            "summary": {"priority": 0, "discovery": 0, "analyzed": 0, "narrative": ""},
+            "pits": {}, "summary": {"analyzed": 0, "narrative": ""},
             "competitors": [], "attrs": {}, "deep_dives": {}, "source_file": "",
         }
+    duplicate_names: list[str] = []
     if manual_names and comp is not None:
-        existing_lower = {c["name"].strip().lower() for c in comp.get("competitors", [])}
+        existing_lower = {c.strip().lower() for c in comp.get("competitors", [])}
         new_names = []
         for n in manual_names:
             key = n.strip().lower()
             if key in existing_lower:                    # dedup against predicted names AND
-                continue                                  # against earlier names in this same batch
+                duplicate_names.append(n)                 # against earlier names in this same batch
+                continue
             existing_lower.add(key)
             new_names.append(n)
         if new_names:
-            comp.setdefault("tiers", {}).setdefault("user_added", []).extend(new_names)
-            comp.setdefault("competitors", []).extend(
-                {"name": n, "tier": "user_added"} for n in new_names)
+            comp.setdefault("competitors", []).extend(new_names)
+            comp.setdefault("user_added", []).extend(new_names)
+            comp["summary"]["analyzed"] = len(comp["competitors"])
+    if duplicate_names and comp is not None:
+        comp["duplicate_names"] = duplicate_names
 
     if comp is not None and comp.get("competitors"):
         try:
-            all_ids = [c["name"] for c in comp["competitors"]]
+            all_ids = list(comp["competitors"])
             comp["stats"] = competitor_stats_live.compute_stats(
                 all_ids, county=identity.get("county", "") or "", state=identity.get("state", "") or "",
                 project_type=comp.get("work_type") or None, before_date=when or "",
@@ -474,7 +480,7 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md += [_gotcha_line(x) for x in g.get("pricing", [])] or ["- _none flagged_"]
     md.append("")
 
-    # ④ competitive landscape — CI team's v2 schema: Priority / Discovery tiers, no scores
+    # ④ competitive landscape — CI team's v3 schema: a single flat top-N ranking, no tiers/scores
     md.append("## ④ Competitive Landscape")
     if not comp:
         md.append("_No competitor-intel report matched this project (by county + state + date)._")
@@ -482,10 +488,9 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
 
     s = comp["summary"]
     mt = comp.get("_match", {})
-    tiers = comp.get("tiers", {"priority": [], "discovery": []})
+    names = comp.get("competitors", [])
     attrs = comp.get("attrs", {})
-    md.append(f"**Competitors: {s.get('priority', 0)} priority · {s.get('discovery', 0)} discovery** "
-              f"(of {s.get('analyzed', 0)} surfaced)")
+    md.append(f"**Top {s.get('analyzed', 0)} likely competitors**")
     wt = comp.get("work_type") or ""
     cond = comp.get("condition") or ""
     if wt or cond:
@@ -497,31 +502,30 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
               f"({mt.get('confidence')} confidence)._")
 
-    def _tier_block(label: str, names: list[str], with_attrs: bool) -> None:
-        if not names:
-            return
-        md.append("")
-        md.append(f"**{label}**")
-        for name in names:
-            a = attrs.get(name, {})
-            if with_attrs and a:
-                md.append(f"\n### {name}")
-                for k, v in a.items():
-                    md.append(f"- **{k}:** {v}")
-            else:
-                # compact: name + the two most decision-relevant attributes inline
-                bits = [a.get("Bid Rate"), a.get("Recency")]
-                tail = " — " + " · ".join(b for b in bits if b) if any(bits) else ""
-                md.append(f"- **{name}**{tail}")
+    # exports get the full per-competitor attribute dives; chat stays compact (name + the two most
+    # decision-relevant attributes inline)
+    for name in names:
+        a = attrs.get(name, {})
+        if include_dives and a:
+            md.append(f"\n### {name}")
+            for k, v in a.items():
+                md.append(f"- **{k}:** {v}")
+        else:
+            bits = [a.get("Bid Rate"), a.get("Recency")]
+            tail = " — " + " · ".join(b for b in bits if b) if any(bits) else ""
+            md.append(f"- **{name}**{tail}")
 
-    # exports get the full per-competitor attribute dives; chat stays compact
-    _tier_block("Priority competitors (tracked / active)", tiers.get("priority", []), include_dives)
-    _tier_block("Discovery competitors (model-surfaced)", tiers.get("discovery", []), include_dives)
     return "\n".join(md)
 
 
 # --- exports ------------------------------------------------------------------------------------
-_EMOJI_FOR_PDF = {"🚦": "", "💲": "", "🔴": "[H]", "🟡": "[M]", "🟢": "[L]", "▇": "#",
+# "🚦 "/"💲 " (with the trailing space) map to "", not just the bare emoji: both appear as
+# "**🚦 Go / No-Go**" / "**💲 Pricing**" in render_markdown's output, and dropping only the emoji
+# would leave "** Go / No-Go**" -- a space right after the opening "**", which CommonMark (and
+# therefore pandoc) does not treat as a valid emphasis start, so it prints literal asterisks
+# instead of bolding. Swallowing the space along with the emoji keeps the delimiter adjacent to
+# the first real character.
+_EMOJI_FOR_PDF = {"🚦 ": "", "💲 ": "", "🔴": "[H]", "🟡": "[M]", "🟢": "[L]", "▇": "#",
                   "①": "1.", "②": "2.", "③": "3.", "④": "4.", "·": "-", "—": "-", "…": "...",
                   "“": '"', "”": '"', "’": "'"}
 
@@ -554,9 +558,9 @@ def to_csv(final: dict) -> str:
     comp = final.get("competitor")
     if comp:
         attrs = comp.get("attrs", {})
-        for c in comp["competitors"]:
-            a = attrs.get(c["name"], {})
-            w.writerow(["competitor", c["name"], c.get("tier", ""),
+        for i, name in enumerate(comp["competitors"], start=1):
+            a = attrs.get(name, {})
+            w.writerow(["competitor", name, f"rank {i}",
                         a.get("Bid Rate", ""), a.get("Recency", "")])
     return buf.getvalue()
 

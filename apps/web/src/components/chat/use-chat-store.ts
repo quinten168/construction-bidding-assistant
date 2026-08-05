@@ -374,10 +374,17 @@ export function useChatStore() {
       setConversations((prev) =>
         prev.map((c) => (c.id === convId && projectName ? { ...c, title: projectName } : c)),
       );
+      // Any manually-typed competitor names that duplicated an existing one (predicted, or an
+      // earlier name in the same submission) were not re-added — tell the estimator why the
+      // report's count didn't go up by however many they typed.
+      const dupes = final.competitor?.duplicate_names ?? [];
+      const dupeNote = dupes.length
+        ? ` (${dupes.map((n) => `"${n}"`).join(", ")} ${dupes.length === 1 ? "was" : "were"} already in the report — not added again.)`
+        : "";
       patchMessage(convId, asstId, {
         status: "done", card: true, final, verifying: false, extraction: undefined,
         awaitingCompetitors: false, pendingEdits: undefined,
-        content: `I read **${fileName}** end to end. Here's the full report — every figure pinned to its source page.`,
+        content: `I read **${fileName}** end to end. Here's the full report — every figure pinned to its source page.${dupeNote}`,
         tokens: 90,
       });
       setBusy(false);

@@ -36,12 +36,13 @@ export type FinalGotcha = {
   page_count?: number | null;
   confidence?: string | null;
 };
-// ── Competitive landscape (§④) — mirrors backend/competitor_report.py::parse_report (v2 schema).
-// The Competitor Intel team's model output, matched to this plan on county+state+date. Their v2
-// reports use two TIERS (Priority = tracked/active, Discovery = model-surfaced) + structured
-// per-competitor attributes — NO numeric threat scores.
-export type CompetitorTier = "priority" | "discovery" | "user_added";
-export type CompetitorEntry = { name: string; tier: CompetitorTier };
+// ── Competitive landscape (§④) — mirrors backend/competitor_report.py::parse_report (v3 schema).
+// The Competitor Intel team's model output, matched to this plan on county+state+date. As of v3
+// this is a single flat top-N ranking (no Priority/Discovery tiers — CSI's tracked-list membership
+// never drove the ranking, only a display grouping that's now gone) + structured per-competitor
+// attributes — NO numeric threat scores. An estimator can also type in names they personally expect
+// to bid (the verify-competitors popup); genuinely new ones are appended to the same flat list and
+// analyzed alongside the model's picks, duplicates of an existing name are not re-added.
 
 // A rate scoped one way (state, county, or project_type) — raw counts alongside the percentage,
 // never just the percentage alone (a lone "37%" hides whether that's 3/8 or 300/800).
@@ -70,9 +71,16 @@ export type Competitor = {
   condition: string;
   materials: string[];
   pits: { public?: string; private?: string };
-  tiers: { priority: string[]; discovery: string[]; user_added?: string[] };
-  summary: { priority: number; discovery: number; analyzed: number; narrative: string };
-  competitors: CompetitorEntry[];
+  summary: { analyzed: number; narrative: string };
+  // rank-ordered names, best match first (estimator-added names appended at the end)
+  competitors: string[];
+  // subset of `competitors` the estimator typed in themselves (the verify-competitors popup),
+  // vs. model-predicted — UI-badge purposes only, not a separate list or ranking
+  user_added?: string[];
+  // names the estimator typed into the verify-competitors popup that were already on the list
+  // (predicted, or an earlier name in the same submission) — not re-added, surfaced back so the
+  // UI can tell them rather than silently dropping the name
+  duplicate_names?: string[];
   // name → { "Bid Rate": "...", "Recency": "...", "Experience": "...", "Local Win Rate ...": "..." }
   attrs: Record<string, Record<string, string>>;
   deep_dives: Record<string, string[]>;

@@ -27,16 +27,17 @@ from .config import COMPETITOR_REPORTS
 _STATE_ABBR = {"minnesota": "MN", "north dakota": "ND", "south dakota": "SD",
                "iowa": "IA", "nebraska": "NE", "montana": "MT"}
 
-# --- report format (updated 2026-06-30 to the CI team's v2 schema) ------------------------------
-# Their reporter dropped the numeric threat-score appendix in favor of a two-TIER qualitative list
-# (Priority = tracked/active competitors, Discovery = model-surfaced others) plus structured
-# per-competitor deep-dive attributes and pit-proximity signals. This parser targets that v2 schema.
-#   ## COMPETITOR LIST → "── Priority Competitors …──" / "── Discovery Competitors ──" tier markers.
-#   ## …— Deep Dives   → "### NAME" then "- **Attr:** value" bullets.
-_TIER_RE = re.compile(r"──\s*(?P<tier>Priority|Discovery)\s+Competitors", re.I)
+# --- report format (updated 2026-08-05 to the CI team's v3 schema) ------------------------------
+# Their reporter dropped the two-TIER qualitative list (Priority = tracked/active, Discovery =
+# model-surfaced) in favor of a single flat top-N ranking by simple_rule_score, plus structured
+# per-competitor deep-dive attributes and pit-proximity signals. Tier never drove the ranking or
+# selection (planner.py's plan() always sorted purely by score) -- it only drove this now-removed
+# display grouping. This parser targets that flat v3 schema.
+#   ## COMPETITOR LIST        → one indented name per line, already in rank order.
+#   ## COMPETITOR DEEP DIVES  → "### NAME" then "- **Attr:** value" bullets.
 _DIVE_RE = re.compile(r"^###\s+(?P<name>.+?)\s*$")
-_ATTR_RE = re.compile(r"^\s*-\s+\*\*(?P<attr>[^:*]+):\*\*\s*(?P<val>.*)$")
-# a competitor name line inside COMPETITOR LIST: indented, all-caps-ish, not a marker/blank.
+_ATTR_RE = re.compile(r"^\s*-\s+\*\*(?P<attr>.+):\*\*\s*(?P<val>.*)$")
+# a competitor name line inside COMPETITOR LIST: indented, all-caps-ish, not blank.
 _NAME_RE = re.compile(r"^\s{2,}(?P<name>[A-Z0-9][^─]*?)\s*$")
 
 
@@ -72,11 +73,11 @@ def _clean(s: str) -> str:
 
 
 def parse_report(path: str | Path) -> dict:
-    """Parse one v2 `bid_report_*.md` into a structured dict (see module docstring for the shape).
+    """Parse one v3 `bid_report_*.md` into a structured dict (see module docstring for the shape).
 
-    Backward-friendly: the returned dict still exposes `competitors` (a flat, Priority-first list,
-    each with a `tier`) and `deep_dives` (name -> bullet list) so the renderer stays simple, PLUS
-    the richer v2 fields (`tiers`, per-competitor `attrs`, `pits`, `work_type`)."""
+    `competitors` is a flat, rank-ordered list of names (no tiers as of v3 -- CSI's tracked-list
+    membership never drove ranking or selection, only a display grouping that's now gone).
+    `deep_dives` (name -> bullet list) and `attrs` (name -> {attr: value}) key off the same names."""
     path = Path(path)
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -102,23 +103,19 @@ def parse_report(path: str | Path) -> dict:
     if m := re.search(r"Bid Date:\s*(\d{4}-\d{2}-\d{2})", text):
         bid_date = m.group(1)
 
-    # --- competitor list: two tiers, names only (no scores in v2) ---
-    tiers: dict[str, list[str]] = {"priority": [], "discovery": []}
-    cur_tier = None
+    # --- competitor list: a single flat ranking, names only (no scores in v3) ---
+    names: list[str] = []
     in_list = False
     for ln in lines:
         if ln.startswith("## "):
             in_list = "COMPETITOR LIST" in ln
-            cur_tier = None
             continue
         if not in_list:
             continue
-        if tm := _TIER_RE.search(ln):
-            cur_tier = tm.group("tier").lower()
-        elif cur_tier and (nm := _NAME_RE.match(ln)):
+        if nm := _NAME_RE.match(ln):
             name = nm.group("name").strip()
-            if name and name not in tiers[cur_tier]:
-                tiers[cur_tier].append(name)
+            if name and name not in names:
+                names.append(name)
 
     # --- deep dives: "### NAME" then "- **Attr:** value" bullets, keyed by name ---
     deep_dives: dict[str, list[str]] = {}
@@ -139,12 +136,7 @@ def parse_report(path: str | Path) -> dict:
         elif current and (bm := re.match(r"^\s*-\s+(.*)$", ln)):
             deep_dives[current].append(_clean(bm.group(1)))
 
-    # flat Priority-first list, each tagged with its tier (renderer groups on it)
-    competitors = ([{"name": n, "tier": "priority"} for n in tiers["priority"]]
-                   + [{"name": n, "tier": "discovery"} for n in tiers["discovery"]])
-
-    summary = {"priority": len(tiers["priority"]), "discovery": len(tiers["discovery"]),
-               "analyzed": len(competitors),
+    summary = {"analyzed": len(names),
                "narrative": _field("Condition")}    # v2 has no exec-summary prose; use the Condition line
 
     return {
@@ -158,9 +150,8 @@ def parse_report(path: str | Path) -> dict:
         "materials": [m.strip() for m in _field("Materials").split(",") if m.strip()],
         "pits": {"public": _field("Public-access pits near site"),
                  "private": _field("Private pits")},
-        "tiers": tiers,
         "summary": summary,
-        "competitors": competitors,
+        "competitors": names,
         "attrs": attrs,
         "deep_dives": deep_dives,
         "source_file": path.name,
@@ -238,7 +229,7 @@ if __name__ == "__main__":
         print(f"{rep['project_id']}  {rep['county']}/{rep['state']}  {rep['bid_date']}  "
               f"work={rep['work_type']!r}  competitors={len(rep['competitors'])}  "
               f"dives={len(rep['deep_dives'])}  "
-              f"tiers={rep['summary']['priority']}P/{rep['summary']['discovery']}D")
+              f"analyzed={rep['summary']['analyzed']}")
     print("\n-- match test: Douglas / MN / 2025-08-20 --")
     m = match_report("Douglas County", "MN", "2025-08-20")
     print(json.dumps({"project_id": m["project_id"], "_match": m["_match"],

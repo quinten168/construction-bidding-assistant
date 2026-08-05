@@ -142,7 +142,7 @@ def run_report(
     registry_path: str = _DEFAULT_REGISTRY,
     bidder_results_path: str = _DEFAULT_BIDDER_RESULTS,
     output_dir: str = _DEFAULT_OUTPUT_DIR,
-    top_n: int = 10,
+    top_n: int = 5,
     skip_llm: bool = False,
     fmt: str = "md",
     verbose: bool = True,
@@ -328,8 +328,8 @@ def main() -> None:
         help="Directory for output reports"
     )
     parser.add_argument(
-        "--top-n", type=int, default=10,
-        help="Number of competitors to include (default: 10)"
+        "--top-n", type=int, default=5,
+        help="Number of competitors to include (default: 5)"
     )
     parser.add_argument(
         "--skip-llm", action="store_true",

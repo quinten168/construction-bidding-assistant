@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
-import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate, type CompetitorTier } from "@/lib/chat-data";
+import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate } from "@/lib/chat-data";
 import { Eyebrow, Chip } from "@/components/kit";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -422,21 +422,21 @@ function GotchaGroup({
   );
 }
 
-// ── Competitive landscape (§④) — CI team's v2 schema ────────────────────────
-// Faithful tiers: Priority (tracked/active) as the headline group, Discovery below.
-// Each competitor expands to its structured attributes (Bid Rate, Recency, Capacity,
-// Experience, Win Rates). No invented scores — their model dropped numeric threat.
+// ── Competitive landscape (§④) — CI team's v3 schema ────────────────────────
+// A single flat top-N ranking (no Priority/Discovery tiers — CSI's tracked-list membership never
+// drove the ranking, only a display grouping that's now gone). Each competitor expands to its
+// structured attributes (Bid Rate, Recency, Capacity, Experience, Win Rates). No invented scores
+// — their model dropped numeric threat.
 const MATCH_TONE: Record<string, string> = { high: "positive", medium: "neutral", low: "warn" };
 // the two most decision-relevant attributes to surface inline (rest live in the expand)
 const KEY_ATTRS = ["Bid Rate", "Recency"];
 
 function CompetitorSection({ comp }: { comp: Competitor }) {
-  const s = comp.summary ?? { priority: 0, discovery: 0, analyzed: 0, narrative: "" };
+  const s = comp.summary ?? { analyzed: 0, narrative: "" };
   const conf = (comp._match?.confidence ?? "").toLowerCase();
   const matchTone = MATCH_TONE[conf] ?? "neutral";
-  const priority = comp.tiers?.priority ?? [];
-  const discovery = comp.tiers?.discovery ?? [];
-  const userAdded = comp.tiers?.user_added ?? [];
+  const names = comp.competitors ?? [];
+  const userAddedSet = new Set(comp.user_added ?? []);
 
   return (
     <div>
@@ -444,19 +444,17 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
       <div className="rounded-2xl border border-black/[0.08] bg-secondary/30 p-4">
         <div className="flex items-center gap-2 text-[15px] font-medium text-foreground">
           <Users className="h-[18px] w-[18px] text-primary" />
-          {s.analyzed} competitors surfaced
+          Top {s.analyzed} likely competitors
         </div>
 
-        {/* tier counts + match-confidence — a wrong county+date match is visible, not hidden */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
-          <Chip tone="warn">{s.priority} priority</Chip>
-          <Chip tone="neutral">{s.discovery} discovery</Chip>
-          {conf && (
+        {/* match-confidence — a wrong county+date match is visible, not hidden */}
+        {conf && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
             <Chip tone={matchTone as "positive" | "neutral" | "warn"}>
               match: {conf}{comp._match?.basis ? ` · ${comp._match.basis}` : ""}
             </Chip>
-          )}
-        </div>
+          </div>
+        )}
         {conf === "low" && (
           <p className="mt-2.5 rounded-lg border border-[var(--warn)]/30 bg-[var(--warn)]/[0.06] px-3 py-2 text-[12.5px] text-foreground/75">
             Low-confidence match (state only) — confirm this competitor set is the same project before relying on it.
@@ -474,50 +472,21 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
         )}
       </div>
 
-      {/* Priority tier — the headline group */}
-      {priority.length > 0 && (
-        <div className="mt-2.5">
-          <div className="mb-1.5 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[var(--warn)]" />
-            <span className="text-[11px] font-medium text-foreground/80">Priority — tracked / active</span>
-          </div>
-          <div className="space-y-1.5">
-            {priority.map((name) => (
-              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--warn)" />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Discovery tier — model-surfaced others */}
-      {discovery.length > 0 && (
-        <div className="mt-2.5">
-          <div className="mb-1.5 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
-            <span className="text-[11px] font-medium text-foreground/80">Discovery — model-surfaced</span>
-          </div>
-          <div className="space-y-1.5">
-            {discovery.map((name) => (
-              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--muted-foreground)" />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Estimator-added tier — never blended into the model's priority/discovery lists (these
-          were never run through the model's prediction/ranking scoring), but scored with the exact
-          same live win_rate/bid_rate/capacity/pit_access retrieval as everyone else above. */}
-      {userAdded.length > 0 && (
-        <div className="mt-2.5">
-          <div className="mb-1.5 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span className="text-[11px] font-medium text-foreground/80">Added by you</span>
-          </div>
-          <div className="space-y-1.5">
-            {userAdded.map((name) => (
-              <CompetitorRow key={name} name={name} attrs={comp.attrs?.[name] ?? {}} stats={comp.stats?.[name]} accent="var(--primary)" tier="user_added" />
-            ))}
-          </div>
+      {/* Ranked list — best match first. Estimator-added names (typed in via the verify-competitors
+          popup) get the same live win_rate/bid_rate/capacity/pit_access retrieval as everyone else,
+          just a "you added" badge to distinguish them from the model's own picks. */}
+      {names.length > 0 && (
+        <div className="mt-2.5 space-y-1.5">
+          {names.map((name) => (
+            <CompetitorRow
+              key={name}
+              name={name}
+              attrs={comp.attrs?.[name] ?? {}}
+              stats={comp.stats?.[name]}
+              accent={userAddedSet.has(name) ? "var(--primary)" : "var(--muted-foreground)"}
+              isUserAdded={userAddedSet.has(name)}
+            />
+          ))}
         </div>
       )}
 
@@ -529,15 +498,15 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
 }
 
 // One competitor: name + two key attributes inline, expandable to the full attribute set +
-// the live-retrieved win/bid rate, capacity, and pit-access figures (same for every tier).
+// the live-retrieved win/bid rate, capacity, and pit-access figures (same regardless of origin).
 function CompetitorRow({
-  name, attrs, stats, accent, tier,
+  name, attrs, stats, accent, isUserAdded,
 }: {
   name: string;
   attrs: Record<string, string>;
   stats?: CompetitorStats;
   accent: string;
-  tier?: CompetitorTier;
+  isUserAdded?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const keys = Object.keys(attrs);
@@ -552,7 +521,7 @@ function CompetitorRow({
         disabled={!expandable}
       >
         <span className="text-[14px] font-medium">{name}</span>
-        {tier === "user_added" && <Chip tone="primary">you added</Chip>}
+        {isUserAdded && <Chip tone="primary">you added</Chip>}
         {expandable && (
           <ChevronDown className={`ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         )}
@@ -591,7 +560,7 @@ function fmtTons(t: number | null | undefined): string {
   return t == null ? "—" : `${Math.round(t).toLocaleString()} tons`;
 }
 
-// The live-retrieved figures every competitor gets, regardless of tier — win rate / bid rate
+// The live-retrieved figures every competitor gets, model-predicted or estimator-added alike — win rate / bid rate
 // (each scoped 3 ways: state, county, project type), capacity (this-year pace vs. historical
 // average), and pit access (nearest usable pit + count/quality within 25mi).
 function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
