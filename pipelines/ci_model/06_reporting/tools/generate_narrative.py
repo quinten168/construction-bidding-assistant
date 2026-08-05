@@ -182,8 +182,20 @@ def _synthesize_bullets(
         type_w       = win_stats.get("type_wins",   0)
         proj_type    = win_stats.get("project_type", "")
 
-        # Human-readable project type label
+        # Human-readable project type label. Keyed on plan_reader's own `archetype` vocabulary
+        # (apps/api/backend/project_registry.py::_archetype) -- scratch.bid_projects.project_type
+        # was relabeled to match it, see data/build_project_competitor_panel.py. `proj_type` above
+        # is read from ranking_predictions.csv -- a separate static training artifact this relabel
+        # does NOT regenerate -- so it still carries the OLD slug format until that file is next
+        # rebuilt; old keys are kept alongside the new ones so this resolves either way meanwhile.
         _TYPE_LABELS = {
+            "Reconstruct/Rebuild":   "Reconstruct/Rebuild",
+            "Mill & Overlay":        "Mill & Overlay",
+            "HMA Overlay/Resurface": "HMA Resurface",
+            "Grading/Earthwork":     "Grading/Earthwork",
+            "Aggregate/Base/Gravel": "Aggregate/Base",
+            "Other":                 "Other",
+            # transitional: old ranking_predictions.csv slugs, until that file is regenerated
             "reconstruct_rebuild":   "Reconstruct/Rebuild",
             "mill_overlay":          "Mill & Overlay",
             "hma_resurface":         "HMA Resurface",

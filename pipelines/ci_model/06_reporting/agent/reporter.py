@@ -25,8 +25,24 @@ _SYSTEM_PROMPT = (_HERE / "prompts" / "system_prompt.txt").read_text().strip()
 
 _THREAT_ICON = {"HIGH": "🔴 HIGH", "MEDIUM": "🟡 MEDIUM", "LOW": "🟢 LOW"}
 
-# Work type: label + plain-English condition description
+# Work type: label + plain-English condition description. Keyed on plan_reader's own `archetype`
+# vocabulary (apps/api/backend/project_registry.py::_archetype) -- scratch.bid_projects.project_type
+# was relabeled to match it (see data/build_project_competitor_panel.py), so a plan's own archetype
+# and this historical classification finally share one format instead of three independently-
+# maintained ones (the old DB slugs, this display table, and plan_reader's archetype).
+# `project_info["project_type"]` (used below) is read from `ranking_predictions.csv` -- a separate,
+# static training artifact this relabel does NOT regenerate (that needs a full model retrain,
+# out of scope here) -- so it still carries the OLD slug format until that file is next rebuilt.
+# Old keys are kept alongside the new ones so this lookup resolves either way in the meantime;
+# safe to drop the old keys once `ranking_predictions.csv` is regenerated with the new format.
 _WORK_TYPE: dict[str, tuple[str, str]] = {
+    "Reconstruct/Rebuild":    ("Reconstruct / Rebuild",      "Regrade the roadbed and pave (grade ≥ 500 CY)"),
+    "Mill & Overlay":         ("Mill & Overlay",             "Mill off old asphalt, lay new (grade < 500 CY, mill ≥ 1,000 SY)"),
+    "HMA Overlay/Resurface":  ("HMA Overlay / Resurface",    "New asphalt over the surface — no mill, no regrade (grade < 500 CY, mill < 1,000 SY)"),
+    "Grading/Earthwork":      ("Grading / Earthwork",        "Move/shape dirt — no real paving (grade ≥ 500 CY)"),
+    "Aggregate/Base/Gravel":  ("Aggregate / Base / Gravel",  "Base/shoulder/gravel — no asphalt surface"),
+    "Other":                  ("Other",                      "—"),
+    # transitional: old ranking_predictions.csv slugs, until that file is regenerated
     "reconstruct_rebuild":    ("Reconstruct / Rebuild",      "Regrade the roadbed and pave (grade ≥ 500 CY)"),
     "mill_overlay":           ("Mill & Overlay",             "Mill off old asphalt, lay new (grade < 500 CY, mill ≥ 1,000 SY)"),
     "hma_resurface":          ("HMA Overlay / Resurface",    "New asphalt over the surface — no mill, no regrade (grade < 500 CY, mill < 1,000 SY)"),

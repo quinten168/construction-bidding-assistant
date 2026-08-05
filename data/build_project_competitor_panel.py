@@ -53,7 +53,17 @@ def _project_type_from_quantities(
     """Assign the CSI archetype primary project type — quantity-driven only. Keyword-matched
     scope flags (has_paving, matched_keywords, etc.) were removed: unconfirmed by the client,
     and dead in the reporting layer (predict_and_explain.py only ever surfaces contributions
-    from the trained model's RANKING_FEATURE_COLUMNS, which never included these)."""
+    from the trained model's RANKING_FEATURE_COLUMNS, which never included these).
+
+    Mirrors `apps/api/backend/project_registry.py::_archetype()`'s thresholds and branch structure
+    exactly (verified identical: MIX_SHARE_MIN=0.15, MIX_ABS_MIN=1000, GRADE_CY_MIN=500,
+    MILL_SY_MIN=1000) and emits that function's exact output strings, so a plan's own
+    `archetype` (computed by plan_reader from the SAME quantities, for a freshly-dropped PDF)
+    and this historical classification share one vocabulary -- kept in sync here, not imported,
+    since `project_registry.py` is tied to the FastAPI backend's package/config-loading chain and
+    importing it from this standalone batch script would add a new, fragile cross-directory
+    coupling (same "kept in sync, not imported" convention already used for
+    `pipelines/ci_model/06_reporting/tools/capacity_live.py`'s `_bid_year`/`_season_bounds`)."""
 
     def _qty(v: object) -> float:
         val = pd.to_numeric(pd.Series([v]), errors="coerce").iloc[0]
@@ -79,23 +89,23 @@ def _project_type_from_quantities(
 
     if is_paving:
         if grading_value >= GRADE_CY_MIN:
-            primary_type = "reconstruct_rebuild"     # paving + regrade >= 500 CY: full roadway rebuild
+            primary_type = "Reconstruct/Rebuild"     # paving + regrade >= 500 CY: full roadway rebuild
             rule = "paving_grade_cy_ge_500"
         elif mill_value >= MILL_SY_MIN:
-            primary_type = "mill_overlay"            # paving, grade < 500 CY, mill >= 1,000 SY
+            primary_type = "Mill & Overlay"          # paving, grade < 500 CY, mill >= 1,000 SY
             rule = "paving_grade_cy_lt_500_mill_sy_ge_1000"
         else:
-            primary_type = "hma_resurface"           # paving, grade < 500 CY, mill < 1,000 SY
+            primary_type = "HMA Overlay/Resurface"   # paving, grade < 500 CY, mill < 1,000 SY
             rule = "paving_grade_cy_lt_500_mill_sy_lt_1000"
     else:
         if grading_value >= GRADE_CY_MIN:
-            primary_type = "grading_earthwork"       # no paving, grade >= 500 CY
+            primary_type = "Grading/Earthwork"       # no paving, grade >= 500 CY
             rule = "not_paving_grade_cy_ge_500"
         elif base_value > 0 or shldr_value > 0:
-            primary_type = "aggregate_base_gravel"   # no paving, base or shoulder tonnage present
+            primary_type = "Aggregate/Base/Gravel"   # no paving, base or shoulder tonnage present
             rule = "not_paving_base_or_shldr_gt_0"
         else:
-            primary_type = "other"                   # utility, structure, trail, etc.
+            primary_type = "Other"                   # utility, structure, trail, etc.
             rule = "not_paving_no_grade_no_base"
 
     return {

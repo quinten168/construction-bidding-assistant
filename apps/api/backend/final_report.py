@@ -328,9 +328,17 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     if comp is not None and comp.get("competitors"):
         try:
             all_ids = list(comp["competitors"])
+            # Scope project_type stats by THIS plan's own archetype (plan_reader's rule-based
+            # classifier, computed from this same plan's extracted quantities -- available for
+            # every dropped plan) rather than comp.get("work_type") (the CI report's derived label,
+            # only present when a historical project was matched, and describing THAT project, not
+            # necessarily this one). "Unknown/NoQty" means no quantities were extracted at all --
+            # map it to None so this scope cleanly reports "no data" rather than a guaranteed-empty
+            # string comparison against scratch.bid_projects.project_type.
+            plan_project_type = archetype if archetype and archetype != "Unknown/NoQty" else None
             comp["stats"] = competitor_stats_live.compute_stats(
                 all_ids, county=identity.get("county", "") or "", state=identity.get("state", "") or "",
-                project_type=comp.get("work_type") or None, before_date=when or "",
+                project_type=plan_project_type, before_date=when or "",
                 project_lat=identity.get("latitude"), project_lon=identity.get("longitude"),
             )
         except Exception as e:                           # noqa: BLE001 -- stats must never break assembly

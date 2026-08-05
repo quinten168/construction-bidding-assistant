@@ -20,6 +20,7 @@ from datetime import datetime as _datetime
 from math import asin, cos, radians, sin, sqrt
 
 from . import ci_db
+from . import competitor_report as cr
 from .observability import get_logger
 
 log = get_logger("bid_assistant.competitor_stats_live")
@@ -56,41 +57,61 @@ def _season_start(d: _date) -> _date:
 # ── Win rate / bid rate ───────────────────────────────────────────────────────────────────────────
 def _win_bid_rates(conn, competitor_ids: list[str], county: str, state: str,
                     project_type: str | None, before_date: str) -> dict[str, dict]:
-    """One query, all competitors, all 3 scopes (state/county/project_type) at once. bid_rate's
-    per-competitor numerator IS win_rate's per-scope denominator (this competitor's bid count in
-    that scope) -- computed once here and reused for both metrics."""
+    """Fetches raw rows (not pre-scoped in SQL) and buckets state/county/project_type in Python.
+    County needs `competitor_report.norm_county()`'s exact normalization (a trailing CO/COS suffix,
+    sometimes a compound multi-county list like 'AITKIN, CASS, CROW WING, ETC CO') -- not safely
+    expressible as a SQL predicate: Postgres's regex dialect differs from Python's, and a naive
+    substring/LIKE match produces real false positives in this dataset (confirmed against live data,
+    not hypothetical) -- e.g. 'Clark' would wrongly match 'CLARKE CO', 'Hardin' would wrongly match
+    'HARDING CO', 'Worth' would wrongly match 'WALWORTH CO'. Reusing the tested Python function (an
+    exact match on the normalized token, which none of those collide on) avoids all of that. State
+    stays a plain uppercase-string equality -- no format mismatch there. Project_type is also a plain
+    equality: once `scratch.bid_projects.project_type` is relabeled to plan_reader's own archetype
+    vocabulary (see data/build_project_competitor_panel.py), both sides share one format."""
+    target_county = cr.norm_county(county)
+    target_state = (state or "").strip().upper()
+    target_type = (project_type or "").strip().upper() or None
+
     with conn.cursor() as cur:
         cur.execute(
             """
-            select br.competitor_unit_id,
-                   count(*) filter (where upper(bp.state) = upper(%(state)s)) as state_bids,
-                   count(*) filter (where upper(bp.state) = upper(%(state)s) and br.did_win) as state_wins,
-                   count(*) filter (where upper(bp.county) = upper(%(county)s)) as county_bids,
-                   count(*) filter (where upper(bp.county) = upper(%(county)s) and br.did_win) as county_wins,
-                   count(*) filter (where cast(%(ptype)s as text) is not null and upper(bp.project_type) = upper(%(ptype)s)) as type_bids,
-                   count(*) filter (where cast(%(ptype)s as text) is not null and upper(bp.project_type) = upper(%(ptype)s) and br.did_win) as type_wins
+            select br.competitor_unit_id, br.did_win, bp.county, bp.state, bp.project_type
             from scratch.bid_results br
             join scratch.bid_projects bp using (project_natural_key)
             where br.competitor_unit_id = any(%(ids)s) and bp.bid_date < %(before_date)s
-            group by br.competitor_unit_id
             """,
-            {"state": state, "county": county, "ptype": project_type,
-             "before_date": before_date, "ids": list(competitor_ids)},
+            {"ids": list(competitor_ids), "before_date": before_date},
         )
-        per_competitor = {row["competitor_unit_id"]: row for row in cur.fetchall()}
+        bid_rows = cur.fetchall()
 
         cur.execute(
-            """
-            select
-                count(distinct project_natural_key) filter (where upper(state) = upper(%(state)s)) as total_state,
-                count(distinct project_natural_key) filter (where upper(county) = upper(%(county)s)) as total_county,
-                count(distinct project_natural_key) filter (where cast(%(ptype)s as text) is not null and upper(project_type) = upper(%(ptype)s)) as total_type
-            from scratch.bid_projects
-            where bid_date < %(before_date)s
-            """,
-            {"state": state, "county": county, "ptype": project_type, "before_date": before_date},
+            "select county, state, project_type from scratch.bid_projects where bid_date < %(before_date)s",
+            {"before_date": before_date},
         )
-        totals = cur.fetchone() or {"total_state": 0, "total_county": 0, "total_type": 0}
+        market_rows = cur.fetchall()
+
+    # market-wide bid_rate denominators (one row per project already -- bid_projects' own grain --
+    # so no distinct-count bookkeeping needed, just a scoped row count).
+    total_state = sum(1 for r in market_rows if (r["state"] or "").strip().upper() == target_state)
+    total_county = sum(1 for r in market_rows if cr.norm_county(r["county"]) == target_county)
+    total_type = sum(1 for r in market_rows
+                     if target_type and (r["project_type"] or "").strip().upper() == target_type)
+
+    per_competitor: dict[str, dict] = {}
+    for r in bid_rows:
+        cid = r["competitor_unit_id"]
+        d = per_competitor.setdefault(cid, dict(state_bids=0, state_wins=0, county_bids=0,
+                                                county_wins=0, type_bids=0, type_wins=0))
+        won = bool(r["did_win"])
+        if (r["state"] or "").strip().upper() == target_state:
+            d["state_bids"] += 1
+            d["state_wins"] += won
+        if cr.norm_county(r["county"]) == target_county:
+            d["county_bids"] += 1
+            d["county_wins"] += won
+        if target_type and (r["project_type"] or "").strip().upper() == target_type:
+            d["type_bids"] += 1
+            d["type_wins"] += won
 
     def _scope(bids: int, wins: int, total: int) -> dict:
         return {
@@ -100,19 +121,11 @@ def _win_bid_rates(conn, competitor_ids: list[str], county: str, state: str,
 
     out: dict[str, dict] = {}
     for cid in competitor_ids:
-        row = per_competitor.get(cid)
-        if not row:
-            out[cid] = {
-                "win_rate": {"state": _scope(0, 0, 0)["win_rate"], "county": _scope(0, 0, 0)["win_rate"],
-                             "project_type": _scope(0, 0, 0)["win_rate"]},
-                "bid_rate": {"state": _scope(0, 0, totals["total_state"])["bid_rate"],
-                             "county": _scope(0, 0, totals["total_county"])["bid_rate"],
-                             "project_type": _scope(0, 0, totals["total_type"])["bid_rate"]},
-            }
-            continue
-        state_s = _scope(row["state_bids"], row["state_wins"], totals["total_state"])
-        county_s = _scope(row["county_bids"], row["county_wins"], totals["total_county"])
-        type_s = _scope(row["type_bids"], row["type_wins"], totals["total_type"])
+        row = per_competitor.get(cid, dict(state_bids=0, state_wins=0, county_bids=0,
+                                           county_wins=0, type_bids=0, type_wins=0))
+        state_s = _scope(row["state_bids"], row["state_wins"], total_state)
+        county_s = _scope(row["county_bids"], row["county_wins"], total_county)
+        type_s = _scope(row["type_bids"], row["type_wins"], total_type)
         out[cid] = {
             "win_rate": {"state": state_s["win_rate"], "county": county_s["win_rate"], "project_type": type_s["win_rate"]},
             "bid_rate": {"state": state_s["bid_rate"], "county": county_s["bid_rate"], "project_type": type_s["bid_rate"]},
