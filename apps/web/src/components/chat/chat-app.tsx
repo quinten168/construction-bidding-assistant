@@ -25,7 +25,7 @@ export function ChatApp() {
   // not an optional follow-up the user has to remember to click into.
   const verifyingMsg = store.active.messages.filter((m) => m.verifying && m.extraction).at(-1);
   // Optional 2nd popup, gated the same way as the first — auto-opens off message state once the
-  // verify-extraction gate hands off to it (see use-chat-store.ts's confirmVerification/skipVerification).
+  // verify-extraction gate hands off to it (see use-chat-store.ts's confirmVerification).
   const awaitingCompetitorsMsg = store.active.messages.filter((m) => m.awaitingCompetitors).at(-1);
 
   const activeFiles = store.files.filter((f) => store.active.fileIds.includes(f.id));
@@ -206,7 +206,6 @@ export function ChatApp() {
               <VerifyExtraction
                 extraction={verifyingMsg.extraction!}
                 onConfirm={(edits) => store.confirmVerification(verifyingMsg.id, edits)}
-                onSkip={() => store.skipVerification(verifyingMsg.id)}
               />
             </motion.div>
           </>

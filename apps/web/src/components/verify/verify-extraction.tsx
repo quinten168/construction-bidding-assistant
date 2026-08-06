@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 
 // Human-in-the-loop verification: the estimator confirms or corrects what the model read BEFORE
 // the rest of the report (competitor-intel generation, the slow part) runs — not as an afterthought
-// once a full report already exists. Low-confidence fields are flagged for review; location (which
-// plans rarely state as lat/long) gets its own dedicated block, and can always be filled in even
-// though — per 2026-07-31 decision — skipping past this screen never blocks anything downstream.
+// once a full report already exists. Low-confidence fields are flagged for review but stay
+// non-blocking; location (which plans rarely state as lat/long) gets its own dedicated block and —
+// per 2026-08-05 decision, reversing the prior 2026-07-31 one — must be explicitly confirmed before
+// the estimator can continue, since haul-distance and competitor scoring depend on it downstream.
 
 // Mirrors report.py::process_pdf's `identity_fields` dict 1:1 — every key that carries
 // field_confidence — with a friendly label. Order: identity first, quantities appended separately.
@@ -63,11 +64,9 @@ type FieldState = { value: string; verified: boolean; edited: boolean };
 export function VerifyExtraction({
   extraction,
   onConfirm,
-  onSkip,
 }: {
   extraction: Extraction;
   onConfirm: (edits: Record<string, string>) => void;
-  onSkip: () => void;
 }) {
   const allFields = useMemo(() => buildFields(extraction), [extraction]);
 
@@ -237,19 +236,18 @@ export function VerifyExtraction({
       <motion.div layout className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-black/5 bg-white/40 p-3">
         <span className="flex items-center gap-2 text-[13px] text-muted-foreground">
           <ShieldCheck className={cn("h-4 w-4", allClear ? "text-[var(--positive)]" : "text-muted-foreground")} />
-          {allClear ? "All fields confirmed — extraction is trusted." : `${total - done} item${total - done === 1 ? "" : "s"} still need a human check.`}
+          {allClear
+            ? "All fields confirmed — extraction is trusted."
+            : !loc.confirmed && done === total - 1
+              ? "Confirm the project location to continue."
+              : `${total - done} item${total - done === 1 ? "" : "s"} still need a human check.`}
         </span>
         <div className="flex items-center gap-2">
           <button
-            onClick={onSkip}
-            className="rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Skip for now
-          </button>
-          <button
             onClick={() => onConfirm(buildEdits())}
+            disabled={!loc.confirmed}
             className={cn(
-              "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all",
+              "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all disabled:opacity-40",
               allClear ? "bg-primary text-primary-foreground elev-sm hover:-translate-y-px hover:elev-md" : "bg-secondary text-foreground hover:bg-secondary/70",
             )}
           >
