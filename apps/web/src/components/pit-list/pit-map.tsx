@@ -16,10 +16,20 @@ declare global {
 
 const MN_CENTER = { lat: 46.3, lng: -94.3 };
 
-export function PitMap({ pits, mapsReady, hasKey }: { pits: Pit[]; mapsReady: boolean; hasKey: boolean }) {
+export type MapOrigin = { lat: number; lon: number; label: string };
+
+export function PitMap({
+  pits, mapsReady, hasKey, origin,
+}: {
+  pits: Pit[];
+  mapsReady: boolean;
+  hasKey: boolean;
+  origin?: MapOrigin | null;
+}) {
   const divRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const originMarkerRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const infoRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
@@ -37,8 +47,10 @@ export function PitMap({ pits, mapsReady, hasKey }: { pits: Pit[]; mapsReady: bo
 
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
-
-    if (pits.length === 0) return;
+    if (originMarkerRef.current) {
+      originMarkerRef.current.setMap(null);
+      originMarkerRef.current = null;
+    }
 
     // Small brand-colored dots instead of Google's default full-size teardrop pin — with pits
     // clustered densely across the state, the default ~41px pins visually merge into a solid mass.
@@ -54,6 +66,8 @@ export function PitMap({ pits, mapsReady, hasKey }: { pits: Pit[]; mapsReady: bo
     };
 
     const bounds = new window.google.maps.LatLngBounds();
+    let hasBounds = false;
+
     for (const pit of pits) {
       const position = { lat: pit.latitude, lng: pit.longitude };
       const marker = new window.google.maps.Marker({
@@ -72,14 +86,49 @@ export function PitMap({ pits, mapsReady, hasKey }: { pits: Pit[]; mapsReady: bo
       });
       markersRef.current.push(marker);
       bounds.extend(position);
+      hasBounds = true;
     }
-    if (pits.length === 1) {
+
+    // Distinct diamond marker for a "nearest pits" search origin (a project midpoint or a typed-in
+    // coordinate) — visually different from the circular pit dots so it reads as the reference
+    // point, not another pit.
+    if (origin) {
+      const originPosition = { lat: origin.lat, lng: origin.lon };
+      originMarkerRef.current = new window.google.maps.Marker({
+        position: originPosition,
+        map,
+        title: origin.label,
+        zIndex: 999,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: "#2563eb",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 2,
+        },
+      });
+      originMarkerRef.current.addListener("click", () => {
+        infoRef.current.setContent(
+          `<div style="font-size:12.5px;line-height:1.5"><strong>${escapeHtml(origin.label)}</strong></div>`,
+        );
+        infoRef.current.open({ map, anchor: originMarkerRef.current });
+      });
+      bounds.extend(originPosition);
+      hasBounds = true;
+    }
+
+    if (!hasBounds) return;
+    if (pits.length === 0 && origin) {
+      map.setCenter({ lat: origin.lat, lng: origin.lon });
+      map.setZoom(10);
+    } else if (pits.length === 1 && !origin) {
       map.setCenter({ lat: pits[0].latitude, lng: pits[0].longitude });
       map.setZoom(10);
     } else {
       map.fitBounds(bounds);
     }
-  }, [mapsReady, pits]);
+  }, [mapsReady, pits, origin]);
 
   if (!hasKey) {
     return (

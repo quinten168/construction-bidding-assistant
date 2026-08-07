@@ -114,6 +114,56 @@ def test_remove_blocked_when_referenced_in_bid_results():
         _delete_registry_rows(name)
 
 
+def test_remove_raw_name_variant_leaves_siblings_and_comp_name_alone():
+    """Deleting one alias under a shared comp_name (e.g. one of several subsidiaries rolled up
+    under a parent company) must not touch the other alias rows or the comp_name itself."""
+    raw_a, raw_b = "ZZTEST Subsidiary A", "ZZTEST Subsidiary B"
+    parent = "ZZTEST Parent Co"
+    _delete_registry_rows(raw_a, raw_b, parent)
+    try:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "insert into scratch.competitor_name_registry (raw_name_variant, comp_name) "
+                "values (%s, %s), (%s, %s), (%s, %s)",
+                (parent, parent, raw_a, parent, raw_b, parent),
+            )
+        result = cra.remove_raw_name_variant(raw_a)
+        assert result["rows_removed"] == 1
+
+        rows = cra.list_registry(search=parent)
+        remaining = {r["raw_name_variant"] for r in rows}
+        assert remaining == {parent, raw_b}
+    finally:
+        _delete_registry_rows(raw_a, raw_b, parent)
+
+
+def test_remove_raw_name_variant_blocked_when_last_row_is_referenced():
+    """If this raw name is the LAST row for its comp_name and bid_results still references that
+    comp_name, deleting it is equivalent to remove_competitor and gets the same protection."""
+    name = "ZZTEST Solo Referenced Raw Name"
+    _delete_registry_rows(name)
+    _cleanup_project()
+    try:
+        cra.add_competitor(name)
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "insert into scratch.bid_projects (project_natural_key, state, county, bid_date) "
+                "values (%s, 'MN', 'ZZTEST County', '2024-01-01')",
+                (TEST_PROJECT_KEY,),
+            )
+            cur.execute(
+                "insert into scratch.bid_results "
+                "(project_natural_key, competitor_unit_id, bid_amount, raw_bidder_name) "
+                "values (%s, %s, 1000, %s)",
+                (TEST_PROJECT_KEY, name, name),
+            )
+        with pytest.raises(cra.ValidationError):
+            cra.remove_raw_name_variant(name)
+    finally:
+        _cleanup_project()
+        _delete_registry_rows(name)
+
+
 def test_consolidate_only_touches_the_selected_raw_name_and_leaves_bid_results_alone():
     """Two raw-name rows share one old comp_name; consolidating only one of them must not rename
     the other registry row, and must not touch bid_results at all (consolidate is registry-only)."""

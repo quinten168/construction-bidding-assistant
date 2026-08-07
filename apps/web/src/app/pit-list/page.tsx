@@ -4,14 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import {
   Mountain, Plus, Pencil, Trash2, Check, X, Search, AlertTriangle, MapPin, Download,
-  ChevronDown, ChevronUp, ChevronsUpDown, ListFilter,
+  ChevronDown, ChevronUp, ChevronsUpDown, ListFilter, LocateFixed, Navigation,
 } from "lucide-react";
 import { Glass, Eyebrow, SectionTitle, Chip } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import { downloadText } from "@/lib/report";
 import { usePitListStore, emptyPitForm, type Pit, type PitForm } from "@/components/pit-list/use-pit-list-store";
 import { AccessCompanyPicker } from "@/components/pit-list/access-company-picker";
-import { PitMap } from "@/components/pit-list/pit-map";
+import { PitMap, type MapOrigin } from "@/components/pit-list/pit-map";
+import { ProjectMidpointPicker, type ProjectHit } from "@/components/pit-list/project-midpoint-picker";
+import { haversineMiles } from "@/lib/geo";
 
 declare global {
   interface Window {
@@ -32,9 +34,13 @@ function mapsLinkFor(lat: number, lon: number) {
 // ── Generic sort/filter helpers (kept local to this file by design) ─────────
 
 type SortDir = "asc" | "desc";
-type SortKey = "name" | "county" | "state" | "rating" | "access_type" | "access_company";
+type SortKey = "name" | "county" | "state" | "rating" | "access_type" | "access_company" | "distance";
 type SortState = { key: SortKey | null; dir: SortDir };
 type NumRange = { min: string; max: string };
+
+// Pit rows carry a computed distanceMiles once a "nearest pits" origin (project midpoint or a
+// typed-in coordinate) is active; null otherwise.
+type PitWithDistance = Pit & { distanceMiles: number | null };
 
 const bucket = (v: string | null) => (v && v.trim() ? v : BLANK);
 
@@ -70,13 +76,14 @@ function inRange(value: number | null, range: NumRange): boolean {
   return value >= min && value <= max;
 }
 
-const SORTERS: Record<SortKey, (dir: SortDir) => (a: Pit, b: Pit) => number> = {
-  name: (dir) => makeComparator((p: Pit) => p.name, dir),
-  county: (dir) => makeComparator((p: Pit) => p.county, dir),
-  state: (dir) => makeComparator((p: Pit) => p.state, dir),
-  rating: (dir) => makeComparator((p: Pit) => p.rating, dir),
-  access_type: (dir) => makeComparator((p: Pit) => p.access_type, dir),
-  access_company: (dir) => makeComparator((p: Pit) => p.access_company, dir),
+const SORTERS: Record<SortKey, (dir: SortDir) => (a: PitWithDistance, b: PitWithDistance) => number> = {
+  name: (dir) => makeComparator((p: PitWithDistance) => p.name, dir),
+  county: (dir) => makeComparator((p: PitWithDistance) => p.county, dir),
+  state: (dir) => makeComparator((p: PitWithDistance) => p.state, dir),
+  rating: (dir) => makeComparator((p: PitWithDistance) => p.rating, dir),
+  access_type: (dir) => makeComparator((p: PitWithDistance) => p.access_type, dir),
+  access_company: (dir) => makeComparator((p: PitWithDistance) => p.access_company, dir),
+  distance: (dir) => makeComparator((p: PitWithDistance) => p.distanceMiles, dir),
 };
 
 function SortableTh({
@@ -278,6 +285,47 @@ export default function PitListPage() {
   const [accessTypeFilter, setAccessTypeFilter] = useState<Set<string>>(new Set());
   const [accessCompanyFilter, setAccessCompanyFilter] = useState<Set<string>>(new Set());
 
+  // "Nearest pits" search — an origin set either by picking a bid project's midpoint or by typing
+  // in a raw lat/long. Drives a computed Distance column/sort; does not hide rows on its own.
+  const [origin, setOrigin] = useState<MapOrigin | null>(null);
+  const [coordLat, setCoordLat] = useState("");
+  const [coordLon, setCoordLon] = useState("");
+  const [coordError, setCoordError] = useState<string | null>(null);
+
+  const applyCoordOrigin = () => {
+    const lat = parseFloat(coordLat);
+    const lon = parseFloat(coordLon);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) {
+      setCoordError("Enter a numeric latitude and longitude.");
+      return;
+    }
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      setCoordError("Latitude must be between -90 and 90; longitude between -180 and 180.");
+      return;
+    }
+    setCoordError(null);
+    setOrigin({ lat, lon, label: `${lat.toFixed(4)}, ${lon.toFixed(4)}` });
+    setPage(0);
+  };
+
+  const applyProjectOrigin = (project: ProjectHit) => {
+    if (project.project_latitude == null || project.project_longitude == null) return;
+    setCoordError(null);
+    setOrigin({
+      lat: project.project_latitude,
+      lon: project.project_longitude,
+      label: project.project_name || project.project_natural_key,
+    });
+    setPage(0);
+  };
+
+  const clearOrigin = () => {
+    setOrigin(null);
+    setCoordLat("");
+    setCoordLon("");
+    setCoordError(null);
+  };
+
   useEffect(() => {
     store.fetchPits();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -316,9 +364,17 @@ export default function PitListPage() {
     setPage(0);
   };
 
+  const pitsWithDistance = useMemo<PitWithDistance[]>(() => {
+    if (!origin) return store.pits.map((p) => ({ ...p, distanceMiles: null }));
+    return store.pits.map((p) => ({
+      ...p,
+      distanceMiles: haversineMiles(origin.lat, origin.lon, p.latitude, p.longitude),
+    }));
+  }, [store.pits, origin]);
+
   const filteredSorted = useMemo(() => {
     const q = store.search.trim().toLowerCase();
-    let rows = store.pits.filter((p) => {
+    let rows = pitsWithDistance.filter((p) => {
       if (q && !(p.name?.toLowerCase().includes(q) || p.county?.toLowerCase().includes(q) || p.state?.toLowerCase().includes(q))) return false;
       if (countyFilter.size > 0 && !countyFilter.has(bucket(p.county))) return false;
       if (stateFilter.size > 0 && !stateFilter.has(bucket(p.state))) return false;
@@ -329,9 +385,12 @@ export default function PitListPage() {
     });
     if (sort.key) {
       rows = [...rows].sort(SORTERS[sort.key](sort.dir));
+    } else if (origin) {
+      // Default to nearest-first once an origin is set, until the user picks a different column.
+      rows = [...rows].sort(SORTERS.distance("asc"));
     }
     return rows;
-  }, [store.pits, store.search, countyFilter, stateFilter, ratingFilter, accessTypeFilter, accessCompanyFilter, sort]);
+  }, [pitsWithDistance, store.search, countyFilter, stateFilter, ratingFilter, accessTypeFilter, accessCompanyFilter, sort, origin]);
 
   const pageCount = Math.max(1, Math.ceil(filteredSorted.length / PAGE_SIZE));
   const pageRows = useMemo(
@@ -375,7 +434,8 @@ export default function PitListPage() {
   };
 
   const exportCsv = () => {
-    const cols: (keyof Pit)[] = ["name", "county", "state", "latitude", "longitude", "rating", "access", "access_type", "access_company"];
+    const cols: (keyof PitWithDistance)[] = ["name", "county", "state", "latitude", "longitude", "rating", "access", "access_type", "access_company"];
+    if (origin) cols.push("distanceMiles");
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     // Exports the currently filtered/sorted view, not the full unfiltered table.
     const rows = [cols, ...filteredSorted.map((p) => cols.map((c) => p[c]))];
@@ -408,8 +468,61 @@ export default function PitListPage() {
         Feeds the nearest-pit distance features in the competitor-intelligence model.
       </p>
 
+      <Glass className="mt-4 p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <SectionTitle>Find nearest pits</SectionTitle>
+          {origin && (
+            <button onClick={clearOrigin} className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground">
+              <X className="h-3 w-3" /> Clear
+            </button>
+          )}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted-foreground">By bid project</span>
+            <ProjectMidpointPicker onSelect={applyProjectOrigin} />
+          </div>
+          <div>
+            <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted-foreground">By coordinates</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                value={coordLat}
+                onChange={(e) => setCoordLat(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyCoordOrigin()}
+                placeholder="Latitude"
+                inputMode="decimal"
+                className={cn(inputCls, "w-full")}
+              />
+              <input
+                value={coordLon}
+                onChange={(e) => setCoordLon(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && applyCoordOrigin()}
+                placeholder="Longitude"
+                inputMode="decimal"
+                className={cn(inputCls, "w-full")}
+              />
+              <button
+                onClick={applyCoordOrigin}
+                title="Find nearest pits"
+                className="flex shrink-0 items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[12px] font-medium text-primary-foreground"
+              >
+                <LocateFixed className="h-3.5 w-3.5" /> Find
+              </button>
+            </div>
+          </div>
+        </div>
+        {coordError && <p className="mt-2 text-[12px] text-[var(--negative)]">{coordError}</p>}
+        {origin && (
+          <p className="mt-2 flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
+            <Navigation className="h-3.5 w-3.5 text-primary" />
+            Showing pits nearest to <span className="font-medium text-foreground">{origin.label}</span>
+            <span className="font-mono text-[11.5px]">({origin.lat.toFixed(4)}, {origin.lon.toFixed(4)})</span>
+          </p>
+        )}
+      </Glass>
+
       <div className="mt-4">
-        <PitMap pits={filteredSorted} mapsReady={mapsReady} hasKey={HAS_MAPS_KEY} />
+        <PitMap pits={filteredSorted} mapsReady={mapsReady} hasKey={HAS_MAPS_KEY} origin={origin} />
       </div>
 
       {showAdd && (
@@ -525,6 +638,7 @@ export default function PitListPage() {
                   </FilterMenu>
                 </SortableTh>
                 <th className="px-2.5 py-2 font-medium">Coordinates</th>
+                {origin && <SortableTh label="Distance" sortKey="distance" sort={sort} onSort={cycleSort} align="right" />}
                 <SortableTh label="Rating" sortKey="rating" sort={sort} onSort={cycleSort}>
                   <FilterMenu columnKey="rating" active={Boolean(ratingFilter.min || ratingFilter.max)} {...filterMenuProps}>
                     <NumberRangePanel value={ratingFilter} onChange={(v) => { setRatingFilter(v); setPage(0); }} />
@@ -549,13 +663,13 @@ export default function PitListPage() {
             </thead>
             <tbody>
               {store.loading && (
-                <tr><td colSpan={8} className="px-2 py-4 text-center text-[12px] text-muted-foreground">Loading…</td></tr>
+                <tr><td colSpan={origin ? 9 : 8} className="px-2 py-4 text-center text-[12px] text-muted-foreground">Loading…</td></tr>
               )}
               {!store.loading && pageRows.length === 0 && (
-                <tr><td colSpan={8} className="px-2 py-4 text-center text-[12px] text-muted-foreground">No pits found.</td></tr>
+                <tr><td colSpan={origin ? 9 : 8} className="px-2 py-4 text-center text-[12px] text-muted-foreground">No pits found.</td></tr>
               )}
               {pageRows.map((p) => (
-                <PitRow key={`${p.latitude},${p.longitude}`} pit={p} store={store} />
+                <PitRow key={`${p.latitude},${p.longitude}`} pit={p} store={store} showDistance={Boolean(origin)} />
               ))}
             </tbody>
           </table>
@@ -598,7 +712,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function PitRow({ pit, store }: { pit: Pit; store: ReturnType<typeof usePitListStore> }) {
+function PitRow({ pit, store, showDistance }: { pit: PitWithDistance; store: ReturnType<typeof usePitListStore>; showDistance: boolean }) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [draft, setDraft] = useState({
@@ -624,7 +738,7 @@ function PitRow({ pit, store }: { pit: Pit; store: ReturnType<typeof usePitListS
   if (editing) {
     return (
       <tr className="border-b border-black/5">
-        <td colSpan={8} className="p-2.5">
+        <td colSpan={showDistance ? 9 : 8} className="p-2.5">
           <div className="rounded-xl border border-primary/30 bg-white/60 p-2.5">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <Field label="Name">
@@ -685,6 +799,11 @@ function PitRow({ pit, store }: { pit: Pit; store: ReturnType<typeof usePitListS
           {pit.latitude}, {pit.longitude}
         </a>
       </td>
+      {showDistance && (
+        <td className="px-2.5 py-2 text-right font-mono text-[11.5px] text-muted-foreground">
+          {pit.distanceMiles != null ? `${pit.distanceMiles.toFixed(1)} mi` : ""}
+        </td>
+      )}
       <td className="px-2.5 py-2 text-muted-foreground">{pit.rating != null ? `★${pit.rating}` : ""}</td>
       <td className="px-2.5 py-2">
         {pit.access_type && <Chip tone={pit.access_type === "open" ? "positive" : pit.access_type === "closed" ? "negative" : "neutral"}>{pit.access_type}</Chip>}

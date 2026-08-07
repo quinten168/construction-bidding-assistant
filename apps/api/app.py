@@ -530,6 +530,19 @@ async def ci_remove_competitor(comp_name: str):
         return _ci_error(e)
 
 
+@app.delete("/api/ci-data/competitor-raw-names/{raw_name_variant}", tags=["ci-data"])
+async def ci_remove_raw_name_variant(raw_name_variant: str):
+    """Remove one raw_name_variant row (e.g. one of several aliases rolled up under a parent
+    comp_name) without affecting the other rows in that comp_name group. Blocked (400) only if
+    this is the last row for its comp_name and bid_results still references that comp_name."""
+    try:
+        result = await run_in_threadpool(
+            competitor_registry_admin.remove_raw_name_variant, raw_name_variant)
+        return {"ok": True, **result}
+    except Exception as e:                                  # noqa: BLE001
+        return _ci_error(e)
+
+
 def _sse(obj: dict) -> str:
     """Format one Server-Sent Event frame."""
     return f"data: {json.dumps(obj, default=str, ensure_ascii=False)}\n\n"
