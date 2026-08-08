@@ -39,7 +39,17 @@ def _reset_project():
 def _cleanup():
     with ci_db.get_conn() as conn, conn.cursor() as cur:
         cur.execute("delete from scratch.bid_projects where project_natural_key = %s", (TEST_PROJECT_KEY,))
-        cur.execute("delete from scratch.competitor_name_registry where raw_name_variant = %s", (UNKNOWN_BIDDER,))
+        # UNKNOWN_BIDDER plus every raw bidder name any test in this file submits — submit_bid_results
+        # auto-registers a needs-review registry stub for any name it doesn't recognize (see
+        # test_unknown_bidder_gets_needs_review_registry_row below), and those stubs outlive the
+        # bid_projects delete (registry isn't FK'd to bid_projects). Left uncleaned, they leaked
+        # across runs and once caused two different raw names to resolve to the same comp_name,
+        # colliding on bid_results' (project_natural_key, competitor_unit_id) primary key.
+        cur.execute(
+            "delete from scratch.competitor_name_registry where raw_name_variant = any(%s)",
+            ([UNKNOWN_BIDDER, "ZZTEST Bidder Low", "ZZTEST Bidder High"]
+             + [f"ZZTEST Bidder {i}" for i in range(6)],),
+        )
 
 
 def test_project_with_no_results_appears_in_picker():
