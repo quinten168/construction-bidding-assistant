@@ -304,8 +304,10 @@ async def report_predict_competitors(plan_id: str, req: ReportPredictCompetitors
     identity = rep.get("identity", {})
     archetype = rep.get("archetype") or "Unknown/NoQty"
     quantities = rep.get("quantities", [])
-    when = identity.get("construction_start") or identity.get("construction_end")
-    comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, when, plan_id)
+    # None, not a pre-resolved construction_start/end -- predict_competitors() itself now tries the
+    # plan's parsed bid deadline first (fr._resolve_bid_date), which construction_start/end alone
+    # would pre-empt if passed in already truthy here. See _resolve_bid_date's docstring.
+    comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, None, plan_id)
     await run_in_threadpool(report_svc.cache_competitor_prediction, rep.get("content_hash"), comp)
     return {"ok": True, "competitors": (comp or {}).get("competitors", []),
             "match": (comp or {}).get("_match")}

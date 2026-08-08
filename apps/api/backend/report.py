@@ -99,12 +99,14 @@ def _val(field):
 
 
 def _conf(field) -> dict:
-    """Scalar fields are {value, confidence, page}; pull confidence/page for the verify UI (the
-    value itself is handled separately by _val()). confidence is a 3-level string enum
-    ("high"|"medium"|"low") per s3_extract.py's extraction prompt, not a numeric score."""
+    """Scalar fields are {value, confidence, page, reason}; pull confidence/page/reason for the
+    verify UI (the value itself is handled separately by _val()). confidence is "high"|"low" per
+    s3_extract.py's extraction prompt, not a numeric score. reason is the model's own short
+    justification — a citation for "high", what's missing/uncertain for "low"."""
     if isinstance(field, dict):
-        return {"confidence": field.get("confidence"), "page": field.get("page")}
-    return {"confidence": None, "page": None}
+        return {"confidence": field.get("confidence"), "page": field.get("page"),
+                "reason": field.get("reason") or None}
+    return {"confidence": None, "page": None, "reason": None}
 
 
 def _classify_read_error(e: Exception) -> tuple[str, str]:

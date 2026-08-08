@@ -152,9 +152,10 @@ for _a_ in ARRAY_FIELDS:
 
 # ── Record construction ────────────────────────────────────────────────────────
 
-def cell(value=None, confidence="", page=None):
-    """A scalar field's value-object: the unit of provenance in the JSON."""
-    return {"value": value, "confidence": confidence, "page": page}
+def cell(value=None, confidence="", page=None, reason=""):
+    """A scalar field's value-object: the unit of provenance in the JSON. `reason` is the model's
+    own short justification — a quoted/paraphrased line for "high", or why it's unsure for "low"."""
+    return {"value": value, "confidence": confidence, "page": page, "reason": reason}
 
 
 def blank_record(plan_id, source_file, run_date):

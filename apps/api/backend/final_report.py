@@ -30,10 +30,34 @@ from . import ci_db
 from . import competitor_report as cr
 from . import competitor_stats_live
 from . import corrections
+from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
 
 log = get_logger("bid_assistant.final_report")
+
+
+def _resolve_bid_date(identity: dict) -> str | None:
+    """The best "as of" date to scope competitor history by, in priority order: the plan's own
+    parsed bid deadline (the actual letting date -- what "before this date" is supposed to mean),
+    else construction_start, else construction_end.
+
+    Every call site into assemble()/predict_competitors() previously skipped straight to
+    construction_start/construction_end, never attempting identity["bid_deadline"] at all. For a
+    plan dropped through the live app, bid_deadline_raw is populated far more often than
+    construction_start/end (9 of the first 10 real plan_reader-written rows had a null
+    construction_start; construction_end, when used alone, can sit a year or more after the actual
+    bid date, which both misdates the "as of" cutoff and — worse — can make a currently-open
+    bidding season look closed). Reuses bid_projects_record.parse_bid_date() rather than
+    reimplementing date parsing; that function already handles the free-text formats plan_reader
+    extracts ('09:30AM ... on August 15, 2025', '11/15/2025', ISO). Caught 2026-08-08 while
+    investigating why capacity showed "insufficient history" for freshly-processed demo plans.
+    """
+    import bid_projects_record as bpr  # noqa: E402 — sys.path via plan_reader_bridge above
+    parsed, ok = bpr.parse_bid_date(identity.get("bid_deadline"))
+    if ok and parsed:
+        return parsed
+    return identity.get("construction_start") or identity.get("construction_end")
 
 # Retained only so the retirement stays greppable and any stale import keeps resolving; no query
 # in this module opens it any more (#50). The corpus now lives in Postgres, reached via ci_db.
@@ -251,7 +275,7 @@ def predict_competitors(identity: dict, archetype: str, quantities: list,
     competitor_predict_live.predict_report() is the third fallback for exactly that case: it builds
     its own candidate pool and scores it live against Postgres, using the SAME already-fitted weights
     the CI model uses, rather than requiring a precomputed row."""
-    when = bid_date or identity.get("construction_start") or identity.get("construction_end")
+    when = bid_date or _resolve_bid_date(identity)
     comp = None
     if identity.get("county") or identity.get("state"):
         try:
@@ -326,7 +350,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     # right after the verify gate so the estimator sees it before the manual-add popup) takes
     # priority; otherwise run the same three-tier cascade here, unchanged from before this was
     # extracted into predict_competitors() (see above).
-    when = bid_date or identity.get("construction_start") or identity.get("construction_end")
+    when = bid_date or _resolve_bid_date(identity)
     if predicted_competitors is _NO_CACHED_PREDICTION:
         comp = predict_competitors(identity, archetype, quantities, when, pid, reports_dir=reports_dir)
     else:

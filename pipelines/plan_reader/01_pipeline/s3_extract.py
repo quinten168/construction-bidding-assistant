@@ -44,10 +44,19 @@ def archetype_choices():
 
 EXTRACTION_PROMPT = """You are reading a highway-construction RFP / bid plan for a paving contractor.
 Extract the fields listed below into a single JSON object. For EVERY field, return an OBJECT:
-  {{"value": <the value, or null if not stated>, "confidence": "high" | "medium" | "low", "page": <page number or null>}}
+  {{"value": <the value, or null if not stated>, "confidence": "high" | "low", "page": <page number or null>, "reason": <short explanation>}}
 
 Rules:
-- Do NOT guess. If the document doesn't state a field, use "value": null. Lower the confidence when unsure.
+- Do NOT guess. If the document doesn't state a field, use "value": null.
+- confidence is "high" ONLY when the value is stated directly in the text you were given (verbatim,
+  or an unambiguous sum of explicit bid-schedule line items) — set "page" to where it appears.
+- confidence is "low" for everything else: a value you had to infer, interpret, or aren't fully
+  certain is correct. Low-confidence fields get flagged for a human to double-check, so use "low"
+  whenever the value isn't directly and clearly supported by the text.
+- "reason" is one short sentence justifying the confidence: for "high", quote or point to exactly
+  where the text states it (e.g. "Bid Schedule Item 2105.501, line total"); for "low", say what's
+  missing or uncertain (e.g. "not stated anywhere in the text — inferred from project type" or
+  "two conflicting values found on p.3 and p.9"). Leave "" only when value is null.
 - The document is annotated with page markers (e.g. `<!-- page 12 -->` or `[Page 12]`). Set "page" to that number where you found the value (null if unknown).
 - Numbers (the *_tons / *_quantity / *_sy fields): return a plain number — no commas, no units. Sum the bid-schedule line items if needed.
 - Booleans (box_culvert, prevailing_wages): return true or false.
@@ -103,12 +112,13 @@ def _coerce_cell(field, raw):
     conf = str(raw.get("confidence", "") or "").lower()
     conf = conf if conf in schema.CONFIDENCES else ""
     page = raw.get("page")
+    reason = str(raw.get("reason", "") or "").strip()
     try:
         page = int(page) if page not in (None, "", "null") else None
     except (ValueError, TypeError):
         page = None
     if value in (None, "", "null"):
-        return schema.cell(None, "", None)   # absent → no confidence/page to report
+        return schema.cell(None, "", None)   # absent → no confidence/page/reason to report
     if field["type"] == "num":
         try:
             value = float(str(value).replace("$", "").replace(",", "").strip())
@@ -122,7 +132,7 @@ def _coerce_cell(field, raw):
             value = bool(value)
     else:
         value = str(value).strip()
-    return schema.cell(value, conf, page)
+    return schema.cell(value, conf, page, reason)
 
 
 def call_json(prompt: str, max_tokens: int = 2048):

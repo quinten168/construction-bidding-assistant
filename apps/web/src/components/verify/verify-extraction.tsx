@@ -15,8 +15,10 @@ import { cn } from "@/lib/utils";
 // the estimator can continue, since haul-distance and competitor scoring depend on it downstream.
 
 // Mirrors report.py::process_pdf's `identity_fields` dict 1:1 — every key that carries
-// field_confidence — with a friendly label. Order: identity first, quantities appended separately.
+// field_confidence — with a friendly label. bid_deadline leads (right after the lat/long block
+// above) since it's required, same tier as location; everything else follows in the old order.
 const FIELD_LABELS: [string, string][] = [
+  ["bid_deadline", "Bid deadline"],
   ["state", "State"],
   ["county", "County"],
   ["sp_number", "Project no."],
@@ -25,10 +27,14 @@ const FIELD_LABELS: [string, string][] = [
   ["prevailing_wages", "Prevailing wage"],
   ["construction_start", "Construction start"],
   ["construction_end", "Construction end"],
-  ["bid_deadline", "Bid deadline"],
   ["substantial_completion", "Substantial completion"],
   ["final_completion", "Final completion"],
 ];
+
+// Required, like location: if the model didn't find these, they still get a row (not silently
+// dropped) and the estimator has to type a value before it counts as confirmed — a blank bid
+// deadline is a bid the firm can miss entirely, so "not detected" can't just disappear.
+const REQUIRED_KEYS = new Set(["bid_deadline"]);
 
 type VerifyField = {
   key: string;
@@ -37,27 +43,36 @@ type VerifyField = {
   unit?: string;
   confidence: "high" | "medium" | "low" | null;
   page: number | null;
+  reason: string | null;
+  required: boolean;
 };
 
 function buildFields(extraction: Extraction): VerifyField[] {
   const out: VerifyField[] = [];
   for (const [key, label] of FIELD_LABELS) {
     const raw = extraction.identity[key];
-    if (raw == null || raw === "") continue; // nothing extracted — nothing to verify here
+    const required = REQUIRED_KEYS.has(key);
+    if (!required && (raw == null || raw === "")) continue; // nothing extracted — nothing to verify here
     const meta = extraction.field_confidence[key];
-    out.push({ key, label, value: String(raw), confidence: meta?.confidence ?? null, page: meta?.page ?? null });
+    out.push({
+      key, label, value: raw == null ? "" : String(raw),
+      confidence: meta?.confidence ?? null, page: meta?.page ?? null, reason: meta?.reason ?? null,
+      required,
+    });
   }
   for (const q of extraction.quantities) {
     const meta = extraction.field_confidence[q.label];
     out.push({
       key: q.label, label: q.label, value: String(q.value), unit: q.unit,
-      confidence: meta?.confidence ?? null, page: meta?.page ?? null,
+      confidence: meta?.confidence ?? null, page: meta?.page ?? null, reason: meta?.reason ?? null,
+      required: false,
     });
   }
   return out;
 }
 
-const needsReview = (c: "high" | "medium" | "low" | null) => c === "low" || c === "medium";
+const needsReview = (f: Pick<VerifyField, "confidence" | "required" | "value">) =>
+  f.confidence === "low" || f.confidence === "medium" || (f.required && !f.value);
 
 type FieldState = { value: string; verified: boolean; edited: boolean };
 
@@ -72,7 +87,7 @@ export function VerifyExtraction({
 
   const [fields, setFields] = useState<Record<string, FieldState>>(() =>
     Object.fromEntries(
-      allFields.map((f) => [f.key, { value: f.value, verified: !needsReview(f.confidence), edited: false }]),
+      allFields.map((f) => [f.key, { value: f.value, verified: !needsReview(f), edited: false }]),
     ),
   );
   const [editing, setEditing] = useState<string | null>(null);
@@ -92,7 +107,9 @@ export function VerifyExtraction({
   const done = fieldsDone + (loc.confirmed ? 1 : 0);
   const allClear = done === total;
 
-  const lowConf = useMemo(() => allFields.filter((f) => needsReview(f.confidence)).length, [allFields]);
+  const lowConf = useMemo(() => allFields.filter((f) => needsReview(f)).length, [allFields]);
+  const missingRequired = useMemo(() => allFields.filter((f) => f.required && !f.value).length, [allFields]);
+  const anyRequiredMissing = allFields.some((f) => f.required && !fields[f.key]?.value);
 
   const buildEdits = (): Record<string, string> => {
     const edits: Record<string, string> = {};
@@ -117,6 +134,9 @@ export function VerifyExtraction({
           <p className="mt-1 max-w-lg text-[13px] text-muted-foreground">
             Your eyes on the extraction before I pull competitor intel and build the rest of the
             report. {lowConf} field{lowConf === 1 ? "" : "s"} flagged for review
+            {missingRequired > 0
+              ? `, ${missingRequired} required field${missingRequired === 1 ? "" : "s"} missing`
+              : ""}
             {extraction.identity.latitude == null ? " and the location isn't detected" : ""} —
             everything else is high-confidence.
           </p>
@@ -162,16 +182,19 @@ export function VerifyExtraction({
       <div className="space-y-2">
         {allFields.map((f) => {
           const st = fields[f.key];
-          const review = needsReview(f.confidence);
-          const isEditing = editing === f.key;
+          const missingRequired = f.required && !st.value;
+          const review = needsReview({ confidence: f.confidence, required: f.required, value: st.value });
+          const isEditing = editing === f.key || missingRequired; // blank required field: always editable, never silently skippable
           return (
             <Glass key={f.key} className={cn("p-3", review && !st.verified && "ring-1 ring-[var(--warn)]/40")}>
               <div className="flex items-center gap-3">
                 {/* confirm toggle */}
                 <button
                   onClick={() => setField(f.key, { verified: !st.verified })}
+                  disabled={missingRequired}
+                  title={missingRequired ? "Enter a value first" : undefined}
                   className={cn(
-                    "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors",
+                    "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                     st.verified ? "border-[var(--positive)] bg-[var(--positive)] text-white" : "border-black/15 text-transparent hover:border-primary",
                   )}
                 >
@@ -181,7 +204,9 @@ export function VerifyExtraction({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[12px] text-muted-foreground">{f.label}</span>
-                    {f.confidence ? (
+                    {missingRequired ? (
+                      <Chip tone="warn"><AlertTriangle className="h-3 w-3" /> required — not detected</Chip>
+                    ) : f.confidence ? (
                       review ? (
                         <Chip tone="warn">{f.confidence} confidence</Chip>
                       ) : (
@@ -192,26 +217,43 @@ export function VerifyExtraction({
                     {f.page != null && <span className="ml-auto font-mono text-[10px] text-muted-foreground/60">p.{f.page}</span>}
                   </div>
                   {isEditing ? (
-                    <div className="mt-1 flex items-center gap-2">
-                      <input
-                        autoFocus
-                        defaultValue={st.value}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            const v = (e.target as HTMLInputElement).value;
-                            setField(f.key, { value: v, edited: v !== f.value, verified: true });
-                            setEditing(null);
+                    <div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <input
+                          autoFocus={editing === f.key}
+                          defaultValue={st.value}
+                          placeholder={
+                            missingRequired
+                              ? f.key === "bid_deadline" ? "yyyy-mm-dd" : "Required — type it in"
+                              : undefined
                           }
-                        }}
-                        onBlur={(e) => {
-                          const v = e.target.value;
-                          setField(f.key, { value: v, edited: v !== f.value, verified: true });
-                          setEditing(null);
-                        }}
-                        className="w-40 rounded-lg border border-primary/40 bg-white/70 px-2 py-1 font-mono text-sm outline-none"
-                      />
-                      {f.unit && <span className="text-xs text-muted-foreground">{f.unit}</span>}
-                      <span className="text-[10px] text-muted-foreground">↵ to save</span>
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              const v = (e.target as HTMLInputElement).value;
+                              setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" });
+                              setEditing(null);
+                            }
+                          }}
+                          onBlur={(e) => {
+                            const v = e.target.value;
+                            setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" });
+                            if (v !== "") setEditing(null);
+                          }}
+                          className={cn(
+                            "w-40 rounded-lg border bg-white/70 px-2 py-1 font-mono text-sm outline-none",
+                            missingRequired ? "border-[var(--warn)]/50" : "border-primary/40",
+                          )}
+                        />
+                        {f.unit && <span className="text-xs text-muted-foreground">{f.unit}</span>}
+                        {!missingRequired && <span className="text-[10px] text-muted-foreground">↵ to save</span>}
+                      </div>
+                      {missingRequired && f.key === "bid_deadline" && (
+                        <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                          Not stated anywhere in the plan — enter the bid opening / letting date
+                          (yyyy-mm-dd). This is what scopes the competitor capacity numbers to
+                          &quot;as of&quot; this date.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div className="mt-0.5 flex items-center gap-2">
@@ -224,6 +266,11 @@ export function VerifyExtraction({
                         <Pencil className="h-3 w-3" />
                       </button>
                     </div>
+                  )}
+                  {f.reason && (
+                    <p className="mt-1 text-[11px] italic leading-snug text-muted-foreground/80">
+                      {f.reason}
+                    </p>
                   )}
                 </div>
               </div>
@@ -238,14 +285,16 @@ export function VerifyExtraction({
           <ShieldCheck className={cn("h-4 w-4", allClear ? "text-[var(--positive)]" : "text-muted-foreground")} />
           {allClear
             ? "All fields confirmed — extraction is trusted."
-            : !loc.confirmed && done === total - 1
-              ? "Confirm the project location to continue."
-              : `${total - done} item${total - done === 1 ? "" : "s"} still need a human check.`}
+            : anyRequiredMissing
+              ? "Enter the required field(s) above to continue."
+              : !loc.confirmed && done === total - 1
+                ? "Confirm the project location to continue."
+                : `${total - done} item${total - done === 1 ? "" : "s"} still need a human check.`}
         </span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => onConfirm(buildEdits())}
-            disabled={!loc.confirmed}
+            disabled={!loc.confirmed || anyRequiredMissing}
             className={cn(
               "flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all disabled:opacity-40",
               allClear ? "bg-primary text-primary-foreground elev-sm hover:-translate-y-px hover:elev-md" : "bg-secondary text-foreground hover:bg-secondary/70",

@@ -428,12 +428,8 @@ function GotchaGroup({
 // planner's simple_rule_score model; every competitor's shown figures (win rate, bid rate,
 // capacity, pit access) come entirely from the live SQL retrieval in competitor_stats_live.py
 // (`comp.stats`) — no invented scores, and no more of the old markdown-parsed narrative bullets.
-const MATCH_TONE: Record<string, string> = { high: "positive", medium: "neutral", low: "warn" };
-
 function CompetitorSection({ comp }: { comp: Competitor }) {
   const s = comp.summary ?? { analyzed: 0, narrative: "" };
-  const conf = (comp._match?.confidence ?? "").toLowerCase();
-  const matchTone = MATCH_TONE[conf] ?? "neutral";
   const names = comp.competitors ?? [];
   const userAddedSet = new Set(comp.user_added ?? []);
 
@@ -445,20 +441,6 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
           <Users className="h-[18px] w-[18px] text-primary" />
           Top {s.analyzed} likely competitors
         </div>
-
-        {/* match-confidence — a wrong county+date match is visible, not hidden */}
-        {conf && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
-            <Chip tone={matchTone as "positive" | "neutral" | "warn"}>
-              match: {conf}{comp._match?.basis ? ` · ${comp._match.basis}` : ""}
-            </Chip>
-          </div>
-        )}
-        {conf === "low" && (
-          <p className="mt-2.5 rounded-lg border border-[var(--warn)]/30 bg-[var(--warn)]/[0.06] px-3 py-2 text-[12.5px] text-foreground/75">
-            Low-confidence match (state only) — confirm this competitor set is the same project before relying on it.
-          </p>
-        )}
 
         {(comp.work_type || comp.condition) && (
           <p className="mt-3 text-[13.5px] font-medium text-foreground/80">
