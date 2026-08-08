@@ -255,13 +255,24 @@ def _load_api_key() -> str:
     """Anthropic key resolution, in priority order:
     1. the ANTHROPIC_API_KEY env var (how you'd set it on Railway), else
     2. the project's existing single-quoted `.env` file in plan_reader (local convention).
+
+    A placeholder (e.g. the canonical .env.example's 'sk-ant-...') is treated as absent at each
+    step, same principle as require_supabase_dsn()'s check below -- and for the same reason that
+    one exists: a canonical .env created via `cp .env.example .env` without filling in every field
+    left ANTHROPIC_API_KEY as the literal placeholder string, which is non-empty so `if key :=`
+    accepted it and returned it as if real, skipping the plan_reader/.env fallback that held the
+    actual working key. The failure surfaced as an AuthenticationError deep inside a PDF-upload
+    call, reported to the user as "may be corrupt or an unsupported format" -- nowhere near this
+    function. Caught 2026-08-07.
     """
-    if key := os.environ.get("ANTHROPIC_API_KEY"):
+    if (key := os.environ.get("ANTHROPIC_API_KEY")) and not _is_placeholder(key):
         return key
     env_file = PLAN_READER / ".env"
     if env_file.exists():
         # the project stores the key as ANTHROPIC_API_KEY='sk-...'; split on the quote.
-        return env_file.read_text().split("'")[1]
+        parts = env_file.read_text().split("'")
+        if len(parts) > 1 and not _is_placeholder(parts[1]):
+            return parts[1]
     return ""
 
 
