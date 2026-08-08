@@ -13,6 +13,7 @@ export default function CompetitorRegistryPage() {
   const [tag, setTag] = useState("");
   const [target, setTarget] = useState("");
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [confirmRemoveRaw, setConfirmRemoveRaw] = useState<string | null>(null);
 
   useEffect(() => {
     store.fetchRows();
@@ -213,19 +214,44 @@ export default function CompetitorRegistryPage() {
               </div>
               <div className="space-y-1">
                 {group.map((r) => (
-                  <label key={r.raw_name_variant} className="flex items-center gap-2 rounded-lg px-2 py-1 text-[12.5px] hover:bg-black/[0.03]">
-                    <input
-                      type="checkbox"
-                      checked={store.selected.has(r.raw_name_variant)}
-                      onChange={() => store.toggleSelected(r.raw_name_variant)}
-                      className="h-3.5 w-3.5"
-                    />
-                    <span className="font-mono text-[12px]">{r.raw_name_variant}</span>
-                    {r.suggested_comp && !r.comp_name && (
-                      <span className="text-[11px] text-muted-foreground">suggested: {r.suggested_comp}</span>
+                  <div key={r.raw_name_variant} className="flex items-center gap-2 rounded-lg px-2 py-1 text-[12.5px] hover:bg-black/[0.03]">
+                    <label className="flex min-w-0 flex-1 items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={store.selected.has(r.raw_name_variant)}
+                        onChange={() => store.toggleSelected(r.raw_name_variant)}
+                        className="h-3.5 w-3.5 shrink-0"
+                      />
+                      <span className="truncate font-mono text-[12px]">{r.raw_name_variant}</span>
+                      {r.suggested_comp && !r.comp_name && (
+                        <span className="shrink-0 text-[11px] text-muted-foreground">suggested: {r.suggested_comp}</span>
+                      )}
+                    </label>
+                    {r.source && <span className="shrink-0 text-[10px] text-muted-foreground/70">{r.source}</span>}
+                    {confirmRemoveRaw === r.raw_name_variant ? (
+                      <div className="flex shrink-0 items-center gap-1">
+                        <button
+                          onClick={() => { store.removeRawNameVariant(r.raw_name_variant); setConfirmRemoveRaw(null); }}
+                          className="rounded-md bg-[var(--negative)]/15 px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--negative)]"
+                        >
+                          Confirm remove
+                        </button>
+                        <button
+                          onClick={() => setConfirmRemoveRaw(null)}
+                          className="rounded-md px-1.5 py-0.5 text-[10.5px] font-medium text-muted-foreground hover:text-foreground"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmRemoveRaw(r.raw_name_variant)}
+                        className="shrink-0 text-muted-foreground transition-colors hover:text-[var(--negative)]"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     )}
-                    {r.source && <span className="ml-auto text-[10px] text-muted-foreground/70">{r.source}</span>}
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>

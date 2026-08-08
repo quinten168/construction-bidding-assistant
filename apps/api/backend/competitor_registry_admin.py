@@ -155,3 +155,53 @@ def remove_competitor(comp_name: str) -> dict:
 
     log.info("competitor removed: %s (%d registry row(s))", comp_name, removed)
     return {"comp_name": comp_name, "rows_removed": removed}
+
+
+def remove_raw_name_variant(raw_name_variant: str) -> dict:
+    """Remove one raw_name_variant row — e.g. one of several aliases rolled up under a parent
+    comp_name (OMG Midwest and its 7-8 subsidiary raw names) — without touching the other rows in
+    that comp_name group. Only blocked if this is the LAST row for its comp_name and that comp_name
+    is still referenced in scratch.bid_results; that case is equivalent to remove_competitor and
+    gets the same protection. Never touches scratch.bid_results itself, same as consolidate()."""
+    raw_name_variant = (raw_name_variant or "").strip()
+    if not raw_name_variant:
+        raise ValidationError("A raw name variant is required.")
+
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            "select comp_name from scratch.competitor_name_registry where raw_name_variant = %s",
+            (raw_name_variant,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            raise ValidationError(f"{raw_name_variant!r} was not found in the registry.")
+        comp_name = row["comp_name"]
+
+        if comp_name:
+            cur.execute(
+                "select count(*) as n from scratch.competitor_name_registry "
+                "where comp_name = %s and raw_name_variant != %s",
+                (comp_name, raw_name_variant),
+            )
+            other_rows = cur.fetchone()["n"]
+            if other_rows == 0:
+                cur.execute(
+                    "select count(*) as n from scratch.bid_results where competitor_unit_id = %s",
+                    (comp_name,),
+                )
+                referenced = cur.fetchone()["n"]
+                if referenced:
+                    raise ValidationError(
+                        f"Cannot remove {raw_name_variant!r} — it is the last row for {comp_name!r}, "
+                        f"and {referenced} bid_results row(s) still reference it. Consolidate those "
+                        "rows into another competitor first."
+                    )
+
+        cur.execute(
+            "delete from scratch.competitor_name_registry where raw_name_variant = %s",
+            (raw_name_variant,),
+        )
+        removed = cur.rowcount
+
+    log.info("raw name variant removed: %s (comp_name: %s)", raw_name_variant, comp_name)
+    return {"raw_name_variant": raw_name_variant, "rows_removed": removed}

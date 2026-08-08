@@ -671,7 +671,7 @@ one catch-all proxy route.
 | Bid results entry | `apps/api/backend/bid_results_admin.py` | `GET /api/ci-data/projects/missing-results`, `POST /api/ci-data/projects/{key}/bid-results` |
 | Bid results table (view + inline edit, 2026-07-31) | `apps/api/backend/bid_results_admin.py` | `GET /api/ci-data/bid-results` (one row per bidder, joined to project), `PATCH /api/ci-data/bid-results/{project_natural_key}/{competitor_unit_id}` |
 | Pit list CRUD | `apps/api/backend/pit_list_admin.py` | `GET/POST /api/ci-data/pits`, `PATCH/DELETE /api/ci-data/pits/{lat}/{lon}` |
-| Competitor registry CRUD | `apps/api/backend/competitor_registry_admin.py` | `GET/POST /api/ci-data/competitors`, `POST /api/ci-data/competitors/consolidate`, `DELETE /api/ci-data/competitors/{comp_name}` |
+| Competitor registry CRUD | `apps/api/backend/competitor_registry_admin.py` | `GET/POST /api/ci-data/competitors`, `POST /api/ci-data/competitors/consolidate`, `DELETE /api/ci-data/competitors/{comp_name}`, `DELETE /api/ci-data/competitor-raw-names/{raw_name_variant}` (2026-08-06) |
 | Projects table (view + edit materials only, 2026-07-31) | `apps/api/backend/project_admin.py` | `GET /api/ci-data/projects`, `PATCH /api/ci-data/projects/{project_natural_key}/materials` — every other `bid_projects` column (identity, location, `project_type`) is read-only from this endpoint; unknown field names are rejected outright, not silently ignored |
 
 All four share `apps/api/backend/ci_db.py` (connection + name normalization) and are wired into
@@ -712,6 +712,20 @@ different coordinates; competitors block on an exact normalized-name match again
 `data/update_name_registry.py`'s existing `suggest_comp()` approach). Removing a competitor is
 blocked outright (no reassignment flow) if any `bid_results` row still references it.
 
+**Per-alias removal — added 2026-08-06.** The registry page groups rows by `comp_name` (e.g. 7-8
+raw `raw_name_variant` aliases rolled up under one parent like "OMG Midwest"). Deleting the parent
+via `DELETE /api/ci-data/competitors/{comp_name}` always removed every row in the group at once —
+there was no way to drop a single alias while keeping the rest. `competitor_registry_admin.
+remove_raw_name_variant()` (`DELETE /api/ci-data/competitor-raw-names/{raw_name_variant}`) adds
+that: it deletes exactly one row and leaves every other row sharing that `comp_name` untouched. It
+only inherits the parent-delete's `bid_results`-reference block in the one case where it's
+equivalent to a full parent delete — this raw name is the *last* row for its `comp_name` and that
+`comp_name` is still referenced in `bid_results`; otherwise it deletes unconditionally, same
+"registry-only, doesn't touch `bid_results`" philosophy as `consolidate()` above. The competitor
+registry page (`apps/web/src/app/competitor-registry/page.tsx`) exposes this as a trash icon on each
+individual row (not just the group header), with the same two-step confirm/cancel as the
+parent-level delete.
+
 **Explicit scope boundary:** writes land in Supabase `scratch.*` only. There is no path back into
 `ci_model`'s local training CSVs/parquet yet — same shape as §5's plan_reader/ci_model seam. See
 `CLAUDE.md` rough edge 7 for the full current-status/verification writeup (what's been checked vs.
@@ -745,6 +759,26 @@ apply this pattern there.
 The `access_company` picker itself does **not** call Google — it fetches
 `GET /api/ci-data/competitors` (the existing registry endpoint, §9 above) and filters client-side;
 Google is only geocoding and map rendering.
+
+### "Find nearest pits" search — client-side only, no new endpoint (2026-08-06)
+
+The pit-list page also grew an origin-based nearest-pit search, entirely in `apps/web`:
+
+| Piece | File | Job |
+|---|---|---|
+| Origin picker (by bid project) | `apps/web/src/components/pit-list/project-midpoint-picker.tsx` | Typeahead over bid projects, lazy-loaded from the existing `GET /api/ci-data/projects` on first focus |
+| Origin picker (by coordinates) | `pit-list/page.tsx`'s `applyCoordOrigin` | Validates a typed lat/long into the same `MapOrigin` shape |
+| Distance calculation | `apps/web/src/lib/geo.ts::haversineMiles` | Computes `distanceMiles` for every pit already in `store.pits`, client-side, no request |
+| Map marker | `apps/web/src/components/pit-list/pit-map.tsx` (`PitMap`'s `origin` prop) | Draws the origin as a distinct blue circular marker alongside the pit dots |
+
+No new backend endpoint — the project picker reuses `GET /api/ci-data/projects` (§9 above), and the
+distance math never leaves the browser. The one thing worth knowing if it's ever touched:
+`geo.ts`'s `haversineMiles`/`EARTH_RADIUS_MILES` is a deliberate hand-copy of
+`pipelines/ci_model/01_candidates/build_pit_features.py`'s `haversine_miles`/`EARTH_RADIUS_MILES`,
+kept in sync by convention rather than shared code (one's TypeScript in `apps/web`, the other's
+Python in `pipelines/`, and invariant 1 keeps those trees import-free of each other) — changing one
+without the other means "nearest pit" on this page silently disagrees with what the
+competitor-intelligence model actually scores off of.
 
 ---
 

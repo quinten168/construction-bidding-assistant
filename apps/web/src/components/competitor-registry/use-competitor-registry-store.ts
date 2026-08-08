@@ -149,10 +149,27 @@ export function useCompetitorRegistryStore() {
     }
   }, [fetchRows, fetchAllRows, search, needsReviewOnly]);
 
+  const removeRawNameVariant = useCallback(async (rawName: string): Promise<boolean> => {
+    setError(null);
+    try {
+      const res = await fetch(`/api/ci-data/competitor-raw-names/${encodeURIComponent(rawName)}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.message ?? "Could not remove that name.");
+        return false;
+      }
+      await Promise.all([fetchRows(search, needsReviewOnly), fetchAllRows()]);
+      return true;
+    } catch {
+      setError("Could not reach the backend.");
+      return false;
+    }
+  }, [fetchRows, fetchAllRows, search, needsReviewOnly]);
+
   return {
     rows, loading, search, setSearch, needsReviewOnly, setNeedsReviewOnly, fetchRows,
     allRows, fetchAllRows,
     addCompetitor, error, warning, setWarning, saving,
-    selected, toggleSelected, clearSelected, consolidate, removeCompetitor,
+    selected, toggleSelected, clearSelected, consolidate, removeCompetitor, removeRawNameVariant,
   };
 }

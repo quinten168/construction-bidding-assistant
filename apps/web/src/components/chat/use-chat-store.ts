@@ -441,11 +441,6 @@ export function useChatStore() {
     [conversations, activeId, patchMessage],
   );
 
-  const skipVerification = useCallback(
-    (messageId: string) => confirmVerification(messageId, {}),
-    [confirmVerification],
-  );
-
   // The actual finalize call, shared by submitCompetitors/skipCompetitors below (the only
   // difference between them is whether `manualCompetitors` is empty).
   const runFinalize = useCallback(
@@ -612,7 +607,7 @@ export function useChatStore() {
   return {
     conversations, files, active, activeId, busy, lastUsage, sessionTokens,
     newConversation, selectConversation, deleteConversation, send, attachFiles, detachFile, processPlan,
-    confirmVerification, skipVerification, submitCompetitors, skipCompetitors,
+    confirmVerification, submitCompetitors, skipCompetitors,
   };
 }
 

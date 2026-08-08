@@ -236,8 +236,17 @@ direct browser-to-third-party call in `apps/web`). What's actually been checked,
   `pytest` (same result as above), `tsc --noEmit`, `eslint`, and `npm run build`, all clean. **Not**
   re-run: the HTTP-level smoke test above (real FastAPI + Next.js dev servers, live 503 check) —
   this pass is one level less verified than the 2026-07-30 baseline, static checks only.
+- Added 2026-08-06: per-alias removal on the competitor registry —
+  `DELETE /api/ci-data/competitor-raw-names/{raw_name_variant}`
+  (`competitor_registry_admin.remove_raw_name_variant()`) deletes one `raw_name_variant` row without
+  touching sibling rows under the same `comp_name`, so an individual company rolled up under a
+  parent (e.g. one of the 7-8 names under "OMG Midwest") can be deleted on its own. Same two-step
+  confirm/cancel UI as the existing parent-level delete, now on every row. See
+  `docs/ARCHITECTURE.md` §9. Verified the same way as the 2026-07-31 additions — `py_compile`,
+  `pytest`, `tsc --noEmit`, `eslint`, `npm run build`, all clean; same unverified-against-a-real-
+  database gap as everything else in this rough edge.
 - **Not verified**: no run against a real Supabase connection. `SUPABASE_TEAM_DB_URL` was never
-  configured in the dev sandbox this was built in, so the 15 new integration tests
+  configured in the dev sandbox this was built in, so the 17 integration tests
   (`tests/test_bid_results_admin.py`, `test_pit_list_admin.py`, `test_competitor_registry_admin.py`)
   have only been confirmed to **skip cleanly** (`pytest.mark.skipif`), never to actually pass. In
   particular, `test_consolidate_only_touches_the_selected_raw_name_and_leaves_bid_results_alone` —
@@ -301,6 +310,27 @@ why" summary plus what's unverified about it.
   (`apps/web/src/app/api/report/[planId]/finalize/route.ts`) — `npm run build` doesn't fail on a
   missing API route, only a real request would have, so that one specifically was caught by
   inspection, not by a check that would have failed loudly.
+
+**9. The pit-list "find nearest pits" search (2026-08-06) is client-side only — no new backend
+endpoint, and no live verification.**
+
+`apps/web/src/app/pit-list/page.tsx` gained a "Find nearest pits" panel: set an origin either by
+picking a bid project (`apps/web/src/components/pit-list/project-midpoint-picker.tsx`, a typeahead
+that lazy-loads the existing `GET /api/ci-data/projects` on first focus — no new endpoint) or by
+typing a raw lat/long, then every pit already in `store.pits` gets a `distanceMiles` computed
+client-side via `apps/web/src/lib/geo.ts::haversineMiles`. That formula and its Earth radius
+constant are a deliberate copy of `pipelines/ci_model/01_candidates/build_pit_features.py`'s
+`haversine_miles`/`EARTH_RADIUS_MILES` — kept in sync by convention, not by shared code, so a future
+change to one needs the same change made by hand in the other or "nearest pit" on this page will
+quietly disagree with what the competitor model actually scores off of. Adds a Distance
+column/sort (defaulting to nearest-first once an origin is set and no column sort is active),
+includes `distanceMiles` in CSV export when active, and draws the origin as a distinct blue circular
+marker in `pit-map.tsx` (`PitMap`'s new `origin` prop) alongside the existing pit dots.
+
+Verified the same way as rough edge 7/8's additions: `tsc --noEmit`, `eslint`, and `npm run build`
+all clean. **Not verified**: no live backend in the sandbox this was built in, so the
+`/api/ci-data/projects` round-trip that feeds the project picker has never actually run — reviewed
+by reading the code, not by opening the picker and typing into it.
 
 ## Agent skills
 
