@@ -14,6 +14,8 @@ export type Pit = {
   access_company: string | null;
 };
 
+export type PitWithDistance = Pit & { distanceMiles: number | null };
+
 export type PitForm = {
   latitude: string;
   longitude: string;

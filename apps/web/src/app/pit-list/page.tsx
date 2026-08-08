@@ -9,7 +9,7 @@ import {
 import { Glass, Eyebrow, SectionTitle, Chip } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import { downloadText } from "@/lib/report";
-import { usePitListStore, emptyPitForm, type Pit, type PitForm } from "@/components/pit-list/use-pit-list-store";
+import { usePitListStore, emptyPitForm, type Pit, type PitForm, type PitWithDistance } from "@/components/pit-list/use-pit-list-store";
 import { AccessCompanyPicker } from "@/components/pit-list/access-company-picker";
 import { PitMap, type MapOrigin } from "@/components/pit-list/pit-map";
 import { ProjectMidpointPicker, type ProjectHit } from "@/components/pit-list/project-midpoint-picker";
@@ -37,10 +37,6 @@ type SortDir = "asc" | "desc";
 type SortKey = "name" | "county" | "state" | "rating" | "access_type" | "access_company" | "distance";
 type SortState = { key: SortKey | null; dir: SortDir };
 type NumRange = { min: string; max: string };
-
-// Pit rows carry a computed distanceMiles once a "nearest pits" origin (project midpoint or a
-// typed-in coordinate) is active; null otherwise.
-type PitWithDistance = Pit & { distanceMiles: number | null };
 
 const bucket = (v: string | null) => (v && v.trim() ? v : BLANK);
 
@@ -383,6 +379,12 @@ export default function PitListPage() {
       if (accessCompanyFilter.size > 0 && !accessCompanyFilter.has(bucket(p.access_company))) return false;
       return true;
     });
+    if (origin) {
+      // Once an origin is set, narrow to the 10 physically nearest pits before applying any
+      // display sort, so "closest 10" always means actual distance regardless of which column
+      // the table is currently sorted by.
+      rows = [...rows].sort(SORTERS.distance("asc")).slice(0, 10);
+    }
     if (sort.key) {
       rows = [...rows].sort(SORTERS[sort.key](sort.dir));
     } else if (origin) {
