@@ -61,6 +61,28 @@ def test_project_with_no_results_appears_in_picker():
         _cleanup()
 
 
+def test_provisional_project_now_appears_in_picker():
+    """Task #4 — the key_provisional exclusion is gone: a provisional row is offered as a
+    data-entry target like any other project, not silently hidden. Both original reasons for
+    hiding it are resolved (#70 via the lat/long key redesign, #55 via soft delete)."""
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute("delete from scratch.bid_projects where project_natural_key = %s", (TEST_PROJECT_KEY,))
+        cur.execute(
+            "insert into scratch.bid_projects "
+            "(project_natural_key, state, county, bid_date, key_provisional, key_provisional_reason) "
+            "values (%s, 'MN', 'ZZTEST County', '2024-01-01', true, 'sentinel:bid_date')",
+            (TEST_PROJECT_KEY,),
+        )
+    try:
+        rows = bra.list_projects_missing_results(search="ZZTEST County")
+        hit = next((r for r in rows if r["project_natural_key"] == TEST_PROJECT_KEY), None)
+        assert hit is not None, "a provisional project must still appear in the picker"
+        assert hit["key_provisional"] is True
+        assert hit["key_provisional_reason"] == "sentinel:bid_date"
+    finally:
+        _cleanup()
+
+
 def test_submit_happy_path_computes_rank():
     _reset_project()
     try:
