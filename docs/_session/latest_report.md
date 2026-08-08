@@ -1,137 +1,99 @@
-# Session report 5 — 2026-08-07 · the pressure test found two more live bugs, both mine
+# Session report 7 — 2026-08-08 · the live path missed 121,221 tons of asphalt
 
-Fifth and final report of the session. Companions: `_crosswalk-and-vision.md`, `_remap-run.md`,
-`_coverage-test-and-milling.md`, `_two-quantity-pipelines.md`, `issues.md`.
+Resolves the Dunn mix/milling gap by going to the source, as instructed. **This is the most serious
+finding of the session and it is on the demo path.**
 
 ---
 
-## Lead: what did NOT happen
+## Ground truth, from the bid schedule in the PDF
 
-- **F2 rendering — NOT STARTED.** Blocked on a scope question (see `_two-quantity-pipelines.md` §4:
-  the four gap states live in code the report path never calls).
-- **Extraction schema v2 — NOT STARTED.**
-- **Postgres was NOT republished** after tonight's last two fixes. `public.materials` currently holds
-  `milling_sy = 2,826,995`; `csi_v2.db` now holds **3,021,338**. Republishing is on the
-  never-without-asking list, and the one-time GO was for the earlier run.
-- No cache-migration build, no mapping restructure.
+`2026_DUNN-CO-ND_JOB-23388` (NDDOT Job 23388, PCN-23388), proposal form pages 8 of 17:
 
-## 1. Two disputes, both resolved by measurement
+| item | spec | unit | quantity |
+|---|---|---|---:|
+| **RAP - SUPERPAVE FAA 43** | 430-0143 | TON | **121,221** |
+| **MILLING PAVEMENT SURFACE** | 411-0100 | TON | **63,092** |
+| FULL DEPTH RECLAMATION | — | SY | 408,216 |
+| PATCHING | 430-2000 | TON | 200 |
+| REMOVE AGGREGATE BASE | — | TON | 72,153 |
+| AGGREGATE BASE COURSE CL 5 | — | TON | 6,506 |
 
-### Dispute A — agent M vs a figure I committed into the code. **M was right; so was I; the comment was sloppy.**
+## The three-way comparison
 
-M measured 1,218,210 SY / 17 plans for `MILL BITUMINOUS`. My committed comment said "1,346,886 SY
-across 18 plans." Re-measured, both are real but they count different sets:
-
-| set | quantity | plans |
-|---|---:|---:|
-| `MILL BITUMINOUS` only, **after** normalizing `\xa0` | 1,218,210 | 17 |
-| `MILL BITUMINOUS` only, plain uppercase (misses the `\xa0` row) | 1,049,376 | 16 |
-| any `MILL` or `COLD PLANE` | 2,122,223 | 36 |
-
-My 1,346,886 was the wider set measured mid-fix and matches **neither** definition cleanly. The
-comment has been corrected to quote both figures **with their definitions**, because a number
-without its predicate is what caused the disagreement.
-
-M's number is the better one — it caught the 168,834 SY hiding behind a non-breaking space that my
-plain-uppercase query missed. That miss was itself a symptom of dispute B.
-
-### Dispute B — **CONFIRMED. A live bug in code I wrote today.**
-
-`spec_category()` and `_csi_ruling()` used a bare `.upper()`, while the material lookup table and
-`11_build_material_map.py` both use a normalizing form. **115 real corpus rows contain a
-non-breaking space.** Five of CSI's 2026-08-07 rulings were being silently bypassed:
-
-| corpus description | should be | actually was |
-|---|---|---|
-| `Mill\xa0Bituminous\xa0Surfacing\xa01.5" (P)` — **168,834 SY** | milling | **hot mix** |
-| `REMOVE BITUMINOUS␣␣PAVEMENT` (double space) — 15,067 SY | milling | **hot mix** |
-| `REMOVE BITUMINOUS␣␣DRIVEWAY\xa0PAVEMENT` | excluded | hot mix |
-| `Full\xa0Depth\xa0Reclamation (P)` — 10,182 SY | base / milling_sy | unmatched |
-| `8"\xa0Concrete Valley Gutter` | excluded | unmatched |
-
-Same failure class as Stearns — a mill/removal item landing in `hma` — reintroduced through a text
-gap instead of a keyword-ordering gap. **I wrote the ruling layer this evening and it did not fire on
-the largest single milling row in the corpus.**
-
-Fixed: `normalize_description()` folds the same typographic characters and collapses whitespace, and
-all three call sites route through it. A test asserts our normalizer agrees with
-`08_material_universe.normalize` character-for-character, so the two artifacts cannot drift again.
-
-## 2. A THIRD instance, found while verifying the fix
-
-After the normalization fix, milling rose far less than the 168,834 SY it should have. Cause:
-
-```
-_normalize_unit("Square Yard")  ->  "SQUAREYARD"   # matched no known form
-_normalize_unit("SQ YD")        ->  "SY"           # fine
-```
-
-The bridge accepted `SY / S Y / SQ YD / SQYD / SYD` but not the spelled-out `Square Yard`, so
-**179,016 SY of correctly-categorised milling was still dropped** — this time by the unit guard
-rather than the description matcher. `Cubic Yard` had the same gap.
-
-Fixed, with a table-driven test over every unit spelling that appears in the corpus.
-
-**Three defects in one day with an identical shape:** a value obviously right to a human, unrecognised
-by a matcher, silently producing a zero rather than an error. The keyword typo (`RECLAIM`), the
-description text (`\xa0`), and now the unit spelling (`Square Yard`). CLAUDE.md's rule — *never let a
-failure and a legitimate empty answer share a return value* — describes all three exactly.
-
-## 3. Final corpus numbers
-
-| bucket | start of day | final | change |
+| bucket | **source** | live LLM (demo) | crosswalk |
 |---|---:|---:|---:|
-| **`milling_sy`** | **542,262** | **3,021,338** | **+2,479,076 (5.6×)** |
-| `base_tons` | 1,008,322 | 832,381 | −175,941 |
-| `shoulder_tons` | 47,211 | 57,173 | +9,962 |
-| `grading_quantity` | 2,137,441 | 2,140,330 | +2,889 |
-| `hot_mix_tons` | 1,150,328 | 1,146,413 | −3,915 |
+| hot mix | **121,221 t** | **200 t** ❌ | 121,221 t ✅ |
+| milling | **63,092 t** | *absent* | 408,216 SY (= FDR, not milling) |
+| base | **6,506 t** | 6,506 t ✅ | 7,326 t |
+| grading | — | 33,138 CY | 32,690 CY |
 
-`integrity_check ok`. **92 tests pass**, 1 xfailed (the pinned known-broken keywords).
+### The headline: the live path reported 200 tons of asphalt on a 121,221-ton job — off by 605×
 
-Four independent defects produced the milling correction: the `RECLAIM` typo (FDR), `MILL
-BITUMINOUS` losing to `BITUMINOUS`, the `\xa0` normalization gap, and the `Square Yard` unit gap.
+It picked up `PATCHING | TON | 200` and **missed `RAP - SUPERPAVE FAA 43 | TON | 121,221` entirely.**
+On the path the demo runs.
 
-## 4. From the mapping pressure test — the numbers that change the L1/L2 decision
+### Truncation was NOT the cause — hypothesis tested and rejected
 
-The full analysis is in `docs/_spec/mapping_architecture.md`. Three findings that matter most:
+`s3_extract` truncates to 180,000 chars (first 108,000 + last 72,000) of a 1,143,615-char document,
+discarding the middle 963,615. That looked like the obvious culprit. It is not:
 
-**The 100% lookup coverage is training-set recall and should not be used.** A leave-one-plan-out test
-gives the real number: **44.0% row coverage on an unseen plan** (50.5% if `state` is dropped from the
-key), and 41–74% of quantity by unit. T's decision rule — *"90% means the heuristic sees only the
-tail; 40% means it is doing real work"* — lands on **doing real work**. A Montana plan is the extreme:
-0/30 lookup coverage, so `SPEC_MAP` is 100% of the answer there.
+```
+'RAP - SUPERPAVE FAA 43'    at offset  86,309  (7.5% in)  -> SENT to Claude
+'MILLING PAVEMENT SURFACE'  at offset  86,229  (7.5% in)  -> SENT to Claude
+```
 
-**SPEC_MAP's 40.7% row coverage is 83–99% of the quantity in the three bucket-feeding units** (SY
-83.8%, TON 92.8%, CY 99.6%). Row-count coverage badly understates it; the misses are EA/LF small
-items that can never reach a bucket.
+Both were well inside the head window. **Claude saw the line and did not classify it as hot mix.**
 
-**The disagreement matrix: 491 genuine disagreements of 1,633 comparable rows (30.1%).** Broken out
-by source — `llm` 51.8%, `removal_rule` 32.4%, **`keyword` 3.8%**. The keyword agreement is circular
-(those rows were seeded from SPEC_MAP) and worth nothing as evidence. But the **26 keyword rows that
-DO disagree are the most valuable finding**: 22 are `MILL BITUMINOUS` rows still labelled `hma` —
-**the lookup table is still carrying the full Stearns bug**, a fossil of a fix that never propagated.
+### Most likely cause: a vocabulary gap in the seven-sentence prose mapping
 
-On the top-20 by quantity: SPEC_MAP wins 14, the lookup wins 6, and the pattern is clean — *SPEC_MAP
-wins wherever a 2026-08-07 fix or ruling landed; the lookup wins wherever the corpus contains
-vocabulary SPEC_MAP has never heard of* (Montana `PLANT MIX` 24,069 TON, SD `SHOT ROCK`, and the
-misspelled `GRAUNULAR MATERIAL` — a keyword list cannot fix typos, which is itself an argument for
-keeping the lookup layer).
+`schema.py` asks for *"Total tons of hot mix asphalt (**HMA**) from the bid schedule."* NDDOT does not
+write "HMA" or "hot mix" — it writes **`RAP - SUPERPAVE FAA 43`**. The model was asked for HMA, shown
+Superpave, and returned the one line that did look like asphalt tonnage (`PATCHING`).
 
-**On "verb before noun as a rule": the pressure test recommends AGAINST the general form.** Tested
-against the corpus, it changes 274 rows and **breaks 8 real cases** — it destroys the `stockpile`
-bucket (`SALVAGE AND STOCKPILE` → grading), reclassifies `REMOVE & RESET DELINEATORS` as earthwork,
-turns 7,350 CY of `REMOVE AND REPLACE RIPRAP` into grading, and makes `REMOVE MAILBOX` grading (140
-rows of pollution). The narrow form — process verbs (`MILL`/`SAW`/`RECLAIM`) beating pavement-material
-nouns only — catches all three historic six-figure bugs and breaks none of the eleven adversarial
-cases, because `REMOVE`/`SALVAGE` are excluded.
+**This is exactly the state-vocabulary problem the spec books were just added to solve** — MN writes
+BITUMINOUS, SD writes ASPHALT CONCRETE, ND writes SUPERPAVE. `SPEC_MAP` hand-orders around it and has
+a `SUPERPAVE` keyword, which is why the crosswalk got this right and the prose mapping did not.
 
-## 5. Open for T
+**UNVERIFIED:** this is the most plausible mechanism, not a proven one. Confirming it means one more
+call with "SUPERPAVE" added to the field description and seeing whether 121,221 appears. That is the
+cheapest possible next experiment and it should run before Wednesday.
 
-1. **Republish to Postgres?** `csi_v2.db` is 194,343 SY ahead of `public.materials`. Never-list item.
-2. **F2 scope** — four states (needs the drop path to adopt the crosswalk) or two states (what the
-   LLM path can produce today)?
-3. **`material_crosswalk.csv` still carries the Stearns bug** on 22 rows. It is published to Postgres
-   as a table. Rebuild it, or leave it until the L1/L2 decision?
-4. **Everything is uncommitted** on one laptop — a 5.6× milling correction, 92 tests, five reports
-   and two specs.
+### The milling absence is arguably CORRECT behaviour
+
+`milling_sy` asks for *"Total **square yards** of milling."* The plan states milling in **TONS**
+(63,092). The model declined to put tons into a square-yard field. That is the honest answer, and it
+is open question #2 from the July pre-read — *"NDDOT measures milling in TONS while MN/SD measure SY.
+Your MILL SY column cannot hold the ND tons."* The field name bakes in a unit the plan does not use.
+
+The crosswalk's 408,216 is **not milling** — it is Full Depth Reclamation, routed to `milling_sy` by
+Alex's ruling (category `base`, quantity stays where measurable). The crosswalk also drops the 63,092
+TON of real milling, as `no_bucket_for_unit`. **So neither pipeline reports this plan's actual
+milling.** Both are wrong, differently.
+
+## What this changes
+
+1. **Wednesday's risk is now specific and large.** A demo on an ND plan can under-report asphalt by
+   orders of magnitude. Of CSI's bidding, **ND is 35.8%**.
+2. **The crosswalk beat the LLM on the number that matters most here** — reversing the earlier
+   read from Stearns/Walsh/Dunn-CP-13, where they agreed or the LLM was better. The two pipelines
+   agree on easy plans and diverge on hard ones, which is the worst possible failure shape.
+3. **The seven prose sentences are the highest-leverage thing to fix in the whole system.** They are
+   ~40 words, they are the live mapping, and they encode neither CSI's rulings nor three states'
+   vocabulary. Adding state vocabulary to them is hours, not days.
+4. It strengthens the spec-book Tier 1 ticket: the books give the naming crosswalk directly.
+
+## Recommended before Wednesday, in order
+
+1. Add state vocabulary to the seven field descriptions (SUPERPAVE / ASPHALT CONCRETE / BITUMINOUS /
+   RAP), re-drop Dunn, confirm 121,221 appears. ~1 hour, one API call to verify.
+2. Decide what `milling_sy` does with ND tons — it is a real open question, not a bug.
+3. Do not demo an ND plan until 1 is done.
+
+## Side effects of this test, recorded
+
+- The run wrote **558 chunks into Chroma under `doc_id = "Job 23388 Request for Proposal"`** — a
+  stem-keyed id with blank provenance. Issue **#58** reproducing live from a single drop.
+- No payload cache was written (`process_pdf` does not write it; only `apply_verification` does).
+- **`.env`'s `ANTHROPIC_API_KEY` is a 10-character placeholder** (`sk-ant-...`). The first attempt
+  died on a 401; the working key exists only in the shell environment. A fresh machine following the
+  README gets a 401.
