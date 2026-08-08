@@ -51,7 +51,7 @@ def rebuild_plan(rows):
     for desc, unit, qty in rows:
         # Re-run the crosswalk on the already-extracted line (this is where the new keywords take effect).
         bucket, cat = xwalk.map_line(desc, unit)
-        remapped.append((bucket, cat, desc, unit))
+        remapped.append((bucket, cat, desc, unit, xwalk.csi_category(desc)))
         cats.add(cat)
         # A line counts toward a bucket only when it both maps to one AND carries a numeric quantity
         # (lump-sum / null-quantity lines have qty None) — identical guard to rollup_metrics.
@@ -73,6 +73,15 @@ def rebuild_plan(rows):
 def main():
     dry = "--dry-run" in sys.argv
     conn = sqlite3.connect(DB_PATH)
+
+    # Expand-only and idempotent, but still a schema write, so --dry-run must not do it.
+    #
+    # KNOWN BLIND SPOT, learned the hard way 2026-08-07: --dry-run skips the UPDATE entirely, so it
+    # validates the computation and NOT the write. It passed clean while the real run died
+    # immediately on `no such column: csi_category`. A clean dry-run is evidence about the numbers,
+    # not about the SQL. Same shape as #65 — a success signal at the wrong layer.
+    if not dry:
+        xwalk.ensure_stamp_columns(conn)
 
     # Every plan that has a plan_metrics row (so we touch fallback + deterministic plans alike).
     plan_ids = [r[0] for r in conn.execute("SELECT plan_id FROM plan_metrics ORDER BY plan_id")]
@@ -98,12 +107,15 @@ def main():
         if dry:
             continue
 
-        # 1) rewrite materials.csi_bucket / spec_category in place (preserve quantity/page/etc.).
-        for bucket, cat, desc, unit in remapped:
+        # 1) rewrite materials.csi_bucket / spec_category in place (preserve quantity/page/etc.),
+        #    and re-stamp csi_category + crosswalk_version so a re-mapped row records WHICH mapping
+        #    produced its bucket. Without the stamp a re-map is invisible in the data afterwards.
+        for bucket, cat, desc, unit, csi_cat in remapped:
             conn.execute(
-                "UPDATE materials SET csi_bucket=?, spec_category=? "
+                "UPDATE materials SET csi_bucket=?, spec_category=?, csi_category=?, "
+                "crosswalk_version=? "
                 "WHERE plan_id=? AND raw_description=? AND COALESCE(unit,'')=COALESCE(?, '')",
-                (bucket, cat, plan_id, desc, unit),
+                (bucket, cat, csi_cat, xwalk.CROSSWALK_VERSION, plan_id, desc, unit),
             )
         # 2) rebuild ONLY the bucket-derived plan_metrics columns (everything else preserved).
         sets = ", ".join(f"{c}=?" for c in REBUILT_COLS)

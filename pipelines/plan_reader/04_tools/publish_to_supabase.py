@@ -7,8 +7,20 @@ so the team can read extracted plan data over a connection string instead of nee
 This is a PUBLISH, not a migration.
   - Nothing moves. The operational store stays local SQLite and stays authoritative.
   - Nothing is deleted.
-  - The app does not read Supabase. Do not repoint it here.
   - Per 00_master_plan.md section 4, Supabase is a published analytical snapshot.
+
+  ⚠️ CORRECTED 2026-08-07. This block used to say "The app does not read Supabase. Do not repoint
+  it here." THAT IS NO LONGER TRUE, and it is the kind of false that stops someone republishing
+  when they need to. P0-B repointed the backend: `apps/api/backend/final_report.py` queries
+  `public.gotchas` and `public.plans` through `backend/ci_db.py` (see `:106`, `:147`, `:448`), and
+  `config.py::corpus_state` reads Postgres too. **A change to the local SQLite corpus does not
+  reach the app until this publisher runs.**
+
+  Note the split, because it is not uniform and it surprised someone already: the report's GOTCHAS
+  come from Postgres (so a republish changes them), but the report's QUANTITIES come from the
+  content-hashed payload cache in `00_input/_report_payload_cache/`, written at PDF-drop time
+  (`final_report.py:312`). Republishing does NOT change quantities on an already-cached plan.
+  Retiring that cache is tracked as the cache-to-DB migration.
 
 Five tables are published:  plans, materials, plan_metrics, gotchas, location_intelligence.
 

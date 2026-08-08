@@ -273,14 +273,17 @@ def write_materials(conn, plan_id, source_file, items, parse_method, confidence)
     """Replace this plan's materials rows with the freshly parsed set (idempotent per plan). The
     parse_method/confidence are stamped per row so a fallback-recovered line is distinguishable from a
     deterministically-parsed one ('deterministic'/'high' vs 'llm_fallback'/'medium')."""
+    xwalk.ensure_stamp_columns(conn)
     conn.execute("DELETE FROM materials WHERE plan_id = ?", (plan_id,))
     conn.executemany(
         "INSERT INTO materials (plan_id, source_file, section, bid_item_no, raw_description, "
-        "csi_bucket, spec_category, quantity, unit, page, confidence, parse_method) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "csi_bucket, spec_category, quantity, unit, page, confidence, parse_method, "
+        "csi_category, crosswalk_version) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [(plan_id, source_file, it["section"], it["bid_item_no"], it["raw_description"],
           it["csi_bucket"], it["spec_category"], it["quantity"], it["unit"], it["page"],
-          confidence, parse_method) for it in items],
+          confidence, parse_method,
+          xwalk.csi_category(it["raw_description"]), xwalk.CROSSWALK_VERSION) for it in items],
     )
     conn.commit()
 
