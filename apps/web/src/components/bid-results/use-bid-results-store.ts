@@ -14,12 +14,9 @@ export type MissingResultsProject = {
 export type BidEntryForm = {
   raw_bidder_name: string;
   bid_amount: string; // kept as string while editing, parsed to float on submit
-  is_winner: boolean;
 };
 
-export const MAX_ENTRIES = 5;
-
-export const emptyEntry = (): BidEntryForm => ({ raw_bidder_name: "", bid_amount: "", is_winner: false });
+export const emptyEntry = (): BidEntryForm => ({ raw_bidder_name: "", bid_amount: "" });
 
 type SubmitResult = { ok: true; project_natural_key: string; entries_saved: number }
   | { ok: false; message: string };
@@ -41,7 +38,7 @@ export type BidResultRow = {
   bid_year: number | null;
 };
 
-type BidResultEditableFields = Partial<Pick<BidResultRow, "raw_bidder_name" | "bid_amount" | "did_win">>;
+type BidResultEditableFields = Partial<Pick<BidResultRow, "raw_bidder_name" | "bid_amount">>;
 
 type UpdateResult = { ok: true; project_natural_key: string; rows: BidResultRow[] } | { ok: false; message: string };
 
@@ -86,12 +83,8 @@ export function useBidResultsStore() {
     setEntries((prev) => prev.map((e, idx) => (idx === i ? { ...e, ...patch } : e)));
   }, []);
 
-  const setWinner = useCallback((i: number) => {
-    setEntries((prev) => prev.map((e, idx) => ({ ...e, is_winner: idx === i })));
-  }, []);
-
   const addRow = useCallback(() => {
-    setEntries((prev) => (prev.length >= MAX_ENTRIES ? prev : [...prev, emptyEntry()]));
+    setEntries((prev) => [...prev, emptyEntry()]);
   }, []);
 
   const removeRow = useCallback((i: number) => {
@@ -111,10 +104,6 @@ export function useBidResultsStore() {
       setError("Every row needs both a bidder name and a bid amount.");
       return false;
     }
-    if (!filled.some((e) => e.is_winner)) {
-      setError("Mark which bidder won.");
-      return false;
-    }
 
     setSubmitting(true);
     try {
@@ -125,7 +114,6 @@ export function useBidResultsStore() {
           entries: filled.map((e) => ({
             raw_bidder_name: e.raw_bidder_name.trim(),
             bid_amount: Number(e.bid_amount),
-            is_winner: e.is_winner,
           })),
         }),
       });
@@ -195,7 +183,7 @@ export function useBidResultsStore() {
 
   return {
     projects, loadingProjects, search, setSearch, fetchProjects,
-    selected, selectProject, entries, updateEntry, setWinner, addRow, removeRow,
+    selected, selectProject, entries, updateEntry, addRow, removeRow,
     submit, submitting, error, lastSaved,
     results, loadingResults, resultsSearch, setResultsSearch, fetchResults, updateResult, resultsError,
   };

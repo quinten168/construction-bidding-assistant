@@ -1,6 +1,7 @@
 """
-Feature 1 — bid results entry: let an estimator fill in the top-5 bidders (and who won) for a
-historical project that has none recorded yet.
+Feature 1 — bid results entry: let an estimator fill in the bidders for a historical project that
+has none recorded yet. The winner is never client-supplied — it's always the lowest bid_amount,
+computed here (see submit_bid_results/update_bid_result).
 
 Writes scratch.bid_results (Supabase, see docs/DATA_ACCESS_SCRATCH.md). A raw bidder name with no
 match in scratch.competitor_name_registry gets a new
@@ -18,8 +19,6 @@ from .observability import get_logger
 
 log = get_logger("bid_assistant.bid_results_admin")
 
-MAX_ENTRIES = 5
-
 
 class ValidationError(ValueError):
     pass
@@ -29,7 +28,6 @@ class ValidationError(ValueError):
 class BidEntry:
     raw_bidder_name: str
     bid_amount: float
-    is_winner: bool
 
 
 def list_projects_missing_results(search: str | None = None) -> list[dict]:
@@ -96,30 +94,33 @@ def _resolve_bidder(cur, raw_name: str) -> tuple[str, str]:
 
 
 def submit_bid_results(project_natural_key: str, entries: list[dict]) -> dict:
-    """Insert 1-5 bid_results rows for a project that currently has none.
-    `entries`: [{raw_bidder_name, bid_amount, is_winner}, ...]."""
+    """Insert bid_results rows for a project that currently has none. No cap on bidder count.
+    `entries`: [{raw_bidder_name, bid_amount}, ...]. The winner is computed here, not taken from
+    the caller — whoever has the lowest bid_amount wins; a tie at the lowest amount is rejected
+    rather than guessed at (see the tie check below)."""
     if not entries:
         raise ValidationError("At least one bidder is required.")
-    if len(entries) > MAX_ENTRIES:
-        raise ValidationError(f"At most {MAX_ENTRIES} bidders are supported per submission.")
 
     parsed = [
         BidEntry(
             raw_bidder_name=str(e.get("raw_bidder_name") or "").strip(),
             bid_amount=float(e["bid_amount"]),
-            is_winner=bool(e.get("is_winner")),
         )
         for e in entries
     ]
     if any(not e.raw_bidder_name for e in parsed):
         raise ValidationError("Every entry needs a bidder name.")
-    winners = [e for e in parsed if e.is_winner]
-    if len(winners) != 1:
-        raise ValidationError("Exactly one bidder must be marked as the winner.")
 
-    # bid_rank: 1 = lowest entered amount, independent of who was marked the winner.
+    # bid_rank: 1 = lowest entered amount. did_win follows directly from rank 1 below.
     ranked = sorted(range(len(parsed)), key=lambda i: parsed[i].bid_amount)
     rank_of = {i: r + 1 for r, i in enumerate(ranked)}
+
+    lowest = parsed[ranked[0]].bid_amount
+    if len(ranked) > 1 and parsed[ranked[1]].bid_amount == lowest:
+        raise ValidationError(
+            f"Two bidders have the identical lowest bid (${lowest:,.2f}) — a tie can't be "
+            "resolved automatically. Correct one of the amounts before saving."
+        )
 
     with ci_db.get_conn() as conn, conn.cursor() as cur:
         cur.execute(
@@ -154,7 +155,7 @@ def submit_bid_results(project_natural_key: str, entries: list[dict]) -> dict:
                 """,
                 (
                     project_natural_key, competitor_unit_id, entry.bid_amount, rank_of[i],
-                    entry.is_winner, entry.raw_bidder_name, mapping_status,
+                    rank_of[i] == 1, entry.raw_bidder_name, mapping_status,
                 ),
             )
 
@@ -191,18 +192,19 @@ def list_bid_results(search: str | None = None) -> list[dict]:
 
 
 def update_bid_result(project_natural_key: str, competitor_unit_id: str, fields: dict) -> dict:
-    """Edit one cell of an already-recorded bid result: raw_bidder_name, bid_amount, and/or
-    did_win, any subset. Unlike submit_bid_results (insert-only, blocked once a project has any
-    rows), this is the results table's inline-edit path for a project that already has results.
+    """Edit one cell of an already-recorded bid result: raw_bidder_name and/or bid_amount, any
+    subset. Unlike submit_bid_results (insert-only, blocked once a project has any rows), this is
+    the results table's inline-edit path for a project that already has results.
 
     - A raw_bidder_name change re-resolves through the name registry (_resolve_bidder, same as
       submit). If that resolves to a *different* competitor_unit_id than the row currently has,
       the edit changes this row's primary key — blocked if the project already has a row at that
       new key (two raw names on one project must not collide onto one competitor mid-edit).
-    - A bid_amount change recomputes bid_rank for every bidder on the project (rank is relative,
-      not a per-row value).
-    - A did_win=True edit clears the flag on every other bidder on the project first, mirroring
-      the one-winner-per-project rule submit_bid_results enforces at insert time.
+    - A bid_amount change recomputes bid_rank AND did_win for every bidder on the project (both
+      are relative to the whole project, not a per-row value) — did_win is never independently
+      settable, it always follows whoever has the lowest bid_amount. If the new amount would tie
+      the current lowest, the whole edit is rejected before anything is written (same rule
+      submit_bid_results enforces at insert time).
 
     Returns every bid_results row for the project post-edit (project-scoped, not the whole table)
     so the frontend can patch its table state without a full refetch.
@@ -255,40 +257,34 @@ def update_bid_result(project_natural_key: str, competitor_unit_id: str, fields:
             new_amount = float(fields["bid_amount"])
             if new_amount <= 0:
                 raise ValidationError("Bid amount must be positive.")
+
+            # Check for a tie at the new lowest amount BEFORE writing anything, so a rejected edit
+            # leaves the project's rows completely untouched (rolled back cleanly by
+            # ci_db.get_conn() if we raise here, since no UPDATE has executed yet).
+            cur.execute(
+                "select competitor_unit_id, bid_amount from scratch.bid_results "
+                "where project_natural_key = %s",
+                (project_natural_key,),
+            )
+            amounts = {r["competitor_unit_id"]: r["bid_amount"] for r in cur.fetchall()}
+            amounts[target_id] = new_amount
+            lowest = min(amounts.values())
+            if sum(1 for amt in amounts.values() if amt == lowest) > 1:
+                raise ValidationError(
+                    f"Two bidders would have the identical lowest bid (${lowest:,.2f}) — a tie "
+                    "can't be resolved automatically. Correct one of the amounts before saving."
+                )
+
             cur.execute(
                 "update scratch.bid_results set bid_amount = %s, updated_at = now() "
                 "where project_natural_key = %s and competitor_unit_id = %s",
                 (new_amount, project_natural_key, target_id),
             )
-            cur.execute(
-                "select competitor_unit_id, bid_amount from scratch.bid_results "
-                "where project_natural_key = %s order by bid_amount asc",
-                (project_natural_key,),
-            )
-            for rank, r in enumerate(cur.fetchall(), start=1):
+            for rank, (cid, _amt) in enumerate(sorted(amounts.items(), key=lambda kv: kv[1]), start=1):
                 cur.execute(
-                    "update scratch.bid_results set bid_rank = %s "
+                    "update scratch.bid_results set bid_rank = %s, did_win = %s, updated_at = now() "
                     "where project_natural_key = %s and competitor_unit_id = %s",
-                    (rank, project_natural_key, r["competitor_unit_id"]),
-                )
-
-        if "did_win" in fields:
-            if bool(fields["did_win"]):
-                cur.execute(
-                    "update scratch.bid_results set did_win = false, updated_at = now() "
-                    "where project_natural_key = %s",
-                    (project_natural_key,),
-                )
-                cur.execute(
-                    "update scratch.bid_results set did_win = true, updated_at = now() "
-                    "where project_natural_key = %s and competitor_unit_id = %s",
-                    (project_natural_key, target_id),
-                )
-            else:
-                cur.execute(
-                    "update scratch.bid_results set did_win = false, updated_at = now() "
-                    "where project_natural_key = %s and competitor_unit_id = %s",
-                    (project_natural_key, target_id),
+                    (rank, rank == 1, project_natural_key, cid),
                 )
 
         cur.execute(

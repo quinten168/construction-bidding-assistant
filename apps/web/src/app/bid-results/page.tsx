@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Trophy, Plus, Trash2, Search, Check } from "lucide-react";
 import { Glass, Eyebrow, SectionTitle, Chip } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import {
   useBidResultsStore,
-  MAX_ENTRIES,
   type MissingResultsProject,
 } from "@/components/bid-results/use-bid-results-store";
 import { BidResultsTable } from "@/components/bid-results/results-table";
+import { AccessCompanyPicker } from "@/components/pit-list/access-company-picker";
 
 export default function BidResultsPage() {
   const store = useBidResultsStore();
@@ -19,6 +19,26 @@ export default function BidResultsPage() {
     store.fetchResults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Live preview of who the backend will pick as winner (lowest bid_amount) as the user types —
+  // mirrors the server's own rule (bid_results_admin.py) so this never promises a winner the save
+  // would reject. Blank/unparseable amounts don't count; a tie shows no winner, same as the
+  // backend's tie-block.
+  const lowestIndex = useMemo(() => {
+    const parsed = store.entries.map((e) => (e.bid_amount.trim() ? Number(e.bid_amount) : NaN));
+    let best = -1;
+    let tied = false;
+    parsed.forEach((amount, i) => {
+      if (Number.isNaN(amount)) return;
+      if (best === -1 || amount < parsed[best]) {
+        best = i;
+        tied = false;
+      } else if (amount === parsed[best]) {
+        tied = true;
+      }
+    });
+    return tied ? -1 : best;
+  }, [store.entries]);
 
   return (
     <div className="mx-auto max-w-5xl p-6">
@@ -34,8 +54,9 @@ export default function BidResultsPage() {
 
       <h2 className="mt-6 font-serif text-lg tracking-tight">Enter results for a new project</h2>
       <p className="mt-1 max-w-xl text-[13px] text-muted-foreground">
-        Projects below have no recorded results yet. Enter the bidders and mark who won — this
-        feeds the competitor-intelligence model directly.
+        Projects below have no recorded results yet. Enter the bidders and their amounts — the
+        winner is set automatically from the lowest bid — this feeds the competitor-intelligence
+        model directly.
       </p>
 
       <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,320px)_1fr]">
@@ -90,23 +111,22 @@ export default function BidResultsPage() {
               <div className="space-y-2">
                 {store.entries.map((entry, i) => (
                   <div key={i} className="flex items-center gap-2 rounded-xl border border-black/5 bg-white/40 p-2.5">
-                    <button
-                      onClick={() => store.setWinner(i)}
-                      title="Mark as winner"
+                    <div
+                      title={i === lowestIndex ? "Currently lowest bid — will be the winner" : undefined}
                       className={cn(
-                        "grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-colors",
-                        entry.is_winner
+                        "grid h-7 w-7 shrink-0 place-items-center rounded-full border",
+                        i === lowestIndex
                           ? "border-[var(--positive)] bg-[var(--positive)] text-white"
-                          : "border-black/15 text-transparent hover:border-primary",
+                          : "border-black/15 text-transparent",
                       )}
                     >
                       <Trophy className="h-3.5 w-3.5" />
-                    </button>
-                    <input
+                    </div>
+                    <AccessCompanyPicker
                       value={entry.raw_bidder_name}
-                      onChange={(e) => store.updateEntry(i, { raw_bidder_name: e.target.value })}
+                      onChange={(v) => store.updateEntry(i, { raw_bidder_name: v })}
                       placeholder="Bidder name"
-                      className="min-w-0 flex-1 rounded-lg border border-black/10 bg-white/70 px-2.5 py-1.5 text-[13px] outline-none focus:border-primary/50"
+                      className="min-w-0 flex-1"
                     />
                     <input
                       value={entry.bid_amount}
@@ -129,12 +149,11 @@ export default function BidResultsPage() {
               <div className="mt-2.5 flex items-center justify-between">
                 <button
                   onClick={store.addRow}
-                  disabled={store.entries.length >= MAX_ENTRIES}
-                  className="flex items-center gap-1.5 text-[12px] font-medium text-primary transition-colors hover:text-primary/80 disabled:opacity-30"
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-primary transition-colors hover:text-primary/80"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add bidder ({store.entries.length}/{MAX_ENTRIES})
+                  <Plus className="h-3.5 w-3.5" /> Add bidder ({store.entries.length})
                 </button>
-                <span className="text-[11px] text-muted-foreground">Tap the trophy to mark the winner</span>
+                <span className="text-[11px] text-muted-foreground">Winner is set automatically — lowest bid wins</span>
               </div>
 
               {store.error && (

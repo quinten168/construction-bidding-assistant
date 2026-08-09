@@ -87,8 +87,8 @@ def test_submit_happy_path_computes_rank():
     _reset_project()
     try:
         result = bra.submit_bid_results(TEST_PROJECT_KEY, [
-            {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 900, "is_winner": True},
-            {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 1100, "is_winner": False},
+            {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 900},
+            {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 1100},
         ])
         assert result["entries_saved"] == 2
 
@@ -98,6 +98,8 @@ def test_submit_happy_path_computes_rank():
                 "where project_natural_key = %s order by bid_rank", (TEST_PROJECT_KEY,)
             )
             rows = cur.fetchall()
+            # No is_winner was supplied — did_win is derived purely from bid_amount, so the lower
+            # of the two entered amounts must be the one flagged as the winner.
             assert rows[0]["raw_bidder_name"] == "ZZTEST Bidder Low"
             assert rows[0]["bid_rank"] == 1 and rows[0]["did_win"] is True
             assert rows[1]["bid_rank"] == 2 and rows[1]["did_win"] is False
@@ -112,7 +114,7 @@ def test_unknown_bidder_gets_needs_review_registry_row():
             cur.execute("delete from scratch.competitor_name_registry where raw_name_variant = %s", (UNKNOWN_BIDDER,))
 
         bra.submit_bid_results(TEST_PROJECT_KEY, [
-            {"raw_bidder_name": UNKNOWN_BIDDER, "bid_amount": 500, "is_winner": True},
+            {"raw_bidder_name": UNKNOWN_BIDDER, "bid_amount": 500},
         ])
 
         with ci_db.get_conn() as conn, conn.cursor() as cur:
@@ -133,29 +135,25 @@ def test_unknown_bidder_gets_needs_review_registry_row():
         _cleanup()
 
 
-def test_rejects_more_than_five_entries():
+def test_accepts_more_than_five_entries():
+    """The old MAX_ENTRIES=5 cap is gone — a letting that drew more than 5 bidders must be
+    recordable in one submission."""
     _reset_project()
     try:
-        entries = [{"raw_bidder_name": f"ZZTEST Bidder {i}", "bid_amount": 100 + i, "is_winner": i == 0}
-                   for i in range(6)]
-        with pytest.raises(bra.ValidationError):
-            bra.submit_bid_results(TEST_PROJECT_KEY, entries)
+        entries = [{"raw_bidder_name": f"ZZTEST Bidder {i}", "bid_amount": 100 + i} for i in range(6)]
+        result = bra.submit_bid_results(TEST_PROJECT_KEY, entries)
+        assert result["entries_saved"] == 6
     finally:
         _cleanup()
 
 
-def test_rejects_zero_or_multiple_winners():
+def test_rejects_tied_lowest_bid_on_submit():
     _reset_project()
     try:
         with pytest.raises(bra.ValidationError):
             bra.submit_bid_results(TEST_PROJECT_KEY, [
-                {"raw_bidder_name": "A", "bid_amount": 100, "is_winner": False},
-                {"raw_bidder_name": "B", "bid_amount": 200, "is_winner": False},
-            ])
-        with pytest.raises(bra.ValidationError):
-            bra.submit_bid_results(TEST_PROJECT_KEY, [
-                {"raw_bidder_name": "A", "bid_amount": 100, "is_winner": True},
-                {"raw_bidder_name": "B", "bid_amount": 200, "is_winner": True},
+                {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 100},
+                {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 100},
             ])
     finally:
         _cleanup()
@@ -165,11 +163,59 @@ def test_rejects_project_that_already_has_results():
     _reset_project()
     try:
         bra.submit_bid_results(TEST_PROJECT_KEY, [
-            {"raw_bidder_name": "A", "bid_amount": 100, "is_winner": True},
+            {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 100},
         ])
         with pytest.raises(bra.ValidationError):
             bra.submit_bid_results(TEST_PROJECT_KEY, [
-                {"raw_bidder_name": "B", "bid_amount": 200, "is_winner": True},
+                {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 200},
             ])
+    finally:
+        _cleanup()
+
+
+def test_update_bid_amount_flips_winner():
+    """did_win is never client-settable — it's recomputed for the whole project whenever a
+    bid_amount changes, so editing the higher bidder down below the other one must flip the
+    winner (and bid_rank) on both rows, not just the one edited."""
+    _reset_project()
+    try:
+        bra.submit_bid_results(TEST_PROJECT_KEY, [
+            {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 900},
+            {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 1100},
+        ])
+        high_id = ci_db.normalize("ZZTEST Bidder High")
+        low_id = ci_db.normalize("ZZTEST Bidder Low")
+
+        result = bra.update_bid_result(TEST_PROJECT_KEY, high_id, {"bid_amount": 500})
+        rows = {r["competitor_unit_id"]: r for r in result["rows"]}
+        assert rows[high_id]["did_win"] is True and rows[high_id]["bid_rank"] == 1
+        assert rows[low_id]["did_win"] is False and rows[low_id]["bid_rank"] == 2
+    finally:
+        _cleanup()
+
+
+def test_update_bid_amount_rejects_tie_and_leaves_rows_unchanged():
+    _reset_project()
+    try:
+        bra.submit_bid_results(TEST_PROJECT_KEY, [
+            {"raw_bidder_name": "ZZTEST Bidder Low", "bid_amount": 900},
+            {"raw_bidder_name": "ZZTEST Bidder High", "bid_amount": 1100},
+        ])
+        high_id = ci_db.normalize("ZZTEST Bidder High")
+
+        with pytest.raises(bra.ValidationError):
+            bra.update_bid_result(TEST_PROJECT_KEY, high_id, {"bid_amount": 900})
+
+        # Rejected before any write — both rows must still hold their original values.
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select competitor_unit_id, bid_amount, bid_rank, did_win from scratch.bid_results "
+                "where project_natural_key = %s order by bid_rank", (TEST_PROJECT_KEY,)
+            )
+            rows = {r["competitor_unit_id"]: r for r in cur.fetchall()}
+            assert rows[ci_db.normalize("ZZTEST Bidder Low")]["bid_amount"] == 900
+            assert rows[ci_db.normalize("ZZTEST Bidder Low")]["did_win"] is True
+            assert rows[high_id]["bid_amount"] == 1100
+            assert rows[high_id]["did_win"] is False
     finally:
         _cleanup()
