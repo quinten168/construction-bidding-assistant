@@ -20,8 +20,7 @@ THE COUNTY CONVENTION — READ THIS BEFORE CHANGING `_county_for_column`
 `join_key.normalize_county`, which yields `'stearns'`. **The live table does not look like that.**
 All ~1,591 existing rows hold an uppercase, `' CO'`-suffixed value: `'STEARNS CO'`, `'MILLE LACS CO'`,
 `'CASS CO & CLAY CO'`. Following the YAML literally would put `'stearns'` into a column where every
-other row says `'STEARNS CO'`, and would produce a `project_natural_key` that does not resemble the
-existing `MN_STEARNS_CO_MELROSE_2023-08-03` shape.
+other row says `'STEARNS CO'`.
 
 Resolved 2026-08-03 by the owner, explicitly: **match the existing convention, do not invent a
 cleaner one.** Consistency with 1,591 rows of real data beats internal tidiness on a key we have
@@ -46,14 +45,21 @@ MAPPING_PATH = Path(__file__).with_name("bid_projects_mapping.yaml")
 
 # Settled decisions, 2026-08-03. Named constants rather than inline literals so a future reader can
 # grep for them and find this comment.
-CITY_SENTINEL = "UNKNOWN"          # decision 2 — uppercase, matching the key's casing. Never "".
+UNKNOWN_SENTINEL = "UNKNOWN"       # decision 2 — uppercase, matching the key's casing. Never "".
+                                    # (renamed from CITY_SENTINEL — it was never city-specific, it
+                                    # already covered state/county too; city itself is no longer a
+                                    # key component at all, see build_project_natural_key below.)
 UNPARSED_BID_DATE = "1900-01-01"   # decision 3 — never reject the row; write an obviously-fake date
+LOC_SENTINEL = "NOLOC"             # latitude/longitude fallback — see build_project_natural_key
 ROW_SOURCE = "plan_reader"         # decision 1 — the safety column the CI upsert guards on
 
 # Contract §5: which fields must be present for a row to call itself complete. Anything absent here
 # is NAMED in missing_fields rather than defaulted, so a consumer substituting a value is choosing
-# to rather than doing it by accident.
-REQUIRED_FIELDS = ("state", "county", "source_project_id", "bid_date")
+# to rather than doing it by accident. project_latitude/project_longitude added alongside the key
+# redesign below — they're now key-defining components too. Named with the "project_" prefix to
+# match the actual row/column keys (see build_record), not the raw payload's "latitude"/"longitude".
+REQUIRED_FIELDS = ("state", "county", "source_project_id", "bid_date",
+                    "project_latitude", "project_longitude")
 
 
 class MappingError(RuntimeError):
@@ -197,49 +203,66 @@ def _quantity(payload: dict, label: str):
 KEY_HASH_CHARS = 8   # of the 16-char plan_uid; 8 hex chars is 4e9 values, ample for one corpus
 
 
-def build_project_natural_key(state, county_col, city, bid_date_iso,
+def build_project_natural_key(state, county_col, bid_date_iso, latitude, longitude,
                               plan_uid=None) -> tuple[str, bool, Optional[str]]:
-    """`{state}_{county}_{city}_{bid_date}` slugged → (key, provisional, reason).
+    """`{state}_{county}_{bid_date}_{lat}_{lon}` slugged → (key, provisional, reason). `lat`/`lon`
+    are rounded to 3 decimals (~111m) — precise enough to tell genuinely different nearby projects
+    apart, loose enough to tolerate a human re-entering the same point by hand.
 
-    `county_col` arrives in the live column convention already ('STEARNS CO'), so a fully-resolved
-    key matches the existing MN_STEARNS_CO_MELROSE_2023-08-03 shape exactly.
+    `county_col` arrives in the live column convention already ('STEARNS CO').
 
-    WHY A SUFFIX EXISTS (owner's decision, 2026-08-03)
-    -------------------------------------------------
-    The four components are not independently identifying once any of them falls back to a
-    sentinel. Two different ND plans with no extractable county and no parseable bid date both
-    assemble `ND_UNKNOWN_UNKNOWN_1900-01-01`, and because the writer upserts on this key, the
-    second plan OVERWRITES the first. Observed for real on 2026-08-03: three plans in, two rows
-    out, on the first three of seven fixtures. The sentinel path is the COMMON case on this corpus,
-    not a rare fallback, so the collision is not an edge case either.
+    WHY THIS USES lat/long, NOT city (owner's decision, 2026-08-07 — supersedes the original
+    city-based design)
+    --------------------------------------------------------------------------------------------
+    The key used to be `{state}_{county}_{city}_{bid_date}`, with `city` coming exclusively from a
+    reverse-geocode of `latitude`/`longitude` (plan_reader cannot extract a city directly). That
+    geocode step depends on a milepost-extraction chain that fails on most of the documents actually
+    being uploaded (see #70) — so `city` came back missing far more often than not, provisioning
+    most fresh uploads' keys as a side effect of a step that isn't even required for anything else.
 
-    "Never reject a row" was therefore producing a silently destroyed row one layer down. Appending
-    the content hash makes the key unique by construction:
+    `latitude`/`longitude`, by contrast, are the one field the human verify step in the web UI
+    (`verify-extraction.tsx`) hard-blocks continuing without — "Confirm & continue" is disabled
+    until a location is confirmed, auto-computed or hand-typed. So they're reliably present by the
+    time a plan reaches this function, in a way `city` never was.
 
-        ND_UNKNOWN_UNKNOWN_1900-01-01_e9ae6f09
+    WHY A SUFFIX EXISTS (owner's decision, 2026-08-03, unchanged in shape)
+    -----------------------------------------------------------------------
+    The components are not independently identifying once any of them falls back to a sentinel. Two
+    different ND plans with no extractable county and no parseable bid date can both assemble
+    `ND_UNKNOWN_UNKNOWN_1900-01-01_NOLOC_NOLOC`, and because the writer upserts on this key, the
+    second plan would OVERWRITE the first. Observed for real on 2026-08-03: three plans in, two rows
+    out, on the first three of seven fixtures. Appending the content hash makes the key unique by
+    construction:
+
+        ND_UNKNOWN_UNKNOWN_1900-01-01_NOLOC_NOLOC_e9ae6f09
 
     Deliberately narrow:
-      * The suffix is added ONLY when at least one component is a sentinel. A fully-resolved key is
-        byte-identical to what it was before, so nothing changes for well-formed rows and the
-        existing 1,591 keys are untouched.
+      * The suffix is added ONLY when at least one component is a sentinel. A fully-resolved key
+        gets no suffix at all.
       * It uses `plan_uid` (the PDF content hash), so it is deterministic and re-derivable — the
         same PDF always produces the same key, and a re-drop upserts rather than duplicating.
-      * It does NOT change the PK structure and does NOT touch the bid_results FK, which is what
-        keeps this out of the CI workstream's way.
+      * It does NOT change the PK structure and does NOT touch the bid_results FK.
+
+    A SEPARATE mechanism, in the writer (`bid_projects_writer.py::upsert`), handles the case where
+    two genuinely different plans compute the identical fully-resolved (non-sentinel) key — this
+    function only ever sees one plan at a time and has no database access to detect that itself.
 
     The caller records `provisional` / `reason` in their own columns so a later recomputation pass
     finds every one of these with `where key_provisional`, rather than by string-matching for
     'UNKNOWN'.
     """
+    lat_part = f"{latitude:.3f}" if latitude is not None else None
+    lon_part = f"{longitude:.3f}" if longitude is not None else None
     parts = [
-        _slug(state) or CITY_SENTINEL,
-        _slug(county_col) or CITY_SENTINEL,
-        _slug(city) or CITY_SENTINEL,
+        _slug(state) or UNKNOWN_SENTINEL,
+        _slug(county_col) or UNKNOWN_SENTINEL,
         bid_date_iso or UNPARSED_BID_DATE,
+        lat_part or LOC_SENTINEL,
+        lon_part or LOC_SENTINEL,
     ]
-    names = ("state", "county", "city", "bid_date")
+    names = ("state", "county", "bid_date", "latitude", "longitude")
     sentinel_parts = [n for n, p in zip(names, parts)
-                      if p in (CITY_SENTINEL, UNPARSED_BID_DATE)]
+                      if p in (UNKNOWN_SENTINEL, UNPARSED_BID_DATE, LOC_SENTINEL)]
     key = "_".join(parts)
     if not sentinel_parts:
         return key, False, None
@@ -274,15 +297,12 @@ def build_record(payload: dict, *, content_hash: str = None, source_file: str = 
     # bid_date_unparsed marks it so it is findable without string-matching a magic date.
     bid_date_col = bid_date or UNPARSED_BID_DATE
 
-    # The city component comes ONLY from the reverse geocoder — plan_reader cannot extract a city,
-    # which is the entire reason the geocode stage exists.
-    city = identity.get("geocoded_city")
-
     jkey, unkeyable = join_key.normalize_join_key(
         identity.get("state"), identity.get("county"), identity.get("sp_number"))
 
     pnk, key_provisional, key_reason = build_project_natural_key(
-        state, county_col, city, bid_date, plan_uid=content_hash)
+        state, county_col, bid_date, identity.get("latitude"), identity.get("longitude"),
+        plan_uid=content_hash)
 
     row: dict[str, Any] = {
         # --- case 1: existing columns ---
@@ -317,7 +337,9 @@ def build_record(payload: dict, *, content_hash: str = None, source_file: str = 
         "bid_date": bid_date_col,
         "bid_year": int(bid_date[:4]) if bid_date else None,
         "project_name": None,      # null_always — no equivalent anywhere in schema.py
-        "project_type": None,      # null_always — CI's vocabulary; ours goes to plan_reader_archetype
+        # CI's vocabulary and plan_reader's archetype are the same strings as of #77 — reuse it
+        # directly. "Unknown/NoQty" means _archetype() had nothing to classify from, not a real type.
+        "project_type": payload.get("archetype") if payload.get("archetype") != "Unknown/NoQty" else None,
         # --- case 2: new columns ---
         "plan_uid": content_hash,
         "join_key": jkey,

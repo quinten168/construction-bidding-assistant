@@ -32,6 +32,18 @@ def _cleanup():
         cur.execute("delete from scratch.bid_projects where project_natural_key like 'ZZTEST_%'")
 
 
+def _raw_insert(row: dict):
+    """Bypass bpw.upsert() (and therefore find_location_match) entirely -- for setting up a
+    pre-existing-data fixture that the location-match feature itself would never produce (e.g. two
+    distinct rows that already share a location), so tests can exercise the ambiguous-match case."""
+    cols = sorted(row)
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            f"insert into scratch.bid_projects ({', '.join(cols)}) "
+            f"values ({', '.join('%s' for _ in cols)})",
+            [row[c] for c in cols])
+
+
 def _row(key: str, **overrides) -> dict:
     row = {
         "project_natural_key": key, "state": "MN", "county": "STEARNS CO",
@@ -95,24 +107,57 @@ def test_never_deletes_project_natural_key_on_conflict():
         _cleanup()
 
 
-def test_find_conflicts_flags_same_key_different_plan_uid_but_still_writes():
-    """Rule 4: a second, different PDF landing on the same project_natural_key is flagged, not
-    skipped — the exact collision build_project_natural_key's hash suffix is meant to prevent for
-    provisional keys, still possible for two genuinely different PDFs of the SAME real project."""
+def test_same_key_different_plan_uid_disambiguates_instead_of_overwriting():
+    """Rule 4 (updated): a second, different PDF landing on the same project_natural_key must NOT
+    silently overwrite the first plan's row via `on conflict ... do update`. The first row survives
+    untouched under its original key; the second plan lands as a new, flagged row under a
+    disambiguated (`_2`-suffixed) key instead."""
     _cleanup()
     try:
-        bpw.upsert(_row(KEY, plan_uid="original_uid"), list(_row(KEY).keys()))
+        first = bpw.upsert(_row(KEY, plan_uid="original_uid", mix_tons=1000.0), list(_row(KEY).keys()))
+        assert first["inserted"] is True
 
-        result = bpw.upsert(_row(KEY, plan_uid="a_different_uid"), list(_row(KEY).keys()))
+        result = bpw.upsert(
+            _row(KEY, plan_uid="a_different_uid", mix_tons=2500.0), list(_row(KEY).keys()))
+        assert result["inserted"] is True
+        assert result["project_natural_key"] == f"{KEY}_2"
         assert result["duplicate_flag"] is True
         assert "same_key_different_plan_uid" in (result["duplicate_reason"] or "")
 
-        # Rule 4 in effect: the row was still written (flagged, not dropped).
         with ci_db.get_conn() as conn, conn.cursor() as cur:
-            cur.execute("select duplicate_flag, duplicate_reason from scratch.bid_projects "
-                        "where project_natural_key = %s", (KEY,))
-            row = cur.fetchone()
-            assert row["duplicate_flag"] is True
+            cur.execute(
+                "select project_natural_key, plan_uid, mix_tons, duplicate_flag "
+                "from scratch.bid_projects where project_natural_key like %s "
+                "order by project_natural_key", (f"{KEY}%",))
+            rows = cur.fetchall()
+            assert len(rows) == 2, "the original row must survive alongside the new one, not be replaced"
+            original, new = rows[0], rows[1]
+            assert original["project_natural_key"] == KEY
+            assert original["plan_uid"] == "original_uid"
+            assert original["mix_tons"] == 1000.0          # untouched by the second upsert
+            assert original["duplicate_flag"] is False     # never touched, never flagged
+            assert new["project_natural_key"] == f"{KEY}_2"
+            assert new["plan_uid"] == "a_different_uid"
+            assert new["mix_tons"] == 2500.0
+            assert new["duplicate_flag"] is True
+    finally:
+        _cleanup()
+
+
+def test_a_third_colliding_plan_gets_the_next_incremented_suffix():
+    """The counter keeps incrementing past _2 — proves _find_free_key doesn't just handle the
+    two-plan case."""
+    _cleanup()
+    try:
+        bpw.upsert(_row(KEY, plan_uid="uid_1"), list(_row(KEY).keys()))
+        bpw.upsert(_row(KEY, plan_uid="uid_2"), list(_row(KEY).keys()))
+        third = bpw.upsert(_row(KEY, plan_uid="uid_3"), list(_row(KEY).keys()))
+        assert third["project_natural_key"] == f"{KEY}_3"
+
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select count(*) as n from scratch.bid_projects "
+                        "where project_natural_key like %s", (f"{KEY}%",))
+            assert cur.fetchone()["n"] == 3
     finally:
         _cleanup()
 
@@ -139,7 +184,7 @@ def test_write_bid_project_end_to_end_from_a_plan_payload():
         "identity": {
             "state": "MN", "county": "Stearns", "location": "TH 23, Melrose",
             "sp_number": "SP 7305-45", "geocoded_city": "Melrose",
-            "bid_deadline": "2024-06-15",
+            "bid_deadline": "2024-06-15", "latitude": 45.67, "longitude": -94.81,
         },
         "quantities": [{"label": "MIX", "value": 500.0, "unit": "t"}],
         "gotchas": [],
@@ -149,6 +194,9 @@ def test_write_bid_project_end_to_end_from_a_plan_payload():
         result = report_svc.write_bid_project(payload)
         assert result is not None, "write_bid_project() returned None — check logs for the swallowed exception"
         assert result["inserted"] is True
+        # key is now {state}_{county}_{bid_date}_{lat}_{lon}, no longer city-based — non-provisional
+        # since state/county/bid_date/lat/long are all present, matching a real verified payload.
+        assert result["project_natural_key"] == "MN_STEARNS_CO_2024-06-15_45.670_-94.810"
 
         with ci_db.get_conn() as conn, conn.cursor() as cur:
             cur.execute(
@@ -162,7 +210,7 @@ def test_write_bid_project_end_to_end_from_a_plan_payload():
             assert row["row_source"] == "plan_reader"
     finally:
         with ci_db.get_conn() as conn, conn.cursor() as cur:
-            cur.execute("delete from scratch.bid_projects where project_natural_key like 'MN_STEARNS_CO_MELROSE%'")
+            cur.execute("delete from scratch.bid_projects where project_natural_key like 'MN_STEARNS_CO_2024-06-15%'")
         _cleanup()
 
 
@@ -179,3 +227,139 @@ def test_write_bid_project_never_raises_when_the_writer_errors(monkeypatch):
         "plan_id": "zztest-plan-error", "identity": {"state": "MN"}, "quantities": [],
     })
     assert result is None
+
+
+# --- location-match redirect (rule 5) --------------------------------------------------------------
+# All fixtures below add project_latitude/project_longitude on top of _row()'s defaults, since a row
+# with no location signal is exactly what test_no_location_match_when_location_fields_missing checks
+# falls back to today's insert-under-own-key behavior.
+
+def test_location_match_redirects_second_write_onto_first_row():
+    """A re-scan of the same physical project (same state/county/lat/lon) computing a DIFFERENT
+    project_natural_key -- e.g. a corrected bid_date -- updates the existing row instead of forking
+    a second one. This is the exact Kandiyohi Co. scenario from 2026-08-08."""
+    _cleanup()
+    try:
+        first_row = _row(KEY, plan_uid="uid_first",
+                          project_latitude=45.671, project_longitude=-94.812)
+        first = bpw.upsert(first_row, list(first_row.keys()))
+        assert first["inserted"] is True
+        assert first["merged_into"] is None
+
+        second_row = _row(KEY_B, plan_uid="uid_second",
+                           project_latitude=45.671, project_longitude=-94.812)
+        second = bpw.upsert(second_row, list(second_row.keys()))
+        assert second["merged_into"] == KEY
+        assert second["project_natural_key"] == KEY
+        assert second["inserted"] is False  # updated the first row, did not insert a new one
+
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select count(*) as n from scratch.bid_projects "
+                        "where project_natural_key in (%s, %s)", (KEY, KEY_B))
+            assert cur.fetchone()["n"] == 1  # no fork -- KEY_B was never written as its own row
+    finally:
+        _cleanup()
+
+
+def test_location_match_fills_gaps_without_nulling_existing_values():
+    """The merge-path SET clause is coalesce(excluded.col, table.col): a worse/partial re-scan that
+    detects fewer quantities must not erase numbers a better prior scan already found."""
+    _cleanup()
+    try:
+        first_row = _row(KEY, plan_uid="uid_first", mix_tons=500.0,
+                          project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(first_row, list(first_row.keys()))
+
+        second_row = _row(KEY_B, plan_uid="uid_second", mix_tons=None,
+                           project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(second_row, list(second_row.keys()))
+
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select mix_tons from scratch.bid_projects where project_natural_key = %s", (KEY,))
+            assert cur.fetchone()["mix_tons"] == 500.0  # not nulled out by the second scan's gap
+    finally:
+        _cleanup()
+
+
+def test_location_match_new_non_null_value_overwrites():
+    """The other half of fill-gaps-only: a fresh NON-null value still wins, so a genuine correction
+    (the whole reason this feature exists) actually lands."""
+    _cleanup()
+    try:
+        first_row = _row(KEY, plan_uid="uid_first", mix_tons=500.0,
+                          project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(first_row, list(first_row.keys()))
+
+        second_row = _row(KEY_B, plan_uid="uid_second", mix_tons=750.0,
+                           project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(second_row, list(second_row.keys()))
+
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select mix_tons from scratch.bid_projects where project_natural_key = %s", (KEY,))
+            assert cur.fetchone()["mix_tons"] == 750.0
+    finally:
+        _cleanup()
+
+
+def test_no_location_match_beyond_tolerance():
+    """~0.01 degrees latitude is roughly 1.1km -- well past the 3-decimal/~111m tolerance
+    build_project_natural_key itself uses. Two genuinely different nearby projects must not merge."""
+    _cleanup()
+    try:
+        first_row = _row(KEY, plan_uid="uid_first",
+                          project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(first_row, list(first_row.keys()))
+
+        second_row = _row(KEY_B, plan_uid="uid_second",
+                           project_latitude=45.681, project_longitude=-94.812)
+        result = bpw.upsert(second_row, list(second_row.keys()))
+        assert result["merged_into"] is None
+        assert result["project_natural_key"] == KEY_B
+        assert result["inserted"] is True
+
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute("select count(*) as n from scratch.bid_projects "
+                        "where project_natural_key in (%s, %s)", (KEY, KEY_B))
+            assert cur.fetchone()["n"] == 2
+    finally:
+        _cleanup()
+
+
+def test_no_location_match_when_location_fields_missing():
+    """A row with no lat/long at all (e.g. a CLI-ingested plan that never went through the midpoint
+    lookup) has no location signal to match on -- must fall back to today's behavior, not error."""
+    _cleanup()
+    try:
+        first_row = _row(KEY, plan_uid="uid_first",
+                          project_latitude=45.671, project_longitude=-94.812)
+        bpw.upsert(first_row, list(first_row.keys()))
+
+        second_row = _row(KEY_B, plan_uid="uid_second")  # no project_latitude/project_longitude
+        result = bpw.upsert(second_row, list(second_row.keys()))
+        assert result["merged_into"] is None
+        assert result["project_natural_key"] == KEY_B
+    finally:
+        _cleanup()
+
+
+def test_no_location_match_when_ambiguous():
+    """Two distinct rows already share this location -- pre-existing data the merge feature itself
+    would never produce (it always redirects onto the first match, so it can't create a second).
+    Seeded directly via _raw_insert to simulate that state. Refuse to guess which one to merge into
+    rather than picking one arbitrarily."""
+    _cleanup()
+    try:
+        _raw_insert(_row(KEY, plan_uid="uid_existing_a",
+                          project_latitude=45.671, project_longitude=-94.812))
+        _raw_insert(_row(KEY_B, plan_uid="uid_existing_b",
+                          project_latitude=45.671, project_longitude=-94.812))
+
+        third_key = f"{KEY}_THIRD"
+        third_row = _row(third_key, plan_uid="uid_third",
+                          project_latitude=45.671, project_longitude=-94.812)
+        result = bpw.upsert(third_row, list(third_row.keys()))
+        assert result["merged_into"] is None
+        assert result["project_natural_key"] == third_key
+        assert result["inserted"] is True
+    finally:
+        _cleanup()

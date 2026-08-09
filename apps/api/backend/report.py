@@ -196,9 +196,11 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         if result:
             latitude, longitude = result
 
-    # 6th stage: coordinates → city / county / state / zip (geocode_bridge.py). Exists because
-    # scratch.bid_projects is keyed on project_natural_key = {state}_{county}_{city}_{bid_date},
-    # and city is the one component plan_reader cannot extract from a plan set.
+    # 6th stage: coordinates → city / county / state / zip (geocode_bridge.py). city is the one
+    # location component plan_reader cannot extract from a plan set directly. Note:
+    # project_natural_key itself no longer depends on city (rebuilt on lat/long instead — #70) —
+    # this stage still runs because geocoded_city/county/state/zip are useful data in their own
+    # right (cross-checking the extracted county, display), not because the key needs them.
     #
     # These NEVER overwrite an extracted value — they are carried alongside, with a provenance tag,
     # per contract §4.5's coordinate_provenance pattern. county in particular is available from both

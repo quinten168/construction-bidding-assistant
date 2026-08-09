@@ -79,13 +79,15 @@ def _win_bid_rates(conn, competitor_ids: list[str], county: str, state: str,
             from scratch.bid_results br
             join scratch.bid_projects bp using (project_natural_key)
             where br.competitor_unit_id = any(%(ids)s) and bp.bid_date < %(before_date)s
+              and bp.deleted_at is null
             """,
             {"ids": list(competitor_ids), "before_date": before_date},
         )
         bid_rows = cur.fetchall()
 
         cur.execute(
-            "select county, state, project_type from scratch.bid_projects where bid_date < %(before_date)s",
+            "select county, state, project_type from scratch.bid_projects "
+            "where bid_date < %(before_date)s and deleted_at is null",
             {"before_date": before_date},
         )
         market_rows = cur.fetchall()
@@ -146,6 +148,7 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
             from scratch.bid_results br
             join scratch.bid_projects bp using (project_natural_key)
             where br.competitor_unit_id = any(%(ids)s) and br.did_win and bp.bid_date < %(before_date)s
+              and bp.deleted_at is null
             """,
             {"ids": list(competitor_ids), "before_date": before_date},
         )

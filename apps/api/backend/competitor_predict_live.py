@@ -68,7 +68,8 @@ def _candidate_pool(conn, state: str, before_date: str) -> set[str]:
         cur.execute(
             "select distinct br.competitor_unit_id "
             "from scratch.bid_results br join scratch.bid_projects bp using (project_natural_key) "
-            "where upper(bp.state) = upper(%(state)s) and bp.bid_date < %(before_date)s",
+            "where upper(bp.state) = upper(%(state)s) and bp.bid_date < %(before_date)s "
+            "and bp.deleted_at is null",
             {"state": state, "before_date": before_date},
         )
         historical = {r["competitor_unit_id"] for r in cur.fetchall()}
@@ -105,7 +106,8 @@ def _score_candidates(
             f"select br.competitor_unit_id, br.did_win, bp.county, bp.state, bp.project_type, "
             f"{select_cols} "
             "from scratch.bid_results br join scratch.bid_projects bp using (project_natural_key) "
-            "where br.competitor_unit_id = any(%(ids)s) and bp.bid_date < %(before_date)s",
+            "where br.competitor_unit_id = any(%(ids)s) and bp.bid_date < %(before_date)s "
+            "and bp.deleted_at is null",
             {"ids": list(candidates), "before_date": before_date},
         )
         rows = cur.fetchall()

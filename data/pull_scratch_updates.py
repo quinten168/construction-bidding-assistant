@@ -235,7 +235,7 @@ def sync_projects(conn, dry_run: bool) -> None:
     local = pd.read_csv(PROJECTS_FILE, dtype=str)
     with conn.cursor() as cur:
         cols = ", ".join(["project_natural_key", *MATERIALS_COLUMNS])
-        cur.execute(f"select {cols} from scratch.bid_projects")
+        cur.execute(f"select {cols} from scratch.bid_projects where deleted_at is null")
         rows = cur.fetchall()
     remote = _stringify_remote(pd.DataFrame(rows, columns=["project_natural_key", *MATERIALS_COLUMNS]))
     remote_by_key = remote.set_index(remote["project_natural_key"].map(_key_str))

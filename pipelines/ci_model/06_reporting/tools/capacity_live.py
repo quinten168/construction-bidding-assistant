@@ -53,7 +53,7 @@ def fetch_capacity_history(competitor_ids: list[str], before_date: str, conn) ->
             "select br.competitor_unit_id, bp.bid_date, bp.mix_tons, br.did_win "
             "from scratch.bid_results br "
             "join scratch.bid_projects bp using (project_natural_key) "
-            "where br.competitor_unit_id = any(%s) and bp.bid_date < %s",
+            "where br.competitor_unit_id = any(%s) and bp.bid_date < %s and bp.deleted_at is null",
             (list(competitor_ids), before_date),
         )
         rows = cur.fetchall()

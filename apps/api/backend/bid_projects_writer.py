@@ -20,9 +20,25 @@ THE FOUR RULES, all settled 2026-08-03 and all enforced here rather than merely 
    rows alone (`where bid_projects.row_source is distinct from 'plan_reader'`). That guard lives in
    `data/push_supabase_bid_data.py` and is a separate, owner-reviewed change.
 
-4. **Insert and flag, never silently skip.** When identity is ambiguous the row is still written,
-   with `duplicate_flag` set and `duplicate_reason` saying why. A visible duplicate is recoverable;
-   a silently dropped plan is not.
+4. **Insert and flag, never silently skip — and never silently overwrite either.** When identity is
+   ambiguous the row is still written, with `duplicate_flag` set and `duplicate_reason` saying why.
+   For most ambiguity types that already means a fresh row under its own already-distinct key. But
+   `find_conflicts()`'s `same_key_different_plan_uid` case is different: two genuinely different
+   plans computed the *identical* `project_natural_key`, and since that's the literal primary key,
+   proceeding as-is would silently overwrite the first plan's row via `on conflict ... do update` —
+   worse than skipping, since the flag would only ever appear on the row that did the overwriting.
+   `upsert()` reacts to that one case specifically by disambiguating the key (`_find_free_key`)
+   before writing, so the original row survives untouched and the new plan lands as a visible,
+   flagged, genuinely new row instead.
+
+5. **A re-scan of the same physical project updates that project's row, even if `project_natural_key`
+   itself changed.** `project_natural_key` includes `bid_date`, so a plan re-scanned after a
+   previously-unparsed bid_date gets corrected computes a genuinely different key — without
+   `find_location_match()`, that forks a second row for one real project (observed for real,
+   Kandiyohi Co., 2026-08-08). `state`+`county`+`latitude`/`longitude` don't move between scans of
+   the same project, so a match on those redirects the write onto the EXISTING row instead. On that
+   redirected write only, a fresh non-null value overwrites but a fresh null never blanks an existing
+   value — protects against a worse/partial re-scan erasing quantities a better prior scan found.
 """
 from __future__ import annotations
 
@@ -153,6 +169,59 @@ def find_conflicts(row: dict, *, conn, table: str = TABLE) -> tuple[bool, Option
     return False, None
 
 
+def find_location_match(row: dict, *, conn, table: str = TABLE) -> Optional[str]:
+    """Is this row's location already on file under a different project_natural_key? (matched key,
+    or None).
+
+    `project_natural_key` (`build_project_natural_key`) includes `bid_date` as a component, so a
+    plan re-scanned after a previously-unparsed bid_date gets corrected computes a DIFFERENT key —
+    and without this check, `upsert()` forks a second row for the same physical project. Observed
+    for real, Kandiyohi Co., 2026-08-08: two different `plan_uid`s (different files), same
+    state/county/lat/lon, two separate rows in `scratch.bid_projects`.
+
+    `state` + `county` + `latitude`/`longitude` stay constant across re-scans of the same project
+    regardless of which file was uploaded or how `bid_date` parsed, so they're the signal used here
+    instead — rounded to 3 decimals (~111m), the same tolerance `build_project_natural_key` already
+    uses for the key itself, so "same location" means the same thing in both places.
+
+    Returns None (no redirect) rather than guess when zero or more than one distinct existing key
+    matches — ambiguity here should fall back to today's flag-and-insert behavior, not a merge.
+    """
+    state, county = row.get("state"), row.get("county")
+    lat, lon = row.get("project_latitude"), row.get("project_longitude")
+    pnk = row.get("project_natural_key")
+    if not (state and county and lat is not None and lon is not None):
+        return None
+    with conn.cursor() as cur:
+        cur.execute(
+            f"select distinct project_natural_key from {table} "
+            "where state = %s and county = %s "
+            "and round(project_latitude::numeric, 3) = round(%s::numeric, 3) "
+            "and round(project_longitude::numeric, 3) = round(%s::numeric, 3) "
+            "and project_natural_key is distinct from %s",
+            (state, county, lat, lon, pnk))
+        hits = cur.fetchall()
+    if len(hits) != 1:
+        return None
+    return hits[0]["project_natural_key"]
+
+
+def _find_free_key(base_key: str, *, conn, table: str) -> str:
+    """Called only when find_conflicts() reports same_key_different_plan_uid — base_key is already
+    taken by a genuinely different plan (not a re-drop of the same PDF, which upserts normally).
+    Append a running counter, mirroring the _1/_2/_3 suffix pattern already visible on the
+    historical rows (e.g. 4 real distinct projects all sharing one base key)."""
+    def _taken(key: str) -> bool:
+        with conn.cursor() as cur:
+            cur.execute(f"select 1 from {table} where project_natural_key = %s limit 1", (key,))
+            return cur.fetchone() is not None
+
+    n = 2
+    while _taken(f"{base_key}_{n}"):
+        n += 1
+    return f"{base_key}_{n}"
+
+
 def upsert(row: dict, declared_columns: Iterable[str], *, table: str = TABLE,
            conn=None, dry_run: bool = False) -> dict[str, Any]:
     """Upsert one assembled row. Returns a result dict describing exactly what happened.
@@ -168,19 +237,49 @@ def upsert(row: dict, declared_columns: Iterable[str], *, table: str = TABLE,
         if "project_natural_key" not in writable or not writable["project_natural_key"]:
             raise WriterError("row has no project_natural_key; refusing to write an unkeyed row")
 
-        dup, reason = find_conflicts(row, conn=c, table=table)
-        if dup:
-            # Rule 4: flag, never skip. The row still lands.
-            if "duplicate_flag" in table_cols:
-                writable["duplicate_flag"] = True
-            if "duplicate_reason" in table_cols:
-                writable["duplicate_reason"] = reason
-            log.warning("bid_projects: ambiguous identity for %s — %s (writing anyway, flagged)",
-                        writable["project_natural_key"], reason)
+        # Same physical project already on file under a different key (see find_location_match's
+        # docstring) — redirect onto it instead of forking a new row. Takes priority over (and skips
+        # entirely) find_conflicts()/`_find_free_key`'s collision handling below: those exist to
+        # catch an UNINTENTIONAL collision on the key this row itself computed, which is a different
+        # question from the deliberate merge decided here, and running them afterwards against the
+        # redirected key would just re-disambiguate away from the row we intentionally chose.
+        matched_key = find_location_match(row, conn=c, table=table)
+        location_matched = bool(matched_key and matched_key != writable["project_natural_key"])
+        if location_matched:
+            log.info("bid_projects: %s matches existing project %s by location — updating in place "
+                      "instead of forking", writable["project_natural_key"], matched_key)
+            writable["project_natural_key"] = matched_key
+
+        dup, reason = (False, None)
+        if not location_matched:
+            dup, reason = find_conflicts(row, conn=c, table=table)
+            if dup and reason and reason.startswith("same_key_different_plan_uid:"):
+                # The dangerous case: writing under this key would silently overwrite a genuinely
+                # different plan's row (see find_conflicts' docstring). Write under a disambiguated
+                # key instead of proceeding — the original row is left completely untouched.
+                new_key = _find_free_key(writable["project_natural_key"], conn=c, table=table)
+                log.warning("bid_projects: %s collides with a different plan (%s) — writing as %s instead",
+                            writable["project_natural_key"], reason, new_key)
+                writable["project_natural_key"] = new_key
+            if dup:
+                # Rule 4: flag, never skip. The row still lands.
+                if "duplicate_flag" in table_cols:
+                    writable["duplicate_flag"] = True
+                if "duplicate_reason" in table_cols:
+                    writable["duplicate_reason"] = reason
+                log.warning("bid_projects: ambiguous identity for %s — %s (writing anyway, flagged)",
+                            writable["project_natural_key"], reason)
 
         cols = sorted(writable)
         updatable = [c for c in cols if c not in _NEVER_UPDATE]
-        set_parts = [f"{c} = excluded.{c}" for c in updatable]
+        if location_matched:
+            # Fill gaps only: a fresh non-null value overwrites, but a fresh null never blanks out a
+            # value the existing row already has. This is the only path where a DIFFERENT scan (not
+            # the one that originated this row) is being written onto it, so a blurrier/partial
+            # re-scan that detects fewer quantities must not erase numbers already on file.
+            set_parts = [f"{c} = coalesce(excluded.{c}, {table}.{c})" for c in updatable]
+        else:
+            set_parts = [f"{c} = excluded.{c}" for c in updatable]
         # updated_at is `default now()` with NO trigger, so it fires on INSERT and never again —
         # which made it identical to processed_at and destroyed the distinction the mapping doc
         # draws between them (processed_at = when the plan was processed, stable; updated_at = last
@@ -198,7 +297,8 @@ def upsert(row: dict, declared_columns: Iterable[str], *, table: str = TABLE,
         )
         result = {"project_natural_key": writable["project_natural_key"],
                   "columns_written": len(cols), "declared_not_in_table": unknown,
-                  "duplicate_flag": dup, "duplicate_reason": reason, "dry_run": dry_run}
+                  "duplicate_flag": dup, "duplicate_reason": reason, "dry_run": dry_run,
+                  "merged_into": matched_key if location_matched else None}
         if dry_run:
             result["sql"] = sql
             result["values"] = {c: writable[c] for c in cols}

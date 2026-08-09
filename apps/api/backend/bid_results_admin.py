@@ -123,7 +123,8 @@ def submit_bid_results(project_natural_key: str, entries: list[dict]) -> dict:
 
     with ci_db.get_conn() as conn, conn.cursor() as cur:
         cur.execute(
-            "select 1 from scratch.bid_projects where project_natural_key = %s", (project_natural_key,)
+            "select 1 from scratch.bid_projects where project_natural_key = %s and deleted_at is null",
+            (project_natural_key,),
         )
         if cur.fetchone() is None:
             raise ValidationError(f"No project found with key {project_natural_key!r}.")
@@ -167,6 +168,7 @@ _RESULTS_JOIN_SQL = """
            p.project_name, p.county, p.state, p.bid_date, p.bid_year
     from scratch.bid_results r
     join scratch.bid_projects p on p.project_natural_key = r.project_natural_key
+    where p.deleted_at is null
 """
 
 
@@ -178,7 +180,7 @@ def list_bid_results(search: str | None = None) -> list[dict]:
     sql = _RESULTS_JOIN_SQL
     params: list = []
     if search:
-        sql += " where p.project_name ilike %s or p.county ilike %s or r.raw_bidder_name ilike %s"
+        sql += " and (p.project_name ilike %s or p.county ilike %s or r.raw_bidder_name ilike %s)"
         like = f"%{search}%"
         params += [like, like, like]
     sql += " order by p.bid_date desc nulls last, r.bid_rank asc nulls last"
@@ -290,7 +292,7 @@ def update_bid_result(project_natural_key: str, competitor_unit_id: str, fields:
                 )
 
         cur.execute(
-            _RESULTS_JOIN_SQL + " where r.project_natural_key = %s order by r.bid_rank asc nulls last",
+            _RESULTS_JOIN_SQL + " and r.project_natural_key = %s order by r.bid_rank asc nulls last",
             (project_natural_key,),
         )
         rows = cur.fetchall()
