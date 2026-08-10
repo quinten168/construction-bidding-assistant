@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
-import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate } from "@/lib/chat-data";
+import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate,
+  competitorNames } from "@/lib/chat-data";
 import { Eyebrow, Chip } from "@/components/kit";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -430,12 +431,15 @@ function GotchaGroup({
 // (`comp.stats`) — no invented scores, and no more of the old markdown-parsed narrative bullets.
 const MATCH_TONE: Record<string, string> = { high: "positive", medium: "neutral", low: "warn" };
 
-function CompetitorSection({ comp }: { comp: Competitor }) {
+export function CompetitorSection({ comp }: { comp: Competitor }) {
   const s = comp.summary ?? { analyzed: 0, narrative: "" };
   const conf = (comp._match?.confidence ?? "").toLowerCase();
   const matchTone = MATCH_TONE[conf] ?? "neutral";
-  const names = comp.competitors ?? [];
-  const userAddedSet = new Set(comp.user_added ?? []);
+  // The name boundary. The wire list may hold `{ name, tier }` objects (see chat-data.ts) —
+  // rendering one directly threw "Objects are not valid as a React child" and took the whole
+  // card down. Flatten here, once, and nothing below ever sees anything but a string.
+  const names = competitorNames(comp.competitors);
+  const userAddedSet = new Set(competitorNames(comp.user_added));
 
   return (
     <div>
@@ -474,6 +478,13 @@ function CompetitorSection({ comp }: { comp: Competitor }) {
       {/* Ranked list — best match first. Estimator-added names (typed in via the verify-competitors
           popup) get the same live win_rate/bid_rate/capacity/pit_access retrieval as everyone else,
           just a "you added" badge to distinguish them from the model's own picks. */}
+      {/* A matched report that names nobody is a legitimate empty answer — say so, so it can never
+          be mistaken for the failed-lookup case (comp == null, handled by the caller). */}
+      {names.length === 0 && (
+        <p className="mt-2.5 text-[12.5px] text-muted-foreground">
+          This report matched, but it names no competitors.
+        </p>
+      )}
       {names.length > 0 && (
         <div className="mt-2.5 space-y-1.5">
           {names.map((name) => (

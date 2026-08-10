@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --import ./tests/2026-08-10-register-loader.mjs --test tests/*.test.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

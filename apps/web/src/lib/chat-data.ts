@@ -61,6 +61,23 @@ export type CompetitorStats = {
   } | null;
 };
 
+// One entry as it arrives on the wire. `tier` is v2 residue the UI must never render.
+export type CompetitorEntry = string | { name?: string; display_name?: string; tier?: number | string };
+
+/** Flatten a wire competitor list to plain names, order preserved, duplicates and unnamed
+ *  entries dropped — never a stringified object. Mirrors
+ *  apps/api/backend/final_report.py::competitor_names(). An empty result means "the list was
+ *  empty or unusable"; it is NOT a failure signal — a failed lookup is `competitor == null`,
+ *  which the card renders differently on purpose. */
+export function competitorNames(entries: CompetitorEntry[] | null | undefined): string[] {
+  const out: string[] = [];
+  for (const e of entries ?? []) {
+    const n = (typeof e === "string" ? e : (e?.name ?? e?.display_name ?? "") as string)?.trim?.() ?? "";
+    if (n && !out.includes(n)) out.push(n);
+  }
+  return out;
+}
+
 export type Competitor = {
   project_id: string;
   location: string;
@@ -72,11 +89,16 @@ export type Competitor = {
   materials: string[];
   pits: { public?: string; private?: string };
   summary: { analyzed: number; narrative: string };
-  // rank-ordered names, best match first (estimator-added names appended at the end)
-  competitors: string[];
+  // rank-ordered names, best match first (estimator-added names appended at the end).
+  // The WIRE shape is deliberately wider than what the UI renders: the CI side has also sent
+  // `{ name, tier }` objects (its executor still carries a tier field, and older cached
+  // predictions were written that way), and the two halves of this repo go out of sync across
+  // merges. Never render an entry directly — put it through competitorNames() below, which is
+  // what turns this into the flat ranked list of NAMES v3 actually specifies (no tiers).
+  competitors: CompetitorEntry[];
   // subset of `competitors` the estimator typed in themselves (the verify-competitors popup),
   // vs. model-predicted — UI-badge purposes only, not a separate list or ranking
-  user_added?: string[];
+  user_added?: CompetitorEntry[];
   // names the estimator typed into the verify-competitors popup that were already on the list
   // (predicted, or an earlier name in the same submission) — not re-added, surfaced back so the
   // UI can tell them rather than silently dropping the name
