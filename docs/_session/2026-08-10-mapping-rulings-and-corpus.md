@@ -322,6 +322,35 @@ the winter` hits 15 as the identical MnDOT 1803.4 sentence verbatim. **A naive k
 here would be confidently wrong on most of them.** End to end over 17 whole plan sets: 3
 break_and_resume, 2 sequenced, 12 none_found — against the old `has_phasing` boolean's 57%.
 
+### P0 #4 — bid date. Done, and the diagnosis is retrieval.
+
+**The chunk is in Chroma, intact.** The boilerplate filter is exonerated — page 9 is
+`DOWN_WEIGHT`, kept and de-prioritised, never `DROP`. Three named methods: a raw metadata `get`
+with no similarity involved (returns the chunk, 2,262 chars, containing the sentence in full); the
+production similarity query, which at k=5 returns pages 18/22/155/56/134 and only surfaces page 9
+at **k=40**, ranking ~33rd; and the source PDF's own text layer via PyMuPDF, independent of both
+Chroma and the converter.
+
+**Root cause, and it is one line of configuration.** A single `SCALAR_QUERIES` entry serves
+`bid_deadline` *and* `substantial_completion` *and* `final_completion`. Two thirds of the query text
+is about completion, so a 466-page proposal's completion boilerplate crowds out the one
+advertisement page. **P0 #5's two completion fields share that same diluted query and have no
+deterministic fallback** — that should be inherited, not rediscovered.
+
+Layer 1 hit rate **19/22 = 86%**, every hit carrying a clock time. Layer 2 **16/17** on the
+converted plans. The measurement caught five defects a single-file test would have missed, the best
+of which is that a too-wide negative-anchor window let "THE APPROVED DEPARTMENT OF TRANSPORTATION
+STANDARD SPECIFICATIONS" veto `Letting Date:` on **every** MnDOT and SDDOT proposal cover.
+
+Wenyu's field exists (`identity.bid_date` / `bid_time` / `bid_timezone` plus layer, source, page and
+evidence). `apps/web` untouched, as instructed. The proposed `schema.py` `bid_deadline` text was
+handed to this session rather than applied by the agent, and is now in — commit `b8d283a`.
+
+**Daily Ads is not a pre-Wednesday source, despite §1b pointing at it.** 53 of 174 have no text
+layer; the 121 that do yield 111 distinct closing dates and 77 Quest Numbers. The join key is real
+(`Quest Number` == numeric plan-set stem) but it joins **1 of 202** stems, because Daily Ads covers
+Sep 2025→Jun 2026 while the numeric-stem folders are 2023. Worth having later, not now.
+
 ### Spec books Tier 1. 68 rows, MN 28 / ND 20 / SD 20, every row page-cited.
 
 - **The word HMA appears on no ND pay item at all.** ND writes `Superpave, FAA __`. That is why the
@@ -351,7 +380,14 @@ break_and_resume, 2 sequenced, 12 none_found — against the old `has_phasing` b
   with `schema.py` changes that deserve your eye first.
 - **Did not rename or delete `docs/_spec/vector_hosting*.md`.** They are superseded and un-flagged;
   renaming them collides with the date-prefix rule, so it is your call.
-- **Nothing pushed.** All work is committed on local `main`.
+- **Nothing pushed.** All work is committed on local `main`, 16 commits.
+
+**One rule I did not hold absolutely, flagged rather than hidden.** Four new runtime modules carry no
+date prefix: `04_tools/bid_date/bid_date.py`, `backend/bid_date_bridge.py`, `01_pipeline/phasing.py`
+and its test. They are imported by name and a leading date is not a legal Python identifier, so they
+follow the existing `road_midpoint.py` / `reverse_geocode.py` precedent. **Every document,
+measurement artifact, spec and CSV this session is dated.** If you want the rule held absolutely
+they can be renamed behind an `importlib` shim; say so and it is a small change.
 
 **One thing to watch that is not mine:** `scratch.bid_projects` moved 1,589 → 1,588 during this
 session. Every connection this session opened was read-only and no writes were run, so that is
