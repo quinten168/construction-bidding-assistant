@@ -280,6 +280,22 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         quantities.append({"label": label, "value": value, "unit": _UNIT[dst]})
         field_confidence[label] = _conf(field)
 
+    # ND measures milling in TONS (NDDOT §411.06 pay unit is "Ton or Square Yard"), and milling_sy
+    # is square yards by name and by contract. Dunn Job 23388 is BOTH at once — 408,216 SY of FDR
+    # and 67,007 TON of milling/bituminous removal — so the tons are carried as their own row,
+    # unconverted. No depth is assumed: conversion waits on a CSI-supplied factor.
+    # See docs/_spec/2026-08-10-milling-unit-capture.md.
+    #
+    # THE LABEL MUST NOT BE "MILL". bid_projects_record.py writes that label straight into the
+    # column literally named `mill_sy`, and competitor_predict_live.py maps "MILL" -> mill_sy into
+    # the fitted competitor weights. Neither reads a unit. Tons under "MILL" would be a silent unit
+    # corruption — the same defect class as everything else here, pointed the other way.
+    mill_tons_field = record.get("milling_tons")
+    mill_tons_value = _val(mill_tons_field)
+    if mill_tons_value not in (None, "", 0):
+        quantities.append({"label": "MILL_TON", "value": mill_tons_value, "unit": "TON"})
+        field_confidence["MILL_TON"] = _conf(mill_tons_field)
+
     gotchas = [{"code": g.get("code"), "evidence": g.get("evidence"),
                 "page": g.get("page"), "confidence": g.get("confidence")}
                for g in (record.get("gotchas") or [])]
@@ -293,6 +309,11 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             # not return it" must never share a value, and neither may render blank downstream —
             # payload_carry.render_value owns the rendering half of that rule.
             **payload_carry.carried_statuses(record),
+            # Which unit(s) this plan actually measured milling in: sy_only / tons_only /
+            # sy_and_tons / other_unit / not_present / unknown / inconsistent. Derived, never asked
+            # of the model. "milling in tons", "no milling item" and "extraction failed" stay three
+            # distinguishable states rather than collapsing to one null.
+            "milling_unit_status": schema.milling_unit_status(record),
             "latitude": latitude, "longitude": longitude,
             "coordinate_provenance": "midpoint" if latitude is not None else None,
             # Geocoded, never overwriting the extracted equivalents above. Separate keys so an
