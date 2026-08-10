@@ -13,6 +13,10 @@ Status: `TODO` · `SPEC` (written, awaiting approval) · `BLOCKED` · `DONE`
 | Claim on the board | What is actually there | Method |
 |---|---|---|
 | "38 `rtv-csv-for-Bid Item List*.csv`" | **8** (6 csv + 2 xlsx), all MN. The 38 is *all* `rtv-csv-*` files: 27 Plan Holders, 8 Bid Item List, 1 undefined, 1 Projects, 1 Bid Abstract Summary | glob returns 8; kind-breakdown sums to 38; identical on both mirrors |
+| …but the golden set is **bigger** than 8, in a way the board never had | **26 item-level files across 4 states**: 8 `rtv-csv` (MN) + **8 `Bid Items.xlsx` (SD/ND/MN)** + **10 `Proposal_NDOT_*` (NE)**. Plus the real backbone, **the year spreadsheets: ~2,120 lettings carrying MIX TN / BASE TN / GRADE CY / MILL SY per project**, already keyed by date+time+location+state. 8 files, 772 rows, 0 parse failures | corpus sweep, all files parsed |
+| "`Category` labels `Alternate A/B`, which resolves the duplicate 64,750 TON question" | **Wrong on both halves.** Zero alternate rows across all 8 files. And the 64,750 duplicate is **one bid item printed three times, once per proposal revision** — pages 7/8/9, all sheet `5 of 11`, stamped `Rev: 11/12/2025`, `Rev: 11/6/2025`, and unstamped. Not alternates, not a double count in the source | read the source pages; confirmed by Addendum 2 shifting item 002→003 |
+| "909 `.msg` bid results" | **953**, on both mirrors | count |
+| "the spec item number is the deterministic layer" | **MN-only.** 99.87% of golden rows carry a number (771/772), but **zero** ND or SD rows match MnDOT's `2xxx` scheme. ND uses `203.0101`/`202 0021`, NE uses `1010.01`. **ND is 35.8% of CSI's bidding** | both MnDOT patterns, full text, all 12 ND + 3 SD files |
 | "217 standalone `AD.pdf`" | **8**. The 217 is advertisements **and addenda** together; there are 180 addenda (`*a[0-9].pdf`) and 137 filenames containing "addendum" | strict glob = 8 on both mirrors; broader `AD`-token grep = 15, extra 7 are not ads on inspection |
 | "174 Daily Ads digests" | **Correct.** Now the biggest bid-date prize, since layer 1 covers only 8 folders | count |
 | "bid date is NOT on the title sheet, only in the proposal" (old P0 #5 note) | **Wrong, already corrected on the current board.** It is in plan-set body text, and `_md_cache` page 1 of one plan reads "Letting Date: August 20, 2025 / Bids Close: 9:30 a.m. CST" | direct read |
@@ -27,8 +31,10 @@ the local mirror. Any earlier finding that involved *opening* a Box file needs r
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 1 | **Golden dataset** — inventory then validation join | in flight | Re-weighted by the 8-not-38 correction. One golden match already confirmed free: Crow Wing rtv-csv `7,707 CY` / `5,849 TON` vs our cached payload `GRADE 7707` / `BASE 5849`, exact. DDL to be shown, not applied |
-| 2 | **Chroma hosted** | in flight | Decision doc + walkthrough. Three questions must come back answered, not UNVERIFIED |
+| 1 | **Golden dataset** | **DONE, 2 decisions for you** | **The headline this project has never been able to say: where extraction finds a bucketed item, the quantity is exactly right — 0.00% variance on all six bucketed items. Pooled precision 0.983, recall 0.667.** The failure mode is recall, not accuracy. DDL written, **not applied**: `docs/_spec/2026-08-10-benchmark-table.md` |
+| 2 | **Chroma hosted** | **DONE, ready to deploy** | `chromadb/chroma:1.5.9` on Railway Hobby, 5 GB volume at `/data`, **no public domain**, Caddy basic-auth in front. Migration dress-rehearsed end to end: 581 MB tarball, **15–25 min**. Runner-up Fly lost because both its advantages were measured away |
+| 2a | **🔴 Self-hosted Chroma 1.x has NO authentication** | **read before deploying** | Not a setting — the OSS build hardcodes a no-op authenticator. Tested against the real image: unauthenticated request → **HTTP 200**, wrong token → **HTTP 200**. The old doc's `CHROMA_SERVER_AUTHN_*` recipe is 0.x and silently does nothing. **A bare Chroma container on a public Railway domain is CSI's whole plan corpus, open.** Same failure shape as everything else here: a success signal at the wrong layer |
+| 2b | Old un-prefixed hosting docs still sitting there | TODO, yours | `docs/_spec/vector_hosting.md` / `vector_hosting_setup.md` are superseded but un-flagged. Left alone deliberately — renaming them collides with the date-prefix rule. Rename or delete, your call |
 | 3 | **Material mapping solid** | **DONE** | Commit `5972199`. Alex's 11 rulings in the seven `schema.py` descriptions; 17 docs, 0 errors, 0 unexplained diffs. Spec: `docs/_spec/2026-08-10-live-mapping-rulings.md` |
 | 3b | Item-number layer | **SPEC** | `docs/_spec/2026-08-10-spec-item-number-layer.md`. Not built, per instruction |
 | 4 | **Bid date and time** | in flight | Layer 1 covers 8 folders not 217. Layer 2 and Daily Ads carry the load. Chroma diagnosis required before any fix |
@@ -81,6 +87,26 @@ and cleanup · cache demotion · F3 full-spec export · F2 four-state · rewire 
 retire `csi_v2.db` · Tier 2 vision · **Tier 2 spec-book indexing** · CAD text-layer exclusion ·
 multi-document model · conversion factors with CSI · front-end errors #51/#52 · `public`
 drop-and-recreate to upsert · spec-book-driven aggregate class extraction · traffic level
+
+## DECISIONS WAITING ON YOU — these block or move a headline number
+
+| # | Decision | Why it matters |
+|---|---|---|
+| D1 | **Benchmark scoring: is `CONVERSION_REQUIRED` a miss?** | CSI's spreadsheet numbers are unit-converted; the bid schedules' are not. Watonwan grading agrees exactly three ways (19,042), but the plan states base in CY and mix in SY while CSI states TON, and our unit-guarded bucketing emits NULL. Scoring those as misses reports a recall failure that is really the known missing conversion layer. **Moves the headline accuracy number either way** |
+| D2 | **ND milling measured in TONS** | Dunn drops **67,007 tons** silently on one plan. Needs a `milling_tons` field or a gotcha. Board open item #2 |
+| D3 | **Does `PATCHING` count as hot mix?** | The 2026-08-10 prose counts it (+200 t on Dunn). ND section 430 covers both `RAP - SUPERPAVE FAA 43` and `PATCHING`, which supports it. Spec books also show MN's `Bituminous Patching Mixture` matches while ND's `Patching` matches nothing, so the same work currently buckets inconsistently across states |
+| D4 | **Binder / tack / prime** | Now answerable from the spec books rather than assumed: the mix ton already includes the binder in all three states, and **ND and SD bill binder separately by the TON**. Counting it would double count mass. Dunn carries `PG 58S-34 ASPHALT CEMENT TON 5,468` |
+| D5 | **Load `2023 Spreadsheet.xlsx` into `bid_projects`?** | ~486 lettings of CSI bucket truth, and it holds 6 of the 8 MN bid schedules. Cheapest coverage expansion available. **Not done — it is a write to `bid_projects`, which needs your say-so** |
+
+## 🔴 NEW SILENT-FAILURE MODE — add to the standing list
+
+**A superseded proposal revision page is indistinguishable from a second line item, and it inflates.**
+The two 64,750 TON `REMOVE AGGREGATE BASE & SURFACING` rows are **one item printed three times**,
+once per revision (pages 7/8/9, all sheet `5 of 11`, two `Rev:` stamps and one unstamped). Every
+other bug on the standing list under-reports; this one over-reports. Instance ten.
+
+**Also seen this session:** a Box listing succeeds while every read of the same file times out, so a
+filename sweep looks identical whether the corpus is readable or not.
 
 ## Owner's, not the agent's
 
