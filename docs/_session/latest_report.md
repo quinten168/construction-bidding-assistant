@@ -251,9 +251,108 @@ the exact plan we keep using as the demo case, and 180 addenda files exist corpu
 
 ---
 
-## 6. What is running
+## 6. The other four tracks, consolidated
 
-Four subagents plus a research sweep, all launched this session: golden dataset (P0 #1), Chroma
-hosted (P0 #2), bid date (P0 #4), key dates and phasing (P0 #5), and state spec books Tier 1. The
-golden-dataset and bid-date agents have been sent the corrections in §1 mid-run. Their reports land
-in `docs/_session/2026-08-10-*.md`.
+Full detail is in each track's own `docs/_session/2026-08-10-*.md`. This is what you need from them.
+
+### P0 #1 — golden dataset. Done, and it has the headline number.
+
+**Where extraction finds a bucketed item, the quantity is exactly right — 0.00% variance on all six
+bucketed items. Pooled precision 0.983, recall 0.667.** The failure mode is recall, not accuracy.
+That is the first extraction accuracy claim on this project backed by a measurement instead of an
+assertion, and it is the sentence for Wednesday.
+
+**My §1a correction was itself too pessimistic.** The golden set is bigger than 8, in a direction the
+board never had: 8 `rtv-csv` (MN) + **8 `Bid Items.xlsx` (SD/ND/MN)** + **10 `Proposal_NDOT_*` (NE)**
+= 26 item-level files across four states. And the real backbone is the **year spreadsheets: ~2,120
+lettings carrying MIX TN / BASE TN / GRADE CY / MILL SY per project**, already keyed by
+date+time+location+state. 8 files, 772 rows, 0 parse failures. So: the *rtv-csv* count was 8 not 38,
+and the *available ground truth* is far larger than either number.
+
+**The 64,750 TON question is answered and it is neither option on the board.** It is **one bid item
+printed three times, once per proposal revision** — pages 7/8/9, all sheet `5 of 11`, two `Rev:`
+stamps and one unstamped, confirmed by Addendum 2 shifting item 002→003. Not alternates, not a
+double count in the source. The board's premise that `Category` labels `Alternate A/B` is also
+wrong: zero alternate rows across all 8 files.
+
+**That is a new silent-failure mode, and the first one that inflates.** Every bug on the standing
+list under-reports. A superseded revision page is indistinguishable from a second line item and it
+over-reports. Instance ten.
+
+**The spec-item-number layer is MN-only.** 99.87% of golden rows carry a number (771/772), but zero
+ND or SD rows match MnDOT's `2xxx` scheme. This is measured, and it is the same conclusion the spec
+books reached independently. ND is 35.8% of bidding, so L0 cannot be presented as general — which is
+what `2026-08-10-spec-item-number-layer.md` already says, now with numbers.
+
+DDL written and **not applied**: `docs/_spec/2026-08-10-benchmark-table.md`.
+
+### P0 #2 — Chroma hosted. Ready to deploy, with a security finding.
+
+`chromadb/chroma:1.5.9` on Railway Hobby, 5 GB volume at `/data`, **no public domain**, Caddy
+basic-auth holding the only public URL. Migration dress-rehearsed end to end: 581 MB tarball (2.82×
+compression, not the 1.1–1.4× the old doc guessed), **15–25 min** wall clock. Fly was runner-up and
+lost because both of its advantages in `HANDOFF.md` §7 were measured away — `railway volume files
+upload` exists now, and Railway does have scheduled backups.
+
+**🔴 Self-hosted Chroma 1.x has no authentication at all.** Not a setting — the OSS build hardcodes
+a no-op authenticator. The old doc's `CHROMA_SERVER_AUTHN_*` recipe is 0.x and silently does
+nothing: tested against the real image, an unauthenticated request returns **HTTP 200** and a wrong
+token returns **HTTP 200**. A bare Chroma container on a public Railway domain is CSI's entire plan
+corpus, open to anyone. Same shape as everything else on this project — a success signal at the
+wrong layer.
+
+Also: the store is **76,540 chunks / 213 doc_ids**, not the 75,080 every existing doc quotes, and it
+grows on every web upload. Measured RAM serving all of it: 184.6 MiB, so provision 1 GB not 2.
+
+### P0 #5 — key dates and phasing. The gap is plumbing, not schema.
+
+`phasing_requirements` is extracted, paid for with a Claude call, written into the record — **and
+then silently discarded at payload assembly.** `report.py`'s `identity_fields` and
+`final_report.py::_payload_from_plan_id` both omit the key; 0 of 12 cached payloads carry it. That
+one-line gap is the literal mechanism behind "phasing is invisible to us". **Not applied — the main
+session owns `report.py` and another agent was editing it concurrently.**
+
+Fill rates on the live path (n=12): `construction_end` 92%, `final_completion` 58%,
+`substantial_completion` 42%, `construction_start` 33%, `bid_deadline` 17%, `phasing_requirements`
+0%. In `csi_v2.db` there is no column for any of the six.
+
+The useful half is the deny-list. `intermediate completion` hits 40 plans but is mostly the EJCDC
+*Milestone* boilerplate; `suspension of work` hits 57 (EJCDC Article 16); `suspend operations for
+the winter` hits 15 as the identical MnDOT 1803.4 sentence verbatim. **A naive keyword extractor
+here would be confidently wrong on most of them.** End to end over 17 whole plan sets: 3
+break_and_resume, 2 sequenced, 12 none_found — against the old `has_phasing` boolean's 57%.
+
+### Spec books Tier 1. 68 rows, MN 28 / ND 20 / SD 20, every row page-cited.
+
+- **The word HMA appears on no ND pay item at all.** ND writes `Superpave, FAA __`. That is why the
+  old description failed so completely, and it is independent confirmation of §2.
+- **The spec agrees with CSI on FDR, on both counts and in two states** — MN §2215 sits in the Base
+  Construction division, SD §280 inside Granular Bases and Surfacing, and both measure it by the
+  square yard. ND has no FDR item at all (verified two ways).
+- **ND milling is `Ton or Square Yard` by the book** (§411.06). The unit ambiguity is the state's,
+  not ours.
+- **Three numbering schemes, and only MnDOT has pay-item numbers at all** — ND and SD publish
+  name→unit tables. MnDOT's suffix encodes the unit (`.504`=SY, `.509`=TON), which we discard.
+- **Binder double count is now answerable** (decision D4): the mix ton includes the binder in all
+  three states, and ND and SD both bill binder separately by the TON.
+- Fourteen contradictions with the current keyword mapping are listed in that report, including a
+  dead duplicate (`ASPHALT CEMENT` appears twice in `SPEC_MAP`, the second unreachable and saying
+  the opposite) and `('base','CY')` / `('hma','SY')` having no bucket at all, so a CY-bid plan reads
+  `base_tons = 0`.
+
+## 7. Things I did not do, and why
+
+- **No writes to `bid_projects` or `bid_results`, no DDL, no `publish_to_supabase`.** The benchmark
+  DDL is written and waiting. Loading `2023 Spreadsheet.xlsx` (~486 lettings, and where 6 of the 8
+  MN bid schedules live) is the cheapest coverage expansion available and is a write, so it is
+  decision D5 rather than something I did.
+- **Did not touch `apps/web/`, `pipelines/ci_model/`, or `road_midpoint.py`.**
+- **Did not apply the `report.py` phasing plumbing fix** — concurrent editing risk, and it comes
+  with `schema.py` changes that deserve your eye first.
+- **Did not rename or delete `docs/_spec/vector_hosting*.md`.** They are superseded and un-flagged;
+  renaming them collides with the date-prefix rule, so it is your call.
+- **Nothing pushed.** All work is committed on local `main`.
+
+**One thing to watch that is not mine:** `scratch.bid_projects` moved 1,589 → 1,588 during this
+session. Every connection this session opened was read-only and no writes were run, so that is
+another session working in parallel. Reporting it rather than claiming the table was unchanged.
