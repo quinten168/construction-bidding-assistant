@@ -1,10 +1,25 @@
 # TASKS — the board
 
-Last updated **2026-08-08**. Committed so it stops living in chat.
-Read `HANDOFF.md` first. Dates: **presentation Wed Aug 12** · **CSI IT handoff Mon Aug 17** ·
-**program ends Fri Aug 21**.
+Last updated **2026-08-10**. Read `HANDOFF.md` first, then the current task board
+`2026-08-08-tasks-deployment.md`, which supersedes this file where they conflict.
+Dates: **presentation Wed Aug 12** · **CSI IT handoff Mon Aug 17** · **program ends Fri Aug 21**.
 
 Status: `TODO` · `SPEC` (written, awaiting approval) · `BLOCKED` · `DONE`
+
+---
+
+## CORRECTIONS — 2026-08-10, measured against the corpus. Do not inherit the old numbers.
+
+| Claim on the board | What is actually there | Method |
+|---|---|---|
+| "38 `rtv-csv-for-Bid Item List*.csv`" | **8** (6 csv + 2 xlsx), all MN. The 38 is *all* `rtv-csv-*` files: 27 Plan Holders, 8 Bid Item List, 1 undefined, 1 Projects, 1 Bid Abstract Summary | glob returns 8; kind-breakdown sums to 38; identical on both mirrors |
+| "217 standalone `AD.pdf`" | **8**. The 217 is advertisements **and addenda** together; there are 180 addenda (`*a[0-9].pdf`) and 137 filenames containing "addendum" | strict glob = 8 on both mirrors; broader `AD`-token grep = 15, extra 7 are not ads on inspection |
+| "174 Daily Ads digests" | **Correct.** Now the biggest bid-date prize, since layer 1 covers only 8 folders | count |
+| "bid date is NOT on the title sheet, only in the proposal" (old P0 #5 note) | **Wrong, already corrected on the current board.** It is in plan-set body text, and `_md_cache` page 1 of one plan reads "Letting Date: August 20, 2025 / Bids Close: 9:30 a.m. CST" | direct read |
+| "the live path missed asphalt because the prompt says HMA and NDDOT writes SUPERPAVE" (`HANDOFF.md` §1, marked UNVERIFIED) | **Probably not the cause.** The OLD prompt, unchanged, returns `hot_mix_tons = 121,221` on Dunn — exact. The difference from the live path's 200 tons is the **document text**, not the wording | differential re-run, `03_evaluation/outputs/` |
+
+**Box is unreadable in this environment** — listing works, reading times out. All corpus work uses
+the local mirror. Any earlier finding that involved *opening* a Box file needs re-confirming.
 
 ---
 
@@ -12,60 +27,75 @@ Status: `TODO` · `SPEC` (written, awaiting approval) · `BLOCKED` · `DONE`
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 1 | **Add state vocabulary to the seven `schema.py` field descriptions** (SUPERPAVE / ASPHALT CONCRETE / BITUMINOUS / RAP), re-drop Dunn, confirm 121,221 appears | TODO | ~1 hour. The 605× asphalt miss. ND is 35.8% of CSI's bidding. **Highest value item on this board.** |
-| 2 | Decide what `milling_sy` does with ND tons | TODO | Real open question, not a bug — the field name bakes in SY, NDDOT states TON. Pre-read open question #2 |
-| 3 | Do not demo an ND plan until 1 is done | — | Constraint, not a task |
-| 4 | **F2 report rendering, two states** | TODO | `never_matched` loud. Four-state needs the drop path to adopt the crosswalk — out of scope. **If the UI has no branch for a gap state it must render visibly wrong, not blank** |
-| 5 | Extraction schema v2 — bid date+time, CP/SP, traffic level, city, route, gross length | TODO | ONE change, sample-tested. Note: bid date is NOT on the title sheet (it is in proposal front matter); gross length is what midpoint needs and rarely has. Treat the seven descriptions as a reviewable mapping, not prose |
+| 1 | **Golden dataset** — inventory then validation join | in flight | Re-weighted by the 8-not-38 correction. One golden match already confirmed free: Crow Wing rtv-csv `7,707 CY` / `5,849 TON` vs our cached payload `GRADE 7707` / `BASE 5849`, exact. DDL to be shown, not applied |
+| 2 | **Chroma hosted** | in flight | Decision doc + walkthrough. Three questions must come back answered, not UNVERIFIED |
+| 3 | **Material mapping solid** | **DONE** | Commit `5972199`. Alex's 11 rulings in the seven `schema.py` descriptions; 17 docs, 0 errors, 0 unexplained diffs. Spec: `docs/_spec/2026-08-10-live-mapping-rulings.md` |
+| 3b | Item-number layer | **SPEC** | `docs/_spec/2026-08-10-spec-item-number-layer.md`. Not built, per instruction |
+| 4 | **Bid date and time** | in flight | Layer 1 covers 8 folders not 217. Layer 2 and Daily Ads carry the load. Chroma diagnosis required before any fix |
+| 5 | **Key dates and phasing gotchas** | in flight | Phasing as a flagged gotcha with page citation and interval, not a boolean |
+| — | **Do not demo an ND plan** | constraint | Strengthened, not lifted. The schema change did not demonstrably fix the 605× |
 | 6 | #52 + #51 — 422s render generically; a comma in `bid_amount` gives a useless error | TODO | Demo-shaped, cheap |
+
+### Carried over from the earlier board, still open
+
+| # | Task | Status | Notes |
+|---|---|---|---|
+| 2a | Decide what `milling_sy` does with ND tons | **needs owner** | Dunn shows it concretely: `MILLING PAVEMENT SURFACE TON 63,092` + `REMOVAL OF BITUMINOUS SURFACING TON 3,915` = **67,007 tons silently dropped on one plan**. Current prose says leave null rather than convert. Needs a `milling_tons` field or a gotcha |
+| 4a | **F2 report rendering, two states** | TODO | `never_matched` loud. If the UI has no branch for a gap state it must render visibly wrong, not blank |
+| 5a | Extraction schema v2 — CP/SP, traffic level, city, route, gross length | TODO | Bid date and the four dates are now tasks 4 and 5. Treat the seven quantity descriptions as a reviewable mapping, not prose — they now say so in the file |
 
 ## P1 — before handoff Aug 17
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 7 | **#88 — two `00_input` directories, runtime points at the near-empty one** | TODO | **Handoff blocker.** Recommend a `PLAN_INPUT_DIR` env var that fails loudly at boot. Blocks any rebuild-from-source |
+| 7 | **#88 — two `00_input` directories** | TODO | **Handoff blocker.** Only one exists inside the repo today; the other is outside it. Recommend a `PLAN_INPUT_DIR` env var that fails loudly at boot |
 | 8 | **#64 — anon holds INSERT/UPDATE/TRUNCATE on all 8 public tables, RLS off** | TODO | Cannot hand CSI a system whose public key can truncate the corpus. SQL is written; the work is running it as the right role and **proving the effect** |
-| 9 | Repo cleanup + file taxonomy for handoff | TODO | One table: path, what it is, needed to RUN yes/no, ship/exclude/move. Explicitly separate anything containing **CSI data** from anything containing **our method**. Knowledge docs, markup history, pre-reads move to the personal repo |
-| 10 | Chroma local install + backup/restore procedure for Shane | SPEC | `docs/_spec/vector_hosting_setup.md` |
-| 11 | Delete the Railway bridge | TODO | Aug 17. ~$5/mo Hobby, not free after trial |
-| 12 | #7 — `apps/api/Dockerfile` references the pre-restructure layout and cannot build | TODO | Blocks anyone else running it |
-| 13 | Fix `.env`'s placeholder `ANTHROPIC_API_KEY` and document real setup | TODO | A fresh machine following the README gets a 401 |
-| 14 | Add `verified_at` / `verified_by` to `bid_projects` | TODO | Nothing anywhere records that a human verified a plan, so "the DB is the verification" is false until it exists |
+| 9 | Repo cleanup + file taxonomy for handoff | TODO | One table: path, what it is, needed to RUN yes/no, ship/exclude/move. Separate anything containing **CSI data** from anything containing **our method** |
+| 10 | Chroma local install + backup/restore for Shane | SPEC | Superseded by the 2026-08-10 hosting docs where they conflict |
+| 11 | Delete the Railway bridge | TODO | Aug 17 |
+| 12 | #7 — `apps/api/Dockerfile` references the pre-restructure layout | TODO | Blocks anyone else running it |
+| 13 | Fix `.env`'s placeholder `ANTHROPIC_API_KEY` | TODO | A fresh machine following the README gets a 401 |
+| 14 | Add `verified_at` / `verified_by` to `bid_projects` | TODO | Nothing records that a human verified a plan |
+| 15 | **Spec-book Tier 1** | in flight | Confirmed already: ND uses `202 0128` / `430 0143`, **not** MnDOT's `2xxx.xxx`. Lookup must be keyed `(state, item_number)` |
+| 16 | Three-way golden column — live extraction vs crosswalk vs CSI historicals | TODO | The only way to tell "we are wrong" from "they are wrong" from "we agree and both differ from the plan" |
+| 17 | Fix the 22 `MILL BITUMINOUS` rows in `material_crosswalk.csv` still labelled `hma` | TODO | L1 is not ground truth |
+| 18 | Benchmark table in `scratch` | in flight | Part of task 1. DDL shown, not applied |
+| 19 | **Re-test Dunn through the live path's own page selection** | **TODO, new** | The differential run showed the prompt is fine and the *input text* is the suspect (`report.py:110-111` feeds only `structure["proposal_pages"]`). This is what actually decides whether ND is demo-safe |
+| 20 | **Tell CSI that Stearns `milling_sy` is now 140,430, not 70,263** | **TODO, new** | Ruling #9 working as specified — FDR is now included. A number Alex validated as exact has doubled by design. Say it before it appears on screen |
 
-## P1 — post-Wednesday, pre-handoff if time
+## BACKLOG — good, not foundation. Do not start.
 
-| # | Task | Status | Notes |
-|---|---|---|---|
-| 15 | **Spec-book Tier 1** — extract MEASUREMENT and BASIS OF PAYMENT clauses per section per state into a lookup | TODO | The three 2025 spec books are in `05_knowledge/`. Replaces the corpus-majority unit guess with **ground truth** and answers the FDR unit question. Also gives the **state-naming crosswalk** (MN BITUMINOUS / SD ASPHALT CONCRETE / ND SUPERPAVE) that item 1 needs. Does not require indexing 3,000 pages |
-| 16 | Golden dataset column — three-way: live extraction vs crosswalk vs CSI historicals | TODO | The only way to tell "we are wrong" from "they are wrong" from "we agree and both differ from the plan". Shape of the benchmark table. Overlap measured: **60 of 64** plans (county+state), so the gate passes — but match quality is weak and needs the identity design |
-| 17 | Fix the 22 `MILL BITUMINOUS` rows in `material_crosswalk.csv` still labelled `hma` | TODO | Published to Postgres as a table. **L1 is not ground truth** — it needs the same coverage testing as L2 |
-| 18 | Benchmark table in `scratch` | TODO | Measurement the app produces, re-runnable so accuracy can be watched |
+| Item | Note |
+|---|---|
+| **Project Estimation Checklist export** | Adam's stated pain point. Header fields map closely to what we already extract. Best demo slide on the board, and it is a feature, so it waits. Aug 13–16 at the earliest |
+| **Air miles and gross length** | Shop to centre of project is filled by hand today, and `Haul.xlsx` consumes job length plus a "does haul come out to middle" flag to compute trucking cost per ton. The midpoint is an input to a cost they already calculate manually, not a map feature |
+| **RAP extraction** | Straight gap. Plan quantity, a 90% availability convention, nets against mix and shouldering tons. We extract none of it. Dunn carries `RAP - SUPERPAVE FAA 43` as its main mix item, so the vocabulary is already in front of us |
+| **Crushing and stockpile, reopened as checklist fields** | Closed on the evidence that under 5% of pay items mention them. That was correct about pay items and beside the point: it is a checklist question with three sub-fields the estimator answers on every job. Reopen as a checklist field, not as a bucket. Note the two `schema.py` fields were deliberately left untouched on 2026-08-10 for the same reason |
+| **Addendum handling** | We have no concept of them. 180 addenda files corpus-wide, named `a1`/`a2`/`a3` consistently. **Dunn Job 23388 — the plan we keep demoing — has three.** If a plan was extracted before addendum 2 revised the quantities, our number is wrong and nothing flags it |
+| **Notes & Quotes taxonomy** | 20 files in the 2023 year alone, 3 MB to 344 MB, scanned. Sample five, categorise, one page on whether there is value, stop. Easiest place on this project to spend a week and ship nothing |
 
-## P2 — post-handoff / nice to have
-
-| # | Task | Status | Notes |
-|---|---|---|---|
-| 19 | Mapping architecture — L1 lookup → L2 keyword → L3 LLM → L4 confidence gate | SPEC | `docs/_spec/mapping_architecture.md`. Lead with: **40.7% of rows is 83–99% of the QUANTITY** — the heuristic handles big-ticket items, the lookup handles the tail. Inverts the usual assumption |
-| 20 | Cache demotion — keep it as a speed layer, strip the verification role | SPEC | `docs/_spec/cache_to_db_migration.md`. Depends on 14 |
-| 21 | Spec-book Tier 2 — index all three books so gotcha queries resolve spec references | TODO | Plans cite 2360/2211/2118; we index what the plan SAYS, not what the spec REQUIRES. Carries fractured-face-by-traffic-level, the pit-selection link. **Caveats: 2025 editions vs 2023-24 plans (numbering drift), and check whether ND/SD use MnDOT's 2xxx scheme at all — if not, per-state key** |
-| 22 | #85 CAD/mojibake chunk filter · #58 doc_id namespace split | TODO | Both fixed free by a `--reset` rebuild — **blocked by #7/#88** |
-| 23 | #67 / #68 — publish `sections`, `section_intelligence` | TODO | **Not handoff blockers** (owner, 2026-08-08). CSI does not need them to RUN, only to rebuild the vector store later |
-| 24 | Tier 1 vision for scanned plan sets | TODO | Proven: 8/8 fields, **$0.0339/plan measured**. Blocked on #84 (`temperature=0` 400s on Opus 5). Title sheet carries an INDEX OF PLAN SHEETS that takes Tier 2 from ~$2.40 to ~$0.15 |
-| 25 | Close ~9–10 obsolete issues | TODO | Matters for handoff credibility. See `issues.md` |
+**Also backlogged:** one declarative mapping source generating the other three · repo file taxonomy
+and cleanup · cache demotion · F3 full-spec export · F2 four-state · rewire 19 batch writers ·
+retire `csi_v2.db` · Tier 2 vision · **Tier 2 spec-book indexing** · CAD text-layer exclusion ·
+multi-document model · conversion factors with CSI · front-end errors #51/#52 · `public`
+drop-and-recreate to upsert · spec-book-driven aggregate class extraction · traffic level
 
 ## Owner's, not the agent's
 
 | Task | Notes |
 |---|---|
-| Estimator-hours denominator | Asking CSI directly. **Do not invent one.** Measured cost side: chat **$0.190/plan**, vision **$0.0339/plan**; extraction cost is **unmeasured** (`s3_extract`/`s4_extract_rag` log no tokens) |
+| Estimator-hours denominator | Asking CSI directly. **Do not invent one** |
 | Does Supabase billing transfer to CSI after Aug 21 | Gates the pgvector option entirely |
-| Batch document of open mapping questions for CSI | **After Wednesday.** Must be generated **from the live mapping**, not the pre-read — Alex marked up a document generated from an artifact that does not run |
+| Batch document of open mapping questions for CSI | **After Wednesday.** Must be generated **from the live mapping** — which, as of 2026-08-10, finally carries the rulings |
 | Riprap classification; crushing/stockpile exclusion | Unanswered by CSI. Recorded in code as open, deliberately not assumed |
-| The two 64,750 TON `REMOVE AGGREGATE BASE & SURFACING` rows on `2026_BURKE-WARD-CO-ND_JOB-22484` | Same plan, different item numbers and pages. Base-bid/alternate pair or a double-count — needs an estimator's eye |
+| Does `PATCHING` count as hot mix? | New. The 2026-08-10 prose counts it (Dunn: +200 t). ND section 430 covers both `RAP - SUPERPAVE FAA 43` and `PATCHING`, which supports it. Say if you disagree |
+| PG binder / tack / prime | Dunn carries `PG 58S-34 ASPHALT CEMENT TON 5,468`. Pre-read question 7 *proposed* exclusion; proposed is not ruled, so the prompt stays silent |
+| The two 64,750 TON rows on `2026_BURKE-WARD-CO-ND_JOB-22484` | The `Category` column on the rtv-csv files answers this class of question where the corpus covers the project |
 
 ## Explicitly NOT doing
 
 - Bulk rewrites of `csi_v2.db` — the archive is frozen with its version stamp
-- Re-running the 11 `bid_projects` rows — they are LLM-fed via `_QMAP`, the crosswalk never touched them
+- Re-running the 11 `bid_projects` rows — LLM-fed via `_QMAP`, the crosswalk never touched them
 - Pinecone; pgvector unless Supabase billing transfers
 - Verb-before-noun as a general rule — tested, breaks 8 real cases
+- Deleting `crushing_tons` / `stockpile_tons` — "delete nothing" stands, and CSI has not ruled
