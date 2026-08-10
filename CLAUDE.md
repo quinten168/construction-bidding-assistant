@@ -119,14 +119,19 @@ subprocess fallback.
 
 Real constraints, not TODOs. Read these before debugging anything that looks inexplicable.
 
-**1. Two large artifacts a fresh clone cannot run without.**
+**1. Two large gitignored artifacts — one changes cascade behavior, the other doesn't block anything.**
+**Corrected 2026-08-10 — this entry previously said "cannot run without them," which was wrong for
+both, and specifically wrong about Chroma after the 2026-08-09 cascade change removed the tier that
+used to make a missing `ranking_predictions.csv` produce silently stale output.**
 
-| Artifact | Size | Recovery |
+| Artifact | Size | Missing it means |
 |---|---|---|
-| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | `pipelines/ci_model/README.md` |
-| `pipelines/plan_reader/06_chroma/` | 1.5 GB | `pipelines/plan_reader/README.md` |
+| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | Cascade tier 1 (fresh CI-generated reports for corpus projects) can't run — every plan falls through to tier 2's live prediction instead (built from the plan's own state/type/quantities, calibrated probability per name). A real, working, less-detailed result — not stale data. Recovery: `pipelines/ci_model/README.md`. |
+| `pipelines/plan_reader/06_chroma/` | grows with usage (empirically ~170 MB after a few dozen plans on one dev machine — the "1.5 GB" this entry used to cite was never verified against an actual instance) | Nothing on a fresh clone. It is not a pre-built artifact to fetch — `lib.get_collection()` auto-creates it via `PersistentClient(path=...).get_or_create_collection()`, and every PDF drop's `ingest` stage writes that plan's own chunks into it before `extract_rag` queries them back out, filtered by that plan's `doc_id`. A fresh clone's first upload just starts from empty. The only real loss on a new machine: chat Q&A over plans a DIFFERENT machine already uploaded — that history lives in this directory and doesn't travel with the repo (copy it over if you want it to). |
 
-Both are gitignored as regenerable training/index outputs. Neither is optional at runtime.
+Both are gitignored as regenerable outputs — "gitignored" still does not mean "unnecessary" (see
+working rule below), it means each is cheap to lose and comes back through ordinary use or a
+documented recovery step, not that either is a prerequisite to check off before the app will run.
 
 **2. CI subprocess failures are silent, and there are two reasons for that.**
 

@@ -39,17 +39,18 @@ The frontend proxies to the backend at `http://127.0.0.1:8010`; override with `B
 
 ## Fresh-clone gotcha — read this before filing a bug
 
-Two artifacts are gitignored because they are large and regenerable, but the system **cannot run
-without them**. A fresh clone will appear to work and silently return stale results:
+The system **does run** on a fresh clone with nothing but the two secrets below — a PDF drop
+extracts and predicts competitors end-to-end. Two gitignored artifacts change *what kind* of
+competitor result you get, not whether the app works at all:
 
-| Artifact | Size | Recovery |
+| Artifact | Size | Missing it means |
 |---|---|---|
-| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | `pipelines/ci_model/README.md` |
-| `pipelines/plan_reader/06_chroma/` | 1.5 GB | `pipelines/plan_reader/README.md` |
+| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | The competitor cascade's tier-1 subprocess (fresh reports for projects already in CSI's historical corpus) can't run. Every plan falls through to tier 3 — a **live prediction** built from that plan's own state/type/quantities against Postgres, with a calibrated probability per name. Not stale data (the old static-report tier that could go stale was removed 2026-08-09) — just the less-detailed of the two real cascade tiers. Recovery: `pipelines/ci_model/README.md`. |
+| `pipelines/plan_reader/06_chroma/` | grows with usage, ~170 MB after a few dozen plans | Nothing, for a fresh clone — it doesn't need to pre-exist. Each PDF drop auto-creates/writes its own chunks into it on ingest (that's what builds the plan-specific RAG index the extraction step queries). The only thing NOT carried over on a new machine is chat Q&A about plans a *previous* machine already uploaded — that history lives in this directory and doesn't travel with the repo. Copy the directory over if you want it to. |
 
-Without `ranking_predictions.csv` the competitor-report subprocess fails, `live_report()` returns
-`None`, and the app falls back to a **stale pre-generated report** — the UI renders normally and
-nothing looks broken. If competitor reports seem out of date, check this first.
+**What actually blocks a fresh clone**: `ANTHROPIC_API_KEY` and `SUPABASE_TEAM_DB_URL` in `.env`
+(copy `.env.example`, ask Tobias for the Supabase password) — without the DSN, the entire
+competitor cascade has no data source and prediction fails outright, tier 1 or tier 3.
 
 ## Architecture
 
