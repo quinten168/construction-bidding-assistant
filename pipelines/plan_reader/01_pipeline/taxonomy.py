@@ -27,6 +27,47 @@ GOTCHA_TYPES = {
         "provenance": ["C", "A", "E"],
         "examples": ["SAP 032: two-phase construction shown on plans"],
     },
+    # Split out of phasing_staging on 2026-08-10. phasing_staging fired on 57 of 100 corpus plans
+    # and collapsed three different things — a real break-and-resume, an in-season sequence of
+    # operations, and traffic staging drawn on the plan. Only the first costs a remobilization, and
+    # at a 57% base rate the combined flag told an estimator nothing. phasing_staging keeps its
+    # definition (it is written by two batch tools); these two carry the parts that price
+    # differently. See docs/_spec/2026-08-10-phasing-gotcha.md §2 and 01_pipeline/phasing.py.
+    "phase_break_remobilization": {
+        "family": "Schedule & sequencing",
+        "definition": "Work stops and later resumes after a gap — most often overwinter, or gated "
+                      "on another contract, ROW availability, or a preceding phase — forcing the "
+                      "contractor to demobilize and remobilize.",
+        "triggers": ["following construction season", "freeze thaw cycle", "left unpaved over a winter",
+                     "Notice to Proceed will not be issued prior to",
+                     "This Contract Contains Intermediate Completion Dates",
+                     "Phase 2 may not begin until Phase 1 is complete",
+                     "construction span crossing a winter (start and end in different seasons)"],
+        "provenance": ["E"],
+        "examples": [
+            "Murray CSAH-2 (MN, 2025) p.181: 'Final bituminous wear course along CSAH 2 shall be "
+            "placed during the following construction season. This will allow the non-wear course "
+            "to be through a freeze thaw cycle.'",
+            "Watonwan SP-8303-48 (MN, 2023) p.1: Starting Date 7/10/2023, Completion Date 6/1/2024 "
+            "— 'This Contract Contains Intermediate Completion Dates'",
+            "Brookings 8391182 (SD, 2023) p.45: substantially complete by October 15, 2023, but "
+            "'the Notice to Proceed will not be issued prior to August 1, 2023'",
+        ],
+    },
+    "interim_milestone_dates": {
+        "family": "Schedule & sequencing",
+        "definition": "The contract imposes intermediate/interim completion dates short of final "
+                      "completion, so parts of the work carry their own deadlines and their own "
+                      "liquidated-damages exposure.",
+        "triggers": ["This Contract Contains Intermediate Completion Dates", "interim completion date",
+                     "milestone date", "intermediate completion"],
+        "provenance": ["A", "E"],
+        # NOTE: a naive 'intermediate completion' grep hits 40 of 100 corpus plans and is dominated
+        # by the EJCDC *definition* of Milestone, which imposes nothing. See phasing.py's
+        # BOILERPLATE_PATTERNS before adding triggers here.
+        "examples": ["Wilkin TH-75 (MN, 2023) p.1 and Watonwan SP-8303-48 p.1 both carry the "
+                     "MnDOT proposal-cover declaration"],
+    },
     "tight_schedule": {
         "family": "Schedule & sequencing",
         "definition": "Aggressive completion deadline, short working window, or interim milestone dates.",
