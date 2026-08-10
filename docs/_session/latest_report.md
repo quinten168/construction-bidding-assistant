@@ -1,99 +1,241 @@
-# Session report 7 — 2026-08-08 · the live path missed 121,221 tons of asphalt
+# Session report — 2026-08-10 · CSI's rulings in the live mapping, and two board corrections
 
-Resolves the Dunn mix/milling gap by going to the source, as instructed. **This is the most serious
-finding of the session and it is on the demo path.**
+Task board P0 #3 is done and proved. Two claims on the board do not survive contact with the
+corpus, and one of them shrinks a P0. Both are reported here rather than worked around.
 
 ---
 
-## Ground truth, from the bid schedule in the PDF
+## 1. Two board corrections. Read these first.
 
-`2026_DUNN-CO-ND_JOB-23388` (NDDOT Job 23388, PCN-23388), proposal form pages 8 of 17:
+### 1a. There are 8 machine-readable bid item lists, not 38
 
-| item | spec | unit | quantity |
-|---|---|---|---:|
-| **RAP - SUPERPAVE FAA 43** | 430-0143 | TON | **121,221** |
-| **MILLING PAVEMENT SURFACE** | 411-0100 | TON | **63,092** |
-| FULL DEPTH RECLAMATION | — | SY | 408,216 |
-| PATCHING | 430-2000 | TON | 200 |
-| REMOVE AGGREGATE BASE | — | TON | 72,153 |
-| AGGREGATE BASE COURSE CL 5 | — | TON | 6,506 |
+The board and `2026-08-08-corpus-findings.md` both say *"38 `rtv-csv-for-Bid Item List*.csv` files,
+machine readable, one per project."* **38 is the count of ALL `rtv-csv-*` files of every kind.**
+Broken down:
 
-## The three-way comparison
+| kind | count |
+|---|---:|
+| `rtv-csv-for-Plan Holders` (bidder lists, no quantities) | 27 |
+| **`rtv-csv-for-Bid Item List`** (6 `.csv` + 2 `.xlsx`) | **8** |
+| `rtv-csv-for-undefined` | 1 |
+| `rtv-csv-for-Projects` | 1 |
+| `rtv-csv-for-Bid Abstract Summary` | 1 |
+| **total** | **38** |
 
-| bucket | **source** | live LLM (demo) | crosswalk |
-|---|---:|---:|---:|
-| hot mix | **121,221 t** | **200 t** ❌ | 121,221 t ✅ |
-| milling | **63,092 t** | *absent* | 408,216 SY (= FDR, not milling) |
-| base | **6,506 t** | 6,506 t ✅ | 7,326 t |
-| grading | — | 33,138 CY | 32,690 CY |
+**Three verification methods, all named.** (1) The filename glob `rtv-csv-for-Bid Item List*` across
+the whole corpus returns 8. (2) Grouping all 38 `rtv-csv-*` files by their kind token sums back to
+38 with only 8 in the Bid Item List bucket, so the 8 and the 38 are reconciled rather than merely
+asserted. (3) The counts are identical on the Box mirror and the local iCloud mirror, which rules
+out an unmaterialized-file artifact.
 
-### The headline: the live path reported 200 tons of asphalt on a 121,221-ton job — off by 605×
+All 8 are MN. All carry a spec item number on every row.
 
-It picked up `PATCHING | TON | 200` and **missed `RAP - SUPERPAVE FAA 43 | TON | 121,221` entirely.**
-On the path the demo runs.
+**What this changes.** It does not kill the golden dataset. Eight machine-readable bid schedules is
+still eight more source-document validations than this project has ever done, and it is still a join
+rather than manual transcription. But **"38 golden plans" cannot go in Wednesday's presentation**,
+and the 33 `*QUANITIES.pdf` files and 174 Daily Ads digests are now a larger share of the available
+ground truth than the rtv-csvs are. The golden-dataset agent has been sent this correction.
 
-### Truncation was NOT the cause — hypothesis tested and rejected
+**One golden match is already confirmed, for free.** The Crow Wing rtv-csv lists
+`2106.507 EXCAVATION - COMMON (C Y) = 7,707` and `2211.509 AGGREGATE BASE CLASS 5 (TON) = 5,849`.
+Our cached live-path payload for that same project (`9ff5dc83b09d4079.json`) holds `GRADE 7707 CY`
+and `BASE 5849 t`. **Exact match on both, no API calls.** That is the first extraction on this
+project ever verified against a source document.
 
-`s3_extract` truncates to 180,000 chars (first 108,000 + last 72,000) of a 1,143,615-char document,
-discarding the middle 963,615. That looked like the obvious culprit. It is not:
+### 1b. There are 8 standalone `AD.pdf` files, not 217
 
-```
-'RAP - SUPERPAVE FAA 43'    at offset  86,309  (7.5% in)  -> SENT to Claude
-'MILLING PAVEMENT SURFACE'  at offset  86,229  (7.5% in)  -> SENT to Claude
-```
+The board's task 4 rests on *"217 standalone `AD.pdf` advertisement files"*, which makes layer 1 the
+cheap main path. Measured on the corpus:
 
-Both were well inside the head window. **Claude saw the line and did not classify it as hot mix.**
+| pattern | count |
+|---|---:|
+| `* AD.pdf` (standalone advertisements) | **8** |
+| filenames with an `AD` token | 15 |
+| addenda `*a[0-9].pdf` | 180 |
+| filenames containing "addendum" | 137 |
+| PDFs in `Daily Ads/` | **174** (board correct) |
+| `*QUANITIES.pdf` | 33 |
 
-### Most likely cause: a vocabulary gap in the seven-sentence prose mapping
+The board's "217 advertisement / addendum PDFs" is advertisements **and addenda counted together**,
+and the addenda dominate it. Two named methods for the 8: the strict `* AD.pdf` glob returns 8
+independently on both mirrors, and the broader `AD`-token grep returns 15 whose extra 7 are not
+advertisements on inspection.
 
-`schema.py` asks for *"Total tons of hot mix asphalt (**HMA**) from the bid schedule."* NDDOT does not
-write "HMA" or "hot mix" — it writes **`RAP - SUPERPAVE FAA 43`**. The model was asked for HMA, shown
-Superpave, and returned the one line that did look like asphalt tonnage (`PATCHING`).
+**What this changes.** Layer 1 covers 8 project folders and cannot be presented as the main path.
+Layer 2 (the Advertisement for Bids page inside the plan set) carries the load, and `Daily Ads/` at
+174 digests is the bigger prize. The bid-date agent has been sent this correction.
 
-**This is exactly the state-vocabulary problem the spec books were just added to solve** — MN writes
-BITUMINOUS, SD writes ASPHALT CONCRETE, ND writes SUPERPAVE. `SPEC_MAP` hand-orders around it and has
-a `SUPERPAVE` keyword, which is why the crosswalk got this right and the prose mapping did not.
+### 1c. Box is unreadable in this environment
 
-**UNVERIFIED:** this is the most plausible mechanism, not a proven one. Confirming it means one more
-call with "SUPERPAVE" added to the field description and seeing whether 121,221 appears. That is the
-cheapest possible next experiment and it should run before Wednesday.
+Listing works; reading content does not. `pdfplumber` on a Box path failed with
+`PdfminerException: [Errno 60] Operation timed out`, and a plain `cp` of the same file failed after
+minutes. Per the owner's instruction all corpus work moved to the local mirror at
+`~/Library/Mobile Documents/com~apple~CloudDocs/.../00_CSI_ELP/CSI ELP 2026`, which has identical
+file counts (pdf 1792/1792, msg 953/953, QUANITIES 33/33).
 
-### The milling absence is arguably CORRECT behaviour
+**This is its own instance of the standing rule.** A Box listing succeeds and a Box read fails, so a
+sweep that only counts filenames looks identical whether the files are readable or not. Any earlier
+finding that involved *opening* a Box file should be re-confirmed.
 
-`milling_sy` asks for *"Total **square yards** of milling."* The plan states milling in **TONS**
-(63,092). The model declined to put tons into a square-yard field. That is the honest answer, and it
-is open question #2 from the July pre-read — *"NDDOT measures milling in TONS while MN/SD measure SY.
-Your MILL SY column cannot hold the ND tons."* The field name bakes in a unit the plan does not use.
+---
 
-The crosswalk's 408,216 is **not milling** — it is Full Depth Reclamation, routed to `milling_sy` by
-Alex's ruling (category `base`, quantity stays where measurable). The crosswalk also drops the 63,092
-TON of real milling, as `no_bucket_for_unit`. **So neither pipeline reports this plan's actual
-milling.** Both are wrong, differently.
+## 2. P0 #3 — CSI's 11 rulings are now in the thing that ships
 
-## What this changes
+Commit `5972199`. The live PDF-drop path derives every quantity from the seven quantity field
+descriptions in `01_pipeline/schema.py`; `quantity_crosswalk.py` is batch-only and never loads there.
+Alex marked up a document generated from an artifact that does not run, so none of his rulings were
+in the product. They are now.
 
-1. **Wednesday's risk is now specific and large.** A demo on an ND plan can under-report asphalt by
-   orders of magnitude. Of CSI's bidding, **ND is 35.8%**.
-2. **The crosswalk beat the LLM on the number that matters most here** — reversing the earlier
-   read from Stearns/Walsh/Dunn-CP-13, where they agreed or the LLM was better. The two pipelines
-   agree on easy plans and diverge on hard ones, which is the worst possible failure shape.
-3. **The seven prose sentences are the highest-leverage thing to fix in the whole system.** They are
-   ~40 words, they are the live mapping, and they encode neither CSI's rulings nor three states'
-   vocabulary. Adding state vocabulary to them is hours, not days.
-4. It strengthens the spec-book Tier 1 ticket: the books give the naming crosswalk directly.
+Five of the seven descriptions changed. `crushing_tons` and `stockpile_tons` were deliberately left
+alone — CSI has not answered whether they stay excluded, and a clause there would be an invented
+ruling. Nothing was deleted; field and golden-map counts are identical to HEAD (25/16/9/16).
 
-## Recommended before Wednesday, in order
+Design and per-clause justification: `docs/_spec/2026-08-10-live-mapping-rulings.md`.
 
-1. Add state vocabulary to the seven field descriptions (SUPERPAVE / ASPHALT CONCRETE / BITUMINOUS /
-   RAP), re-drop Dunn, confirm 121,221 appears. ~1 hour, one API call to verify.
-2. Decide what `milling_sy` does with ND tons — it is a real open question, not a bug.
-3. Do not demo an ND plan until 1 is done.
+### The proof
 
-## Side effects of this test, recorded
+The mapping is a **prompt**, so a passing unit test asserts nothing about it. The proof is a
+differential re-run: `03_evaluation/2026-08-10_mapping_regression.py` runs the real extractor over
+the 17 already-converted plans in `00_input/_md_cache/`, once with the old descriptions and once
+with the new, at `temperature=0`, and classifies every diff against the ruling that predicts it.
+An unexplained diff fails the run.
 
-- The run wrote **558 chunks into Chroma under `doc_id = "Job 23388 Request for Proposal"`** — a
-  stem-keyed id with blank provenance. Issue **#58** reproducing live from a single drop.
-- No payload cache was written (`process_pdf` does not write it; only `apply_verification` does).
-- **`.env`'s `ANTHROPIC_API_KEY` is a 10-character placeholder** (`sk-ant-...`). The first attempt
-  died on a 401; the working key exists only in the shell environment. A fresh machine following the
-  README gets a 401.
+**Result: 17 documents, 0 errors, 12 fields moved, 0 UNEXPLAINED.**
+
+Evidence committed: `03_evaluation/outputs/2026-08-10_mapping_regression_{old,new}.json` and
+`_diff.txt`.
+
+**An honest limit on that number.** The classifier explains a diff by matching the *direction* a
+field moved against a ruling that predicts that direction. That is necessary, not sufficient — a
+field moving the right way for the wrong reason still reads as "explained". So I hand-checked the
+largest moves against the source bid schedule rather than trusting the classifier. Those checks are
+below and they are what the claim actually rests on.
+
+### The Dunn drop test — answered, and the answer is good news
+
+The Dunn plan was already in the markdown cache (`c0e327cf80827ab9`), so this needed no Box pull.
+Verified line by line against the bid schedule in the source document:
+
+| pay item | ND item | unit | plan qty | page | where it landed |
+|---|---|---|---:|---|---|
+| `REMOVE AGGREGATE BASE` | 202 0128 | TON | 72,153 | p.7 | **nowhere — correctly excluded** |
+| `AGGREGATE BASE COURSE CL 5` | — | TON | 6,506 | p.13 | `base_tons` = 6,506 |
+| `FULL DEPTH RECLAMATION` | — | SY | 408,216 | p.13 | `milling_sy` = 408,216 |
+| `RAP - SUPERPAVE FAA 43` | 430 0143 | TON | 121,221 | p.16 | `hot_mix_tons` |
+| `PATCHING` | 430 2000 | TON | 200 | p.16 | `hot_mix_tons` |
+| `MILLING PAVEMENT SURFACE` | 411 0100 | TON | 63,092 | p.16 | nowhere — SY field, TON item |
+| `REMOVAL OF BITUMINOUS SURFACING` | — | TON | 3,915 | p.7 | nowhere — SY field, TON item |
+
+**Does 72,153 TON of `REMOVE AGGREGATE BASE` land in `base_tons`? No — and it did not before the
+change either.** `base_tons` is 6,506 in both arms, which is exactly the one legitimate aggregate
+base line. The feared seventh defect is not present on this document. The `base_tons` clause is
+still worth having as insurance, but the honest report is that the live path was already clean here.
+
+**`milling_sy` went from null to 408,216, and that is the FDR line exactly.** CSI ruling #9 working
+as specified, verified against the source rather than inferred from a direction.
+
+### The finding that matters more than the rulings
+
+**The 605× asphalt miss is not caused by the HMA-vs-SUPERPAVE vocabulary.**
+
+`HANDOFF.md` §1 records as the most likely cause, marked UNVERIFIED, that the prompt says "HMA"
+while NDDOT writes "SUPERPAVE", and states ND is 35.8% of CSI's bidding. In this run **the OLD
+prompt, unchanged, returned `hot_mix_tons = 121,221` on Dunn** — the exact plan quantity, to the
+ton, with no vocabulary help at all. The new prompt returns 121,421, which is 121,221 + the 200-ton
+`PATCHING` line.
+
+The difference between that and the 200 tons the live path reported is **not the prompt, it is the
+document text the model was given.** This harness feeds the full page-level converted markdown; the
+live path feeds only `structure["proposal_pages"]` (`report.py:110-111`). Same model, same
+temperature, same field descriptions, different input, 605× different answer.
+
+**Stated precisely, because this contradicts a leading hypothesis:** this is strong evidence against
+the vocabulary explanation and it is *not* proof of the page-routing explanation, which I have not
+directly tested. What it establishes is that the vocabulary fix alone should not be assumed to have
+fixed Dunn on the live path. **Do not demo an ND plan on the strength of the schema change.** The
+next test is to run the live path's own page selection on Dunn and see what text it produces.
+
+The state vocabulary is still worth having — it costs nothing and SD `ASPHALT CONCRETE` is untested —
+but it should not be reported as the fix for the 605×.
+
+### A ruling that did not take, reported rather than glossed
+
+`TRAFFIC SERVICE AGGREGATE | TON | 820` (p.13) is ruling #8, shoulder → base. After the change
+`base_tons` is still 6,506, not 7,326. **The model did not apply that ruling on this document**,
+even though the description names the item explicitly. Nine of the eleven rulings are demonstrably
+exercised by the diff; this one demonstrably is not, and `GRAVEL SURFACING` did not occur in the 17
+documents so it is untested rather than failed.
+
+This is the structural weakness of encoding a mapping as prose and it is the argument for the
+item-number layer, not against the change just made.
+
+### One number Alex previously validated has changed by design
+
+Stearns (`9813645`) `milling_sy` went **70,263 → 140,430**. The old value is recorded in the handoff
+as exact to the square yard — the three `MILL BITUMINOUS` lines, correctly excluding FDR. The new
+value is those lines **plus** the 70,167 SY of FDR, because CSI ruled that FDR's quantity is reported
+in `milling_sy`.
+
+This is the ruling working, not a regression. But if anyone at CSI remembers the 70,263 figure,
+**the number they validated is now double**, and that needs saying out loud before Wednesday rather
+than being discovered on screen.
+
+---
+
+## 3. P0 #3 second half — the item-number layer is specced, not built
+
+`docs/_spec/2026-08-10-spec-item-number-layer.md`. Layer order becomes
+**CSI ruling → L0 coded item number → L1 LLM read → L2 keyword heuristic**, with `never_matched` as
+an explicit terminal state that is neither a zero nor a null.
+
+The CSI-ruling-above-L0 ordering is the easy thing to get wrong: the spec book says what the state
+pays for, not which of CSI's buckets a contractor tracks it in, so building L0 as the top layer
+would quietly overwrite the client's decisions.
+
+**Evidence from Dunn settles one of the spec's gating questions.** ND writes its pay items as
+`202 0128`, `430 0143`, `411 0100` — a section-plus-item pair, **not MnDOT's `2xxx.xxx` scheme**.
+So the lookup must be keyed `(state, item_number)`; a single-key table would resolve an ND item to
+an MN definition silently. The spec already recommended that defensively and now has a concrete case.
+
+A second thing falls out for free: `RAP - SUPERPAVE FAA 43` is `430 0143` and `PATCHING` is
+`430 2000` — both in ND section 430, the asphalt section. The state's own numbering says patching is
+asphalt work, which is exactly the kind of question the keyword heuristic has been guessing at.
+
+**Open for you:** counting `PATCHING` as hot mix is a decision I made in the prose ("count wearing
+course, non-wearing course, leveling and patching mixtures") and it moved a real number by 200 tons.
+Section 430 supports it. Say if you disagree and it comes back out.
+
+---
+
+## 4. Still open, and not assumed
+
+Four items are named in the spec rather than decided, because writing a clause would mean inventing
+a CSI ruling:
+
+1. **ND measures milling in TONS.** Dunn shows it directly: `MILLING PAVEMENT SURFACE | TON |
+   63,092`, alongside `REMOVAL OF BITUMINOUS SURFACING | TON | 3,915`. The new prose says leave
+   `milling_sy` null rather than convert, which is safe but is **silent loss of 67,007 tons on this
+   one plan**. That is the failure shape this project has been bitten by nine times. It needs either
+   a `milling_tons` field or a gotcha, and that is your call — it is board open item #2.
+2. **PG binder / tack / prime.** Dunn carries `PG 58S-34 ASPHALT CEMENT | TON | 5,468`. Pre-read
+   question 7 *proposed* excluding it to avoid a double count. Proposed is not ruled, so the prompt
+   stays silent and the model is currently not counting it.
+3. **Riprap classification** — open per `CSI_OPEN_QUESTIONS_2026_08_07`.
+4. **`AGGREGATE SURFACING CLASS 1 / 2 / 5 / SPECIAL`** — 67,000 T on a keyword guess, preserved and
+   labelled.
+
+## 5. Also noticed
+
+**Dunn Job 23388 has three addenda** (`Addendum 1/2/3 Job 23388.pdf`) sitting next to the plan set.
+Our extraction reads the base Request for Proposal and nothing flags that three documents revised it
+afterwards. The board already has addendum handling in the backlog; this is a concrete instance on
+the exact plan we keep using as the demo case, and 180 addenda files exist corpus-wide.
+
+---
+
+## 6. What is running
+
+Four subagents plus a research sweep, all launched this session: golden dataset (P0 #1), Chroma
+hosted (P0 #2), bid date (P0 #4), key dates and phasing (P0 #5), and state spec books Tier 1. The
+golden-dataset and bid-date agents have been sent the corrections in §1 mid-run. Their reports land
+in `docs/_session/2026-08-10-*.md`.
