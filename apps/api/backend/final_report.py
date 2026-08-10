@@ -6,9 +6,10 @@ The "final report" is a one-pager that fuses two teams' outputs for a single pro
   Section ④       COMPETITIVE LANDSCAPE — the matched Competitor Intel report (parsed markdown)
 
 It takes either a live plan payload (what `report.py::process_pdf` returns after a PDF drop) or a
-plan_id already in the corpus, attaches the competitor report matched on county+state+date
-(`competitor_report.match_report`), and renders to markdown (the canonical view) with CSV + PDF
-exports. No Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
+plan_id already in the corpus, attaches the competitor section from the two-tier cascade
+(`predict_competitors()`: live CI generation for corpus projects, else a live prediction from the
+plan's own data), and renders to markdown (the canonical view) with CSV + PDF exports. No direct
+Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
 
 Gotcha source of truth: the deduped `public.gotchas` table in Supabase Postgres (it already
 carries `decision_class` = go_no_go|pricing, page lists, and confidence). Moved off the local
@@ -27,14 +28,37 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import ci_db
-from . import competitor_report as cr
 from . import competitor_stats_live
 from . import corrections
 from . import payload_carry
+from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
 
 log = get_logger("bid_assistant.final_report")
+
+
+def _resolve_bid_date(identity: dict) -> str | None:
+    """The best "as of" date to scope competitor history by, in priority order: the plan's own
+    parsed bid deadline (the actual letting date -- what "before this date" is supposed to mean),
+    else construction_start, else construction_end.
+
+    Every call site into assemble()/predict_competitors() previously skipped straight to
+    construction_start/construction_end, never attempting identity["bid_deadline"] at all. For a
+    plan dropped through the live app, bid_deadline_raw is populated far more often than
+    construction_start/end (9 of the first 10 real plan_reader-written rows had a null
+    construction_start; construction_end, when used alone, can sit a year or more after the actual
+    bid date, which both misdates the "as of" cutoff and — worse — can make a currently-open
+    bidding season look closed). Reuses bid_projects_record.parse_bid_date() rather than
+    reimplementing date parsing; that function already handles the free-text formats plan_reader
+    extracts ('09:30AM ... on August 15, 2025', '11/15/2025', ISO). Caught 2026-08-08 while
+    investigating why capacity showed "insufficient history" for freshly-processed demo plans.
+    """
+    import bid_projects_record as bpr  # noqa: E402 — sys.path via plan_reader_bridge above
+    parsed, ok = bpr.parse_bid_date(identity.get("bid_deadline"))
+    if ok and parsed:
+        return parsed
+    return identity.get("construction_start") or identity.get("construction_end")
 
 # Retained only so the retirement stays greppable and any stale import keeps resolving; no query
 # in this module opens it any more (#50). The corpus now lives in Postgres, reached via ci_db.
@@ -231,6 +255,10 @@ def _readable_title(plan_id: str, identity: dict) -> str:
     return state or plan_id
 
 
+# The flat competitor ranking is capped at 5 (#75) — enforced in predict_competitors() for every
+# cascade tier, since tier 2's stale report files predate the cap. Manual names are never capped.
+TOP_N_COMPETITORS = 5
+
 # Sentinel for assemble()'s `predicted_competitors` param: distinguishes "caller has no cached
 # prediction, compute fresh" (the default) from "caller has a cache hit and the cascade found
 # nothing" (a legitimate `None` result that must NOT trigger a redundant recompute).
@@ -238,31 +266,38 @@ _NO_CACHED_PREDICTION = object()
 
 
 def predict_competitors(identity: dict, archetype: str, quantities: list,
-                         bid_date: str | None, pid: str, reports_dir: str | None = None) -> dict | None:
-    """The three-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
+                         bid_date: str | None, pid: str) -> dict | None:
+    """The two-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
     (the predict-competitors endpoint calls this directly, before finalize, so the estimator sees the
-    predicted list instead of typing names blind). LIVE generation, else a static match, else a live
-    PREDICTION. Live = invoke the CI team's agent for a fresh report keyed to this exact project
-    (county+state+date → their project_natural_key → generate). Falls back to matching a
-    pre-generated report when the plan isn't in their corpus, the model repo is absent, or generation
-    fails. Both of those require the project to ALREADY be a row in the CI corpus
-    (ranking_predictions.csv / data/processed/projects.csv) -- i.e. a historical letting CSI already
-    has bid data for. A genuinely new plan (nothing in CSI's history under this county+state+date)
-    matches neither, and previously left `comp` as None with no competitor section at all.
-    competitor_predict_live.predict_report() is the third fallback for exactly that case: it builds
-    its own candidate pool and scores it live against Postgres, using the SAME already-fitted weights
-    the CI model uses, rather than requiring a precomputed row."""
-    when = bid_date or identity.get("construction_start") or identity.get("construction_end")
+    predicted list instead of typing names blind). LIVE generation, else a live PREDICTION.
+    Live = invoke the CI team's agent for a fresh report keyed to this exact project
+    (county+state+date → their project_natural_key → generate) — requires the project to ALREADY be
+    a row in the CI corpus (ranking_predictions.csv / data/processed/projects.csv), i.e. a
+    historical letting CSI already has bid data for. Everything else — a genuinely new plan, a
+    county that doesn't match, a failed/absent CI subprocess — gets
+    competitor_predict_live.predict_report(): a candidate pool built and scored live against
+    Postgres from this plan's OWN state/type/quantities, using the SAME already-fitted weights the
+    CI model uses.
+
+    There used to be a middle tier ("layer2-static-match": reuse the nearest same-county
+    pre-generated bid_report_*.md verbatim) — removed 2026-08-09 at the owner's call: its only
+    remaining role was masking a dead CI subprocess with a plausible-looking stale report (the
+    exact rough-edge-2 failure mode), and a real prediction from the plan's own data beats a
+    verbatim copy of an old report for a possibly-different project. A dead subprocess now shows
+    up honestly as traffic shifting to layer3 in the cascade log. The served_by labels keep their
+    historical names (layer1/layer3) so accumulated log data stays comparable."""
+    when = bid_date or _resolve_bid_date(identity)
     comp = None
+    layer = "none"                                       # which cascade tier actually served (logged below)
     if identity.get("county") or identity.get("state"):
         try:
             from . import competitor_live as cl
-            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when)
+            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when,
+                                  project_type=archetype, plan_id=pid)
         except Exception as e:                           # noqa: BLE001 — live path must never break assembly
-            log.warning("live competitor generation errored, falling back to static: %s", e)
-        if comp is None:
-            comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
-                                   when, reports_dir=reports_dir)
+            log.warning("live competitor generation errored, falling back to live prediction: %s", e)
+        if comp is not None:
+            layer = "layer1-live-generated"
         if comp is None:
             try:
                 from . import competitor_predict_live as cpl
@@ -275,19 +310,69 @@ def predict_competitors(identity: dict, archetype: str, quantities: list,
                     project_type=archetype, bid_date=when or "", quantities=qty_by_col,
                     source_id=pid,
                 )
+                if comp is not None:
+                    layer = "layer3-live-prediction"
             except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
                 log.warning("live candidate prediction errored: %s", e)
+    # One greppable line per plan recording which tier served — the ONLY source of real
+    # Layer1/2-vs-Layer3 traffic data (nothing else in this backend persists usage), needed to
+    # replace CLAUDE.md rough edge 11's structural 91%/9% estimate with a measurement.
+    log.info("competitor cascade: plan=%s served_by=%s county=%r state=%r type=%r bid_date=%r",
+             pid, layer, identity.get("county", ""), identity.get("state", ""), archetype, when)
+
+    # MERGE 2026-08-10: flatten BEFORE cap, and the order is load-bearing.
+    #
     # Flatten to plain names at the one point every cascade tier flows through (see
     # competitor_names). The /predict-competitors endpoint returns this list straight to the
     # verify-competitors popup, so an unflattened `{"name": ..., "tier": ...}` entry would reach
-    # the UI without ever passing through assemble().
+    # the UI without ever passing through assemble(). ci_model's executor.py still emits `tier`
+    # (1 = priority, 2 = discovery) and that code is CI-owned, so this flatten is the permanent
+    # boundary, not a stopgap.
+    #
+    # Slicing objects would truncate fine and still crash downstream, so capping first would fix
+    # nothing — it is the SHAPE that breaks the renderer, not the length.
     if comp is not None and comp.get("competitors") is not None:
         comp["competitors"] = competitor_names(comp["competitors"])
+
+    # Uniform top-5 cap at the one point all three tiers flow through. The cap itself is #75's
+    # (2026-08-05), but it was only ever implemented in the CI planner (fresh layer-1 generations)
+    # and predict_report's top_n (layer 3) — layer 2 parses pre-#75 report FILES verbatim, so a
+    # stale file (e.g. bid_report_P000012.md, 10 names) leaked a 10-competitor list into a report
+    # on 2026-08-09. Capping here, before assemble() appends the estimator's manual names (those
+    # are intentionally additive, never capped), makes every path agree regardless of file age.
+    if comp is not None and len(comp.get("competitors", [])) > TOP_N_COMPETITORS:
+        comp["competitors"] = comp["competitors"][:TOP_N_COMPETITORS]
+        if isinstance(comp.get("summary"), dict):
+            comp["summary"]["analyzed"] = len(comp["competitors"])
     return comp
 
 
+def _resolve_current_comp_names(names: list[str]) -> dict[str, str]:
+    """Resolve a batch of typed-in competitor names to their current registry comp_name, so a
+    manually-typed retired name (one that's since been consolidated onto a new canonical name)
+    lands on the entity it was merged into instead of appearing as a separate competitor on this
+    one report. Read-only -- unlike _resolve_bidder (bid_results_admin.py), never writes a
+    needs_review stub, since nothing is actually being recorded here. Falls back to each name
+    unchanged on no match or any DB error -- must never break report assembly."""
+    if not names:
+        return {}
+    try:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select raw_name_variant, comp_name from scratch.competitor_name_registry "
+                "where upper(regexp_replace(raw_name_variant, '\\s+', ' ', 'g')) = any(%s) "
+                "  and comp_name is not null and comp_name != ''",
+                ([ci_db.normalize(n) for n in names],),
+            )
+            by_norm = {ci_db.normalize(r["raw_name_variant"]): r["comp_name"] for r in cur.fetchall()}
+    except Exception as e:                                  # noqa: BLE001 — must never break assembly
+        log.warning("manual competitor name resolution failed: %s", e)
+        return {n: n for n in names}
+    return {n: by_norm.get(ci_db.normalize(n), n) for n in names}
+
+
 def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
-             bid_date: str | None = None, reports_dir: str | None = None,
+             bid_date: str | None = None,
              manual_competitors: list[str] | None = None,
              predicted_competitors: dict | None = _NO_CACHED_PREDICTION) -> dict:
     """Build the structured final-report dict. Pass a live `plan_payload` (from report.process_pdf)
@@ -333,9 +418,9 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     # right after the verify gate so the estimator sees it before the manual-add popup) takes
     # priority; otherwise run the same three-tier cascade here, unchanged from before this was
     # extracted into predict_competitors() (see above).
-    when = bid_date or identity.get("construction_start") or identity.get("construction_end")
+    when = bid_date or _resolve_bid_date(identity)
     if predicted_competitors is _NO_CACHED_PREDICTION:
-        comp = predict_competitors(identity, archetype, quantities, when, pid, reports_dir=reports_dir)
+        comp = predict_competitors(identity, archetype, quantities, when, pid)
     else:
         comp = predicted_competitors
 
@@ -354,6 +439,9 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     # retrieval process below, run ONCE over the whole merged list, not a separate stats
     # computation per origin and not the old model "feature" columns (ranking_predictions.csv).
     manual_names = [n.strip() for n in (manual_competitors or []) if n and n.strip()]
+    if manual_names:
+        resolved = _resolve_current_comp_names(manual_names)
+        manual_names = [resolved.get(n, n) for n in manual_names]
     if manual_names and comp is None:
         # No predicted report at all (e.g. county+state never matched anything) -- manual names are
         # the only way stats show up for this plan, so build a bare skeleton for them to live in.
@@ -564,11 +652,19 @@ def _stats_lines(stats: dict) -> list[str]:
         lines.append(f"Capacity — {cap_line}")
     pa = stats.get("pit_access")
     if pa:
-        nearest = pa.get("nearest_pit")
-        pit_line = (f"Nearest pit {nearest.get('name')} ({nearest.get('distance_miles', 0):.1f} mi)"
-                    if nearest else "No usable pit found")
-        pit_line += f" · {pa.get('pits_within_25mi_count', 0)} within 25mi"
-        lines.append(f"Pit access — {pit_line}")
+        owned = pa.get("nearest_owned_pit")
+        owned_part = (
+            f"Owns {owned.get('name')} ({owned.get('distance_miles', 0):.1f} mi, "
+            f"{pa.get('owned_pits_within_25mi_count', 0)} owned within 25mi)"
+            if owned else "No owned pit"
+        )
+        open_pit = pa.get("nearest_open_pit")
+        open_part = (
+            f"nearest open pit {open_pit.get('name')} ({open_pit.get('distance_miles', 0):.1f} mi, "
+            f"{pa.get('open_pits_within_25mi_count', 0)} open within 25mi)"
+            if open_pit else "no usable open pit found"
+        )
+        lines.append(f"Pit access — {owned_part} · {open_part}")
     return lines
 
 
@@ -658,6 +754,16 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md.append("")
     md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
               f"({mt.get('confidence')} confidence)._")
+    if mt.get("needs_review"):
+        # county+state+date is not a unique identifier -- see CLAUDE.md rough edge 11. This was
+        # previously silent: the confidence label above was cosmetic text, never a signal a reader
+        # could act on. gap_txt keeps a defensive branch for a non-int gap even though today's
+        # only needs_review producer (live_report) always sets an int (10_000 sentinel when no date).
+        gap = mt.get("date_gap_days")
+        gap_txt = f"{gap} days apart" if isinstance(gap, int) else "no bid date to compare"
+        md.append(f"_⚠️ **Needs review** — this competitor section may belong to a DIFFERENT "
+                  f"project in the same county ({gap_txt}). County+state+date alone does not "
+                  f"uniquely identify a project; verify before relying on it._")
 
     # A matched report that names nobody is a legitimate empty answer -- say so explicitly, so it
     # can never be read as the "no report matched" failure above (which returns early).

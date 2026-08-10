@@ -55,9 +55,12 @@ export type CompetitorStats = {
     last_year_total: number | null;
   } | null;
   pit_access: {
-    nearest_pit: { name: string; distance_miles: number; quality: number | null } | null;
-    pits_within_25mi_count: number;
-    pits_within_25mi_avg_quality: number | null;
+    nearest_open_pit: { name: string; distance_miles: number; quality: number | null } | null;
+    nearest_owned_pit: { name: string; distance_miles: number; quality: number | null } | null;
+    open_pits_within_25mi_count: number;
+    owned_pits_within_25mi_count: number;
+    open_pits_within_25mi_avg_quality: number | null;
+    owned_pits_within_25mi_avg_quality: number | null;
   } | null;
 };
 
@@ -128,10 +131,15 @@ export type FinalReport = {
 
 // ── Unverified extraction (POST /api/report, phase ①) — mirrors backend/report.py::process_pdf's
 // return shape BEFORE final_report.assemble runs. Same identity/quantities grain as FinalReport,
-// plus field_confidence (real 3-level confidence — "high"|"medium"|"low", not a percentage — and
-// the source page, per field) for the verify gate to flag what needs a human look. content_hash +
-// verified round-trip back to POST /api/report/{plan_id}/finalize unchanged.
-export type FieldMeta = { confidence: "high" | "medium" | "low" | null; page: number | null };
+// plus field_confidence (real confidence — "high"|"low" (still typed loosely for older cached
+// "medium" values), not a percentage — the source page, and the model's own short "reason" for the
+// confidence it gave) for the verify gate to flag what needs a human look. content_hash + verified
+// round-trip back to POST /api/report/{plan_id}/finalize unchanged.
+export type FieldMeta = {
+  confidence: "high" | "medium" | "low" | null;
+  page: number | null;
+  reason: string | null;
+};
 export type Extraction = {
   plan_id: string;
   archetype: string;

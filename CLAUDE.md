@@ -130,10 +130,13 @@ Both are gitignored as regenerable training/index outputs. Neither is optional a
 
 **2. CI subprocess failures are silent, and there are two reasons for that.**
 
-`apps/api/backend/competitor_live.py:113–122` returns `None` on timeout, `CalledProcessError`, or
-any exception. The caller then falls back to a **stale pre-generated report**, so the API returns
-HTTP 200 with plausible competitive output while the subprocess is dead. This is documented at
-`apps/api/backend/config.py:56–60`.
+`apps/api/backend/competitor_live.py` returns `None` on timeout, `CalledProcessError`, or
+any exception. The caller then falls back — until 2026-08-09 to a **stale pre-generated report**,
+so the API returned HTTP 200 with plausible competitive output while the subprocess was dead. That
+static-match tier was removed on 2026-08-09 (owner's call, see rough edge 11): the fallback is now
+the **live prediction** (`competitor_predict_live`), so a dead subprocess shows up honestly as the
+cascade log's `served_by=` shifting from `layer1-live-generated` to `layer3-live-prediction` —
+watch for that shift; it is now the primary symptom of this failure mode.
 
 Compounding it, `competitor_live.py:117` truncates subprocess stderr to **400 characters**, which
 cuts off the exception line. A real `FileNotFoundError` was hidden this way.
@@ -331,6 +334,175 @@ Verified the same way as rough edge 7/8's additions: `tsc --noEmit`, `eslint`, a
 all clean. **Not verified**: no live backend in the sandbox this was built in, so the
 `/api/ci-data/projects` round-trip that feeds the project picker has never actually run — reviewed
 by reading the code, not by opening the picker and typing into it.
+
+**10. `competitor_predict_live.py`'s candidate pool and scoring were rewritten 2026-08-09 — the
+first change in this rough-edges list actually verified against a live Supabase, with numbers.**
+
+**Attribution, stated up front because it's easy to get backwards**: this rewrite is usually
+described as "ported the candidate pool to the CI team's 6-signal V3 logic," and that description
+is technically true but misleading about *why* the pool got smaller. Measured on real data (below):
+fixing one inherited registry-filter bug accounts for ~94% of the pool shrinkage and ~90% of the
+recall cost; porting 2 signals to 6 accounts for the remaining ~6%/~10%. If you're citing this
+change as "we aligned the live pool with V3's design," that's correct for code structure but not for
+where the *numbers* came from — most of what moved, moved because a bug got fixed, not because of
+the 6-signal expansion. Don't credit the signal-porting work for an effect that was mostly the bug fix.
+
+The old `_candidate_pool()` was "everyone who has ever bid in this state" plus a registry priority
+tag — a single crude signal, nothing like the CI team's actual production candidate definition
+(`pipelines/ci_model/01_candidates/candidate_filter.py::build_v3_candidate_set`, 10 signal
+sources). It now ports 6 of those 10 signals (same_county, same_type, recent_90d,
+historical_winner_24m, recurring_regional_24m, priority — same weighted-fallback gate, not a flat
+union) as hand-written SQL/Python, since `apps/` cannot import `pipelines/` (invariant 1). This is
+a **manually maintained mirror, not shared code, and WILL drift** if `candidate_filter.py` or
+`pipelines/ci_model/shared/config.py`'s `V3_*` constants change without a matching edit here.
+`apps/api/tests/test_candidate_pool_consistency.py` catches that drift by diffing this function's
+live output against `data/processed/model1/rule_candidate_set.parquet` (the real materialized
+ground truth) — skipped unless `SUPABASE_TEAM_DB_URL` is set, same convention as rough edge 7's
+tests. `_score_candidates()` also now attaches a genuinely calibrated win probability
+(`sigmoid(raw_score + offset)`, a closed-form read of the existing fitted-model JSON, not a new
+model) alongside the unchanged ranking.
+
+**A real, pre-existing bug was caught and fixed in the process, not introduced by the rewrite**: the
+priority-tag filter (`top_competitors_tag is not null and != ''`) matched the literal string `'0'`
+and one stray `'Top Competitors Tag'` header value sitting in the data as a row — 889 of 897
+registry rows, i.e. nearly the entire registry, were being treated as "priority." Correct filter is
+`= '1'` (confirmed against `build_candidate_panels.py:84`). This was in the code before the rewrite;
+it was only caught because the new consistency test could finally be run against real data.
+
+This sandbox had `SUPABASE_TEAM_DB_URL` configured (unlike every other entry in this rough-edges
+list), so the questions below were answered with real queries, not just static checks — decomposed
+here because "the pool got 4.5x smaller" and "did anything break" are different claims:
+
+- **Decomposing the pool-size drop (avg 717 → 158 candidates, MN+ND, n=39 historical projects)**:
+  the priority-tag bug fix alone accounts for ~94% of it (717 → 190) and ~90% of the recall cost
+  (0.997 → 0.904); porting 2 signals → 6 only trims a further 190 → 158 and 0.904 → 0.894. If this
+  ever needs to be dialed back, the priority-tag fix is not a safe thing to revert (it was fixing
+  data corruption, not a design choice) — the 6-signal expansion is the smaller, reversible part.
+- **Top-5 precision on real historical outcomes was unchanged** (0.282 old vs 0.282 new, same
+  sample) even though pool-level precision improved 4.8x (`|actual∩pool|/|pool|`, 0.0064 → 0.0310).
+  The linear scoring formula already suppresses irrelevant candidates toward the bottom regardless
+  of how bloated the pool is, so the old crude pool wasn't costing top-5 accuracy — it was mostly
+  dead weight the ranking already ignored. Don't cite this fix as a precision improvement without
+  qualifying it as "candidate-pool precision," not "top-5 precision."
+- **Latency, measured**: the new pool query is real but not catastrophic overhead — mean 156ms vs
+  120ms, p95 244ms vs 156ms (n=45, MN/ND/SD). Not load-tested under concurrency.
+- **Empty-pool boundary, tested directly**: `_score_candidates(conn, set(), ...)` returns `[]`
+  cleanly; `predict_report()` degrades to an empty `competitors` list, does not raise. In 143 real
+  worst-case probes (exhaustive MT+NE, plus the rarest county in every state), the pool never
+  dropped below 25 — because the 25 `top_competitors_tag = '1'` registry rows unconditionally clear
+  the fallback-score gate (weight 3.0 ≥ threshold 1.5) regardless of state/county/type. That floor
+  is **data-dependent, not code-guaranteed**: if the registry's priority tags were ever cleared, the
+  pool could genuinely reach zero, and the code path has been confirmed not to crash when it does —
+  but nothing currently alerts if that floor disappears.
+- **A related but pre-existing gap, not caused by this fix**: for a state with zero bid history,
+  the pool doesn't go empty — it silently falls back to the same 25 nationwide priority companies,
+  scored on their out-of-state history, producing a plausible-looking report for a location the
+  system has no real competitive data on. Confirmed the old code had the identical floor behavior
+  (`historical | priority`, `historical=∅`); this fix neither introduced nor closed it.
+- **Fix-1/Fix-2 interaction, checked directly**: scoring the same MN mill-overlay query against the
+  old 718-candidate pool and the new ~176-candidate pool gives IDENTICAL scores/probabilities for
+  every candidate that appears in both (a candidate's score depends only on its own win history, not
+  on who else is in the pool) — the ~96-100% top-5 probability compression noted when this was first
+  built is a property of the model/weights, not amplified by the smaller pool. Pool size only changes
+  *which* candidates are eligible to appear, not their score once eligible.
+- **Still open, not addressed by this pass**: historical projects (what was validated above) vs.
+  currently-active plans may not have the same county/project-type distribution — a live plan with a
+  rarer combination than anything in the 2024+ sample used here has not been specifically tested.
+
+**11. `find_project_key()`/`match_report()`'s county+state+date reverse-lookup can silently attach
+the WRONG project's competitor section — identified 2026-08-09, given a first defensive mitigation
+the same day, full fix NOT done.**
+
+This is a different, more severe bug class than rough edge 10: that one was about ranking quality
+within the right project; this one is about **whether the system has the right project's data at
+all**. `competitor_live.py::find_project_key()` and `competitor_report.py::match_report()` both
+match a plan to a historical project by (normalized) county + state, then pick whichever candidate
+in that county+state has the SMALLEST date gap — **with no cutoff**. `gaps.idxmin()` returns
+*something* as long as county+state matches at all, no matter how large the gap. The `confidence`
+label this produced (`high`/`medium`/`low`) was purely cosmetic: rendered as one line of markdown
+text in the report (`final_report.py`), never gating auto-attach, and — until today — actually
+**mislabeled**: a plan with no bid_date at all (find_project_key's `gap=10_000` sentinel /
+match_report's `gap=None`) was scored `"high"` confidence, backwards from what it should be, since
+having zero date information to disambiguate a county is the WEAKEST case, not the strongest.
+
+**Measured against `data/processed/projects.csv` (1591 real historical projects), not assumed**:
+- 59% of (state, county) pairs have more than one distinct historical project (max 72, ND Cass
+  County). county+state alone is nowhere close to a unique identifier.
+- 169 pairs of GENUINELY DIFFERENT projects share the exact same county+state+bid_date (spot-checked
+  `IA_CASS_CO_ATLANTIC_2025-01-22_1`/`_2`: same day, same county, one `Grading/Earthwork` one
+  `Reconstruct/Rebuild` — two real, different lettings, not a data duplicate). In these ties,
+  `idxmin()` deterministically picks whichever row happens to sort first — unrelated to which
+  project a real new plan actually corresponds to.
+- Same-county project pairs sit within 7 days of each other 28.1% of the time, 14 days 40.7%, 30
+  days 56.2% — so even an approximately-correct extracted bid_date has a real chance of landing
+  closer to the WRONG same-county neighbor than the right project.
+- **Leave-one-out simulation** (treat each of the 1591 historical projects as if it were a brand-new
+  plan not yet in the corpus, run the same nearest-date matching logic against everyone else): a
+  match is returned 91.2% of the time (8.8% have no other project in that county+state at all), and
+  of those returned matches, **25.3% would now be flagged `needs_review`** (23.1% of all 1591). Zero
+  test coverage existed for either function before this — no unit test, no manual sample check.
+
+**What was done today (defensive only, does NOT change the matching logic)**: `_match` now carries
+an explicit `needs_review: bool` (gap > `MATCH_REVIEW_GAP_DAYS = 45`, or no date at all, or
+`match_report`'s state-only fallback), the backwards no-date-means-high-confidence mislabeling is
+fixed, and the rendered markdown now prints a visible `⚠️ Needs review` line instead of burying the
+signal in confidence-label text nobody reads as a warning. A caller that ignores `needs_review`
+today gets byte-identical behavior to before this fix — nothing is blocked yet.
+(Note: `match_report` — the whole static-match middle tier — no longer exists. First its
+state-only fallback was removed after a live plan with a missing county was served another
+county's 141-day-old report verbatim; then, later the same day, the owner removed the tier
+entirely: its one remaining role was masking a dead CI subprocess with a plausible stale report
+(rough edge 2's exact failure mode), and the live prediction built from the plan's own
+state/type/quantities is strictly preferable to a verbatim copy of a possibly-different project's
+old report. The cascade is now two tiers — live CI generation for corpus projects, else live
+prediction — with the `served_by` log labels keeping their historical layer1/layer3 names for log
+continuity.)
+
+**Step 1 of the staged fix landed later the same day (2026-08-09): the work-type gate, behind
+`TYPE_GATE_MODE` (default `log_only`).** Full leave-one-out decomposition of the 1451 matchable
+cases first (all numbers measured, not assumed): 24.5% CLEAN (exactly 1 candidate within 45d),
+25.3% FAR-ONLY (0 within 45d — stage 0's needs_review), and **50.2% AMBIGUOUS (≥2 candidates
+within 45d, all auto-attached as "high confidence" until this step)**. Within the ambiguous half:
+type fully disambiguates 26.7%, partially narrows 34.4%, is useless (all candidates same type)
+5.5%, and **excludes every near candidate in 33.3%** — that last bucket (16.7% of ALL matches) is
+the strongest wrong-match signal in the data, and the gate targets exactly it: when ≥1 candidate
+sits within `MATCH_REVIEW_GAP_DAYS` but none matches the plan's archetype
+(`competitor_report.norm_work_type()` bridges the 'Reconstruct/Rebuild' vs 'Reconstruct / Rebuild'
+spelling split; 'Other'/'Unknown/NoQty' count as *unknown*, gate off), the match is a likely wrong
+project. The gate and needs_review are **two independent detectors — do not merge them**: one
+catches "too far in time", the other "near but nothing looks like this plan"; different failure
+modes, separately toggleable, separately countable in logs.
+
+**The hard-reject form is justified by human sampling, not just statistics** — evidence chain, so
+nobody re-litigates this in six months: Wenyu manually sampled the collision cases on 2026-08-09
+(drawn mainly from the 169 exact same-day same-county pairs; exact n not recorded here) and
+concluded the matches are **genuine wrong-project mismatches, not archetype-extraction errors** —
+which is precisely the finding that would have downgraded the gate to a soft warning, and it did
+not hold. A scripted spot-check of 5 cases from the type-excludes-all bucket itself corroborates:
+e.g. a Ward Co ND airport-taxiway Mill&Overlay vs a gravel-hauling project 40d away; a Cass Co MN
+TH 371 mill job vs culvert/grading contracts the same month — unmistakably different real lettings
+(different contract numbers, work, and quantities), consistent with the sampling conclusion.
+
+Rollout state: `TYPE_GATE_MODE=log_only` is the default — detection + a
+`type gate (would_reject): plan=... reason=type_all_excluded` WARNING per hit, behavior unchanged.
+The plan is to run log-only for a week or two, compare the real would-reject rate against the
+offline 16.7% estimate (the cascade-tier log line in `predict_competitors()` — `served_by=layerN`
+per plan — provides the denominator), then flip `TYPE_GATE_MODE=enforce`. There is no test
+environment; the env-var switch IS the rollback mechanism. The enforce-mode prerequisites are
+already met: **Layer 3 concurrency was load-tested** (the launch gate for shifting ~8.8%→~25% of
+traffic there): 16/16 success at each of 1/4/8 concurrent workers against live Supabase, p50
+819→974ms, p95 1.3→2.0s, 6 req/s sustained — orders of magnitude above real PDF-drop traffic.
+Behavior is pinned by `apps/api/tests/test_match_type_gate.py` (8 tests covering all three modes,
+no DB needed), and was verified live against the real Cass County IA collision.
+
+**Still explicitly NOT done after step 1**: the pick within the 45d window is still nearest-date,
+not type-aware — a plan whose type matches the *farther* of two near candidates passes the gate but
+gets the nearer wrong-type one (confirmed live: `Reconstruct/Rebuild` against the Cass IA pair
+returns the Grading `_1` row). That within-window type preference is the deferred tiebreak, to be
+evaluated as its own small change after log-only data lands. Also still open: `needs_review=True`
+results are still auto-attached (no UI gate analogous to `field_confidence`'s flow); the FAR-ONLY /
+type-ambiguous buckets (25.3% + 20.1%) are deliberately untouched pending real log data; and
+enforce has not been flipped on yet.
 
 ## Agent skills
 

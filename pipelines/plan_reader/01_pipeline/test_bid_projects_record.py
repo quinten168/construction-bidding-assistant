@@ -11,7 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from bid_projects_record import (  # noqa: E402
-    CITY_SENTINEL,
+    LOC_SENTINEL,
+    UNKNOWN_SENTINEL,
     UNPARSED_BID_DATE,
     build_project_natural_key,
     build_record,
@@ -44,30 +45,34 @@ def _payload(**identity_overrides) -> dict:
 class BuildProjectNaturalKeyTest(unittest.TestCase):
     def test_fully_resolved_key_has_no_suffix(self):
         key, provisional, reason = build_project_natural_key(
-            "MN", "STEARNS CO", "Melrose", "2023-08-03", plan_uid="abc123")
-        self.assertEqual(key, "MN_STEARNS_CO_MELROSE_2023-08-03")
+            "MN", "STEARNS CO", "2023-08-03", 45.67, -94.81, plan_uid="abc123")
+        self.assertEqual(key, "MN_STEARNS_CO_2023-08-03_45.670_-94.810")
         self.assertFalse(provisional)
         self.assertIsNone(reason)
 
     def test_sentinel_components_get_hash_suffix_and_flagged_provisional(self):
         key, provisional, reason = build_project_natural_key(
-            None, None, None, None, plan_uid="e9ae6f091234abcd")
-        self.assertEqual(key, f"UNKNOWN_{CITY_SENTINEL}_{CITY_SENTINEL}_{UNPARSED_BID_DATE}_e9ae6f09")
+            None, None, None, None, None, plan_uid="e9ae6f091234abcd")
+        self.assertEqual(
+            key,
+            f"{UNKNOWN_SENTINEL}_{UNKNOWN_SENTINEL}_{UNPARSED_BID_DATE}_{LOC_SENTINEL}_{LOC_SENTINEL}_e9ae6f09")
         self.assertTrue(provisional)
         self.assertIn("sentinel:", reason)
 
     def test_two_different_projects_with_same_sentinels_get_different_keys(self):
         """The exact bug build_project_natural_key exists to prevent: two ND plans with no
         extractable county/date must not collapse onto the same key and overwrite each other."""
-        key1, _, _ = build_project_natural_key(None, None, None, None, plan_uid="e9ae6f091234")
-        key2, _, _ = build_project_natural_key(None, None, None, None, plan_uid="2c83fa4e5678")
+        key1, _, _ = build_project_natural_key(
+            None, None, None, None, None, plan_uid="e9ae6f091234")
+        key2, _, _ = build_project_natural_key(
+            None, None, None, None, None, plan_uid="2c83fa4e5678")
         self.assertNotEqual(key1, key2)
 
 
 class BuildRecordTest(unittest.TestCase):
     def test_well_formed_payload_produces_a_complete_non_provisional_row(self):
         row = build_record(_payload(), content_hash="abc123def456", source_file="test-plan-1")
-        self.assertEqual(row["project_natural_key"], "MN_STEARNS_CO_MELROSE_2023-08-03")
+        self.assertEqual(row["project_natural_key"], "MN_STEARNS_CO_2023-08-03_45.670_-94.810")
         self.assertFalse(row["key_provisional"])
         self.assertEqual(row["row_status"], "complete")
         self.assertIsNone(row["missing_fields"])
@@ -99,10 +104,39 @@ class BuildRecordTest(unittest.TestCase):
         self.assertEqual(row["bid_date"], UNPARSED_BID_DATE)
         self.assertTrue(row["bid_date_unparsed"])
 
+    def test_missing_geocoded_city_no_longer_provisions_the_key(self):
+        """The whole point of the lat/long redesign: city extraction failing (the common case per
+        #70) must no longer provision the key, since the key no longer depends on city at all."""
+        row = build_record(_payload(geocoded_city=None), content_hash="abc123")
+        self.assertFalse(row["key_provisional"])
+        self.assertEqual(row["project_natural_key"], "MN_STEARNS_CO_2023-08-03_45.670_-94.810")
+
+    def test_missing_location_uses_loc_sentinel_and_is_provisional(self):
+        """Defensive only — the verify-gate UI hard-blocks finalize without a confirmed location,
+        so this shouldn't happen for a real plan-reader upload, but the function must still degrade
+        safely rather than crash or produce a garbage key."""
+        row = build_record(_payload(latitude=None, longitude=None), content_hash="abc123")
+        self.assertTrue(row["key_provisional"])
+        self.assertIn(f"_{LOC_SENTINEL}_{LOC_SENTINEL}_", row["project_natural_key"])
+        self.assertIn("project_latitude", row["missing_fields"])
+        self.assertIn("project_longitude", row["missing_fields"])
+
     def test_archetype_and_gotcha_count_carry_through(self):
         row = build_record(_payload(), content_hash="abc123")
         self.assertEqual(row["plan_reader_archetype"], "Mill & Overlay")
         self.assertEqual(row["gotcha_count"], 1)
+
+    def test_project_type_reuses_the_archetype_value(self):
+        row = build_record(_payload(), content_hash="abc123")
+        self.assertEqual(row["project_type"], row["plan_reader_archetype"])
+        self.assertEqual(row["project_type"], "Mill & Overlay")
+
+    def test_project_type_is_none_when_archetype_is_unknown_noqty(self):
+        payload = _payload()
+        payload["archetype"] = "Unknown/NoQty"
+        row = build_record(payload, content_hash="abc123")
+        self.assertIsNone(row["project_type"])
+        self.assertEqual(row["plan_reader_archetype"], "Unknown/NoQty")
 
 
 class MappedColumnsTest(unittest.TestCase):

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 import { Glass } from "@/components/kit";
-import type { Pit } from "./use-pit-list-store";
+import type { PitWithDistance } from "./use-pit-list-store";
 
 // Google Maps JS types aren't installed (no @types/google.maps in package.json, and this repo
 // avoids adding deps it doesn't need) — window.google is loaded dynamically by the <Script> tag
@@ -21,7 +21,7 @@ export type MapOrigin = { lat: number; lon: number; label: string };
 export function PitMap({
   pits, mapsReady, hasKey, origin,
 }: {
-  pits: Pit[];
+  pits: PitWithDistance[];
   mapsReady: boolean;
   hasKey: boolean;
   origin?: MapOrigin | null;
@@ -119,10 +119,21 @@ export function PitMap({
     }
 
     if (!hasBounds) return;
-    if (pits.length === 0 && origin) {
-      map.setCenter({ lat: origin.lat, lng: origin.lon });
-      map.setZoom(10);
-    } else if (pits.length === 1 && !origin) {
+    if (origin) {
+      const nearest = [...pits]
+        .filter((p) => p.distanceMiles != null)
+        .sort((a, b) => (a.distanceMiles as number) - (b.distanceMiles as number))
+        .slice(0, 10);
+      const nearBounds = new window.google.maps.LatLngBounds();
+      nearBounds.extend({ lat: origin.lat, lng: origin.lon });
+      for (const p of nearest) nearBounds.extend({ lat: p.latitude, lng: p.longitude });
+      map.fitBounds(nearBounds);
+      // fitBounds can zoom to Google's max level when points are tightly clustered (or only the
+      // origin is available) — cap it so the view stays at a sensible neighborhood scale.
+      window.google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+        if (map.getZoom() > 14) map.setZoom(14);
+      });
+    } else if (pits.length === 1) {
       map.setCenter({ lat: pits[0].latitude, lng: pits[0].longitude });
       map.setZoom(10);
     } else {

@@ -79,13 +79,15 @@ def _win_bid_rates(conn, competitor_ids: list[str], county: str, state: str,
             from scratch.bid_results br
             join scratch.bid_projects bp using (project_natural_key)
             where br.competitor_unit_id = any(%(ids)s) and bp.bid_date < %(before_date)s
+              and bp.deleted_at is null
             """,
             {"ids": list(competitor_ids), "before_date": before_date},
         )
         bid_rows = cur.fetchall()
 
         cur.execute(
-            "select county, state, project_type from scratch.bid_projects where bid_date < %(before_date)s",
+            "select county, state, project_type from scratch.bid_projects "
+            "where bid_date < %(before_date)s and deleted_at is null",
             {"before_date": before_date},
         )
         market_rows = cur.fetchall()
@@ -146,6 +148,7 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
             from scratch.bid_results br
             join scratch.bid_projects bp using (project_natural_key)
             where br.competitor_unit_id = any(%(ids)s) and br.did_win and bp.bid_date < %(before_date)s
+              and bp.deleted_at is null
             """,
             {"ids": list(competitor_ids), "before_date": before_date},
         )
@@ -218,19 +221,32 @@ def _pit_access(conn, competitor_ids: list[str], project_lat: float | None,
 
     open_with_dist = _with_distance(open_pits)
 
+    def _summarize(pit_list: list[tuple[float, dict]]) -> dict:
+        if not pit_list:
+            return {"nearest": None, "within_25mi_count": 0, "within_25mi_avg_quality": None}
+        nearest_dist, nearest_row = min(pit_list, key=lambda p: p[0])
+        within = [(d, r) for d, r in pit_list if d <= _PIT_RADIUS_MILES]
+        ratings = [r["rating"] for _, r in within if r["rating"] is not None]
+        return {
+            "nearest": {"name": nearest_row["name"], "distance_miles": nearest_dist, "quality": nearest_row["rating"]},
+            "within_25mi_count": len(within),
+            "within_25mi_avg_quality": (sum(ratings) / len(ratings)) if ratings else None,
+        }
+
+    # Computed once -- identical for every competitor, since open-access pits aren't exclusive to
+    # any one of them.
+    open_summary = _summarize(open_with_dist)
+
     out: dict[str, dict | None] = {}
     for cid in competitor_ids:
-        usable = open_with_dist + _with_distance(by_owner.get(ci_db.normalize(cid), []))
-        if not usable:
-            out[cid] = {"nearest_pit": None, "pits_within_25mi_count": 0, "pits_within_25mi_avg_quality": None}
-            continue
-        nearest_dist, nearest_row = min(usable, key=lambda p: p[0])
-        within = [(d, r) for d, r in usable if d <= _PIT_RADIUS_MILES]
-        ratings = [r["rating"] for _, r in within if r["rating"] is not None]
+        owned_summary = _summarize(_with_distance(by_owner.get(ci_db.normalize(cid), [])))
         out[cid] = {
-            "nearest_pit": {"name": nearest_row["name"], "distance_miles": nearest_dist, "quality": nearest_row["rating"]},
-            "pits_within_25mi_count": len(within),
-            "pits_within_25mi_avg_quality": (sum(ratings) / len(ratings)) if ratings else None,
+            "nearest_open_pit": open_summary["nearest"],
+            "nearest_owned_pit": owned_summary["nearest"],
+            "open_pits_within_25mi_count": open_summary["within_25mi_count"],
+            "owned_pits_within_25mi_count": owned_summary["within_25mi_count"],
+            "open_pits_within_25mi_avg_quality": open_summary["within_25mi_avg_quality"],
+            "owned_pits_within_25mi_avg_quality": owned_summary["within_25mi_avg_quality"],
         }
     return out
 

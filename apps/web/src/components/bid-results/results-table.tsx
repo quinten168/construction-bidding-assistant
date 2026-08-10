@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, ChevronsUpDown, ListFilter, Search, Trophy, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronsUpDown, ListFilter, Search, Trophy } from "lucide-react";
 import { Glass } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import type { BidResultRow, useBidResultsStore } from "./use-bid-results-store";
@@ -298,7 +298,7 @@ export function BidResultsTable({ store }: { store: Store }) {
 }
 
 function ResultRow({ row, store }: { row: BidResultRow; store: Store }) {
-  const [saving, setSaving] = useState<"" | "name" | "amount" | "winner">("");
+  const [saving, setSaving] = useState<"" | "name" | "amount">("");
   // Inputs below are uncontrolled (defaultValue + a remount key) rather than mirrored into local
   // state: the server is the source of truth (a sibling edit on the same project can recompute
   // this row's bid_rank/bid_amount), and bumping the reset key forces the DOM value back to the
@@ -332,13 +332,6 @@ function ResultRow({ row, store }: { row: BidResultRow; store: Store }) {
     setSaving("");
   };
 
-  const toggleWinner = async () => {
-    if (row.did_win) return;
-    setSaving("winner");
-    await store.updateResult(row.project_natural_key, row.competitor_unit_id, { did_win: true });
-    setSaving("");
-  };
-
   return (
     <tr className="border-t border-black/5 hover:bg-black/[0.02]">
       <td className="whitespace-nowrap px-3 py-1.5 text-muted-foreground">{dateStr(row.bid_date)}</td>
@@ -360,6 +353,11 @@ function ResultRow({ row, store }: { row: BidResultRow; store: Store }) {
           disabled={saving === "name"}
           className="w-full min-w-[140px] rounded-md border border-transparent bg-transparent px-1.5 py-0.5 outline-none focus:border-primary/40 focus:bg-white/70"
         />
+        {row.current_comp_name && row.current_comp_name !== row.raw_bidder_name && (
+          <p className="px-1.5 text-[10.5px] text-muted-foreground" title="This competitor has since been consolidated onto a new canonical name.">
+            now: {row.current_comp_name}
+          </p>
+        )}
       </td>
       <td className="px-3 py-1.5 text-right">
         <input
@@ -374,19 +372,17 @@ function ResultRow({ row, store }: { row: BidResultRow; store: Store }) {
       </td>
       <td className="px-3 py-1.5 text-center font-mono text-muted-foreground">{row.bid_rank ?? "—"}</td>
       <td className="px-3 py-1.5 text-center">
-        <button
-          onClick={toggleWinner}
-          disabled={saving === "winner"}
-          title={row.did_win ? "Winner" : "Mark as winner"}
+        <div
+          title={row.did_win ? "Winner — lowest bid" : undefined}
           className={cn(
-            "inline-grid h-6 w-6 place-items-center rounded-full border transition-colors",
+            "inline-grid h-6 w-6 place-items-center rounded-full border",
             row.did_win
               ? "border-[var(--positive)] bg-[var(--positive)] text-white"
-              : "border-black/15 text-transparent hover:border-primary",
+              : "border-black/15 text-transparent",
           )}
         >
-          {saving === "winner" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trophy className="h-3 w-3" />}
-        </button>
+          <Trophy className="h-3 w-3" />
+        </div>
       </td>
     </tr>
   );

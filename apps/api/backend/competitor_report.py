@@ -1,19 +1,20 @@
 """
-Competitor Intelligence report — parse + match.
+Competitor Intelligence report — parse (+ shared normalizers).
 
 The Competitor Intel module (Quentin/Wenyu's logistic-regression pipeline) emits a markdown
-`bid_report_P<id>.md` per project: a project header, an executive summary, a threat matrix, per-
-competitor deep-dives, and an appendix probability table. Those reports live in a separate ID space
-(`P00xxxx`) that does NOT exist in our bid data, so the only fields we can join on are the ones
-printed in the report header: **county + state + bid date**.
+`bid_report_*.md` per project: a project header, a competitor list, and per-competitor deep-dives.
+This module turns one of those files into a structured dict (`parse_report`) and hosts the
+county/state/work-type normalizers plus `MATCH_REVIEW_GAP_DAYS`, shared with the live-generation
+path (`competitor_live.py` imports all of them).
 
-This module does two things and nothing else (keep it transparent — it is the join seam between two
-teams' data):
-  1. `parse_report(path)`  — one markdown report  -> one structured dict.
-  2. `match_report(...)`   — a plan's (county, state, [date]) -> the best-matching parsed report.
+There used to be a `match_report()` here — the cascade's middle tier, matching a plan to the
+nearest same-county pre-generated report file and reusing it verbatim. Removed 2026-08-09 along
+with that tier (see final_report.predict_competitors' docstring): a stale copied report's only
+remaining role was masking a dead CI subprocess, and the live prediction built from the plan's own
+data replaced it. `parse_report`/`load_reports` stay — tier 1 parses its freshly GENERATED report
+files through the exact same code.
 
-No Claude calls, no I/O beyond reading the markdown files. The renderer (final_report.py) consumes
-the parsed dict; the matcher is what `report.py` calls after it has extracted a plan's identity.
+No Claude calls, no I/O beyond reading the markdown files.
 """
 from __future__ import annotations
 
@@ -49,6 +50,19 @@ def norm_county(s: str) -> str:
     s = re.sub(r",.*$", "", s)                          # drop ', MN' tail if the whole loc was passed
     s = re.sub(r"\b(county|co)\b\.?", "", s)
     return re.sub(r"[^a-z0-9 ]", " ", s).strip()
+
+
+def norm_work_type(s: str) -> str:
+    """Comparable work-type token across the two spellings in play: the plan pipeline's archetype
+    vocabulary (`project_registry._archetype()`: 'Reconstruct/Rebuild', 'Mill & Overlay', ...) and
+    the CI reports'/projects.csv's spaced variants ('Reconstruct / Rebuild', 'Aggregate / Base /
+    Gravel'). Same six labels, different whitespace around '/'. Returns '' for the two non-types —
+    'Other' (a catch-all, not a real work type: two 'Other' projects can be entirely different
+    work) and 'Unknown/NoQty' (no quantities extracted) — so the type gate below treats them as
+    "type unknown, gate off" rather than as a matchable identity."""
+    t = re.sub(r"\s*/\s*", "/", (s or "").strip().lower())
+    t = re.sub(r"\s+", " ", t)
+    return "" if t in ("", "other", "unknown/noqty") else t
 
 
 def norm_state(s: str) -> str:
@@ -186,51 +200,16 @@ def _date_gap_days(a: str, b: str) -> int:
         return 10_000
 
 
-def match_report(county: str, state: str, bid_date: str | None = None,
-                 reports_dir: str | None = None) -> dict | None:
-    """Find the competitor report for a plan, joining on county + state (+ nearest bid date).
-
-    Returns the parsed report with an added `_match` block {confidence, basis, date_gap_days} so the
-    caller can decide whether to auto-attach or ask the user to confirm. None if nothing matches the
-    state at all. Confidence:
-      high   — county + state match (and, if both dates known, within ~45 days)
-      medium — county + state match but the dates are far apart (possible re-let / different project)
-      low    — only the state matches (county differs) — surface, but ask before trusting.
-    """
-    nc, ns = norm_county(county), norm_state(state)
-    if not ns:
-        return None
-    candidates = [r for r in load_reports(reports_dir) if r["state"] == ns]
-    if not candidates:
-        return None
-
-    same_county = [r for r in candidates if r["county"] and r["county"] == nc]
-    pool = same_county or candidates
-    basis = "county+state" if same_county else "state-only"
-
-    # among the pool, prefer the nearest bid date when we know the plan's date
-    if bid_date:
-        pool = sorted(pool, key=lambda r: _date_gap_days(r["bid_date"], bid_date))
-    best = pool[0]
-    gap = _date_gap_days(best["bid_date"], bid_date) if bid_date else None
-
-    if same_county:
-        confidence = "high" if (gap is None or gap <= 45) else "medium"
-    else:
-        confidence = "low"
-
-    return {**best, "_match": {"confidence": confidence, "basis": basis, "date_gap_days": gap}}
+# Same threshold and rationale as competitor_live.py's MATCH_REVIEW_GAP_DAYS (duplicated, not
+# imported, matching this module's existing _date_gap_days duplication convention -- see CLAUDE.md
+# rough edge 11 for the collision statistics behind the number).
+MATCH_REVIEW_GAP_DAYS = 45
 
 
 # --- manual smoke test --------------------------------------------------------------------------
 if __name__ == "__main__":
-    import json
     for rep in load_reports():
         print(f"{rep['project_id']}  {rep['county']}/{rep['state']}  {rep['bid_date']}  "
               f"work={rep['work_type']!r}  competitors={len(rep['competitors'])}  "
               f"dives={len(rep['deep_dives'])}  "
               f"analyzed={rep['summary']['analyzed']}")
-    print("\n-- match test: Douglas / MN / 2025-08-20 --")
-    m = match_report("Douglas County", "MN", "2025-08-20")
-    print(json.dumps({"project_id": m["project_id"], "_match": m["_match"],
-                      "top3": m["competitors"][:3]} if m else None, indent=2))

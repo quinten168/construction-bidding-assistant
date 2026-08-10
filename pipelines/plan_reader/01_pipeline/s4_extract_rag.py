@@ -85,8 +85,13 @@ FAMILY_QUERIES = {
 
 SCALAR_PROMPT = """You are reading retrieved excerpts from a highway bid plan. Extract ONLY the fields
 below from these excerpts. Return a JSON object; each field an OBJECT
-  {{"value": <value or null>, "confidence": "high"|"medium"|"low", "page": <the p.PAGE from the [n] tag, or null>}}
+  {{"value": <value or null>, "confidence": "high"|"low", "page": <the p.PAGE from the [n] tag, or null>, "reason": <short explanation>}}
 Use null if the excerpts don't contain it — do NOT use outside knowledge or guess.
+confidence is "high" ONLY when the value is stated directly/verbatim in the excerpts; "low" for
+anything inferred, interpreted, or not fully certain — low-confidence fields get flagged for a
+human to double-check.
+"reason" is one short sentence: for "high", point to where the excerpt states it; for "low", say
+what's missing or uncertain. Leave "" only when value is null.
 
 Fields:
 {fields}

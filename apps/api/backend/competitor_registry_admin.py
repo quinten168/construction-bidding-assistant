@@ -106,7 +106,15 @@ def add_competitor(name: str, top_competitors_tag: str | None = None, force: boo
 def consolidate(raw_name_variants: list[str], target_comp_name: str) -> dict:
     """Merge one or more existing raw-name rows onto one canonical comp_name (a plain rename is
     the single-element case). Registry-only — does not touch scratch.bid_results. See the module
-    docstring for what that means for the competitor_unit_id/comp_name invariant."""
+    docstring for what that means for the competitor_unit_id/comp_name invariant.
+
+    Also bridges forward from the old comp_name(s) these rows are leaving: for each distinct old
+    comp_name, upserts a self-referential row (raw_name_variant = old comp_name, comp_name =
+    target). Without this, a retired canonical name has no path back into the registry — a bid
+    entered later under that name (_resolve_bidder in bid_results_admin.py) or a historical
+    bid_results.competitor_unit_id already stored under it (list_bid_results' registry join) can't
+    resolve forward to the entity it was merged into, and _resolve_bidder would silently fork a
+    brand-new needs_review competitor instead."""
     if not raw_name_variants:
         raise ValidationError("At least one raw name variant is required.")
     target_comp_name = (target_comp_name or "").strip()
@@ -114,8 +122,20 @@ def consolidate(raw_name_variants: list[str], target_comp_name: str) -> dict:
         raise ValidationError("A target competitor name is required.")
 
     normalized_variants = [normalize(v) for v in raw_name_variants]
+    normalized_target = normalize(target_comp_name)
 
     with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            "select distinct comp_name from scratch.competitor_name_registry "
+            "where upper(regexp_replace(raw_name_variant, '\\s+', ' ', 'g')) = any(%s) "
+            "  and comp_name is not null and comp_name != ''",
+            (normalized_variants,),
+        )
+        old_comp_names = [
+            r["comp_name"] for r in cur.fetchall()
+            if normalize(r["comp_name"]) != normalized_target
+        ]
+
         cur.execute(
             "update scratch.competitor_name_registry set comp_name = %s, updated_at = now() "
             "where upper(regexp_replace(raw_name_variant, '\\s+', ' ', 'g')) = any(%s)",
@@ -123,11 +143,26 @@ def consolidate(raw_name_variants: list[str], target_comp_name: str) -> dict:
         )
         registry_updated = cur.rowcount
 
+        for old_name in old_comp_names:
+            cur.execute(
+                "insert into scratch.competitor_name_registry "
+                "(raw_name_variant, comp_name, source, source_batch) "
+                "values (%s, %s, 'consolidate_bridge', 'webapp_competitor_admin') "
+                "on conflict (raw_name_variant) do update set "
+                "comp_name = excluded.comp_name, updated_at = now()",
+                (old_name, target_comp_name),
+            )
+
     log.info(
-        "consolidated %d raw name(s) into %s (registry rows: %d; bid_results untouched)",
-        len(raw_name_variants), target_comp_name, registry_updated,
+        "consolidated %d raw name(s) into %s (registry rows: %d; %d retired name(s) bridged "
+        "forward: %s; bid_results untouched)",
+        len(raw_name_variants), target_comp_name, registry_updated, len(old_comp_names), old_comp_names,
     )
-    return {"target_comp_name": target_comp_name, "registry_rows_updated": registry_updated}
+    return {
+        "target_comp_name": target_comp_name,
+        "registry_rows_updated": registry_updated,
+        "retired_names_bridged": old_comp_names,
+    }
 
 
 def remove_competitor(comp_name: str) -> dict:

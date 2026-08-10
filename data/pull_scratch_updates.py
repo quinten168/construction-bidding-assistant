@@ -39,15 +39,19 @@ sys.path.insert(0, str(_HERE))
 
 STATE_FILE = _HERE / "processed" / ".scratch_sync_state.json"
 
-REGISTRY_FILE = (
-    "pipelines/ci_model/01_candidates/outputs/"
-    "competitor_name_registry - name_variants.csv"
-)
-PROJECTS_FILE = "data/processed/projects.csv"
-PROJECTS_PARQUET = "data/processed/projects.parquet"
-BIDDER_RESULTS_FILE = "data/processed/bidder_results.csv"
-BIDDER_RESULTS_PARQUET = "data/processed/bidder_results.parquet"
-PIT_LIST_FILE = "data/processed/MN_pit_list_cleaned.csv"
+# Root-anchored like STATE_FILE above, NOT cwd-relative strings. These were bare relative paths
+# until 2026-08-09, which meant the script only worked when invoked from the repo root — and the
+# API server invokes it as a subprocess from cwd=apps/api (competitor_live.ensure_fresh_local_data),
+# so every server-triggered refresh failed with FileNotFoundError on all four tables since the
+# feature shipped, silently (fail-open) leaving reports on stale local data.
+_ROOT = _HERE.parent
+REGISTRY_FILE = str(_ROOT / "pipelines/ci_model/01_candidates/outputs/"
+                            "competitor_name_registry - name_variants.csv")
+PROJECTS_FILE = str(_ROOT / "data/processed/projects.csv")
+PROJECTS_PARQUET = str(_ROOT / "data/processed/projects.parquet")
+BIDDER_RESULTS_FILE = str(_ROOT / "data/processed/bidder_results.csv")
+BIDDER_RESULTS_PARQUET = str(_ROOT / "data/processed/bidder_results.parquet")
+PIT_LIST_FILE = str(_ROOT / "data/processed/MN_pit_list_cleaned.csv")
 
 MATERIALS_COLUMNS = [
     "mix_tons", "grading_yards", "base_tons", "shldr_tons", "mill_sy", "crush_tons", "stock_tons",
@@ -235,7 +239,7 @@ def sync_projects(conn, dry_run: bool) -> None:
     local = pd.read_csv(PROJECTS_FILE, dtype=str)
     with conn.cursor() as cur:
         cols = ", ".join(["project_natural_key", *MATERIALS_COLUMNS])
-        cur.execute(f"select {cols} from scratch.bid_projects")
+        cur.execute(f"select {cols} from scratch.bid_projects where deleted_at is null")
         rows = cur.fetchall()
     remote = _stringify_remote(pd.DataFrame(rows, columns=["project_natural_key", *MATERIALS_COLUMNS]))
     remote_by_key = remote.set_index(remote["project_natural_key"].map(_key_str))
@@ -364,6 +368,30 @@ def sync_pit_list(conn, dry_run: bool) -> None:
     local_keyed = local.set_index(_key_index(local), drop=False)
     remote_keyed = remote.set_index(_key_index(remote), drop=False)
 
+    # A (lat, lon) key duplicated on EITHER side breaks every .loc[key] below (returns a frame
+    # instead of a row) and used to kill the whole pull with an opaque ValueError -- found live
+    # 2026-08-09: two unflagged rows for the same pit whose raw coordinates differed only past the
+    # 6th decimal collapsed to one key. Data problems must degrade to a warned no-op for the rows
+    # involved, not take down the sync for every other table and row. Collided keys are excluded
+    # from the diff entirely (not added, not updated, not deleted) and reported loudly so the
+    # underlying data gets fixed rather than silently papered over.
+    collided = local_keyed.index[local_keyed.index.duplicated(keep=False)].union(
+        remote_keyed.index[remote_keyed.index.duplicated(keep=False)]).unique()
+    if len(collided):
+        for key in collided:
+            for side, frame in (("local", local_keyed), ("remote", remote_keyed)):
+                if key in frame.index:
+                    rows = frame.loc[[key]]
+                    names = ", ".join(repr(n) for n in rows["name"])
+                    print(f"pit_list WARNING: key {key} has {len(rows)} {side} row(s): {names}")
+        print(f"pit_list WARNING: {len(collided)} colliding (lat, lon) key(s) SKIPPED -- these "
+              "rows were left untouched on both sides; fix the duplicate data to resume syncing them.")
+        local_keyed = local_keyed[~local_keyed.index.isin(collided)]
+        remote_keyed = remote_keyed[~remote_keyed.index.isin(collided)]
+        collided_local_rows = local[_key_index(local).isin(collided)]
+    else:
+        collided_local_rows = local.iloc[0:0]
+
     new_keys = remote_keyed.index.difference(local_keyed.index)
     deleted_keys = local_keyed.index.difference(remote_keyed.index)
     shared_keys = remote_keyed.index.intersection(local_keyed.index)
@@ -395,7 +423,10 @@ def sync_pit_list(conn, dry_run: bool) -> None:
         print("[dry-run] pit_list: would write these changes; nothing written.")
         return
 
-    merged = pd.concat([local_keyed.reset_index(drop=True), flagged_dupes], ignore_index=True)
+    # collided_local_rows are carried through unchanged, same as flagged_dupes -- excluded from
+    # the diff does NOT mean deleted from the file.
+    merged = pd.concat([local_keyed.reset_index(drop=True), flagged_dupes, collided_local_rows],
+                       ignore_index=True)
     _atomic_write_csv(merged, PIT_LIST_FILE)
     print(f"pit_list saved -> {PIT_LIST_FILE}")
 
@@ -438,14 +469,28 @@ def main() -> None:
     if not tables:
         raise SystemExit("pass --all, or one or more of --registry/--projects/--bid-results/--pit-list")
 
+    failed = []
     with connect() as conn:
         for table in tables:
-            SYNC_FUNCS[table](conn, args.dry_run)
+            # One table's failure must not block the others -- before this isolation existed, a
+            # single duplicate pit-list key killed the whole pull, so admin-UI bid results and
+            # registry edits silently never reached local data either (2026-08-09).
+            try:
+                SYNC_FUNCS[table](conn, args.dry_run)
+            except Exception as e:                        # noqa: BLE001 -- degrade per-table, loudly
+                failed.append(table)
+                print(f"ERROR: {table} sync failed ({type(e).__name__}: {e}) -- continuing with "
+                      "the remaining tables.", file=sys.stderr)
 
-        if not args.dry_run:
+        if not args.dry_run and not failed:
+            # A failed table means its rows are still stale -- leave the freshness stamp alone so
+            # the next --check-only run reports stale and retries, instead of marking a partial
+            # sync as fresh.
             remote_max = remote_max_updated_at(conn)
             if remote_max is not None:
                 _save_state(remote_max)
+    if failed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -101,12 +101,14 @@ def _val(field):
 
 
 def _conf(field) -> dict:
-    """Scalar fields are {value, confidence, page}; pull confidence/page for the verify UI (the
-    value itself is handled separately by _val()). confidence is a 3-level string enum
-    ("high"|"medium"|"low") per s3_extract.py's extraction prompt, not a numeric score."""
+    """Scalar fields are {value, confidence, page, reason}; pull confidence/page/reason for the
+    verify UI (the value itself is handled separately by _val()). confidence is "high"|"low" per
+    s3_extract.py's extraction prompt, not a numeric score. reason is the model's own short
+    justification — a citation for "high", what's missing/uncertain for "low"."""
     if isinstance(field, dict):
-        return {"confidence": field.get("confidence"), "page": field.get("page")}
-    return {"confidence": None, "page": None}
+        return {"confidence": field.get("confidence"), "page": field.get("page"),
+                "reason": field.get("reason") or None}
+    return {"confidence": None, "page": None, "reason": None}
 
 
 def identity_fields_from_record(record: dict) -> dict:
@@ -223,9 +225,11 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         if result:
             latitude, longitude = result
 
-    # 6th stage: coordinates → city / county / state / zip (geocode_bridge.py). Exists because
-    # scratch.bid_projects is keyed on project_natural_key = {state}_{county}_{city}_{bid_date},
-    # and city is the one component plan_reader cannot extract from a plan set.
+    # 6th stage: coordinates → city / county / state / zip (geocode_bridge.py). city is the one
+    # location component plan_reader cannot extract from a plan set directly. Note:
+    # project_natural_key itself no longer depends on city (rebuilt on lat/long instead — #70) —
+    # this stage still runs because geocoded_city/county/state/zip are useful data in their own
+    # right (cross-checking the extracted county, display), not because the key needs them.
     #
     # These NEVER overwrite an extracted value — they are carried alongside, with a provenance tag,
     # per contract §4.5's coordinate_provenance pattern. county in particular is available from both

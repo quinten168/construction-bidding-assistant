@@ -114,7 +114,6 @@ class ReportPredictCompetitorsIn(BaseModel):
 class BidEntryIn(BaseModel):
     raw_bidder_name: str
     bid_amount: float
-    is_winner: bool = False
 
 
 class BidResultsIn(BaseModel):
@@ -124,7 +123,6 @@ class BidResultsIn(BaseModel):
 class BidResultUpdateIn(BaseModel):
     raw_bidder_name: Optional[str] = None
     bid_amount: Optional[float] = None
-    did_win: Optional[bool] = None
 
 
 class ProjectMaterialsUpdateIn(BaseModel):
@@ -304,8 +302,10 @@ async def report_predict_competitors(plan_id: str, req: ReportPredictCompetitors
     identity = rep.get("identity", {})
     archetype = rep.get("archetype") or "Unknown/NoQty"
     quantities = rep.get("quantities", [])
-    when = identity.get("construction_start") or identity.get("construction_end")
-    comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, when, plan_id)
+    # None, not a pre-resolved construction_start/end -- predict_competitors() itself now tries the
+    # plan's parsed bid deadline first (fr._resolve_bid_date), which construction_start/end alone
+    # would pre-empt if passed in already truthy here. See _resolve_bid_date's docstring.
+    comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, None, plan_id)
     await run_in_threadpool(report_svc.cache_competitor_prediction, rep.get("content_hash"), comp)
     return {"ok": True, "competitors": (comp or {}).get("competitors", []),
             "match": (comp or {}).get("_match")}
@@ -415,7 +415,8 @@ async def ci_projects_missing_results(search: Optional[str] = None):
 
 @app.post("/api/ci-data/projects/{project_natural_key}/bid-results", tags=["ci-data"])
 async def ci_submit_bid_results(project_natural_key: str, req: BidResultsIn):
-    """Record up to 5 bidders (one marked winner) for a project that has no results yet."""
+    """Record any number of bidders for a project that has no results yet — the winner is
+    computed from the lowest bid_amount, not client-supplied."""
     try:
         entries = [e.model_dump() for e in req.entries]
         result = await run_in_threadpool(bid_results_admin.submit_bid_results, project_natural_key, entries)
@@ -436,7 +437,8 @@ async def ci_list_bid_results(search: Optional[str] = None):
 
 @app.patch("/api/ci-data/bid-results/{project_natural_key}/{competitor_unit_id}", tags=["ci-data"])
 async def ci_update_bid_result(project_natural_key: str, competitor_unit_id: str, req: BidResultUpdateIn):
-    """Inline-edit one bidder's name/amount/winner-flag on a project that already has results."""
+    """Inline-edit one bidder's name and/or amount on a project that already has results — the
+    winner recomputes automatically from bid_amount, it isn't independently editable."""
     try:
         fields = req.model_dump(exclude_none=True)
         result = await run_in_threadpool(

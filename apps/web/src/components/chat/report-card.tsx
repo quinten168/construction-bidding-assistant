@@ -429,15 +429,16 @@ function GotchaGroup({
 // planner's simple_rule_score model; every competitor's shown figures (win rate, bid rate,
 // capacity, pit access) come entirely from the live SQL retrieval in competitor_stats_live.py
 // (`comp.stats`) — no invented scores, and no more of the old markdown-parsed narrative bullets.
-const MATCH_TONE: Record<string, string> = { high: "positive", medium: "neutral", low: "warn" };
-
+// MERGE 2026-08-10: upstream (#90) removed the match-confidence chip, so MATCH_TONE/conf/matchTone
+// are gone with it — deliberately not resurrected. Two things from our side are kept:
+//   1. `export` — the coverage test renders this component directly via react-dom/server.
+//   2. the competitorNames() flatten below.
 export function CompetitorSection({ comp }: { comp: Competitor }) {
   const s = comp.summary ?? { analyzed: 0, narrative: "" };
-  const conf = (comp._match?.confidence ?? "").toLowerCase();
-  const matchTone = MATCH_TONE[conf] ?? "neutral";
   // The name boundary. The wire list may hold `{ name, tier }` objects (see chat-data.ts) —
   // rendering one directly threw "Objects are not valid as a React child" and took the whole
-  // card down. Flatten here, once, and nothing below ever sees anything but a string.
+  // card down. ci_model's executor.py still emits `tier` and is CI-owned, so this stays.
+  // Flatten here, once, and nothing below ever sees anything but a string.
   const names = competitorNames(comp.competitors);
   const userAddedSet = new Set(competitorNames(comp.user_added));
 
@@ -449,20 +450,6 @@ export function CompetitorSection({ comp }: { comp: Competitor }) {
           <Users className="h-[18px] w-[18px] text-primary" />
           Top {s.analyzed} likely competitors
         </div>
-
-        {/* match-confidence — a wrong county+date match is visible, not hidden */}
-        {conf && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
-            <Chip tone={matchTone as "positive" | "neutral" | "warn"}>
-              match: {conf}{comp._match?.basis ? ` · ${comp._match.basis}` : ""}
-            </Chip>
-          </div>
-        )}
-        {conf === "low" && (
-          <p className="mt-2.5 rounded-lg border border-[var(--warn)]/30 bg-[var(--warn)]/[0.06] px-3 py-2 text-[12.5px] text-foreground/75">
-            Low-confidence match (state only) — confirm this competitor set is the same project before relying on it.
-          </p>
-        )}
 
         {(comp.work_type || comp.condition) && (
           <p className="mt-3 text-[13.5px] font-medium text-foreground/80">
@@ -603,11 +590,25 @@ function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
         <div>
           <div className="font-medium text-foreground/70">Pit access</div>
           <div className="text-muted-foreground">
-            {pit_access.nearest_pit
-              ? `${pit_access.nearest_pit.name} · ${pit_access.nearest_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_pit.quality ?? "—"}`
-              : "No usable pit found"}
-            {" · "}{pit_access.pits_within_25mi_count} within 25mi
-            {pit_access.pits_within_25mi_avg_quality != null && ` (avg quality ${pit_access.pits_within_25mi_avg_quality.toFixed(1)})`}
+            {pit_access.nearest_owned_pit ? (
+              <span className="font-medium text-foreground/80">
+                Owns {pit_access.nearest_owned_pit.name} · {pit_access.nearest_owned_pit.distance_miles.toFixed(1)}mi
+                · quality {pit_access.nearest_owned_pit.quality ?? "—"}
+              </span>
+            ) : (
+              "No owned pit"
+            )}
+            {" · "}{pit_access.owned_pits_within_25mi_count} owned within 25mi
+            {pit_access.owned_pits_within_25mi_avg_quality != null &&
+              ` (avg quality ${pit_access.owned_pits_within_25mi_avg_quality.toFixed(1)})`}
+          </div>
+          <div className="text-muted-foreground">
+            {pit_access.nearest_open_pit
+              ? `Nearest open pit ${pit_access.nearest_open_pit.name} · ${pit_access.nearest_open_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_open_pit.quality ?? "—"}`
+              : "No usable open pit found"}
+            {" · "}{pit_access.open_pits_within_25mi_count} open within 25mi
+            {pit_access.open_pits_within_25mi_avg_quality != null &&
+              ` (avg quality ${pit_access.open_pits_within_25mi_avg_quality.toFixed(1)})`}
           </div>
         </div>
       )}

@@ -145,7 +145,8 @@ COMPETITOR_REPORTS = REPO / "pipelines" / "ci_model" / "reports"
 # A fresh clone still needs ONE artifact that git does not carry:
 # 03_training/outputs/ranking_predictions.csv (~94 MB, gitignored as a regenerable training
 # output). Without it the orchestrator fails and live_report() returns None, so apps/api falls
-# back to a stale static report — the UI renders and nothing appears broken. See
+# through to the live prediction (competitor_predict_live) — the UI renders and nothing appears
+# broken, but every plan shows served_by=layer3-live-prediction in the cascade log. See
 # pipelines/ci_model/README.md for how to regenerate or recover it.
 #
 # Note the path is one level shorter than before. The external clone nested everything under
@@ -256,13 +257,24 @@ def _load_api_key() -> str:
     """Anthropic key resolution, in priority order:
     1. the ANTHROPIC_API_KEY env var (how you'd set it on Railway), else
     2. the project's existing single-quoted `.env` file in plan_reader (local convention).
+
+    A placeholder (e.g. the canonical .env.example's 'sk-ant-...') is treated as absent at each
+    step, same principle as require_supabase_dsn()'s check below -- and for the same reason that
+    one exists: a canonical .env created via `cp .env.example .env` without filling in every field
+    left ANTHROPIC_API_KEY as the literal placeholder string, which is non-empty so `if key :=`
+    accepted it and returned it as if real, skipping the plan_reader/.env fallback that held the
+    actual working key. The failure surfaced as an AuthenticationError deep inside a PDF-upload
+    call, reported to the user as "may be corrupt or an unsupported format" -- nowhere near this
+    function. Caught 2026-08-07.
     """
-    if key := os.environ.get("ANTHROPIC_API_KEY"):
+    if (key := os.environ.get("ANTHROPIC_API_KEY")) and not _is_placeholder(key):
         return key
     env_file = PLAN_READER / ".env"
     if env_file.exists():
         # the project stores the key as ANTHROPIC_API_KEY='sk-...'; split on the quote.
-        return env_file.read_text().split("'")[1]
+        parts = env_file.read_text().split("'")
+        if len(parts) > 1 and not _is_placeholder(parts[1]):
+            return parts[1]
     return ""
 
 
@@ -290,6 +302,21 @@ class Settings:
     ci_live_enabled: bool = os.environ.get("CI_LIVE_ENABLED", "1") not in ("0", "false", "False")
     ci_live_skip_llm: bool = os.environ.get("CI_LIVE_SKIP_LLM", "1") not in ("0", "false", "False")
     ci_live_timeout: int = int(os.environ.get("CI_LIVE_TIMEOUT", "120"))
+
+    # Work-type gate on the county+state+date competitor match (CLAUDE.md rough edge 11, step 1):
+    # when a plan's archetype matches NONE of the corpus candidates within the 45-day window, the
+    # match is a likely wrong project (measured: 16.7% of all matches; those pairs differ ~80%
+    # median in material quantities; human sampling confirmed genuine mismatches, not type-
+    # extraction errors). Modes:
+    #   "off"      — no detection at all (pre-2026-08-09 behavior)
+    #   "log_only" — detect + log "would_reject reason=type_all_excluded", behavior unchanged.
+    #                THE DEFAULT: there is no test environment, so the rollout plan is to ship
+    #                log-only first, compare the real would-reject rate against the offline 16.7%
+    #                estimate for a week or two, then flip to enforce.
+    #   "enforce"  — refuse the match (return None -> cascade falls through to live prediction).
+    #                Prerequisites already met 2026-08-09: Layer-3 concurrency load test passed
+    #                (48/48 at 1/4/8 workers, p95 2.0s) and the cascade-tier log line exists.
+    type_gate_mode: str = os.environ.get("TYPE_GATE_MODE", "log_only")
 
     # Automated route/milepost → lat/long lookup (04_tools/road_midpoint/road_midpoint.py), the
     # 5th process_pdf stage (report.py). Calls up to 6 state DOT GIS REST endpoints (MN/ND/SD/NE/
