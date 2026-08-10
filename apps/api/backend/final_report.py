@@ -30,6 +30,7 @@ from . import ci_db
 from . import competitor_report as cr
 from . import competitor_stats_live
 from . import corrections
+from . import payload_carry
 from .config import CORPUS_MESSAGES, CORPUS_OK, CSI_DB, PLAN_READER, corpus_state
 from .observability import get_logger
 
@@ -440,7 +441,14 @@ def _payload_from_plan_id(plan_id: str) -> dict | None:
                 "bid_deadline": val("bid_deadline"),
                 "substantial_completion": val("substantial_completion"),
                 "final_completion": val("final_completion"),
-                "latitude": val("latitude"), "longitude": val("longitude")}
+                "latitude": val("latitude"), "longitude": val("longitude"),
+                # Narrative RAG fields + their three-valued presence — the same registry-driven
+                # carry-through report.py's live path does, so the corpus path and the PDF-drop
+                # path cannot disagree about which keys a payload has. Three of the six date
+                # fields have NO key in the 8 corpus JSONs (they predate the schema), which is
+                # precisely why a missing key resolves to `extraction_failed`, never `none_found`.
+                **{n: val(n) for n in payload_carry.CARRIED_FIELDS if n in rec},
+                **payload_carry.carried_statuses(rec)}
     # backfill county/state from the plan_id (e.g. '2025_DOUGLAS-CO-MN_…') when extraction left
     # them blank — the matcher joins on county+state, so a missing county silently weakens it.
     if not identity["county"] or not identity["state"]:
@@ -591,6 +599,12 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
             ("SP / Contract #", idn.get("sp_number") or "—"),
             ("Prevailing wage", wage_s),
             ("Traffic level", idn.get("traffic_level") or "—")]
+    # Carried narrative fields (phasing today). Deliberately NOT `or "—"`: an em dash would make
+    # "the plan states no phasing" and "we never captured it" look identical on the page, which is
+    # the same failure-vs-empty collapse the payload keys exist to prevent. render_value never
+    # returns an empty string.
+    rows += [(payload_carry.render_label(n), payload_carry.render_value(idn, n))
+             for n in payload_carry.CARRIED_FIELDS]
     md += ["| Field | Value |", "|---|---|"]
     md += [f"| {k} | {v} |" for k, v in rows]
     md.append("")
@@ -698,6 +712,11 @@ def to_csv(final: dict) -> str:
     w.writerow(["snapshot", "archetype", final["archetype"], "", ""])
     for k in ("location", "state", "county", "sp_number", "prevailing_wages", "traffic_level"):
         w.writerow(["snapshot", k, idn.get(k) or "", "", ""])
+    # Carried narrative fields: value in `value`, the three-valued presence in `detail`, so a CSV
+    # consumer can tell "none stated" from "never captured" without re-deriving it from a blank.
+    for k in payload_carry.CARRIED_FIELDS:
+        w.writerow(["snapshot", k, idn.get(k) or "", idn.get(f"{k}_status")
+                    or payload_carry.EXTRACTION_FAILED, ""])
     for q in final["quantities"]:
         w.writerow(["quantity", q["label"], q["value"], q["unit"], ""])
     for side in ("go_no_go", "pricing"):

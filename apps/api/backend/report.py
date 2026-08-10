@@ -18,6 +18,7 @@ from pathlib import Path
 from . import bid_date_bridge
 from . import geocode_bridge
 from . import midpoint_bridge
+from . import payload_carry
 from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
 from . import project_registry
 from .config import settings
@@ -106,6 +107,33 @@ def _conf(field) -> dict:
     if isinstance(field, dict):
         return {"confidence": field.get("confidence"), "page": field.get("page")}
     return {"confidence": None, "page": None}
+
+
+def identity_fields_from_record(record: dict) -> dict:
+    """Extraction record → the payload's identity cells, keyed the way the UI shows them (e.g.
+    "location", not the underlying record field "project_location").
+
+    Built once, here, so field_confidence and payload["identity"] stay in lockstep instead of two
+    separate lists of record.get(...) calls that could drift. Module-level rather than inline in
+    process_pdf() so the carry-through can be coverage-tested on a real record without a PDF, a
+    Chroma index, or a Claude call.
+    """
+    return {
+        "state": record.get("state"), "county": record.get("county"),
+        "location": record.get("project_location"), "sp_number": record.get("sp_number"),
+        "prevailing_wages": record.get("prevailing_wages"),
+        "traffic_level": record.get("traffic_level"),
+        "construction_start": record.get("construction_start"),
+        "construction_end": record.get("construction_end"),
+        "bid_deadline": record.get("bid_deadline"),
+        "substantial_completion": record.get("substantial_completion"),
+        "final_completion": record.get("final_completion"),
+        # Narrative RAG fields (phasing_requirements today). Until 2026-08-10 these were extracted,
+        # paid for with a Claude call, written into `record` — and dropped right here, which is the
+        # whole mechanism behind "phasing is invisible to us". Registry-driven so the next field to
+        # need this seam is a tuple entry in payload_carry.py, not a fifth hardcoded name.
+        **payload_carry.carried_values(record),
+    }
 
 
 def _classify_read_error(e: Exception) -> tuple[str, str]:
@@ -235,20 +263,7 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
     qrow = {dst: _val(record.get(src)) for src, dst in _QMAP.items()}
     archetype = project_registry._archetype(qrow)
 
-    # Identity fields, keyed the way they're shown in the UI (e.g. "location", not the underlying
-    # record field "project_location") — built once here so field_confidence and identity below
-    # stay in lockstep instead of two separate lists of record.get(...) calls that could drift.
-    identity_fields = {
-        "state": record.get("state"), "county": record.get("county"),
-        "location": record.get("project_location"), "sp_number": record.get("sp_number"),
-        "prevailing_wages": record.get("prevailing_wages"),
-        "traffic_level": record.get("traffic_level"),
-        "construction_start": record.get("construction_start"),
-        "construction_end": record.get("construction_end"),
-        "bid_deadline": record.get("bid_deadline"),
-        "substantial_completion": record.get("substantial_completion"),
-        "final_completion": record.get("final_completion"),
-    }
+    identity_fields = identity_fields_from_record(record)
     # field_confidence: identity fields first, quantities appended below — for the verify-gate UI.
     # latitude/longitude are deliberately absent here: they come from midpoint_bridge's lookup, not
     # an extraction cell, so there's no comparable confidence value; the verify UI treats location
@@ -274,6 +289,10 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         "structure": {k: structure[k] for k in ("type", "n_pages", "proposal_ranges", "map_ranges")},
         "identity": {
             **{k: _val(v) for k, v in identity_fields.items()},
+            # Three-valued presence per carried field. "the plan states none" and "extraction did
+            # not return it" must never share a value, and neither may render blank downstream —
+            # payload_carry.render_value owns the rendering half of that rule.
+            **payload_carry.carried_statuses(record),
             "latitude": latitude, "longitude": longitude,
             "coordinate_provenance": "midpoint" if latitude is not None else None,
             # Geocoded, never overwriting the extracted equivalents above. Separate keys so an
@@ -355,6 +374,13 @@ def apply_verification(rep: dict, edits: dict) -> dict:
         identity["bid_deadline_page"] = None
         identity["bid_deadline_evidence"] = str(edits["bid_deadline"])
         identity["bid_deadline_parsed"] = parsed is not None
+
+    # Re-derive the carried fields' presence from the POST-edit identity. A human who types phasing
+    # into the verify gate for a plan we came back `extraction_failed` on must not leave a payload
+    # that carries their text and still claims the extraction failed — and one who blanks a field
+    # must land on `none_found`, not on a stale `detected`. Cheap, and keeps the value and its
+    # status from drifting apart in the one place a human can move them independently.
+    identity.update(payload_carry.carried_statuses(identity))
 
     rep["identity"] = identity
     rep["quantities"] = quantities
