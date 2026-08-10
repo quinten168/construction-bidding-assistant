@@ -276,6 +276,12 @@ def predict_competitors(identity: dict, archetype: str, quantities: list,
                 )
             except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
                 log.warning("live candidate prediction errored: %s", e)
+    # Flatten to plain names at the one point every cascade tier flows through (see
+    # competitor_names). The /predict-competitors endpoint returns this list straight to the
+    # verify-competitors popup, so an unflattened `{"name": ..., "tier": ...}` entry would reach
+    # the UI without ever passing through assemble().
+    if comp is not None and comp.get("competitors") is not None:
+        comp["competitors"] = competitor_names(comp["competitors"])
     return comp
 
 
@@ -331,6 +337,13 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         comp = predict_competitors(identity, archetype, quantities, when, pid, reports_dir=reports_dir)
     else:
         comp = predicted_competitors
+
+    # --- name boundary: whatever produced `comp` (live CI report, cached prediction, live
+    # inference), the list is flattened to plain names HERE, once, before anything reads it. A
+    # `{"name": ..., "tier": ...}` entry is unhashable against `stats`, crashes the manual-name
+    # dedup's `.strip()`, and renders as "[object Object]" in report-card.tsx. v3 has no tiers.
+    if comp is not None and comp.get("competitors") is not None:
+        comp["competitors"] = competitor_names(comp["competitors"])
 
     # --- manual competitors: the estimator's typed-in names get appended to the SAME flat
     # `competitors` list the model predicted -- no separate section, since they were never run
@@ -472,6 +485,29 @@ def _gotcha_line(g: dict) -> str:
 _THREAT_EMOJI = {"HIGH": "🔴", "MEDIUM": "🟡", "LOW": "🟢"}
 
 
+# --- competitor-name boundary (2026-08-10) -------------------------------------------------------
+# v3's `competitors` is a flat, rank-ordered list of NAMES with no tiers, but the CI side has also
+# handed us `{"name": ..., "tier": ...}` objects (its executor still carries a `tier` field, and
+# older cached predictions were written in that shape). Every consumer flattens here rather than
+# each guessing: a dict entry was unhashable against `stats` on the Python side and rendered as
+# "[object Object]" in report-card.tsx. Mirrors apps/web/src/lib/chat-data.ts::competitorNames().
+def competitor_names(entries) -> list[str]:
+    """Flatten a competitor list to plain names, order preserved. Unnamed/blank entries are
+    dropped -- never stringified into a dict repr. Not a failure signal: an empty return means the
+    list was empty or unusable, which callers must distinguish from `comp is None` (no report)."""
+    names: list[str] = []
+    for e in entries or []:
+        if isinstance(e, str):
+            n = e.strip()
+        elif isinstance(e, dict):
+            n = str(e.get("name") or e.get("display_name") or "").strip()
+        else:
+            n = ""
+        if n and n not in names:
+            names.append(n)
+    return names
+
+
 # --- competitor_stats_live formatting (mirrors report-card.tsx's fmtPct/fmtScoped/fmtTons) ------
 def _fmt_pct(pct: float | None) -> str:
     return "—" if pct is None else f"{round(pct * 100)}%"
@@ -595,7 +631,7 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
 
     s = comp["summary"]
     mt = comp.get("_match", {})
-    names = comp.get("competitors", [])
+    names = competitor_names(comp.get("competitors"))
     stats_map = comp.get("stats", {})
     md.append(f"**Top {s.get('analyzed', 0)} likely competitors**")
     wt = comp.get("work_type") or ""
@@ -608,6 +644,11 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md.append("")
     md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
               f"({mt.get('confidence')} confidence)._")
+
+    # A matched report that names nobody is a legitimate empty answer -- say so explicitly, so it
+    # can never be read as the "no report matched" failure above (which returns early).
+    if not names:
+        md.append("- _report matched, but it names no competitors._")
 
     # exports get the full per-competitor stats dives; chat stays compact (name + a one-line
     # state win-rate summary inline)
