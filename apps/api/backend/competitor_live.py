@@ -65,14 +65,18 @@ def available() -> bool:
 
 @lru_cache(maxsize=1)
 def _projects():
-    """Load their projects table once (project_natural_key, bid_date, state, county). pandas is
-    already a dep."""
+    """Load their projects table once (project_natural_key, bid_date, state, county, project_type).
+    pandas is already a dep. project_type uses the same six labels as the plan pipeline's archetype
+    (verified 2026-08-09: `project_registry._archetype()`'s outputs match projects.csv's
+    project_type values exactly), which is what makes find_project_key's type gate a direct
+    comparison instead of a mapping problem."""
     import pandas as pd
     df = pd.read_csv(CI_PROJECTS_CSV,
-                     usecols=["project_natural_key", "bid_date", "state", "county"],
+                     usecols=["project_natural_key", "bid_date", "state", "county", "project_type"],
                      dtype=str).fillna("")
     df["_county"] = df["county"].map(cr.norm_county)
     df["_state"] = df["state"].map(cr.norm_state)
+    df["_work_type"] = df["project_type"].map(cr.norm_work_type)
     return df
 
 
@@ -84,11 +88,27 @@ def _date_gap_days(a: str, b: str) -> int:
         return 10_000
 
 
-def find_project_key(county: str, state: str, bid_date: str | None) -> tuple[str, int] | None:
+def find_project_key(county: str, state: str, bid_date: str | None,
+                     project_type: str | None = None,
+                     plan_id: str | None = None) -> tuple[str, int] | None:
     """Reverse-lookup a plan's (county, state, [bid_date]) to the CI corpus project_natural_key.
     Returns (project_natural_key, date_gap_days) for the county+state match nearest in date, or
     None if no county+state hit exists (we do NOT fall back to state-only here — a wrong project
-    would generate a wrong report)."""
+    would generate a wrong report).
+
+    `project_type` (the plan's archetype) + `plan_id` (for the log line) feed the work-type gate:
+    if candidates exist within MATCH_REVIEW_GAP_DAYS but NONE of them shares the plan's work type,
+    the match is a likely wrong project — same-county same-week lettings are routinely DIFFERENT
+    projects (CLAUDE.md rough edge 11: 169 exact same-day collisions, 63% differing in type, ~80%
+    median material-quantity difference; human sampling of the collision cases confirmed genuine
+    mismatches, not archetype-extraction errors, which is why 'enforce' hard-refuses rather than
+    soft-warns). Behavior per settings.type_gate_mode: 'off' = no detection; 'log_only' (default) =
+    log would_reject + return the match unchanged; 'enforce' = return None so the cascade falls
+    through to live prediction. This gate is an INDEPENDENT detector from live_report's
+    needs_review (that one catches "too far in time", this one "near but nothing looks like this
+    plan") — keep them separately toggleable and separately countable. It never fires when the
+    type is unknown/'Other' (norm_work_type -> ''), when bid_date is missing, or when no candidate
+    is within the window (the FAR-ONLY bucket keeps its needs_review path instead)."""
     if not available():
         return None
     nc, ns = cr.norm_county(county), cr.norm_state(state)
@@ -100,6 +120,20 @@ def find_project_key(county: str, state: str, bid_date: str | None) -> tuple[str
         return None
     if bid_date:
         gaps = hits["bid_date"].map(lambda d: _date_gap_days(d, bid_date))
+        mode = settings.type_gate_mode
+        nt = cr.norm_work_type(project_type or "") if mode in ("log_only", "enforce") else ""
+        if nt:
+            near = hits[gaps <= cr.MATCH_REVIEW_GAP_DAYS]
+            if not near.empty and not (near["_work_type"] == nt).any():
+                log.warning(
+                    "type gate (%s): plan=%s reason=type_all_excluded layer=1-live %d corpus "
+                    "project(s) within %dd of %s/%s (%s) but none matches work type %r "
+                    "(rejected: %s, types: %s)",
+                    "reject" if mode == "enforce" else "would_reject", plan_id,
+                    len(near), cr.MATCH_REVIEW_GAP_DAYS, county, state, bid_date, project_type,
+                    sorted(near["project_natural_key"]), sorted(set(near["project_type"])))
+                if mode == "enforce":
+                    return None
         i = gaps.idxmin()
         return (df.loc[i, "project_natural_key"], int(gaps.loc[i]))
     return (hits.iloc[0]["project_natural_key"], 10_000)
@@ -150,13 +184,24 @@ def generate(project_key: str, skip_llm: bool | None = None, timeout: int | None
     return out if out.exists() else None
 
 
-def live_report(county: str, state: str, bid_date: str | None) -> dict | None:
+# A match this far apart in time, or with no date to disambiguate at all (find_project_key's
+# gap=10_000 sentinel when bid_date is None), is not safe to auto-trust: 59% of (state, county)
+# pairs in data/processed/projects.csv have more than one historical project, and county+state+date
+# alone is NOT a unique identifier -- see CLAUDE.md rough edge 11 for the collision statistics that
+# justified this threshold (169 exact same-day, same-county collisions between genuinely different
+# projects, out of 1591 total; 28% of same-county project pairs sit within 7 days of each other).
+MATCH_REVIEW_GAP_DAYS = 45
+
+
+def live_report(county: str, state: str, bid_date: str | None,
+                project_type: str | None = None, plan_id: str | None = None) -> dict | None:
     """Full live path: reverse-lookup → generate → parse. Returns a parsed report dict with a
-    `_match` block tagged basis='live-generated', or None so the caller falls back to static match."""
+    `_match` block tagged basis='live-generated', or None so the caller falls back to static match.
+    `project_type`/`plan_id` feed find_project_key's work-type gate (see its docstring)."""
     if not (settings.ci_live_enabled and available()):
         return None
     ensure_fresh_local_data()
-    found = find_project_key(county, state, bid_date)
+    found = find_project_key(county, state, bid_date, project_type=project_type, plan_id=plan_id)
     if not found:
         log.info("ci live: no corpus project for %s/%s (%s) — falling back to static", county, state, bid_date)
         return None
@@ -169,8 +214,17 @@ def live_report(county: str, state: str, bid_date: str | None) -> dict | None:
     except Exception as e:                                   # noqa: BLE001
         log.warning("ci live: parse failed for %s: %s", project_key, e)
         return None
-    # a live report generated FOR this project is a high-confidence match (we looked it up by identity)
-    conf = "high" if (bid_date is None or gap <= 45) else "medium"
-    parsed["_match"] = {"confidence": conf, "basis": "live-generated", "date_gap_days": gap}
+    # Was: `"high" if (bid_date is None or gap <= 45) else "medium"` -- that treated "we have no
+    # date at all to disambiguate this county" as HIGHER confidence than "we have a date and it's
+    # close," which is backwards. gap is find_project_key's 10_000 sentinel when bid_date is None,
+    # so this single comparison now handles both cases correctly without a special case.
+    needs_review = gap > MATCH_REVIEW_GAP_DAYS
+    conf = "medium" if needs_review else "high"
+    parsed["_match"] = {"confidence": conf, "basis": "live-generated", "date_gap_days": gap,
+                        "needs_review": needs_review}
+    if needs_review:
+        log.warning("ci live: match for %s/%s needs review — nearest corpus project %s is %sd away "
+                   "(county+state alone is not a unique identifier, see CLAUDE.md rough edge 11)",
+                   county, state, project_key, gap)
     log.info("ci live: generated fresh report for %s (project %s, gap %sd)", county, project_key, gap)
     return parsed

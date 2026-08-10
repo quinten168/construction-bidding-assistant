@@ -6,9 +6,10 @@ The "final report" is a one-pager that fuses two teams' outputs for a single pro
   Section ④       COMPETITIVE LANDSCAPE — the matched Competitor Intel report (parsed markdown)
 
 It takes either a live plan payload (what `report.py::process_pdf` returns after a PDF drop) or a
-plan_id already in the corpus, attaches the competitor report matched on county+state+date
-(`competitor_report.match_report`), and renders to markdown (the canonical view) with CSV + PDF
-exports. No Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
+plan_id already in the corpus, attaches the competitor section from the two-tier cascade
+(`predict_competitors()`: live CI generation for corpus projects, else a live prediction from the
+plan's own data), and renders to markdown (the canonical view) with CSV + PDF exports. No direct
+Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
 
 Gotcha source of truth: the deduped `public.gotchas` table in Supabase Postgres (it already
 carries `decision_class` = go_no_go|pricing, page lists, and confidence). Moved off the local
@@ -27,7 +28,6 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import ci_db
-from . import competitor_report as cr
 from . import competitor_stats_live
 from . import corrections
 from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
@@ -254,6 +254,10 @@ def _readable_title(plan_id: str, identity: dict) -> str:
     return state or plan_id
 
 
+# The flat competitor ranking is capped at 5 (#75) — enforced in predict_competitors() for every
+# cascade tier, since tier 2's stale report files predate the cap. Manual names are never capped.
+TOP_N_COMPETITORS = 5
+
 # Sentinel for assemble()'s `predicted_competitors` param: distinguishes "caller has no cached
 # prediction, compute fresh" (the default) from "caller has a cache hit and the cascade found
 # nothing" (a legitimate `None` result that must NOT trigger a redundant recompute).
@@ -261,31 +265,38 @@ _NO_CACHED_PREDICTION = object()
 
 
 def predict_competitors(identity: dict, archetype: str, quantities: list,
-                         bid_date: str | None, pid: str, reports_dir: str | None = None) -> dict | None:
-    """The three-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
+                         bid_date: str | None, pid: str) -> dict | None:
+    """The two-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
     (the predict-competitors endpoint calls this directly, before finalize, so the estimator sees the
-    predicted list instead of typing names blind). LIVE generation, else a static match, else a live
-    PREDICTION. Live = invoke the CI team's agent for a fresh report keyed to this exact project
-    (county+state+date → their project_natural_key → generate). Falls back to matching a
-    pre-generated report when the plan isn't in their corpus, the model repo is absent, or generation
-    fails. Both of those require the project to ALREADY be a row in the CI corpus
-    (ranking_predictions.csv / data/processed/projects.csv) -- i.e. a historical letting CSI already
-    has bid data for. A genuinely new plan (nothing in CSI's history under this county+state+date)
-    matches neither, and previously left `comp` as None with no competitor section at all.
-    competitor_predict_live.predict_report() is the third fallback for exactly that case: it builds
-    its own candidate pool and scores it live against Postgres, using the SAME already-fitted weights
-    the CI model uses, rather than requiring a precomputed row."""
+    predicted list instead of typing names blind). LIVE generation, else a live PREDICTION.
+    Live = invoke the CI team's agent for a fresh report keyed to this exact project
+    (county+state+date → their project_natural_key → generate) — requires the project to ALREADY be
+    a row in the CI corpus (ranking_predictions.csv / data/processed/projects.csv), i.e. a
+    historical letting CSI already has bid data for. Everything else — a genuinely new plan, a
+    county that doesn't match, a failed/absent CI subprocess — gets
+    competitor_predict_live.predict_report(): a candidate pool built and scored live against
+    Postgres from this plan's OWN state/type/quantities, using the SAME already-fitted weights the
+    CI model uses.
+
+    There used to be a middle tier ("layer2-static-match": reuse the nearest same-county
+    pre-generated bid_report_*.md verbatim) — removed 2026-08-09 at the owner's call: its only
+    remaining role was masking a dead CI subprocess with a plausible-looking stale report (the
+    exact rough-edge-2 failure mode), and a real prediction from the plan's own data beats a
+    verbatim copy of an old report for a possibly-different project. A dead subprocess now shows
+    up honestly as traffic shifting to layer3 in the cascade log. The served_by labels keep their
+    historical names (layer1/layer3) so accumulated log data stays comparable."""
     when = bid_date or _resolve_bid_date(identity)
     comp = None
+    layer = "none"                                       # which cascade tier actually served (logged below)
     if identity.get("county") or identity.get("state"):
         try:
             from . import competitor_live as cl
-            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when)
+            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when,
+                                  project_type=archetype, plan_id=pid)
         except Exception as e:                           # noqa: BLE001 — live path must never break assembly
-            log.warning("live competitor generation errored, falling back to static: %s", e)
-        if comp is None:
-            comp = cr.match_report(identity.get("county", ""), identity.get("state", ""),
-                                   when, reports_dir=reports_dir)
+            log.warning("live competitor generation errored, falling back to live prediction: %s", e)
+        if comp is not None:
+            layer = "layer1-live-generated"
         if comp is None:
             try:
                 from . import competitor_predict_live as cpl
@@ -298,13 +309,31 @@ def predict_competitors(identity: dict, archetype: str, quantities: list,
                     project_type=archetype, bid_date=when or "", quantities=qty_by_col,
                     source_id=pid,
                 )
+                if comp is not None:
+                    layer = "layer3-live-prediction"
             except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
                 log.warning("live candidate prediction errored: %s", e)
+    # One greppable line per plan recording which tier served — the ONLY source of real
+    # Layer1/2-vs-Layer3 traffic data (nothing else in this backend persists usage), needed to
+    # replace CLAUDE.md rough edge 11's structural 91%/9% estimate with a measurement.
+    log.info("competitor cascade: plan=%s served_by=%s county=%r state=%r type=%r bid_date=%r",
+             pid, layer, identity.get("county", ""), identity.get("state", ""), archetype, when)
+
+    # Uniform top-5 cap at the one point all three tiers flow through. The cap itself is #75's
+    # (2026-08-05), but it was only ever implemented in the CI planner (fresh layer-1 generations)
+    # and predict_report's top_n (layer 3) — layer 2 parses pre-#75 report FILES verbatim, so a
+    # stale file (e.g. bid_report_P000012.md, 10 names) leaked a 10-competitor list into a report
+    # on 2026-08-09. Capping here, before assemble() appends the estimator's manual names (those
+    # are intentionally additive, never capped), makes every path agree regardless of file age.
+    if comp is not None and len(comp.get("competitors", [])) > TOP_N_COMPETITORS:
+        comp["competitors"] = comp["competitors"][:TOP_N_COMPETITORS]
+        if isinstance(comp.get("summary"), dict):
+            comp["summary"]["analyzed"] = len(comp["competitors"])
     return comp
 
 
 def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
-             bid_date: str | None = None, reports_dir: str | None = None,
+             bid_date: str | None = None,
              manual_competitors: list[str] | None = None,
              predicted_competitors: dict | None = _NO_CACHED_PREDICTION) -> dict:
     """Build the structured final-report dict. Pass a live `plan_payload` (from report.process_pdf)
@@ -352,7 +381,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     # extracted into predict_competitors() (see above).
     when = bid_date or _resolve_bid_date(identity)
     if predicted_competitors is _NO_CACHED_PREDICTION:
-        comp = predict_competitors(identity, archetype, quantities, when, pid, reports_dir=reports_dir)
+        comp = predict_competitors(identity, archetype, quantities, when, pid)
     else:
         comp = predicted_competitors
 
@@ -632,6 +661,16 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     md.append("")
     md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
               f"({mt.get('confidence')} confidence)._")
+    if mt.get("needs_review"):
+        # county+state+date is not a unique identifier -- see CLAUDE.md rough edge 11. This was
+        # previously silent: the confidence label above was cosmetic text, never a signal a reader
+        # could act on. gap_txt keeps a defensive branch for a non-int gap even though today's
+        # only needs_review producer (live_report) always sets an int (10_000 sentinel when no date).
+        gap = mt.get("date_gap_days")
+        gap_txt = f"{gap} days apart" if isinstance(gap, int) else "no bid date to compare"
+        md.append(f"_⚠️ **Needs review** — this competitor section may belong to a DIFFERENT "
+                  f"project in the same county ({gap_txt}). County+state+date alone does not "
+                  f"uniquely identify a project; verify before relying on it._")
 
     # exports get the full per-competitor stats dives; chat stays compact (name + a one-line
     # state win-rate summary inline)
