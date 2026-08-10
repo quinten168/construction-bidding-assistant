@@ -76,16 +76,62 @@ SCALAR_FIELDS = [
        "Null if no GROSS LENGTH value is stated anywhere.",
        golden=None, evalkind=None, group="identity"),
     # quantities (the bid-schedule numbers — all auto-scored vs golden, ±10%)
-    _f("hot_mix_tons", "num", "extract", "Total tons of hot mix asphalt (HMA) from the bid schedule.",
+    #
+    # THESE SEVEN DESCRIPTIONS ARE THE LIVE MATERIAL MAPPING. Treat them as a reviewable mapping,
+    # not as prose. A newly dropped plan's quantities come from Claude being asked for these totals
+    # directly — 05_knowledge/quantity_crosswalk.py is BATCH ONLY and is never loaded on this path
+    # (verified three ways, docs/_session/2026-08-08_live-path-mapping.md §1).
+    #
+    # CSI's 2026-08-07 rulings (Alex's 11) were applied here on 2026-08-10. Each clause below cites
+    # the ruling it encodes. Source of truth for the rulings themselves:
+    # 05_knowledge/quantity_crosswalk.py::CSI_RULINGS_2026_08_07 (lines 185-202 are Alex's 11;
+    # 218-225 are T's 8 — Mark's rule that pavement/base removal is grading work).
+    # Design + open items: docs/_spec/2026-08-10-live-mapping-rulings.md.
+    # No-regression proof: 03_evaluation/2026-08-10_mapping_regression.py.
+    #
+    # DO NOT edit a description without re-running that harness. The mapping is a prompt, so a
+    # passing unit test proves nothing about it.
+    _f("hot_mix_tons", "num", "extract",
+       "Total tons of hot mix asphalt PLACED on this project. The three states write it differently "
+       "and all three mean hot mix — count all of them: MN 'BITUMINOUS MIXTURE' / 'TYPE SP' (e.g. "
+       "'SPWEA240B'), ND 'SUPERPAVE' (including 'RAP - SUPERPAVE FAA 43' — recycled hot mix, it "
+       "counts), SD 'ASPHALT CONCRETE'. Count wearing course, non-wearing course, leveling and "
+       "patching mixtures. Do NOT count milling or removal of existing bituminous — that is "
+       "milling_sy. Do NOT count aggregate.",
        golden="mix_tn", evalkind="num", group="quantities"),
-    _f("base_tons", "num", "extract", "Total tons of aggregate/granular base material.",
+    _f("base_tons", "num", "extract",
+       "Total tons of aggregate/granular base material PURCHASED AND PLACED — for example "
+       "'AGGREGATE BASE CLASS 5 / 6 / 13', 'GRAVEL SURFACING', 'TRAFFIC SERVICE AGGREGATE'. Do NOT "
+       "count 'REMOVE AGGREGATE BASE' or 'REMOVAL OF AGGREGATE BASE': that is demolition of "
+       "existing material, not aggregate bought for this job. Do NOT count 'PORTLAND CEMENT' or "
+       "'CEMENT STABILIZED SUBGRADE' — binder and additive, not aggregate. 'FULL DEPTH "
+       "RECLAMATION' is base work, but its quantity belongs in milling_sy, not here.",
        golden="base_tn", evalkind="num", group="quantities"),
-    _f("grading_quantity", "num", "extract", "Total cubic yards of grading / earthwork.",
+    _f("grading_quantity", "num", "extract",
+       "Total cubic yards (CY) of grading / earthwork — common excavation, subgrade excavation, "
+       "embankment, borrow. Also count 'SALVAGE AND REUSE EXISTING AGGREGATE' and 'CLEAN ROCK'. "
+       "Pavement and base removal is grading work, so count it here WHEN the bid schedule measures "
+       "it in cubic yards. When a removal is measured in square yards or tons, do NOT convert it "
+       "and do NOT move it into another bucket — no verified depth or density factor exists, so "
+       "leave it out of every total.",
        golden="grade_cy", evalkind="num", group="quantities"),
-    _f("shoulder_tons", "num", "extract", "Total tons of shoulder gravel/aggregate.",
+    _f("shoulder_tons", "num", "extract",
+       "Total tons of shoulder aggregate, e.g. 'AGGREGATE SHOULDERING'. 'GRAVEL SURFACING' and "
+       "'TRAFFIC SERVICE AGGREGATE' were moved to base_tons by CSI — do not count them here. "
+       "'AGGREGATE SURFACING CLASS 1 / 2 / 5 / SPECIAL' is still counted here, pending a CSI ruling.",
        golden="shldr_tn", evalkind="num", group="quantities"),
-    _f("milling_sy", "num", "extract", "Total square yards of milling / pavement removal.",
+    _f("milling_sy", "num", "extract",
+       "Total square yards (SY) of milling and bituminous pavement removal: 'MILL BITUMINOUS "
+       "SURFACE', 'REMOVE BITUMINOUS PAVEMENT', 'REMOVAL OF BITUMINOUS SURFACING', and 'FULL DEPTH "
+       "RECLAMATION' (CSI ruled FDR is base work, but its quantity is reported here because it is "
+       "measured in SY). Do NOT count 'REMOVE CONCRETE DRIVEWAY PAVEMENT' or 'REMOVE BITUMINOUS "
+       "DRIVEWAY PAVEMENT'. Do NOT count concrete pavement removal — that is grading. Report square "
+       "yards only; if the bid schedule measures milling in tons, leave this field null rather than "
+       "converting.",
        golden="mill_sy", evalkind="num", group="quantities"),
+    # crushing_tons / stockpile_tons DELIBERATELY UNCHANGED. CSI has not answered whether crushing
+    # and stockpile stay excluded (quantity_crosswalk.py::CSI_OPEN_QUESTIONS_2026_08_07). Writing a
+    # clause here would be inventing a ruling. Left as-is and recorded as open.
     _f("crushing_tons", "num", "extract", "Total tons of crushed aggregate to be produced.",
        golden="crush_tn", evalkind="num", group="quantities"),
     _f("stockpile_tons", "num", "extract", "Total tons of stockpile material.",
