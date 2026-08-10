@@ -154,7 +154,7 @@ used to make a missing `ranking_predictions.csv` produce silently stale output.*
 
 | Artifact | Size | Missing it means |
 |---|---|---|
-| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | Cascade tier 1 (fresh CI-generated reports for corpus projects) can't run — every plan falls through to tier 2's live prediction instead (built from the plan's own state/type/quantities, calibrated probability per name). A real, working, less-detailed result — not stale data. Recovery: `pipelines/ci_model/README.md`. |
+| `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | Nothing on the live app — `apps/api` stopped reading this file entirely on 2026-08-10 (see the caveat below the table and invariant #1). It's needed only for `pipelines/ci_model`'s own training/evaluation regeneration. Recovery: `pipelines/ci_model/README.md`. |
 | `pipelines/plan_reader/06_chroma/` | grows with usage (empirically ~170 MB after a few dozen plans on one dev machine — the "1.5 GB" this entry used to cite was never verified against an actual instance) | Nothing on a fresh clone. It is not a pre-built artifact to fetch — `lib.get_collection()` auto-creates it via `PersistentClient(path=...).get_or_create_collection()`, and every PDF drop's `ingest` stage writes that plan's own chunks into it before `extract_rag` queries them back out, filtered by that plan's `doc_id`. A fresh clone's first upload just starts from empty. The only real loss on a new machine: chat Q&A over plans a DIFFERENT machine already uploaded — that history lives in this directory and doesn't travel with the repo (copy it over if you want it to). |
 
 Both are gitignored as regenerable training/index outputs. Neither is optional at runtime —
@@ -175,25 +175,6 @@ fix made a dead subprocess show up honestly via the cascade log's `served_by=` s
 stderr-truncation bug (the old `competitor_live.py:117`, cutting subprocess stderr to 400 characters
 and once hiding a real `FileNotFoundError`) for it to compound. Kept here as history, not as a live
 failure mode to watch for.
-Both are gitignored as regenerable outputs — "gitignored" still does not mean "unnecessary" (see
-working rule below), it means each is cheap to lose and comes back through ordinary use or a
-documented recovery step, not that either is a prerequisite to check off before the app will run.
-
-**2. CI subprocess failures are silent, and there are two reasons for that.**
-
-`apps/api/backend/competitor_live.py` returns `None` on timeout, `CalledProcessError`, or
-any exception. The caller then falls back — until 2026-08-09 to a **stale pre-generated report**,
-so the API returned HTTP 200 with plausible competitive output while the subprocess was dead. That
-static-match tier was removed on 2026-08-09 (owner's call, see rough edge 11): the fallback is now
-the **live prediction** (`competitor_predict_live`), so a dead subprocess shows up honestly as the
-cascade log's `served_by=` shifting from `layer1-live-generated` to `layer3-live-prediction` —
-watch for that shift; it is now the primary symptom of this failure mode.
-
-Compounding it, `competitor_live.py:117` truncates subprocess stderr to **400 characters**, which
-cuts off the exception line. A real `FileNotFoundError` was hidden this way.
-
-**→ Any verification that CI works must prove the subprocess RAN** — process observation, or a
-report mtime that advanced. A response coming back proves nothing.
 
 **3. `reference/competitor_entities.csv` / `reference/competitor_priority.csv` — ✅ RESOLVED (removed).**
 
