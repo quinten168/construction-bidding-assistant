@@ -353,6 +353,11 @@ function ResultRow({ row, store }: { row: BidResultRow; store: Store }) {
           disabled={saving === "name"}
           className="w-full min-w-[140px] rounded-md border border-transparent bg-transparent px-1.5 py-0.5 outline-none focus:border-primary/40 focus:bg-white/70"
         />
+        {row.current_comp_name && row.current_comp_name !== row.raw_bidder_name && (
+          <p className="px-1.5 text-[10.5px] text-muted-foreground" title="This competitor has since been consolidated onto a new canonical name.">
+            now: {row.current_comp_name}
+          </p>
+        )}
       </td>
       <td className="px-3 py-1.5 text-right">
         <input

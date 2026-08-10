@@ -332,6 +332,30 @@ def predict_competitors(identity: dict, archetype: str, quantities: list,
     return comp
 
 
+def _resolve_current_comp_names(names: list[str]) -> dict[str, str]:
+    """Resolve a batch of typed-in competitor names to their current registry comp_name, so a
+    manually-typed retired name (one that's since been consolidated onto a new canonical name)
+    lands on the entity it was merged into instead of appearing as a separate competitor on this
+    one report. Read-only -- unlike _resolve_bidder (bid_results_admin.py), never writes a
+    needs_review stub, since nothing is actually being recorded here. Falls back to each name
+    unchanged on no match or any DB error -- must never break report assembly."""
+    if not names:
+        return {}
+    try:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select raw_name_variant, comp_name from scratch.competitor_name_registry "
+                "where upper(regexp_replace(raw_name_variant, '\\s+', ' ', 'g')) = any(%s) "
+                "  and comp_name is not null and comp_name != ''",
+                ([ci_db.normalize(n) for n in names],),
+            )
+            by_norm = {ci_db.normalize(r["raw_name_variant"]): r["comp_name"] for r in cur.fetchall()}
+    except Exception as e:                                  # noqa: BLE001 — must never break assembly
+        log.warning("manual competitor name resolution failed: %s", e)
+        return {n: n for n in names}
+    return {n: by_norm.get(ci_db.normalize(n), n) for n in names}
+
+
 def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
              bid_date: str | None = None,
              manual_competitors: list[str] | None = None,
@@ -393,6 +417,9 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
     # retrieval process below, run ONCE over the whole merged list, not a separate stats
     # computation per origin and not the old model "feature" columns (ranking_predictions.csv).
     manual_names = [n.strip() for n in (manual_competitors or []) if n and n.strip()]
+    if manual_names:
+        resolved = _resolve_current_comp_names(manual_names)
+        manual_names = [resolved.get(n, n) for n in manual_names]
     if manual_names and comp is None:
         # No predicted report at all (e.g. county+state never matched anything) -- manual names are
         # the only way stats show up for this plan, so build a bare skeleton for them to live in.
@@ -573,11 +600,19 @@ def _stats_lines(stats: dict) -> list[str]:
         lines.append(f"Capacity — {cap_line}")
     pa = stats.get("pit_access")
     if pa:
-        nearest = pa.get("nearest_pit")
-        pit_line = (f"Nearest pit {nearest.get('name')} ({nearest.get('distance_miles', 0):.1f} mi)"
-                    if nearest else "No usable pit found")
-        pit_line += f" · {pa.get('pits_within_25mi_count', 0)} within 25mi"
-        lines.append(f"Pit access — {pit_line}")
+        owned = pa.get("nearest_owned_pit")
+        owned_part = (
+            f"Owns {owned.get('name')} ({owned.get('distance_miles', 0):.1f} mi, "
+            f"{pa.get('owned_pits_within_25mi_count', 0)} owned within 25mi)"
+            if owned else "No owned pit"
+        )
+        open_pit = pa.get("nearest_open_pit")
+        open_part = (
+            f"nearest open pit {open_pit.get('name')} ({open_pit.get('distance_miles', 0):.1f} mi, "
+            f"{pa.get('open_pits_within_25mi_count', 0)} open within 25mi)"
+            if open_pit else "no usable open pit found"
+        )
+        lines.append(f"Pit access — {owned_part} · {open_part}")
     return lines
 
 

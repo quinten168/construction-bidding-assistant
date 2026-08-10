@@ -21,6 +21,7 @@ pytestmark = pytest.mark.skipif(
 
 from backend import bid_results_admin as bra  # noqa: E402
 from backend import ci_db  # noqa: E402
+from backend import competitor_registry_admin as cra  # noqa: E402
 
 TEST_PROJECT_KEY = "ZZTEST_PROJECT_BID_ENTRY_1"
 UNKNOWN_BIDDER = "ZZTEST Brand New Bidder Co"
@@ -219,3 +220,43 @@ def test_update_bid_amount_rejects_tie_and_leaves_rows_unchanged():
             assert rows[high_id]["did_win"] is False
     finally:
         _cleanup()
+
+
+def test_list_bid_results_shows_current_comp_name_after_consolidate():
+    """list_bid_results' registry join is presentation-only -- competitor_unit_id on the stored row
+    never changes, but current_comp_name must reflect a later consolidate."""
+    raw_name = "ZZTEST Consolidate Display Bidder"
+    old_name, new_name = "ZZTEST Consolidate Display Old", "ZZTEST Consolidate Display New"
+    extra_registry_names = [raw_name, old_name, new_name]
+
+    def _cleanup_registry():
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "delete from scratch.competitor_name_registry where raw_name_variant = any(%s)",
+                (extra_registry_names,),
+            )
+
+    _reset_project()
+    _cleanup_registry()
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            "insert into scratch.competitor_name_registry (raw_name_variant, comp_name) values (%s, %s)",
+            (raw_name, old_name),
+        )
+    try:
+        bra.submit_bid_results(TEST_PROJECT_KEY, [
+            {"raw_bidder_name": raw_name, "bid_amount": 500},
+        ])
+        rows = bra.list_bid_results(search="ZZTEST County")
+        row = next(r for r in rows if r["project_natural_key"] == TEST_PROJECT_KEY)
+        assert row["current_comp_name"] == old_name  # not yet consolidated
+
+        cra.consolidate([raw_name], new_name)
+
+        rows = bra.list_bid_results(search="ZZTEST County")
+        row = next(r for r in rows if r["project_natural_key"] == TEST_PROJECT_KEY)
+        assert row["competitor_unit_id"] == old_name    # stored fact, untouched by consolidate
+        assert row["current_comp_name"] == new_name      # display resolves forward
+    finally:
+        _cleanup()
+        _cleanup_registry()

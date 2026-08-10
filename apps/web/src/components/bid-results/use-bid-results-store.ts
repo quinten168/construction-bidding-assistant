@@ -31,6 +31,9 @@ export type BidResultRow = {
   bid_rank: number | null;
   did_win: boolean;
   mapping_status: string | null;
+  // Presentation-only, resolved live through the name registry — differs from raw_bidder_name only
+  // when this row's competitor has since been consolidated onto a new canonical name.
+  current_comp_name: string;
   project_name: string | null;
   county: string | null;
   state: string | null;

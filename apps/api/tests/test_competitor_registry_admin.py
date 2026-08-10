@@ -216,3 +216,53 @@ def test_consolidate_only_touches_the_selected_raw_name_and_leaves_bid_results_a
     finally:
         _cleanup_project()
         _delete_registry_rows(raw_a, raw_b, old_name, new_name)
+
+
+def test_consolidate_bridges_the_retired_comp_name_forward():
+    """A consolidated-away comp_name must resolve forward on its own -- a bid entered later under
+    that retired name (or a historical bid_results row already stored under it) has to land on the
+    new target through one registry lookup, not fork into a disconnected needs_review competitor."""
+    raw_a = "ZZTEST Bridge Raw Name"
+    old_name, new_name = "ZZTEST Bridge Old Name", "ZZTEST Bridge New Name"
+    _delete_registry_rows(raw_a, old_name, new_name)
+    _cleanup_project()
+    try:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "insert into scratch.competitor_name_registry (raw_name_variant, comp_name) values (%s, %s)",
+                (raw_a, old_name),
+            )
+            cur.execute(
+                "insert into scratch.bid_projects (project_natural_key, state, county, bid_date) "
+                "values (%s, 'MN', 'ZZTEST County', '2024-01-01')",
+                (TEST_PROJECT_KEY,),
+            )
+            cur.execute(
+                "insert into scratch.bid_results "
+                "(project_natural_key, competitor_unit_id, bid_amount, raw_bidder_name) "
+                "values (%s, %s, 1000, %s)",
+                (TEST_PROJECT_KEY, old_name, raw_a),
+            )
+
+        result = cra.consolidate([raw_a], new_name)
+        assert result["retired_names_bridged"] == [old_name]
+
+        # The retired comp_name itself must now be a resolvable lookup key, same normalized-match
+        # style _resolve_bidder (bid_results_admin.py) uses for a brand-new bid entry.
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select comp_name from scratch.competitor_name_registry "
+                "where upper(regexp_replace(raw_name_variant, '\\s+', ' ', 'g')) = %s",
+                (ci_db.normalize(old_name),),
+            )
+            assert cur.fetchone()["comp_name"] == new_name
+
+            # Still registry-only -- the historical row already stored under the old comp_name
+            # keeps that exact value; only the forward-lookup path changed, not the stored fact.
+            cur.execute(
+                "select competitor_unit_id from scratch.bid_results where raw_bidder_name = %s", (raw_a,)
+            )
+            assert cur.fetchone()["competitor_unit_id"] == old_name
+    finally:
+        _cleanup_project()
+        _delete_registry_rows(raw_a, old_name, new_name)

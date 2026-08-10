@@ -166,9 +166,13 @@ def submit_bid_results(project_natural_key: str, entries: list[dict]) -> dict:
 _RESULTS_JOIN_SQL = """
     select r.project_natural_key, r.competitor_unit_id, r.raw_bidder_name, r.bid_amount,
            r.bid_rank, r.did_win, r.mapping_status,
+           coalesce(nullif(reg.comp_name, ''), r.competitor_unit_id) as current_comp_name,
            p.project_name, p.county, p.state, p.bid_date, p.bid_year
     from scratch.bid_results r
     join scratch.bid_projects p on p.project_natural_key = r.project_natural_key
+    left join scratch.competitor_name_registry reg
+        on upper(regexp_replace(reg.raw_name_variant, '\\s+', ' ', 'g'))
+         = upper(regexp_replace(r.competitor_unit_id, '\\s+', ' ', 'g'))
     where p.deleted_at is null
 """
 
@@ -177,7 +181,12 @@ def list_bid_results(search: str | None = None) -> list[dict]:
     """Every scratch.bid_results row, joined to its project — the full results table (as opposed to
     list_projects_missing_results, which is the entry-form picker and shows the opposite set: only
     projects with zero rows). One row per bidder per project, matching bid_results' own grain.
-    `search` filters on project name, county, or bidder name (ILIKE, either side)."""
+    `search` filters on project name, county, or bidder name (ILIKE, either side).
+
+    `current_comp_name` is a presentation-only field, resolved live through the name registry —
+    `competitor_unit_id` itself is left exactly as stored so a later consolidate never rewrites
+    this historical row, it just changes what name it's displayed under (see
+    competitor_registry_admin.py::consolidate)."""
     sql = _RESULTS_JOIN_SQL
     params: list = []
     if search:

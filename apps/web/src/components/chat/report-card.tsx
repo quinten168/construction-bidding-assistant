@@ -574,11 +574,25 @@ function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
         <div>
           <div className="font-medium text-foreground/70">Pit access</div>
           <div className="text-muted-foreground">
-            {pit_access.nearest_pit
-              ? `${pit_access.nearest_pit.name} · ${pit_access.nearest_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_pit.quality ?? "—"}`
-              : "No usable pit found"}
-            {" · "}{pit_access.pits_within_25mi_count} within 25mi
-            {pit_access.pits_within_25mi_avg_quality != null && ` (avg quality ${pit_access.pits_within_25mi_avg_quality.toFixed(1)})`}
+            {pit_access.nearest_owned_pit ? (
+              <span className="font-medium text-foreground/80">
+                Owns {pit_access.nearest_owned_pit.name} · {pit_access.nearest_owned_pit.distance_miles.toFixed(1)}mi
+                · quality {pit_access.nearest_owned_pit.quality ?? "—"}
+              </span>
+            ) : (
+              "No owned pit"
+            )}
+            {" · "}{pit_access.owned_pits_within_25mi_count} owned within 25mi
+            {pit_access.owned_pits_within_25mi_avg_quality != null &&
+              ` (avg quality ${pit_access.owned_pits_within_25mi_avg_quality.toFixed(1)})`}
+          </div>
+          <div className="text-muted-foreground">
+            {pit_access.nearest_open_pit
+              ? `Nearest open pit ${pit_access.nearest_open_pit.name} · ${pit_access.nearest_open_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_open_pit.quality ?? "—"}`
+              : "No usable open pit found"}
+            {" · "}{pit_access.open_pits_within_25mi_count} open within 25mi
+            {pit_access.open_pits_within_25mi_avg_quality != null &&
+              ` (avg quality ${pit_access.open_pits_within_25mi_avg_quality.toFixed(1)})`}
           </div>
         </div>
       )}
