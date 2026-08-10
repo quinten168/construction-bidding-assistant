@@ -185,7 +185,8 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
     return out
 
 
-# ── Pit access ───────────────────────────────────────────────────────────────────────────────────
+# ── Pit access (owned/private only -- open-access pits are reported project-wide by
+# nearest_open_pits() below, not duplicated per competitor) ────────────────────────────────────────
 def _pit_access(conn, competitor_ids: list[str], project_lat: float | None,
                  project_lon: float | None) -> dict[str, dict | None]:
     if project_lat is None or project_lon is None:
@@ -194,18 +195,15 @@ def _pit_access(conn, competitor_ids: list[str], project_lat: float | None,
     with conn.cursor() as cur:
         cur.execute(
             """
-            select latitude, longitude, name, rating, access_type, access_company
+            select latitude, longitude, name, rating, access_company
             from scratch.mn_pit_list
-            where access_type = 'open' or access_type = 'competitor'
+            where access_type = 'competitor'
             """
         )
         pit_rows = cur.fetchall()
 
-    open_pits = [r for r in pit_rows if r["access_type"] == "open"]
     by_owner: dict[str, list] = {}
     for r in pit_rows:
-        if r["access_type"] != "competitor":
-            continue
         key = ci_db.normalize(r["access_company"])
         if key:
             by_owner.setdefault(key, []).append(r)
@@ -219,8 +217,6 @@ def _pit_access(conn, competitor_ids: list[str], project_lat: float | None,
             out.append((d, r))
         return out
 
-    open_with_dist = _with_distance(open_pits)
-
     def _summarize(pit_list: list[tuple[float, dict]]) -> dict:
         if not pit_list:
             return {"nearest": None, "within_25mi_count": 0, "within_25mi_avg_quality": None}
@@ -233,22 +229,53 @@ def _pit_access(conn, competitor_ids: list[str], project_lat: float | None,
             "within_25mi_avg_quality": (sum(ratings) / len(ratings)) if ratings else None,
         }
 
-    # Computed once -- identical for every competitor, since open-access pits aren't exclusive to
-    # any one of them.
-    open_summary = _summarize(open_with_dist)
-
     out: dict[str, dict | None] = {}
     for cid in competitor_ids:
         owned_summary = _summarize(_with_distance(by_owner.get(ci_db.normalize(cid), [])))
         out[cid] = {
-            "nearest_open_pit": open_summary["nearest"],
             "nearest_owned_pit": owned_summary["nearest"],
-            "open_pits_within_25mi_count": open_summary["within_25mi_count"],
             "owned_pits_within_25mi_count": owned_summary["within_25mi_count"],
-            "open_pits_within_25mi_avg_quality": open_summary["within_25mi_avg_quality"],
             "owned_pits_within_25mi_avg_quality": owned_summary["within_25mi_avg_quality"],
         }
     return out
+
+
+def nearest_open_pits(project_lat: float | None, project_lon: float | None,
+                       limit: int = 5) -> list[dict] | None:
+    """The N nearest open-access pits to the project, by distance -- no radius cutoff. Feeds the
+    project-level "Pit access" summary line (final_report.py), replacing the old stale training-
+    snapshot figure with a live query -- see CLAUDE.md / the commit this landed in for why a fixed-
+    radius count was rejected in favor of a plain nearest-N list.
+
+    None if coordinates are missing or the query fails (fail-open, same convention as the rest of
+    this module); [] if the query succeeded but no open-access pits exist at all -- distinct from
+    None so a caller can tell "no data" from "genuinely zero pits."
+    """
+    if project_lat is None or project_lon is None:
+        return None
+    try:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "select latitude, longitude, name, rating from scratch.mn_pit_list "
+                "where access_type = 'open'"
+            )
+            rows = cur.fetchall()
+    except Exception as e:                                  # noqa: BLE001 — must never break assembly
+        log.warning("nearest_open_pits: query failed: %s", e)
+        return None
+
+    with_dist = []
+    for r in rows:
+        if r["latitude"] is None or r["longitude"] is None:
+            continue
+        d = _haversine_miles(project_lat, project_lon, r["latitude"], r["longitude"])
+        with_dist.append((d, r))
+    with_dist.sort(key=lambda p: p[0])
+
+    return [
+        {"name": r["name"], "distance_miles": d, "quality": r["rating"]}
+        for d, r in with_dist[:limit]
+    ]
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────────────────────────

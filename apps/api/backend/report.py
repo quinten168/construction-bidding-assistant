@@ -424,8 +424,8 @@ def apply_verification(rep: dict, edits: dict) -> dict:
 def write_bid_project(rep: dict) -> dict | None:
     """Best-effort: upsert this verified plan into scratch.bid_projects (#36/#37), so it becomes a
     durable row a human can later attach real bid_results to and a future model retrain can learn
-    from. Never blocks or breaks finalize on failure — same fail-open philosophy as the CI
-    subprocess (competitor_live.py) and the midpoint lookup above."""
+    from. Never blocks or breaks finalize on failure — same fail-open philosophy as the live
+    competitor prediction (competitor_predict_live.py) and the midpoint lookup above."""
     try:
         import bid_projects_record as bpr          # noqa: E402 — sys.path via plan_reader_bridge
         from . import bid_projects_writer as bpw

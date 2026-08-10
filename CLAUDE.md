@@ -40,10 +40,38 @@ Each directory has one job. Do not move work across these boundaries without ask
 These are load-bearing. Breaking one will not fail loudly.
 
 **1. `apps/` and `pipelines/` are not coupled by imports.**
-There are no Python imports from `apps/` into `pipelines/` or back. The backend invokes the CI
-model as a **subprocess** (`apps/api/backend/competitor_live.py:111`) and reads its outputs as
-**CSVs by path**. Do not "simplify" this into a direct import — the two trees have separate
-dependency sets and separate owners.
+There are no Python imports from `apps/` into `pipelines/` or back. Do not "simplify" that with a
+direct import — the two trees have separate dependency sets and separate owners.
+
+Until 2026-08-10 this note also described a second thing: the backend invoked the CI model as a
+**subprocess** (`competitor_live.py`, now deleted) and read its outputs as CSVs by path, matching a
+plan to a historical project by county+state+date and scoring against a **static training
+snapshot** (`ranking_predictions.csv`, ~94 MB, gitignored). **That mechanism is gone, not just
+disabled.** It was retired the same day it was caught producing an actual wrong answer: a plan's own
+freshly-extracted quantities classified it as `Grading/Earthwork`, while the county+state+date match
+attached a *different* data source's `Reconstruct/Rebuild` figure for what should have been the same
+project — two disconnected sources describing "the same project" that had simply drifted apart, the
+same failure shape as rough edge 11 below (which this removal also resolves — see there) and the
+pit-access bug fixed earlier the same day (§ git history, "Fix pit-access summary disagreeing with
+each competitor's deep-dive"). A live shadow-test comparison (`competitor_predict_live.predict_report()`
+scored against the plan's own data vs. the subprocess's corpus-match result) found: ~650-750ms
+latency with no LLM call, a materially different but reasonable competitor list, and that the
+subprocess path's exclusive content (an LLM narrative, per-competitor deep-dive text) was already
+dead code — destructured but never rendered anywhere, in either the chat UI or the markdown/PDF
+export, confirmed by grep before removal.
+
+**Current reality: every competitor prediction is live, scored against Postgres from the plan's own
+data** (`apps/api/backend/competitor_predict_live.py::predict_report()`), via
+`final_report.py::predict_competitors()`. The one remaining file dependency anywhere in this path is
+`CI_MODEL_JSON`, a small serialized fitted-weights artifact — the model itself, not report or
+training data, and not something a report result could disagree with. `competitor_record.py` (the
+chat tool for looking up one competitor's history) was converted the same pass, from reading local
+CSV snapshots (`data/processed/{bidder_results,projects}.csv`, kept fresh only as an accidental side
+effect of the now-deleted subprocess calling `data/pull_scratch_updates.py` before every report) to
+querying `scratch.bid_results`/`scratch.bid_projects` directly — verified to return byte-identical
+totals to the old CSV path for a real competitor before the CSV path was removed. `pipelines/ci_model`
+itself — the CI team's orchestrator, training, and evaluation code — is untouched and remains fully
+usable standalone/CLI; only apps/api's subprocess *caller* into it was removed.
 
 **2. `pipelines/` is path-referenced, never imported as a package.**
 It is referred to only by path strings, concentrated in `apps/api/backend/config.py`. The only
@@ -129,6 +157,24 @@ used to make a missing `ranking_predictions.csv` produce silently stale output.*
 | `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` | 94 MB | Cascade tier 1 (fresh CI-generated reports for corpus projects) can't run — every plan falls through to tier 2's live prediction instead (built from the plan's own state/type/quantities, calibrated probability per name). A real, working, less-detailed result — not stale data. Recovery: `pipelines/ci_model/README.md`. |
 | `pipelines/plan_reader/06_chroma/` | grows with usage (empirically ~170 MB after a few dozen plans on one dev machine — the "1.5 GB" this entry used to cite was never verified against an actual instance) | Nothing on a fresh clone. It is not a pre-built artifact to fetch — `lib.get_collection()` auto-creates it via `PersistentClient(path=...).get_or_create_collection()`, and every PDF drop's `ingest` stage writes that plan's own chunks into it before `extract_rag` queries them back out, filtered by that plan's `doc_id`. A fresh clone's first upload just starts from empty. The only real loss on a new machine: chat Q&A over plans a DIFFERENT machine already uploaded — that history lives in this directory and doesn't travel with the repo (copy it over if you want it to). |
 
+Both are gitignored as regenerable training/index outputs. Neither is optional at runtime —
+**caveat as of 2026-08-10**: `ranking_predictions.csv` stopped being an `apps/api` runtime
+dependency when invariant #1's live-prediction-only change removed the code that read it
+(`CI_PREDICTIONS_CSV` no longer exists in `config.py`). It's still needed for `pipelines/ci_model`'s
+own training/evaluation regeneration — a `pipelines/`-internal concern now, not something a fresh
+clone needs for the live app to serve a competitor prediction.
+
+**2. CI subprocess failures are silent, and there are two reasons for that. — ✅ RESOLVED (subprocess removed 2026-08-10).**
+
+Historical: `apps/api/backend/competitor_live.py` returned `None` on timeout, `CalledProcessError`,
+or any exception, and (until 2026-08-09) fell back to a **stale pre-generated report**, so the API
+returned HTTP 200 with plausible competitive output while the subprocess was dead. The 2026-08-09
+fix made a dead subprocess show up honestly via the cascade log's `served_by=` shifting to
+`layer3-live-prediction`. The 2026-08-10 change (see invariant #1) removed the subprocess itself —
+`competitor_live.py` no longer exists, so there is no subprocess left to fail silently, and no
+stderr-truncation bug (the old `competitor_live.py:117`, cutting subprocess stderr to 400 characters
+and once hiding a real `FileNotFoundError`) for it to compound. Kept here as history, not as a live
+failure mode to watch for.
 Both are gitignored as regenerable outputs — "gitignored" still does not mean "unnecessary" (see
 working rule below), it means each is cheap to lose and comes back through ordinary use or a
 documented recovery step, not that either is a prerequisite to check off before the app will run.
@@ -163,17 +209,22 @@ and `pipelines/ci_model/01_candidates/build_candidate_panels.py` (which had an a
 `research/model1/build_candidate_panels.py` (frozen research code, not runtime) still references
 the old paths and would need updating before anyone tries to run it standalone.
 
-**4. Three of the CI orchestrator's four path defaults point at a layout that never existed here.**
+**4. Three of the CI orchestrator's four path defaults point at a layout that never existed here —
+now a `pipelines/ci_model` CLI-usage note only, not an apps/api concern.**
 
 `pipelines/ci_model/06_reporting/agent/orchestrator.py` defaults `_DEFAULT_PREDICTIONS` (`:34-36`),
 `_DEFAULT_MODEL` (`:37-39`), and `_DEFAULT_REGISTRY` (`:40-42`) to
 `ci_model/competitor_prediction_model/…`, a nested layout inherited from an external clone and
-present nowhere in this repo (`git ls-files | grep -c competitor_prediction_model` → 0).
-`competitor_live.py` passes all of them explicitly because the defaults were always wrong.
+present nowhere in this repo (`git ls-files | grep -c competitor_prediction_model` → 0). Anyone
+running the orchestrator directly from the CLI needs to pass `--predictions`/`--model`/`--registry`
+explicitly, or it fails against these wrong defaults.
 
 `_DEFAULT_BIDDER_RESULTS` (`:43-45`) and `_DEFAULT_PROJECTS` (`:46-48`) are **correct** — they point
-at real tracked files in `data/processed/`. They are passed explicitly for consistency, not
-necessity.
+at real tracked files in `data/processed/`.
+
+Until 2026-08-10, `apps/api/backend/competitor_live.py` passed all four explicitly on every live
+report render, working around this. That subprocess call no longer exists (invariant #1) — this is
+now purely a fact about invoking `orchestrator.py` by hand, not something the live app ever hits.
 
 **5. `plan_reader` and `ci_model` still do not connect — only the emission side is bridged now.**
 
@@ -343,6 +394,12 @@ by reading the code, not by opening the picker and typing into it.
 **10. `competitor_predict_live.py`'s candidate pool and scoring were rewritten 2026-08-09 — the
 first change in this rough-edges list actually verified against a live Supabase, with numbers.**
 
+**Still fully current, not superseded** — unlike rough edges 2/4/11 nearby, this one is about
+`competitor_predict_live.py` itself, which invariant #1's 2026-08-10 change made the *only*
+competitor-prediction path (previously the fallback for whatever the now-removed county+state+date
+match didn't find). Everything below describes the mechanism every prediction now runs through, not
+a minority-traffic fallback.
+
 **Attribution, stated up front because it's easy to get backwards**: this rewrite is usually
 described as "ported the candidate pool to the CI team's 6-signal V3 logic," and that description
 is technically true but misleading about *why* the pool got smaller. Measured on real data (below):
@@ -416,7 +473,22 @@ here because "the pool got 4.5x smaller" and "did anything break" are different 
 
 **11. `find_project_key()`/`match_report()`'s county+state+date reverse-lookup can silently attach
 the WRONG project's competitor section — identified 2026-08-09, given a first defensive mitigation
-the same day, full fix NOT done.**
+the same day — ✅ RESOLVED 2026-08-10, but by removing the code path, not by finishing the staged
+fix described below.**
+
+**Resolution note, read this first**: everything below (`find_project_key`, `TYPE_GATE_MODE`, the
+whole staged-fix plan) describes `competitor_live.py`, which no longer exists — see invariant #1.
+The trigger for removing it was a real instance of exactly this bug class, caught on the
+`MN_MURRAY_CO_FULDA_2025-08-07` report: a plan's own freshly-extracted quantities produced one
+archetype (`Grading/Earthwork`), while this county+state+date match attached a *different* data
+source's figure (`Reconstruct/Rebuild`) for what should have been the same project. Since the live
+prediction (`competitor_predict_live.py`) never matches to a specific historical project at all —
+it scores directly from the plan's own data — this whole bug class no longer has a code path to
+occur on, not because the gate below finally got tuned or flipped to `enforce`. It never was: the
+staged rollout (`log_only` → `enforce`) described below was still in its `log_only` observation
+period when the mechanism it was staged for was deleted outright. The measurements, the human
+sampling, and the reasoning below are kept verbatim as the evidence trail for why this was the
+right call — not as a description of anything the live app still does.
 
 This is a different, more severe bug class than rough edge 10: that one was about ranking quality
 within the right project; this one is about **whether the system has the right project's data at

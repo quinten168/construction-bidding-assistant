@@ -1,10 +1,12 @@
 """
-Live candidate prediction for a genuinely new project — one with no row of its own in the CI
-corpus's training panel (pipelines/ci_model/03_training/outputs/ranking_predictions.csv), so
-competitor_live.py's live-generation and competitor_report.py's static match both have nothing to
-key off (both require an EXISTING project_natural_key). This module is the live-inference analogue
-of pipelines/ci_model/03_training/train_simple_rule_baseline.py for exactly one ad-hoc project:
-same 4 features (county/type/state win counts + size_fit), and the SAME already-fitted weights
+Live candidate prediction — the only competitor-prediction path (`final_report.py::predict_competitors()`),
+scoring directly against live Postgres data instead of matching a plan to a row in the CI corpus's
+static training panel (pipelines/ci_model/03_training/outputs/ranking_predictions.csv). That
+county+state+date matching mechanism (formerly `competitor_live.py`) was removed 2026-08-10 — see
+CLAUDE.md invariant #1 and rough edge 11 — after it was caught attaching a different project's
+figures to a plan than the plan's own extracted data implied. This module is the live-inference
+analogue of pipelines/ci_model/03_training/train_simple_rule_baseline.py: same 4 features
+(county/type/state win counts + size_fit), and the SAME already-fitted weights
 (03_training/outputs/simple_rule_baseline_weights.json) — applied fresh against live Postgres data
 instead of matching a precomputed training-panel row.
 
@@ -364,13 +366,11 @@ def predict_report(
     county: str, state: str, project_type: str | None, bid_date: str,
     quantities: dict[str, float], source_id: str, top_n: int = 5,
 ) -> dict | None:
-    """Live-inference analogue of the CI corpus lookup, for a project with no history of its own —
-    builds its own candidate pool and scores it from live Postgres data instead of matching an
-    existing ranking_predictions.csv row. Returns the SAME dict shape
-    competitor_live.live_report() does (every key present, just
-    empty except `competitors`/`summary`), so every downstream consumer — the manual-competitor
-    merge, competitor_stats_live.compute_stats(), render_markdown(), report-card.tsx — works
-    completely unmodified; they cannot tell a predicted list from a matched one.
+    """Builds its own candidate pool and scores it from live Postgres data, for any project — no
+    row in ranking_predictions.csv is matched or needed. The dict shape (every key present, just
+    empty except `competitors`/`summary`) matches what the now-removed county+state+date matcher
+    used to return, so every downstream consumer — the manual-competitor merge,
+    competitor_stats_live.compute_stats(), render_markdown(), report-card.tsx — works unmodified.
 
     None (never raises) if state is blank, the weights file is missing/unfit, or any query fails.
     """

@@ -602,14 +602,6 @@ function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
             {pit_access.owned_pits_within_25mi_avg_quality != null &&
               ` (avg quality ${pit_access.owned_pits_within_25mi_avg_quality.toFixed(1)})`}
           </div>
-          <div className="text-muted-foreground">
-            {pit_access.nearest_open_pit
-              ? `Nearest open pit ${pit_access.nearest_open_pit.name} · ${pit_access.nearest_open_pit.distance_miles.toFixed(1)}mi · quality ${pit_access.nearest_open_pit.quality ?? "—"}`
-              : "No usable open pit found"}
-            {" · "}{pit_access.open_pits_within_25mi_count} open within 25mi
-            {pit_access.open_pits_within_25mi_avg_quality != null &&
-              ` (avg quality ${pit_access.open_pits_within_25mi_avg_quality.toFixed(1)})`}
-          </div>
         </div>
       )}
     </div>

@@ -3,13 +3,14 @@ Final report — assemble + render + export.
 
 The "final report" is a one-pager that fuses two teams' outputs for a single project:
   Section ① ② ③  PLAN READER  — snapshot, materials/quantities, gotchas (Go/No-Go vs Pricing)
-  Section ④       COMPETITIVE LANDSCAPE — the matched Competitor Intel report (parsed markdown)
+  Section ④       COMPETITIVE LANDSCAPE — a live prediction from Postgres (parsed markdown)
 
 It takes either a live plan payload (what `report.py::process_pdf` returns after a PDF drop) or a
-plan_id already in the corpus, attaches the competitor section from the two-tier cascade
-(`predict_competitors()`: live CI generation for corpus projects, else a live prediction from the
-plan's own data), and renders to markdown (the canonical view) with CSV + PDF exports. No direct
-Claude calls — the summary line is deterministic so the MVP is transparent and cheap.
+plan_id already in the corpus, attaches the competitor section (`predict_competitors()`: a live
+prediction scored against Postgres from the plan's own data — see that function's docstring for
+why this is no longer a cascade over a static training snapshot), and renders to markdown (the
+canonical view) with CSV + PDF exports. No direct Claude calls — the summary line is deterministic
+so the MVP is transparent and cheap.
 
 Gotcha source of truth: the deduped `public.gotchas` table in Supabase Postgres (it already
 carries `decision_class` = go_no_go|pricing, page lists, and confidence). Moved off the local
@@ -255,8 +256,8 @@ def _readable_title(plan_id: str, identity: dict) -> str:
     return state or plan_id
 
 
-# The flat competitor ranking is capped at 5 (#75) — enforced in predict_competitors() for every
-# cascade tier, since tier 2's stale report files predate the cap. Manual names are never capped.
+# The flat competitor ranking is capped at 5 (#75) — enforced in predict_competitors(). Manual
+# names are never capped.
 TOP_N_COMPETITORS = 5
 
 # Sentinel for assemble()'s `predicted_competitors` param: distinguishes "caller has no cached
@@ -267,79 +268,64 @@ _NO_CACHED_PREDICTION = object()
 
 def predict_competitors(identity: dict, archetype: str, quantities: list,
                          bid_date: str | None, pid: str) -> dict | None:
-    """The two-tier competitor cascade, lifted out of `assemble()` so it can be invoked on its own
-    (the predict-competitors endpoint calls this directly, before finalize, so the estimator sees the
-    predicted list instead of typing names blind). LIVE generation, else a live PREDICTION.
-    Live = invoke the CI team's agent for a fresh report keyed to this exact project
-    (county+state+date → their project_natural_key → generate) — requires the project to ALREADY be
-    a row in the CI corpus (ranking_predictions.csv / data/processed/projects.csv), i.e. a
-    historical letting CSI already has bid data for. Everything else — a genuinely new plan, a
-    county that doesn't match, a failed/absent CI subprocess — gets
-    competitor_predict_live.predict_report(): a candidate pool built and scored live against
-    Postgres from this plan's OWN state/type/quantities, using the SAME already-fitted weights the
+    """Competitor prediction, lifted out of `assemble()` so it can be invoked on its own (the
+    predict-competitors endpoint calls this directly, before finalize, so the estimator sees the
+    predicted list instead of typing names blind). Always LIVE:
+    `competitor_predict_live.predict_report()` builds a candidate pool and scores it live against
+    Postgres from THIS plan's own state/type/quantities, using the same already-fitted weights the
     CI model uses.
 
-    There used to be a middle tier ("layer2-static-match": reuse the nearest same-county
-    pre-generated bid_report_*.md verbatim) — removed 2026-08-09 at the owner's call: its only
-    remaining role was masking a dead CI subprocess with a plausible-looking stale report (the
-    exact rough-edge-2 failure mode), and a real prediction from the plan's own data beats a
-    verbatim copy of an old report for a possibly-different project. A dead subprocess now shows
-    up honestly as traffic shifting to layer3 in the cascade log. The served_by labels keep their
-    historical names (layer1/layer3) so accumulated log data stays comparable."""
+    This used to be a cascade: first try matching the plan to a historical project by
+    county+state+date and shelling out to the CI team's orchestrator against a static training
+    snapshot (ranking_predictions.csv), falling back to the live prediction only when that failed
+    to find anything. Removed entirely (not just disabled) — see CLAUDE.md invariant #1 and rough
+    edge 11: the snapshot could disagree with a freshly-uploaded plan's own extracted data for the
+    exact same real project (the trigger for this change — an archetype mismatch on a real report),
+    and county+state+date is not a unique identifier, so that match could silently attach a
+    DIFFERENT project's competitor section (169+ real collisions measured in the historical corpus).
+    The live prediction never matches to a specific historical project at all, so it can't exhibit
+    that failure mode. The `served_by` log label keeps its historical `layer3-live-prediction` name
+    (there's no longer a layer1 to distinguish it from) so accumulated log data stays comparable."""
     when = bid_date or _resolve_bid_date(identity)
     comp = None
-    layer = "none"                                       # which cascade tier actually served (logged below)
+    layer = "none"                                       # whether the live prediction served (logged below)
     if identity.get("county") or identity.get("state"):
         try:
-            from . import competitor_live as cl
-            comp = cl.live_report(identity.get("county", ""), identity.get("state", ""), when,
-                                  project_type=archetype, plan_id=pid)
-        except Exception as e:                           # noqa: BLE001 — live path must never break assembly
-            log.warning("live competitor generation errored, falling back to live prediction: %s", e)
-        if comp is not None:
-            layer = "layer1-live-generated"
-        if comp is None:
-            try:
-                from . import competitor_predict_live as cpl
-                qty_by_col = {
-                    cpl.LABEL_TO_MATERIAL_COL[q["label"]]: q["value"]
-                    for q in quantities if q.get("label") in cpl.LABEL_TO_MATERIAL_COL
-                }
-                comp = cpl.predict_report(
-                    county=identity.get("county", "") or "", state=identity.get("state", "") or "",
-                    project_type=archetype, bid_date=when or "", quantities=qty_by_col,
-                    source_id=pid,
-                )
-                if comp is not None:
-                    layer = "layer3-live-prediction"
-            except Exception as e:                       # noqa: BLE001 — prediction must never break assembly
-                log.warning("live candidate prediction errored: %s", e)
-    # One greppable line per plan recording which tier served — the ONLY source of real
-    # Layer1/2-vs-Layer3 traffic data (nothing else in this backend persists usage), needed to
-    # replace CLAUDE.md rough edge 11's structural 91%/9% estimate with a measurement.
+            from . import competitor_predict_live as cpl
+            qty_by_col = {
+                cpl.LABEL_TO_MATERIAL_COL[q["label"]]: q["value"]
+                for q in quantities if q.get("label") in cpl.LABEL_TO_MATERIAL_COL
+            }
+            comp = cpl.predict_report(
+                county=identity.get("county", "") or "", state=identity.get("state", "") or "",
+                project_type=archetype, bid_date=when or "", quantities=qty_by_col,
+                source_id=pid,
+            )
+            if comp is not None:
+                layer = "layer3-live-prediction"
+        except Exception as e:                           # noqa: BLE001 — prediction must never break assembly
+            log.warning("live candidate prediction errored: %s", e)
+    # One greppable line per plan recording whether prediction served — the only source of real
+    # traffic data (nothing else in this backend persists usage).
     log.info("competitor cascade: plan=%s served_by=%s county=%r state=%r type=%r bid_date=%r",
              pid, layer, identity.get("county", ""), identity.get("state", ""), archetype, when)
 
-    # MERGE 2026-08-10: flatten BEFORE cap, and the order is load-bearing.
-    #
-    # Flatten to plain names at the one point every cascade tier flows through (see
-    # competitor_names). The /predict-competitors endpoint returns this list straight to the
-    # verify-competitors popup, so an unflattened `{"name": ..., "tier": ...}` entry would reach
-    # the UI without ever passing through assemble(). ci_model's executor.py still emits `tier`
-    # (1 = priority, 2 = discovery) and that code is CI-owned, so this flatten is the permanent
-    # boundary, not a stopgap.
+    # Flatten to plain names before capping, and the order is load-bearing. The /predict-competitors
+    # endpoint returns this list straight to the verify-competitors popup, so an unflattened
+    # `{"name": ..., "tier": ...}` entry would reach the UI without ever passing through assemble().
+    # predict_report() (the only source of comp["competitors"] now — see predict_competitors()'s
+    # docstring) already returns plain strings, but the manual-competitor merge below doesn't run
+    # through this same normalization, so this flatten stays the permanent boundary regardless of
+    # what produced the list, not a stopgap for one now-removed source.
     #
     # Slicing objects would truncate fine and still crash downstream, so capping first would fix
     # nothing — it is the SHAPE that breaks the renderer, not the length.
     if comp is not None and comp.get("competitors") is not None:
         comp["competitors"] = competitor_names(comp["competitors"])
 
-    # Uniform top-5 cap at the one point all three tiers flow through. The cap itself is #75's
-    # (2026-08-05), but it was only ever implemented in the CI planner (fresh layer-1 generations)
-    # and predict_report's top_n (layer 3) — layer 2 parses pre-#75 report FILES verbatim, so a
-    # stale file (e.g. bid_report_P000012.md, 10 names) leaked a 10-competitor list into a report
-    # on 2026-08-09. Capping here, before assemble() appends the estimator's manual names (those
-    # are intentionally additive, never capped), makes every path agree regardless of file age.
+    # Uniform top-5 cap (#75, 2026-08-05) at the one point everything flows through, before
+    # assemble() appends the estimator's manual names (those are intentionally additive, never
+    # capped).
     if comp is not None and len(comp.get("competitors", [])) > TOP_N_COMPETITORS:
         comp["competitors"] = comp["competitors"][:TOP_N_COMPETITORS]
         if isinstance(comp.get("summary"), dict):
@@ -416,7 +402,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
 
     # --- competitor section: a precomputed prediction (from the predict-competitors endpoint, run
     # right after the verify gate so the estimator sees it before the manual-add popup) takes
-    # priority; otherwise run the same three-tier cascade here, unchanged from before this was
+    # priority; otherwise run the same live prediction here, unchanged from before this was
     # extracted into predict_competitors() (see above).
     when = bid_date or _resolve_bid_date(identity)
     if predicted_competitors is _NO_CACHED_PREDICTION:
@@ -489,6 +475,24 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         except Exception as e:                           # noqa: BLE001 -- stats must never break assembly
             log.warning("unified competitor stats computation failed: %s", e)
             comp["stats"] = {}
+
+    # Project-level public pit access -- a live nearest-N lookup, independent of whether any
+    # competitors were found (it's a fact about the site, not about any one competitor).
+    # comp["pits"]["public"] starts empty (predict_report() never sets it -- there is no other
+    # producer of this field any more, now that the CI-subprocess markdown parse that used to
+    # populate it from a static training snapshot has been removed entirely); this is what fills it
+    # in, always live, never a stale fallback. comp["pits"]["private"] has no producer at all now --
+    # left absent rather than fabricated.
+    if comp is not None:
+        try:
+            nearest_pits = competitor_stats_live.nearest_open_pits(
+                identity.get("latitude"), identity.get("longitude"), limit=5,
+            )
+        except Exception as e:                           # noqa: BLE001 -- pits must never break assembly
+            log.warning("nearest_open_pits failed: %s", e)
+            nearest_pits = None
+        comp["pits"] = comp.get("pits") or {}
+        comp["pits"]["public"] = _format_nearest_pits(nearest_pits)
 
     return {
         "plan_id": pid,
@@ -627,6 +631,20 @@ def _fmt_tons(t: float | None) -> str:
     return "—" if t is None else f"{round(t):,} tons"
 
 
+def _format_nearest_pits(pits: list[dict] | None) -> str:
+    """Format competitor_stats_live.nearest_open_pits()'s output into comp["pits"]["public"]'s
+    text. No fixed radius -- lists whichever pits came back, nearest first."""
+    if pits is None:
+        return "Pit access unavailable for this project."
+    if not pits:
+        return "No public-access pits found."
+    parts = []
+    for p in pits:
+        quality = f", quality {p['quality']}" if p.get("quality") is not None else ""
+        parts.append(f"{p['name']} ({p['distance_miles']:.1f} mi{quality})")
+    return f"{len(pits)} nearest public-access pit(s): " + ", ".join(parts)
+
+
 def _stats_lines(stats: dict) -> list[str]:
     """Format one competitor's live-retrieved figures (competitor_stats_live.compute_stats output)
     into export lines -- the SAME source report-card.tsx's CompetitorStatsBlock renders, so exports
@@ -658,13 +676,7 @@ def _stats_lines(stats: dict) -> list[str]:
             f"{pa.get('owned_pits_within_25mi_count', 0)} owned within 25mi)"
             if owned else "No owned pit"
         )
-        open_pit = pa.get("nearest_open_pit")
-        open_part = (
-            f"nearest open pit {open_pit.get('name')} ({open_pit.get('distance_miles', 0):.1f} mi, "
-            f"{pa.get('open_pits_within_25mi_count', 0)} open within 25mi)"
-            if open_pit else "no usable open pit found"
-        )
-        lines.append(f"Pit access — {owned_part} · {open_part}")
+        lines.append(f"Pit access — {owned_part}")
     return lines
 
 

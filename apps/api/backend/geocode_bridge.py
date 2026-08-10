@@ -34,7 +34,7 @@ def reverse_geocode_latlon(latitude, longitude) -> Optional[dict]:
     """{city, county, state, zip, provenance, formatted_address}, or None.
 
     Never raises. A missing city degrades `project_natural_key`; it must never fail the report —
-    same fail-open convention as midpoint_bridge.compute_midpoint and competitor_live.generate.
+    same fail-open convention as midpoint_bridge.compute_midpoint and competitor_predict_live.predict_report.
     """
     if latitude is None or longitude is None:
         return None

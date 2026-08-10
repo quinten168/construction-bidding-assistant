@@ -39,8 +39,8 @@ def _lookup(state: str, route: str, begin_mp: float, total_length: float,
 
 def compute_midpoint(state, route, begin_mp_raw, total_length, end_mp_raw=None) -> Optional[tuple]:
     """(latitude, longitude), or None on any missing input, an unsupported state, a state-DOT-API
-    failure, or a timeout. Never raises — same fail-safe convention as competitor_live.py::generate
-    (catch broadly, return None, caller falls back)."""
+    failure, or a timeout. Never raises — same fail-safe convention as
+    competitor_predict_live.py::predict_report (catch broadly, return None, caller falls back)."""
     state = (state or "").strip().upper()
     route = (route or "").strip()
     if state not in SUPPORTED_STATES or not route or not begin_mp_raw or not total_length:

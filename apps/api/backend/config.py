@@ -126,65 +126,24 @@ def corpus_state(db_path: Path = CSI_DB) -> str:
         return CORPUS_NO_FILE
 
     return CORPUS_OK if n_plans else CORPUS_EMPTY
-# Competitor Intelligence reports (Quentin/Wenyu's pipeline output). The final report parses +
-# matches these `bid_report_<project_natural_key>.md` files to a plan. They can be pre-generated
-# (static) OR generated LIVE by invoking the CI team's agent (see CI_MODEL_REPO below) when a plan
-# maps to a corpus project.
-COMPETITOR_REPORTS = REPO / "pipelines" / "ci_model" / "reports"
 
-# --- live competitor generation (the CI model, now in-repo) -------------------------------------
-# Their agent (`06_reporting/agent/orchestrator.py::run_report`) generates a fresh report for any
-# project_natural_key already in their pre-computed corpus in ~1s (--skip-llm) / ~5-15s (with LLM).
-# We invoke it as a subprocess and drop the output into COMPETITOR_REPORTS so the matcher picks up
-# the fresh file.
-#
-# This used to shell out to a separate clone at ~/dev/csi-ci-model — an undeclared runtime
-# dependency on a directory outside the repo, pinned to a 2026-06-30 checkout. Now that ci_model
-# lives at pipelines/ci_model, the *code* resolves in-repo.
-#
-# A fresh clone still needs ONE artifact that git does not carry:
-# 03_training/outputs/ranking_predictions.csv (~94 MB, gitignored as a regenerable training
-# output). Without it the orchestrator fails and live_report() returns None, so apps/api falls
-# through to the live prediction (competitor_predict_live) — the UI renders and nothing appears
-# broken, but every plan shows served_by=layer3-live-prediction in the cascade log. See
-# pipelines/ci_model/README.md for how to regenerate or recover it.
-#
-# Note the path is one level shorter than before. The external clone nested everything under
-# `ci_model/competitor_prediction_model/`; in-repo the layout is flat (`ci_model/06_reporting/...`).
-# Verified at repoint: orchestrator.py byte-identical across the two; 5 dependency files differ
-# (reporter, narrative templates/tools, shared/config) — both trees internally self-consistent.
-CI_MODEL_REPO = Path(os.environ.get("CI_MODEL_REPO", str(REPO)))
-# Full-path override, because the external clone's internal layout differs — pointing CI_MODEL_REPO
-# at it is not enough on its own.
-CI_ORCHESTRATOR = Path(os.environ.get(
-    "CI_ORCHESTRATOR",
-    str(REPO / "pipelines" / "ci_model" / "06_reporting" / "agent" / "orchestrator.py")))
-# These stay in data/processed/ — a tracked, coherent 13-file directory. An earlier pass moved
-# just these two to data/reference/, which split the directory and broke the orchestrator: it
-# resolves _REPO_ROOT/"data/processed/projects.csv" internally and has no --projects flag to
-# override. The concern behind that move was "don't let runtime inputs land somewhere gitignored";
-# data/processed/ is tracked and always has been, so leaving them here satisfies it in full.
-CI_PROJECTS_CSV = REPO / "data" / "processed" / "projects.csv"
-# The orchestrator's own --model/--registry defaults point at the old external-clone layout
-# (`ci_model/competitor_prediction_model/…`), which has never existed here. competitor_live.py
-# passes these explicitly so we fix the paths without editing CI-team code.
-CI_PREDICTIONS_CSV = REPO / "pipelines" / "ci_model" / "03_training" / "outputs" / "ranking_predictions.csv"
-# Swapped from logistic_baseline_model.json (36 features) to the 4-feature simple-rule baseline:
-# evaluation showed only a ~4pt winner-hit-rate@10 gap (61.7% vs 57.4% on the full test split) for
-# a model that's far more interpretable and easier to explain to an estimator. See
-# docs/adr (or KTD) for the full comparison against the other baselines tried (xgboost, decision
-# tree, SVM) -- none of them beat simple-rule by enough to justify the added complexity, so none of
-# them are wired in here; they stay evaluation-only artifacts in 03_training/outputs + 04_evaluation.
+
+# Competitor Intelligence's fitted model weights — the one file dependency left anywhere in the
+# competitor-prediction path. Everything else (predictions, stats, the competitor-record chat tool)
+# queries Postgres live; this is the model itself (a small serialized fit), not report/training data,
+# so it stays a file. Previously the CI team's whole pipeline (a subprocess invoking their
+# orchestrator against a 94MB static ranking_predictions.csv snapshot, matching a plan to a
+# historical project by county+state+date) was also invoked from here — removed, see CLAUDE.md
+# invariant #1 and rough edge 11: that snapshot could disagree with a freshly-uploaded plan's own
+# extracted data for the exact same real project, and the county+state+date match itself could
+# silently attach the wrong project's competitor section (169+ real collisions measured). Swapped
+# from logistic_baseline_model.json (36 features) to the 4-feature simple-rule baseline: evaluation
+# showed only a ~4pt winner-hit-rate@10 gap (61.7% vs 57.4% on the full test split) for a model
+# that's far more interpretable and easier to explain to an estimator. See docs/adr (or KTD) for the
+# full comparison against the other baselines tried (xgboost, decision tree, SVM) -- none of them
+# beat simple-rule by enough to justify the added complexity, so none of them are wired in here;
+# they stay evaluation-only artifacts in 03_training/outputs + 04_evaluation.
 CI_MODEL_JSON = REPO / "pipelines" / "ci_model" / "03_training" / "outputs" / "simple_rule_baseline_weights.json"
-CI_REGISTRY_CSV = (REPO / "pipelines" / "ci_model" / "01_candidates" / "outputs"
-                   / "competitor_name_registry - name_variants.csv")
-# Authoritative bidder × project outcomes (every bidder, county, win) — backs the competitor_record
-# chat tool. Broader than the CSI-centric master CSV (which only covers projects CSI also bid on).
-CI_BIDDER_RESULTS = REPO / "data" / "processed" / "bidder_results.csv"
-# Pulls admin-UI edits (bid-results entry, pit-list CRUD, competitor-registry CRUD — see
-# backend/ci_db.py) back from Supabase `scratch.*` into the CSVs above, before a live report reads
-# them. See competitor_live.py::ensure_fresh_local_data.
-PULL_SCRATCH_SCRIPT = REPO / "data" / "pull_scratch_updates.py"
 
 # THE CANONICAL .env IS THE REPO-ROOT ONE. Resolved from __file__ (via REPO, which walks up to the
 # .git marker), never from cwd -- teammates launch uvicorn from apps/api, from the repo root, and
@@ -291,32 +250,6 @@ class Settings:
     retrieve_k: int = int(os.environ.get("BID_RETRIEVE_K", "6"))        # passages per question
     max_history_turns: int = int(os.environ.get("BID_MAX_HISTORY", "8"))  # turns kept in memory
     answer_max_tokens: int = int(os.environ.get("BID_ANSWER_MAX_TOKENS", "900"))
-
-    # Live competitor generation. When a dropped plan maps to a job in the CI corpus, invoke their
-    # agent live for a FRESH report instead of matching a stale static one. Default skip_llm=True →
-    # ~1s, deterministic, free, and produces the same structured tiers + attributes we render.
-    # (The CI team's LLM-narrative path currently crashes in reflector.py — an unescaped `{}` in the
-    # reflection prompt template throws KeyError — so we don't call it by default; set CI_LIVE_SKIP_LLM=0
-    # once they fix it to get the polished narrative.) On timeout/failure we fall back to the static
-    # matched report, so this can't break a PDF drop.
-    ci_live_enabled: bool = os.environ.get("CI_LIVE_ENABLED", "1") not in ("0", "false", "False")
-    ci_live_skip_llm: bool = os.environ.get("CI_LIVE_SKIP_LLM", "1") not in ("0", "false", "False")
-    ci_live_timeout: int = int(os.environ.get("CI_LIVE_TIMEOUT", "120"))
-
-    # Work-type gate on the county+state+date competitor match (CLAUDE.md rough edge 11, step 1):
-    # when a plan's archetype matches NONE of the corpus candidates within the 45-day window, the
-    # match is a likely wrong project (measured: 16.7% of all matches; those pairs differ ~80%
-    # median in material quantities; human sampling confirmed genuine mismatches, not type-
-    # extraction errors). Modes:
-    #   "off"      — no detection at all (pre-2026-08-09 behavior)
-    #   "log_only" — detect + log "would_reject reason=type_all_excluded", behavior unchanged.
-    #                THE DEFAULT: there is no test environment, so the rollout plan is to ship
-    #                log-only first, compare the real would-reject rate against the offline 16.7%
-    #                estimate for a week or two, then flip to enforce.
-    #   "enforce"  — refuse the match (return None -> cascade falls through to live prediction).
-    #                Prerequisites already met 2026-08-09: Layer-3 concurrency load test passed
-    #                (48/48 at 1/4/8 workers, p95 2.0s) and the cascade-tier log line exists.
-    type_gate_mode: str = os.environ.get("TYPE_GATE_MODE", "log_only")
 
     # Automated route/milepost → lat/long lookup (04_tools/road_midpoint/road_midpoint.py), the
     # 5th process_pdf stage (report.py). Calls up to 6 state DOT GIS REST endpoints (MN/ND/SD/NE/

@@ -3,86 +3,122 @@ Competitor-record tool — a named competitor's bid/win record, filterable by co
 
 Answers the class of question the old CSI-centric tool couldn't: "how many times did Midwest
 Contracting win in Crow Wing County last year", "who wins most in Stearns County", "what's
-Duininck's record in ND". It reads the Competitor Intel team's AUTHORITATIVE bidder history
-(`bidder_results.csv` joined to `projects.csv`) — the same data their model + reports use. That set
-covers every bidder × project × county, not just the projects CSI also bid on, and normalizes names
-to a canonical form (so "Midwest Contracting" resolves to "MIDWEST CONTRACTING LLC").
+Duininck's record in ND". Queries Postgres live (`scratch.bid_results` joined to
+`scratch.bid_projects`) — the same tables the live prediction/stats modules read — instead of the
+local CSV snapshot this used to read, so an admin-UI edit (a new bid result, a corrected quantity)
+is reflected the moment it's saved, not whenever a CSV happened to last be synced. That set covers
+every bidder × project × county, not just the projects CSI also bid on.
 
-Read-only, no LLM. Returns a compact structured dict the agent narrates.
+`competitor_unit_id` doubles as the canonical display name here — `data/build_project_competitor_panel.py`
+sets `canonical_name` to a straight copy of it, so there's no separate registry-resolution step.
+
+Read-only, no LLM. Returns a compact structured dict the agent narrates. Fail-open: any connection
+or query error returns `{"found": False, ...}` rather than raising, same convention as
+`competitor_stats_live.py`/`competitor_predict_live.py`.
 """
 from __future__ import annotations
 
-from functools import lru_cache
-
-import pandas as pd
-
+from . import ci_db
 from . import competitor_report as cr
-from .config import CI_BIDDER_RESULTS, CI_PROJECTS_CSV
 from .observability import get_logger
 
 log = get_logger("bid_assistant.competitor_record")
 
 
-def available() -> bool:
-    return CI_BIDDER_RESULTS.exists() and CI_PROJECTS_CSV.exists()
-
-
-@lru_cache(maxsize=1)
-def _joined() -> pd.DataFrame:
-    """bidder_results ⨝ projects, once. One row per (competitor, project) with win flag + county/year."""
-    b = pd.read_csv(CI_BIDDER_RESULTS, dtype=str).fillna("")
-    p = (pd.read_csv(CI_PROJECTS_CSV, dtype=str, usecols=["project_natural_key", "bid_date", "state", "county"])
-         .fillna(""))
-    j = b.merge(p, on="project_natural_key", how="left")
-    j["won"] = j["did_win"].str.lower().isin(("true", "1", "yes"))
-    j["year"] = j["bid_date"].str[:4]
-    j["county_n"] = j["county"].map(cr.norm_county)
-    j["state_n"] = j["state"].map(cr.norm_state)
-    return j
-
-
-def _resolve_names(query: str) -> list[str]:
-    """Map a free-text competitor name to canonical_name(s): exact first, else substring either way."""
-    names = list(_joined()["canonical_name"].dropna().unique())
+def _resolve_names(conn, query: str) -> list[str]:
+    """Map a free-text competitor name to competitor_unit_id(s): exact first, else substring either
+    way. Same matching logic as before this moved to live SQL -- only the source of the name
+    universe changed (a live distinct-values query instead of a cached CSV column)."""
     q = (query or "").strip().lower()
     if not q:
         return []
+    with conn.cursor() as cur:
+        cur.execute("select distinct competitor_unit_id from scratch.bid_results")
+        names = [r["competitor_unit_id"] for r in cur.fetchall() if r["competitor_unit_id"]]
     exact = [n for n in names if n.lower() == q]
     if exact:
         return exact
     return [n for n in names if q in n.lower() or n.lower() in q]
 
 
+def _fetch_bids(conn, names: list[str]) -> list[dict]:
+    """One row per (competitor, project) the named competitor(s) bid on, with win flag +
+    county/state/year -- the same join competitor_stats_live.py::_win_bid_rates() uses."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select br.competitor_unit_id, br.did_win, bp.county, bp.state, bp.bid_date
+            from scratch.bid_results br
+            join scratch.bid_projects bp using (project_natural_key)
+            where br.competitor_unit_id = any(%(names)s) and bp.deleted_at is null
+            """,
+            {"names": names},
+        )
+        rows = cur.fetchall()
+    out = []
+    for r in rows:
+        bid_date = str(r["bid_date"] or "")
+        out.append({
+            "competitor_unit_id": r["competitor_unit_id"],
+            "won": bool(r["did_win"]),
+            "county": r["county"] or "",
+            "state": r["state"] or "",
+            "year": bid_date[:4],
+            "county_n": cr.norm_county(r["county"] or ""),
+            "state_n": cr.norm_state(r["state"] or ""),
+        })
+    return out
+
+
 def competitor_record(competitor_name: str, county: str | None = None,
                       state: str | None = None, year: str | int | None = None) -> dict:
     """A competitor's bid/win record, optionally scoped to a county, state, and/or year."""
-    if not available():
-        return {"found": False, "note": "The competitor-intel bidder history isn't available on this host."}
-    names = _resolve_names(competitor_name)
-    if not names:
-        return {"found": False, "query": competitor_name,
-                "note": f"No competitor matching '{competitor_name}' in the competitor-intel bid history."}
+    try:
+        with ci_db.get_conn() as conn:
+            names = _resolve_names(conn, competitor_name)
+            if not names:
+                return {"found": False, "query": competitor_name,
+                        "note": f"No competitor matching '{competitor_name}' in the competitor-intel bid history."}
+            rows = _fetch_bids(conn, names)
+    except Exception as e:                                  # noqa: BLE001 — tool must never raise
+        log.warning("competitor_record: query failed for %r: %s", competitor_name, e)
+        return {"found": False, "note": "The competitor-intel bidder history isn't reachable right now."}
 
-    j = _joined()
-    sub = j[j["canonical_name"].isin(names)]
     scope = {"competitor": names[0] if len(names) == 1 else names,
              "county": county or None, "state": state or None, "year": str(year) if year else None}
     if state:
-        sub = sub[sub["state_n"] == cr.norm_state(state)]
+        target_state = cr.norm_state(state)
+        rows = [r for r in rows if r["state_n"] == target_state]
     if county:
-        sub = sub[sub["county_n"] == cr.norm_county(county)]
+        target_county = cr.norm_county(county)
+        rows = [r for r in rows if r["county_n"] == target_county]
     if year:
-        sub = sub[sub["year"] == str(year)]
+        target_year = str(year)
+        rows = [r for r in rows if r["year"] == target_year]
 
-    total = int(len(sub))
-    wins = int(sub["won"].sum())
-    by_year = {y: {"bids": int(len(g)), "wins": int(g["won"].sum())}
-               for y, g in sub.groupby("year") if y}
-    top_counties = [{"county": r["county"], "state": r["state"], "bids": int(r["n"]), "wins": int(r["w"])}
-                    for _, r in (sub.groupby(["county", "state"])
-                                 .agg(n=("won", "size"), w=("won", "sum"))
-                                 .reset_index().sort_values("n", ascending=False).head(6).iterrows())
-                    if r["county"]]
+    total = len(rows)
+    wins = sum(1 for r in rows if r["won"])
+
+    by_year: dict[str, dict] = {}
+    for r in rows:
+        if not r["year"]:
+            continue
+        bucket = by_year.setdefault(r["year"], {"bids": 0, "wins": 0})
+        bucket["bids"] += 1
+        bucket["wins"] += r["won"]
+
+    county_counts: dict[tuple[str, str], dict] = {}
+    for r in rows:
+        if not r["county"]:
+            continue
+        key = (r["county"], r["state"])
+        bucket = county_counts.setdefault(key, {"bids": 0, "wins": 0})
+        bucket["bids"] += 1
+        bucket["wins"] += r["won"]
+    top_counties = [
+        {"county": county_, "state": state_, "bids": v["bids"], "wins": v["wins"]}
+        for (county_, state_), v in sorted(county_counts.items(), key=lambda kv: kv[1]["bids"], reverse=True)[:6]
+    ]
 
     return {
         "found": True,
@@ -93,8 +129,8 @@ def competitor_record(competitor_name: str, county: str | None = None,
         "win_rate_pct": round(wins / total * 100, 1) if total else None,
         "by_year": by_year,
         "top_counties": top_counties,
-        "note": ("Source: Competitor Intelligence bidder history (bidder_results ⨝ projects) — the "
-                 "authoritative bidder record, broader than CSI's own shared-bid data. 'wins' = ranked "
+        "note": ("Source: Competitor Intelligence bidder history (bid_results ⨝ bid_projects, live) — "
+                 "the authoritative bidder record, broader than CSI's own shared-bid data. 'wins' = ranked "
                  "1st. If a county/year scope returns 0 bids, the competitor has no recorded bids there."),
     }
 

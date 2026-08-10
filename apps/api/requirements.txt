@@ -14,7 +14,7 @@ pdfplumber>=0.11
 # Data tools. These were MISSING from this file until 2026-07-15 — the app imported them but
 # never declared them, so it only ran on a machine that happened to have them already. Caught by
 # installing into a clean venv and starting the backend (ModuleNotFoundError: pandas).
-#   pandas    -> bid_data, competitors, competitor_record, competitor_live, project_registry
+#   pandas    -> bid_data, competitors, project_registry
 #   rapidfuzz -> project_registry (fuzzy entity resolution for the find_projects tool)
 pandas>=2.0
 rapidfuzz>=3.0

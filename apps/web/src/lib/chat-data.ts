@@ -55,11 +55,8 @@ export type CompetitorStats = {
     last_year_total: number | null;
   } | null;
   pit_access: {
-    nearest_open_pit: { name: string; distance_miles: number; quality: number | null } | null;
     nearest_owned_pit: { name: string; distance_miles: number; quality: number | null } | null;
-    open_pits_within_25mi_count: number;
     owned_pits_within_25mi_count: number;
-    open_pits_within_25mi_avg_quality: number | null;
     owned_pits_within_25mi_avg_quality: number | null;
   } | null;
 };

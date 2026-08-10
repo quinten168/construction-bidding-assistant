@@ -57,7 +57,9 @@ def _cleanup():
         )
 
 
-def test_pit_access_splits_open_from_owned():
+def test_pit_access_returns_owned_pit_stats():
+    """_pit_access() now reports only owned/private pits per competitor -- open-access pits are a
+    project-wide fact reported once by nearest_open_pits(), not duplicated per competitor."""
     _seed_pits()
     try:
         with ci_db.get_conn() as conn:
@@ -66,10 +68,8 @@ def test_pit_access_splits_open_from_owned():
         owner_stats = result[OWNER_ID]
         other_stats = result[OTHER_ID]
 
-        # Market-wide figure: identical for both competitors, since the open pit isn't exclusive.
-        assert owner_stats["nearest_open_pit"]["name"] == "ZZTEST Open Pit"
-        assert other_stats["nearest_open_pit"]["name"] == "ZZTEST Open Pit"
-        assert owner_stats["open_pits_within_25mi_count"] == other_stats["open_pits_within_25mi_count"]
+        assert "nearest_open_pit" not in owner_stats
+        assert "open_pits_within_25mi_count" not in owner_stats
 
         # Competitor-specific figure: only the owner sees the private pit.
         assert owner_stats["nearest_owned_pit"]["name"] == "ZZTEST Owned Pit"
@@ -79,3 +79,48 @@ def test_pit_access_splits_open_from_owned():
         assert other_stats["owned_pits_within_25mi_count"] == 0
     finally:
         _cleanup()
+
+
+def test_nearest_open_pits_sorted_and_limited():
+    """The project-level nearest-open-pits lookup -- no radius cutoff, just the closest N by
+    distance, sorted ascending."""
+    far_lat, far_lon = 46.5000, -94.0000       # ~34.6 mi from the project -- outside the old 25mi
+    with ci_db.get_conn() as conn, conn.cursor() as cur:
+        cur.execute(
+            "delete from scratch.mn_pit_list where latitude = any(%s) and longitude = any(%s)",
+            ([OPEN_PIT_LATLON[0], far_lat], [OPEN_PIT_LATLON[1], far_lon]),
+        )
+        cur.execute(
+            "insert into scratch.mn_pit_list "
+            "(latitude, longitude, name, access, county, rating, state, access_type, access_company) "
+            "values (%s, %s, 'ZZTEST Open Pit', 'Everyone', 'ZZTEST County', 8, 'MN', 'open', null)",
+            OPEN_PIT_LATLON,
+        )
+        cur.execute(
+            "insert into scratch.mn_pit_list "
+            "(latitude, longitude, name, access, county, rating, state, access_type, access_company) "
+            "values (%s, %s, 'ZZTEST Far Open Pit', 'Everyone', 'ZZTEST County', 5, 'MN', 'open', null)",
+            (far_lat, far_lon),
+        )
+    try:
+        result = csl.nearest_open_pits(PROJECT_LAT, PROJECT_LON, limit=1)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0]["name"] == "ZZTEST Open Pit"          # nearer one wins, even though a
+                                                                 # farther pit also exists
+
+        # Large limit so both ZZTEST pits are guaranteed present regardless of how much real
+        # production data exists near this coordinate; filter to just ours before checking order.
+        result_all = csl.nearest_open_pits(PROJECT_LAT, PROJECT_LON, limit=10_000)
+        zztest_names = [p["name"] for p in result_all if p["name"].startswith("ZZTEST")]
+        assert zztest_names.index("ZZTEST Open Pit") < zztest_names.index("ZZTEST Far Open Pit")
+    finally:
+        with ci_db.get_conn() as conn, conn.cursor() as cur:
+            cur.execute(
+                "delete from scratch.mn_pit_list where latitude = any(%s) and longitude = any(%s)",
+                ([OPEN_PIT_LATLON[0], far_lat], [OPEN_PIT_LATLON[1], far_lon]),
+            )
+
+
+def test_nearest_open_pits_no_coordinates():
+    assert csl.nearest_open_pits(None, None) is None
