@@ -113,3 +113,7 @@ research/sweet_spot/notebooks/*_files/
 # Spec books (2026-08-10): ~25 MB of state DOT PDFs, reference only, never needed to RUN.
 # Kept on disk, excluded from the repo. The derived lookup (2026-08-10-spec_item_lookup.csv) IS tracked.
 pipelines/plan_reader/05_knowledge/*.pdf
+
+# Timestamped backups of cleared payload-cache entries (2026-08-10 re-warm). Recoverable
+# local artifacts, same class as the cache itself, which is already ignored above.
+**/00_input/_report_payload_cache_backup_*/
