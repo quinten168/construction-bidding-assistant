@@ -11,7 +11,9 @@ Fills the schema's source=="rag" fields into a record:
     special_requirements [{text,page}]                                            (array)
     gotchas [{code, evidence, page, confidence}]  — over the full 20-type taxonomy (array)
 
-~6 Claude calls per plan (3 scalar groups + special requirements + 1 gotcha classification).
+~7 Claude calls per plan (4 scalar groups + special requirements + 1 gotcha classification).
+The 4th scalar group is bid_deadline, split out of the shared date query on 2026-08-10 — see the
+comment on SCALAR_QUERIES and docs/_spec/2026-08-10-bid-date-query-split.md.
 """
 import sys
 import time
@@ -39,7 +41,30 @@ SCALAR_QUERIES = [
      "crushed quarry fractured faces base course surfacing mix design"),
     (["phasing_requirements"],
      "construction phasing staging sequence of operations stage construction prosecution of work"),
-    (["bid_deadline", "substantial_completion", "final_completion"],
+    # bid_deadline used to share the entry below with the two completion fields. Two thirds of that
+    # query is about *completion*, and a 466-page proposal carries dozens of pages of completion /
+    # contract-time / liquidated-damages boilerplate — they filled the whole k=5 pull and the single
+    # Advertisement for Bids page never appeared. Measured on 2025_MURRAY-CO-MN_CSAH-2_NOBID: the
+    # chunk that states the deadline (p.9, "until Thursday, August 7, 2025, at 11:00am local time")
+    # ranked 40th under the shared query and ranks 3rd under this one. Corpus-wide hit@5 over 33
+    # plans that state a bid deadline: 12 -> 20. Spec: docs/_spec/2026-08-10-bid-date-query-split.md.
+    #
+    # The query is a SENTENCE, not a keyword bag, because MiniLM is a sentence embedder — the
+    # keyword-bag variants measured 33-42% against this one's 61%. The concrete clock time is not an
+    # overfit to Murray's 11:00am: 10:00 a.m. and 2:00 p.m. score 19 and 20 against this 20, and put
+    # Murray at rank 3 either way, while removing the time entirely drops hit@5 to 10.
+    # "Letting date" / "Bids close" are the MnDOT and SDDOT proposal-cover wording.
+    (["bid_deadline"],
+     "Bids for the construction of the Project will be received at the office until 11:00 a.m. "
+     "local time, at which time the Bids received will be publicly opened and read aloud. "
+     "Advertisement for Bids. Letting date. Bids close."),
+    # DELIBERATELY unchanged, byte for byte, from when it also served bid_deadline: same text, same
+    # k, same filter, therefore the same retrieved context and no possible regression on these two.
+    # Six alternative completion queries were measured; none beat this one at hit@5 (7/24), so it
+    # stays as-is. These two fields have the SAME retrieval-dilution problem (median rank 37 of the
+    # chunk that states the date) and no deterministic fallback — that is P0 #5's work, not this
+    # change's. See docs/_session/TASKS.md.
+    (["substantial_completion", "final_completion"],
      "bid opening date bids due proposal deadline letting date substantial completion final "
      "completion contract time working days calendar days notice to proceed completion deadline "
      "liquidated damages complete the work by"),
@@ -189,7 +214,14 @@ def fill_rag_fields(record, col, plan_id, map_pages=None):
         # restrict to map pages only when every field in the group is a plan-set field
         pages = map_pages if (map_pages and all(f.get("doc") == "plan_set" for f in fields)) else None
         ctx, _ = _context(col, query, plan_id, k=5, pages=pages)
-        data = extract.call_json(SCALAR_PROMPT.format(fields=schema.field_lines(fields), context=ctx)) or {}
+        data = extract.call_json(SCALAR_PROMPT.format(fields=schema.field_lines(fields), context=ctx))
+        if data is None:
+            # call_json returns None ONLY on a JSON parse failure (transport/API errors raise and
+            # process_pdf returns ok:false). Writing null cells here would make "the model's reply
+            # was unreadable" byte-identical to "the plan states no value" — the standing rule. Name
+            # the failure and leave the cells as blank_record left them.
+            record.setdefault("rag_scalar_parse_failures", []).extend(f["name"] for f in fields)
+            continue
         for f in fields:
             record[f["name"]] = extract._coerce_cell(f, data.get(f["name"]))
 
