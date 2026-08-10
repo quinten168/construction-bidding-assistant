@@ -158,9 +158,20 @@ SCALAR_FIELDS = [
        golden=None, evalkind=None, group="constraints"),
     # dates — routed through RAG because they're scattered (advertisement, agreement, special
     # provisions) and smart_truncate drops the middle where the completion clauses often sit.
+    # This is the RAG FALLBACK, not the primary read. The deterministic 7th process_pdf stage
+    # (backend/bid_date_bridge.py -> 04_tools/bid_date/) overwrites record["bid_deadline"] whenever
+    # it finds one; this description only decides the plans where that stage returns not_found.
+    # The "do NOT return" list is not padding — the deterministic parser had to be taught to reject
+    # each of those, and they are exactly what a model handed five retrieved chunks reaches for.
     _f("bid_deadline", "str", "rag",
-       "Bid opening / bid submission deadline — the date (and time + time zone if given) bids are "
-       "due. Usually on the advertisement or proposal cover. Return as written; null if not stated.",
+       "Bid opening / bid submission deadline — the date AND clock time (with time zone if given) "
+       "that bids are due. Usually on the Advertisement for Bids page or the proposal cover, worded "
+       "'bids will be received ... until <time> on <date>'. MnDOT/SDDOT proposal covers state it as "
+       "two labelled fields instead: 'Letting Date: August 20, 2025' with 'Bids Close: 9:30 a.m. "
+       "CST' — combine them. Do NOT return: a pre-bid conference date, a deadline for bidder "
+       "questions or substitution requests (usually a week earlier), a plan-approval or "
+       "certification date, or a substantial/final completion date. Return as written; null if not "
+       "stated.",
        golden=None, evalkind=None, group="constraints", doc="either"),
     _f("substantial_completion", "str", "rag",
        "Substantial-completion date or deadline (the date the work must be usable). May be a calendar "
