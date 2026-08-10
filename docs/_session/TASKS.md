@@ -16,7 +16,7 @@ Status: `TODO` · `SPEC` (written, awaiting approval) · `BLOCKED` · `DONE`
 | "217 standalone `AD.pdf`" | **8**. The 217 is advertisements **and addenda** together; there are 180 addenda (`*a[0-9].pdf`) and 137 filenames containing "addendum" | strict glob = 8 on both mirrors; broader `AD`-token grep = 15, extra 7 are not ads on inspection |
 | "174 Daily Ads digests" | **Correct.** Now the biggest bid-date prize, since layer 1 covers only 8 folders | count |
 | "bid date is NOT on the title sheet, only in the proposal" (old P0 #5 note) | **Wrong, already corrected on the current board.** It is in plan-set body text, and `_md_cache` page 1 of one plan reads "Letting Date: August 20, 2025 / Bids Close: 9:30 a.m. CST" | direct read |
-| "the live path missed asphalt because the prompt says HMA and NDDOT writes SUPERPAVE" (`HANDOFF.md` §1, marked UNVERIFIED) | **Probably not the cause.** The OLD prompt, unchanged, returns `hot_mix_tons = 121,221` on Dunn — exact. The difference from the live path's 200 tons is the **document text**, not the wording | differential re-run, `03_evaluation/outputs/` |
+| "the live path missed asphalt because the prompt says HMA and NDDOT writes SUPERPAVE" (`HANDOFF.md` §1, marked UNVERIFIED) | **CONFIRMED, and now fixed.** On the live path's own input, old descriptions give `hot_mix_tons = 200`, new descriptions give **121,421**. The spec books show the word HMA appears on **no ND pay item at all** | reproduced the live path's `proposal_pages` + truncation exactly, both arms |
 
 **Box is unreadable in this environment** — listing works, reading times out. All corpus work uses
 the local mirror. Any earlier finding that involved *opening* a Box file needs re-confirming.
@@ -33,7 +33,7 @@ the local mirror. Any earlier finding that involved *opening* a Box file needs r
 | 3b | Item-number layer | **SPEC** | `docs/_spec/2026-08-10-spec-item-number-layer.md`. Not built, per instruction |
 | 4 | **Bid date and time** | in flight | Layer 1 covers 8 folders not 217. Layer 2 and Daily Ads carry the load. Chroma diagnosis required before any fix |
 | 5 | **Key dates and phasing gotchas** | in flight | Phasing as a flagged gotcha with page citation and interval, not a boolean |
-| — | **Do not demo an ND plan** | constraint | Strengthened, not lifted. The schema change did not demonstrably fix the 605× |
+| — | **Do not demo an ND plan** | **cleared for Dunn** | The live-path test now returns 121,421 where it returned 200. One plan. SD `ASPHALT CONCRETE` still untested — test one SD plan before demoing SD |
 | 6 | #52 + #51 — 422s render generically; a comma in `bid_amount` gives a useless error | TODO | Demo-shaped, cheap |
 
 ### Carried over from the earlier board, still open
@@ -60,7 +60,9 @@ the local mirror. Any earlier finding that involved *opening* a Box file needs r
 | 16 | Three-way golden column — live extraction vs crosswalk vs CSI historicals | TODO | The only way to tell "we are wrong" from "they are wrong" from "we agree and both differ from the plan" |
 | 17 | Fix the 22 `MILL BITUMINOUS` rows in `material_crosswalk.csv` still labelled `hma` | TODO | L1 is not ground truth |
 | 18 | Benchmark table in `scratch` | in flight | Part of task 1. DDL shown, not applied |
-| 19 | **Re-test Dunn through the live path's own page selection** | **TODO, new** | The differential run showed the prompt is fine and the *input text* is the suspect (`report.py:110-111` feeds only `structure["proposal_pages"]`). This is what actually decides whether ND is demo-safe |
+| 19 | ~~Re-test Dunn through the live path's own page selection~~ | **DONE** | Done same session. Old arm 200, new arm 121,421. Follow-on: **test one SD plan** the same way, since SD `ASPHALT CONCRETE` is untested |
+| 19b | **`phasing_requirements` is extracted and then thrown away** | **TODO, new** | We pay for a Claude call and drop it at payload assembly — `report.py`'s `identity_fields` and `final_report.py::_payload_from_plan_id` both omit the key. 0/12 cached payloads carry it. One-line plumbing fix, main session owns the file. See `docs/_spec/2026-08-10-phasing-gotcha.md` |
+| 19c | **Binder double count is now answerable** | **TODO, new** | The spec books settle pre-read question 7: the mix ton already includes the binder in all three states, and **ND and SD bill binder separately by the TON**. Dunn carries `PG 58S-34 ASPHALT CEMENT TON 5,468`. Three of the four such items currently reach `other` via `never_matched`, i.e. flagged as a reader failure rather than a deliberate exclusion |
 | 20 | **Tell CSI that Stearns `milling_sy` is now 140,430, not 70,263** | **TODO, new** | Ruling #9 working as specified — FDR is now included. A number Alex validated as exact has doubled by design. Say it before it appears on screen |
 
 ## BACKLOG — good, not foundation. Do not start.

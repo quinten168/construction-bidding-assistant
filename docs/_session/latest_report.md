@@ -116,6 +116,9 @@ below and they are what the claim actually rests on.
 The Dunn plan was already in the markdown cache (`c0e327cf80827ab9`), so this needed no Box pull.
 Verified line by line against the bid schedule in the source document:
 
+Verified twice: once on the 17-plan harness input and once on the live path's own input. Both give
+`base_tons = 6,506`.
+
 | pay item | ND item | unit | plan qty | page | where it landed |
 |---|---|---|---:|---|---|
 | `REMOVE AGGREGATE BASE` | 202 0128 | TON | 72,153 | p.7 | **nowhere — correctly excluded** |
@@ -134,29 +137,44 @@ still worth having as insurance, but the honest report is that the live path was
 **`milling_sy` went from null to 408,216, and that is the FDR line exactly.** CSI ruling #9 working
 as specified, verified against the source rather than inferred from a direction.
 
-### The finding that matters more than the rulings
+### The 605× miss is fixed, and the vocabulary was the cause
 
-**The 605× asphalt miss is not caused by the HMA-vs-SUPERPAVE vocabulary.**
+This took two runs and the first one pointed the wrong way. Both are recorded because the difference
+between them is the useful part.
 
-`HANDOFF.md` §1 records as the most likely cause, marked UNVERIFIED, that the prompt says "HMA"
-while NDDOT writes "SUPERPAVE", and states ND is 35.8% of CSI's bidding. In this run **the OLD
-prompt, unchanged, returned `hot_mix_tons = 121,221` on Dunn** — the exact plan quantity, to the
-ton, with no vocabulary help at all. The new prompt returns 121,421, which is 121,221 + the 200-ton
-`PATCHING` line.
+**Run 1, the 17-plan harness (all pages).** The OLD prompt returned `hot_mix_tons = 121,221` on Dunn
+— the exact plan quantity, with no vocabulary help. That looked like strong evidence against the
+HMA-vs-SUPERPAVE hypothesis in `HANDOFF.md` §1.
 
-The difference between that and the 200 tons the live path reported is **not the prompt, it is the
-document text the model was given.** This harness feeds the full page-level converted markdown; the
-live path feeds only `structure["proposal_pages"]` (`report.py:110-111`). Same model, same
-temperature, same field descriptions, different input, 605× different answer.
+**Run 2, the live path's own input.** `report.py` does not send the whole document. It sends only
+`convert.pages_to_markdown(pages in structure["proposal_pages"])`, then truncates. Reproducing that
+exactly on Dunn:
 
-**Stated precisely, because this contradicts a leading hypothesis:** this is strong evidence against
-the vocabulary explanation and it is *not* proof of the page-routing explanation, which I have not
-directly tested. What it establishes is that the vocabulary fix alone should not be assumed to have
-fixed Dunn on the live path. **Do not demo an ND plan on the strength of the schema change.** The
-next test is to run the live path's own page selection on Dunn and see what text it produces.
+| arm | `hot_mix_tons` | `base_tons` | `milling_sy` |
+|---|---:|---:|---:|
+| old descriptions | **200** | 6,506 | null |
+| new descriptions | **121,421** | 6,506 | 408,216 |
 
-The state vocabulary is still worth having — it costs nothing and SD `ASPHALT CONCRETE` is untested —
-but it should not be reported as the fix for the 605×.
+**The old arm reproduces the 605× miss exactly — 200 tons, the `PATCHING` line — and the new
+descriptions fix it.** So the vocabulary hypothesis is **confirmed**, not refuted, and the earlier
+reading was wrong.
+
+What separated the two runs: the harness composes all 351 pages as `[Page N]` blocks, the live path
+composes 311 proposal pages as markdown. Both keep the Superpave line — I checked, it survives
+truncation at 10.3% into `proposal_md`, and `REMOVE AGGREGATE BASE` and `FULL DEPTH RECLAMATION`
+survive too. So neither page selection nor truncation is the cause; the two runs differ only in how
+much surrounding text competes for the model's attention, and the old prompt's "HMA" only failed in
+the tighter one.
+
+**The lesson worth keeping: a harness that feeds the model more than production does can hide a
+production bug.** The all-pages arm gave the right answer for the wrong reason and would have
+cleared a defect that is real.
+
+**ND demo status.** On this plan, with these descriptions, the live path now returns 121,421 against
+a plan quantity of 121,221 + 200 patching. That is the demo-blocking item cleared for Dunn
+specifically. It is one plan; SD `ASPHALT CONCRETE` is still untested, and the spec-book sweep found
+that **the word HMA appears on no ND pay item at all**, which explains why the old wording failed so
+completely.
 
 ### A ruling that did not take, reported rather than glossed
 
