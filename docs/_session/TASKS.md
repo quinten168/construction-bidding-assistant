@@ -78,6 +78,32 @@ the local mirror. Any earlier finding that involved *opening* a Box file needs r
 | 19c | **Binder double count is now answerable** | **TODO, new** | The spec books settle pre-read question 7: the mix ton already includes the binder in all three states, and **ND and SD bill binder separately by the TON**. Dunn carries `PG 58S-34 ASPHALT CEMENT TON 5,468`. Three of the four such items currently reach `other` via `never_matched`, i.e. flagged as a reader failure rather than a deliberate exclusion |
 | 20 | **Tell CSI that Stearns `milling_sy` is now 140,430, not 70,263** | **TODO, new** | Ruling #9 working as specified — FDR is now included. A number Alex validated as exact has doubled by design. Say it before it appears on screen |
 
+## MERGE + PUSH — done 2026-08-10 late. What is now on `origin/main`.
+
+`origin/main` was 9 commits ahead; merged once at `3f91d97`, pushed `f52226b..82d132f`. 0 ahead,
+0 behind. 69 files, 1.2 MB, code and docs only — no PDFs, and **no commit of ours touches
+`data/processed/`**.
+
+**Two conflicts, both "keep both".** `final_report.py` imports (kept `payload_carry` *and*
+`plan_reader_bridge`), and `predict_competitors` — **flatten before cap, and the order is
+load-bearing**: slicing a list of objects truncates fine and still crashes the renderer, because it
+is the SHAPE that breaks it, not the length. `report-card.tsx` took upstream's body (#90 removed the
+match-confidence chip) and kept our `export` (the react-dom/server test needs it) and the flatten.
+
+**Rulings verified intact after the merge:** all 16 ruling tokens present across the five
+descriptions, milling capture fields present, `crushing_tons`/`stockpile_tons` byte-identical.
+Re-warm through the real live path confirms it end to end — Stearns `MILL` **140,430**, Dunn `MIX`
+**121,421**, `MILL` **408,216**, `BASE` **6,506**, `MILL_TON` **67,007**.
+
+| # | Item | Status | Notes |
+|---|---|---|---|
+| M1 | **10 of 12 cached payloads are still stale** | **decision for you** | Only Stearns and Dunn were re-warmed — the two you named. The other 10 still serve pre-ruling numbers instantly with no signal. **If any of them is on the demo path it will show old numbers on stage.** Re-warming all 12 is ~20 min and a few dollars; say the word. `python tools/2026-08-10_rewarm_demo_cache.py --check` lists them with mtimes |
+| M2 | Mapping-version cache key | **SPEC, build post-demo** | `docs/_spec/2026-08-10-payload-cache-key-versioning.md`. Hash the seven descriptions into the key so old entries stop being *found* rather than being destroyed. The "version field inside the payload" variant was rejected: absent-means-current is one sign flip from re-creating this exact bug |
+| M3 | **The push bypassed a branch-protection rule** | **your call** | GitHub replied *"Bypassed rule violations for refs/heads/main: Changes must be made through a pull request."* You asked for a push and it went straight to `main` on admin rights. Worth knowing before the next one, and worth deciding whether agents should use PRs |
+| M4 | `bidder_results.csv` local mods are stashed, not lost | pending | Pre-existing local modifications blocked the merge (origin changed the file in #97). Stashed rather than discarded: `stash@{0}`, message `2026-08-10 pre-merge: local bidder_results.csv mods`. Origin's version is what is checked out now. Decide whether to drop the stash or re-apply |
+| M5 | **Post-Wednesday: `data/processed/bidder_results.csv` history purge** | **TODO, post-Wednesday** | It is tracked and has been in history since PR #46, so untracking now removes nothing from the remote and adds risk. A proper fix is a history purge (`git filter-repo`/BFG), a force-push, and coordination — none of which happens this week. **Pair it with a CSI conversation**: this is CSI's competitor bid data sitting in a GitHub repo, which is a "what may we ship / what must stay private" question, not just a git one. Related: the repo-taxonomy task already on the board wants CSI *data* separated from our *method* |
+| M6 | Two test suites cannot run on the same interpreter | TODO | `.venv` has `chromadb` but **cannot open `csi_v2.db`** (iCloud symlink) — 14 phasing tests error. `python3` opens the DB but **lacks `chromadb`** — 6 retrieval tests error. Each group passes on the interpreter that has its dependency (11/11 and 39/39). **Both cases ERROR rather than SKIP**, so "the dependency is missing" and "the test failed" look identical to anyone reading CI — the standing rule, in the test harness itself |
+
 ## BACKLOG — good, not foundation. Do not start.
 
 | Item | Note |
