@@ -131,10 +131,38 @@ async function streamChat(
   }
 }
 
+// A client-side request failure is NOT evidence the backend is down (2026-08-10). Ask
+// /api/backend-health before saying so; the two cases must never render identically.
+// `stage` is what the user was doing, so the sentence reads right in both branches.
+async function explainClientFailure(stage: "reading the plan" | "finishing the report"): Promise<string> {
+  try {
+    const probe = await fetch("/api/backend-health", { cache: "no-store" });
+    const health = (await probe.json()) as { reachable?: boolean; status?: string; detail?: string };
+    if (health?.reachable) {
+      return (
+        `The browser lost the connection while ${stage}, but the backend is UP ` +
+        `(${health.detail ?? "health check passed"}). The run is most likely still going — a large ` +
+        `plan set takes several minutes. Wait for it to finish, then re-drop the same PDF: the ` +
+        `finished run is cached by content hash and comes back immediately.`
+      );
+    }
+    return (
+      `Cannot reach the bid-assistant backend (${health?.detail ?? "health check failed"}). ` +
+      `Is uvicorn running on :8010?`
+    );
+  } catch {
+    // The health probe itself could not run — that means this Next.js server, not the
+    // Python backend. Say that, rather than blaming uvicorn on no evidence.
+    return `Lost the connection to this app while ${stage}, and the health check could not run either. Reload the page and check that both the Next.js dev server and uvicorn are up.`;
+  }
+}
+
 // Upload a dropped PDF to the report endpoint (multipart) — phase ① of the verify gate: extraction
-// only. A new plan takes ~2 min (convert → index → 2 Claude passes). Usually resolves with
+// only. A new plan takes 2–5+ min (convert → index → 2 Claude passes). Usually resolves with
 // `extraction` (unverified — the caller shows the verify gate next); a re-drop of previously
 // VERIFIED content resolves with `final` directly instead (backend content-hash cache, post-gate).
+// NOTE: no AbortController/timeout on purpose — the browser must be allowed to wait out a real
+// multi-minute run. The server route (api/report/route.ts) owns the only deadline (30 min).
 async function uploadReport(
   file: File,
 ): Promise<{ ok: boolean; final?: FinalReport; extraction?: Extraction; message?: string }> {
@@ -145,7 +173,7 @@ async function uploadReport(
     if (!res.ok) return { ok: false, message: `Report request failed (${res.status}).` };
     return await res.json();
   } catch {
-    return { ok: false, message: "Network error reading the plan." };
+    return { ok: false, message: await explainClientFailure("reading the plan") };
   }
 }
 
@@ -166,7 +194,7 @@ async function finalizeReport(
     if (!res.ok) return { ok: false, message: `Finalize request failed (${res.status}).` };
     return await res.json();
   } catch {
-    return { ok: false, message: "Network error finishing the report." };
+    return { ok: false, message: await explainClientFailure("finishing the report") };
   }
 }
 
