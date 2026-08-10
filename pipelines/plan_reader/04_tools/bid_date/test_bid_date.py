@@ -272,10 +272,23 @@ def test_unparseable_human_entry_is_error():
     assert res.layer == bid_date.LAYER_HUMAN
 
 
-def test_human_entry_wins_and_is_labelled_layer_3():
-    res = bid_date.extract(human_value="Bids due August 7, 2025 at 11:00 AM local time")
-    assert res.status == bid_date.STATUS_FOUND
-    assert (res.bid_date, res.bid_time, res.layer) == ("2025-08-07", "11:00", 3)
+# Layer 3 is Wenyu's verify popup. What it can send is unknown at time of writing, so the parser
+# accepts every plausible shape a date field or a free-text box produces — and, unlike layers 1
+# and 2, applies NO anchor scoring: a human typing into a box labelled "Bid deadline" has already
+# picked the right date out of the document.
+@pytest.mark.parametrize("typed,exp_date,exp_time,exp_tz", [
+    ("Bids due August 7, 2025 at 11:00 AM local time", "2025-08-07", "11:00", "local"),
+    ("Thursday, August 7, 2025 at 11:00am local time", "2025-08-07", "11:00", "local"),
+    ("August 7, 2025", "2025-08-07", None, None),
+    ("2025-08-07", "2025-08-07", None, None),
+    ("2025-08-07 11:00", "2025-08-07", "11:00", None),          # <input type=datetime-local>
+    ("2025-08-07T11:00 CT", "2025-08-07", "11:00", "CT"),
+    ("8/7/2025 11:00 AM CT", "2025-08-07", "11:00", "CT"),
+])
+def test_human_entry_shapes(typed, exp_date, exp_time, exp_tz):
+    res = bid_date.extract(human_value=typed)
+    assert res.status == bid_date.STATUS_FOUND, typed
+    assert (res.bid_date, res.bid_time, res.timezone, res.layer) == (exp_date, exp_time, exp_tz, 3)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

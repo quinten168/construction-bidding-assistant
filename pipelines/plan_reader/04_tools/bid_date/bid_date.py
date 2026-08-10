@@ -159,8 +159,20 @@ def _norm_tz(raw: str) -> str:
     return _TZ_NORM.get(key, raw.strip())
 
 
+# No trailing \b: "2025-08-07T11:00" from a datetime-local input has no word boundary before "T".
+_RE_ISO = re.compile(r"(?<![\d-])(\d{4})-(\d{2})-(\d{2})(?![\d-])")
+# 24-hour clock. Only ever applied to LAYER-3 human input — in a document, "14:30" is far more
+# often a station, a sheet reference or a table coordinate than a time.
+# (?<![\d:]) rather than \b so the ISO "T" separator in "2025-08-07T11:00" does not block the match.
+_RE_TIME24 = re.compile(r"(?<![\d:])([01]?\d|2[0-3]):([0-5]\d)(?![\d:])")
+
+
 def _iter_dates(text: str):
     """Yield (start, end, iso_date) for every parseable calendar date in `text`."""
+    for m in _RE_ISO.finditer(text):
+        iso = _safe_date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        if iso:
+            yield m.start(), m.end(), iso
     for m in _RE_MDY.finditer(text):
         mo, d, y = _MONTHS[m.group(1).lower()], int(m.group(2)), int(m.group(3))
         iso = _safe_date(y, mo, d)
@@ -347,6 +359,30 @@ def from_pages(pages: Sequence[tuple], layer: int, source_file: Optional[str] = 
                          candidates_considered=considered)
 
 
+def parse_free_text(value: str) -> BidDateResult:
+    """LAYER 3. Parse a value a human typed into a field already labelled "Bid deadline".
+
+    Deliberately does NOT apply the anchor scoring the document scanners use: the anchors exist to
+    pick the bid deadline out of a page full of other dates, and a human typing into a labelled
+    box has already done that job. Requiring "bids will be received" of a person who typed
+    "August 7, 2025 at 11:00 AM" would reject the correct answer.
+    """
+    text = normalise(str(value or ""))
+    for s, e, iso in _iter_dates(text):
+        t, tz = _time_at(text, s, radius=len(text) or 1)
+        if t is None:
+            # A date picker / datetime-local input sends "2025-08-07 11:00" or "2025-08-07T11:00".
+            m = _RE_TIME24.search(text[e:])
+            if m:
+                t = f"{int(m.group(1)):02d}:{m.group(2)}"
+                tzm = _RE_TZ.search(text[e + m.end(): e + m.end() + 40])
+                tz = _norm_tz(tzm.group(1)) if tzm else None
+        return BidDateResult(status=STATUS_FOUND, bid_date=iso, bid_time=t, timezone=tz,
+                             raw=str(value), layer=LAYER_HUMAN, source_file="human")
+    return BidDateResult(status=STATUS_ERROR, layer=LAYER_HUMAN, raw=str(value),
+                         error="human-entered value could not be parsed as a date")
+
+
 def read_pdf_pages(pdf: Path, max_pages: Optional[int] = None):
     """(page_number, text) for a PDF, using PyMuPDF. Raises on an unopenable file — callers that
     want an error RESULT rather than an exception should use extract_from_pdf."""
@@ -423,13 +459,7 @@ def extract(plan_pdf: Optional[Path] = None, project_dir: Optional[Path] = None,
     carried in `error` so a read failure is never silently reported as an absent date.
     """
     if human_value:
-        res = from_pages([(None, human_value)], layer=LAYER_HUMAN)
-        if res.ok:
-            res.layer = LAYER_HUMAN
-            res.source_file = "human"
-            return res
-        return BidDateResult(status=STATUS_ERROR, layer=LAYER_HUMAN, raw=human_value,
-                             error="human-entered value could not be parsed as a date")
+        return parse_free_text(human_value)
 
     errors = []
     if project_dir is None and plan_pdf is not None:

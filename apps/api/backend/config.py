@@ -53,6 +53,7 @@ PLAN_READER = REPO / "pipelines" / "plan_reader"
 PIPELINE = PLAN_READER / "01_pipeline"                  # importable: lib.py, retriever.py
 ROAD_MIDPOINT_DIR = PLAN_READER / "04_tools" / "road_midpoint"   # importable: road_midpoint.py
 REVERSE_GEOCODE_DIR = PLAN_READER / "04_tools" / "reverse_geocode"  # importable: reverse_geocode.py
+BID_DATE_DIR = PLAN_READER / "04_tools" / "bid_date"           # importable: bid_date.py
 # The single source of truth for the master bid CSV. Previously duplicated verbatim across
 # bid_data.py, competitors.py and project_registry.py — so a path change fixed one and broke
 # three, which is the most confusing failure mode available. They now import this.

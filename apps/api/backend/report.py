@@ -15,6 +15,7 @@ import datetime
 import json
 from pathlib import Path
 
+from . import bid_date_bridge
 from . import geocode_bridge
 from . import midpoint_bridge
 from . import plan_reader_bridge  # noqa: F401 — ensures 01_pipeline is on sys.path
@@ -211,6 +212,25 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             log.warning("report: geocode stage errored for %s — %s", plan_id, e)
             geo = None
 
+    # 7th stage: bid submission deadline (date AND time), deterministically, off the markdown
+    # pages already in hand — no extra PDF read, no embedding, no Claude call (bid_date_bridge.py).
+    #
+    # This exists because `bid_deadline` is a RAG field and retrieval was missing it: on the City
+    # of Fulda plan the Advertisement for Bids page IS in Chroma, but it ranks ~33rd for the
+    # bid_deadline query and s4_extract_rag retrieves k=5. The RAG value is kept as the fallback —
+    # the deterministic read only overrides it when it actually found something.
+    # A deterministic regex read of a document that states the deadline in as many words is a
+    # "high"-confidence cell in the same 3-level enum s3_extract uses, and it carries the page it
+    # came from — so the verify UI can show a human where to look.
+    bid_deadline = bid_date_bridge.compute_bid_deadline(md_pages, pdf_path)
+    if bid_deadline:
+        record["bid_deadline"] = {
+            "value": bid_deadline["deadline_iso"] + (
+                f" {bid_deadline['timezone']}" if bid_deadline["timezone"] else ""),
+            "confidence": "high",
+            "page": bid_deadline["page"],
+        }
+
     # archetype from the extracted quantities (v2 rule, reused from the resolver)
     qrow = {dst: _val(record.get(src)) for src, dst in _QMAP.items()}
     archetype = project_registry._archetype(qrow)
@@ -263,6 +283,20 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             "geocoded_state": (geo or {}).get("state"),
             "geocoded_zip": (geo or {}).get("zip"),
             "geocode_provenance": (geo or {}).get("provenance"),
+            # Bid deadline, split. `bid_deadline` above stays the free-text-shaped field every
+            # existing consumer already reads (report-card, verify UI, bid_projects_record's
+            # parse_bid_date). These are the machine-readable halves CI actually needs — the
+            # season is derived from bid_date, and bid_time is what the corpus filenames carry
+            # ("BID RESULTS 02_16_23 10_00 AM …"). All null when no layer produced one, which is
+            # the signal for layer 3 (human entry) rather than a silent fallback to a completion
+            # date — the exact failure that reports zero capacity.
+            "bid_date": (bid_deadline or {}).get("bid_date"),
+            "bid_time": (bid_deadline or {}).get("bid_time"),
+            "bid_timezone": (bid_deadline or {}).get("timezone"),
+            "bid_deadline_layer": (bid_deadline or {}).get("layer"),
+            "bid_deadline_source": (bid_deadline or {}).get("source_file"),
+            "bid_deadline_page": (bid_deadline or {}).get("page"),
+            "bid_deadline_evidence": (bid_deadline or {}).get("raw"),
         },
         "quantities": quantities,
         "gotchas": gotchas,
@@ -305,6 +339,22 @@ def apply_verification(rep: dict, edits: dict) -> dict:
                 by_label[field]["value"] = value
         else:
             identity[field] = value
+
+    # LAYER 3 of the bid-date extraction. When a human types or corrects `bid_deadline` in the
+    # verify popup, re-derive the machine-readable halves CI reads (bid_date / bid_time) from what
+    # they typed — otherwise the human fixes the display string and CI still sees a null bid_date
+    # and still lands in the wrong season. The typed text is kept verbatim in `bid_deadline`
+    # regardless, so an entry we cannot parse is visible to the human rather than discarded.
+    if "bid_deadline" in (edits or {}):
+        parsed = bid_date_bridge.parse_human_entry(edits["bid_deadline"])
+        identity["bid_date"] = (parsed or {}).get("bid_date")
+        identity["bid_time"] = (parsed or {}).get("bid_time")
+        identity["bid_timezone"] = (parsed or {}).get("timezone")
+        identity["bid_deadline_layer"] = (parsed or {}).get("layer")
+        identity["bid_deadline_source"] = "human"
+        identity["bid_deadline_page"] = None
+        identity["bid_deadline_evidence"] = str(edits["bid_deadline"])
+        identity["bid_deadline_parsed"] = parsed is not None
 
     rep["identity"] = identity
     rep["quantities"] = quantities
