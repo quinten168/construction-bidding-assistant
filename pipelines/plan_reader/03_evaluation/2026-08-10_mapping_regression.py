@@ -55,6 +55,13 @@ PAYLOAD_CACHE = MODULE_ROOT / "00_input" / "_report_payload_cache"
 QUANTITY_FIELDS = ["hot_mix_tons", "base_tons", "grading_quantity", "shoulder_tons",
                    "milling_sy", "crushing_tons", "stockpile_tons"]
 
+# Recorded alongside the seven totals but NOT diffed as totals: these did not exist in either
+# committed baseline, so a diff of them against an older run is meaningless. They are captured so a
+# re-run shows what the milling unit-capture change (2026-08-10, docs/_spec/
+# 2026-08-10-milling-unit-capture.md) actually produced per document, rather than requiring a
+# separate run to find out.
+EXTRA_FIELDS = ["milling_tons", "milling_measured_unit"]
+
 # The OLD descriptions, recorded verbatim from schema.py at git HEAD before the ruling change
 # (commit f035b90). Held as a literal so the `old` arm is reproducible after the file is edited.
 # Cross-check: `git show f035b90:pipelines/plan_reader/01_pipeline/schema.py`.
@@ -106,7 +113,7 @@ def run_one(md_path, arm):
     """Extract one document under one arm. Returns a record whose `status` distinguishes an error
     from a document that legitimately states no quantities."""
     stem = Path(md_path).stem
-    rec = {"hash": stem, "arm": arm, "status": None, "totals": None, "error": None}
+    rec = {"hash": stem, "arm": arm, "status": None, "totals": None, "extras": None, "error": None}
     try:
         text = s3_extract.smart_truncate(document_text(md_path), s3_extract.MAX_CHARS)
     except (OSError, json.JSONDecodeError, KeyError) as e:
@@ -130,12 +137,20 @@ def run_one(md_path, arm):
         rec["error"] = "model response did not parse as JSON"
         return rec
 
-    totals = {}
+    totals, extras, cells = {}, {}, {}
     for f in fields_for_arm(arm):
-        if f["name"] in QUANTITY_FIELDS:
-            totals[f["name"]] = s3_extract._coerce_cell(f, data.get(f["name"]))["value"]
+        if f["name"] in QUANTITY_FIELDS or f["name"] in EXTRA_FIELDS:
+            cell = s3_extract._coerce_cell(f, data.get(f["name"]))
+            cells[f["name"]] = cell
+            (totals if f["name"] in QUANTITY_FIELDS else extras)[f["name"]] = cell["value"]
+    if extras:
+        # Derived, not asked of the model — see schema.milling_unit_status. Recorded here so the
+        # run itself shows whether "no milling item", "milling in tons" and "no answer" came back
+        # as three distinguishable states on every document.
+        extras["milling_unit_status"] = schema.milling_unit_status(cells)
     rec["status"] = "OK"
     rec["totals"] = totals
+    rec["extras"] = extras or None
     return rec
 
 
@@ -233,6 +248,10 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--diff", nargs=2, metavar=("OLD_JSON", "NEW_JSON"))
     ap.add_argument("--limit", type=int, default=0, help="first N documents only (for a cheap smoke run)")
+    ap.add_argument("--only", default="", help="comma-separated content hashes — run exactly these "
+                                               "documents (a targeted no-regression subset). A hash "
+                                               "that matches no document is a SETUP FAILURE, not a "
+                                               "silently smaller run.")
     args = ap.parse_args()
 
     if args.diff:
@@ -246,6 +265,15 @@ def main():
         print(f"FATAL: no markdown documents found in {MD_CACHE}. This is a setup failure, not an "
               f"empty result — refusing to write an output file that would look like a clean run.")
         sys.exit(2)
+    if args.only:
+        wanted = [h.strip() for h in args.only.split(",") if h.strip()]
+        by_stem = {Path(p).stem: p for p in paths}
+        missing = [h for h in wanted if h not in by_stem]
+        if missing:
+            print(f"FATAL: --only named {len(missing)} hash(es) with no document in {MD_CACHE}: "
+                  f"{', '.join(missing)}. Refusing to run a quietly smaller subset than asked for.")
+            sys.exit(2)
+        paths = [by_stem[h] for h in wanted]
     if args.limit:
         paths = paths[:args.limit]
 

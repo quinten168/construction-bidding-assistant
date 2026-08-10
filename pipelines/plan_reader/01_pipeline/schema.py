@@ -112,8 +112,9 @@ SCALAR_FIELDS = [
        "embankment, borrow. Also count 'SALVAGE AND REUSE EXISTING AGGREGATE' and 'CLEAN ROCK'. "
        "Pavement and base removal is grading work, so count it here WHEN the bid schedule measures "
        "it in cubic yards. When a removal is measured in square yards or tons, do NOT convert it "
-       "and do NOT move it into another bucket — no verified depth or density factor exists, so "
-       "leave it out of every total.",
+       "and do NOT count it here — no verified depth or density factor exists. Such a removal is "
+       "not discarded: bituminous milling/surface removal measured in square yards is reported in "
+       "milling_sy, and measured in tons it is reported in milling_tons, both unconverted.",
        golden="grade_cy", evalkind="num", group="quantities"),
     _f("shoulder_tons", "num", "extract",
        "Total tons of shoulder aggregate, e.g. 'AGGREGATE SHOULDERING'. 'GRAVEL SURFACING' and "
@@ -126,9 +127,46 @@ SCALAR_FIELDS = [
        "RECLAMATION' (CSI ruled FDR is base work, but its quantity is reported here because it is "
        "measured in SY). Do NOT count 'REMOVE CONCRETE DRIVEWAY PAVEMENT' or 'REMOVE BITUMINOUS "
        "DRIVEWAY PAVEMENT'. Do NOT count concrete pavement removal — that is grading. Report square "
-       "yards only; if the bid schedule measures milling in tons, leave this field null rather than "
-       "converting.",
+       "yards only; if the bid schedule measures milling in tons, report those tons in "
+       "milling_tons instead and leave this field null rather than converting.",
        golden="mill_sy", evalkind="num", group="quantities"),
+    # milling_tons / milling_measured_unit — capture the value AND its native unit, DO NOT CONVERT.
+    # NDDOT pays milling by the ton (NDDOT spec §411.06, Pay Unit "Ton or Square Yard"), so on an ND
+    # plan milling_sy is legitimately null while a real quantity exists. Dunn Job 23388 is the case:
+    # 63,092 T MILLING PAVEMENT SURFACE + 3,915 T REMOVAL OF BITUMINOUS SURFACING = 67,007 T that
+    # used to be dropped silently, alongside 408,216 SY of FDR that milling_sy correctly holds — so
+    # a single (value, unit) pair could not describe this plan and the shape is per-unit subtotals.
+    # No conversion is attempted anywhere: no verified milling depth factor exists (bucket_hierarchy's
+    # 1.75 Ton/CY is unverified, and SDDOT's 1.50 tons/CY is salvaged granular material, a different
+    # material and state). Design + the payload-assembly edit: docs/_spec/2026-08-10-milling-unit-capture.md.
+    _f("milling_tons", "num", "extract",
+       "Total quantity of milling / bituminous-surface-removal items that this bid schedule measures "
+       "in TONS — e.g. ND 'MILLING PAVEMENT SURFACE' (TON), 'REMOVAL OF BITUMINOUS SURFACING' (TON). "
+       "Report the tons EXACTLY as stated and DO NOT convert them to square yards. Include the "
+       "TON-measured lines from BOTH kinds of pay item and ADD THEM TOGETHER: the milling items "
+       "(e.g. 'MILLING PAVEMENT SURFACE') AND the removal-of-existing-bituminous items (e.g. "
+       "'REMOVAL OF BITUMINOUS SURFACING', 'REMOVE BITUMINOUS PAVEMENT') — CSI classes both as the "
+       "same work, and the two often sit in different sections of the schedule (a removal item in "
+       "the 200-series section, a milling item in the 400-series). Sum only items whose unit is TON. "
+       "Any pay item named in the milling_sy definition belongs HERE instead whenever its unit is "
+       "TON — milling_sy takes the square-yard lines, this field takes the ton lines, and no line "
+       "is left out of both. There is typically MORE THAN ONE such line and they sit many pages "
+       "apart, so before answering scan the WHOLE bid schedule for every TON-measured milling or "
+       "bituminous-removal line and add them; answering with only the largest single line is wrong. "
+       "Where the same pay item is printed on more than one revision of the same proposal page, "
+       "count it once. Null if this bid schedule measures no milling item in tons (the "
+       "normal case for MN and SD, where milling is bid by the square yard and belongs in "
+       "milling_sy).",
+       golden=None, evalkind=None, group="quantities"),
+    _f("milling_measured_unit", "str", "extract",
+       "Which unit(s) this bid schedule measures milling / bituminous-surface-removal in. Answer "
+       "with EXACTLY ONE of these tokens: 'SY' (every milling item is in square yards), 'TON' "
+       "(every milling item is in tons), 'SY+TON' (both units appear — e.g. FULL DEPTH RECLAMATION "
+       "in SY alongside MILLING PAVEMENT SURFACE in TON), 'OTHER' (a milling item is measured in "
+       "some other unit such as CY, LF, LS or STA), or 'NONE' if this bid schedule contains no "
+       "milling or bituminous-surface-removal item at all. 'NONE' is the answer for 'there is no "
+       "such item' — do not use null for that.",
+       golden=None, evalkind=None, group="quantities"),
     # crushing_tons / stockpile_tons DELIBERATELY UNCHANGED. CSI has not answered whether crushing
     # and stockpile stay excluded (quantity_crosswalk.py::CSI_OPEN_QUESTIONS_2026_08_07). Writing a
     # clause here would be inventing a ruling. Left as-is and recorded as open.
@@ -205,6 +243,60 @@ for _f_ in SCALAR_FIELDS:
 for _a_ in ARRAY_FIELDS:
     if _a_["golden"]:
         GOLDEN_MAP[_a_["golden"]] = (_a_["name"], "review")
+
+
+# ── Milling unit status (derived — no model call, no conversion) ───────────────
+# The tenth instance of this repo's standing rule: a failure and a legitimate empty answer must
+# never share a return value. Before this, `milling_sy = null` meant all three of "milling is
+# measured in tons", "this plan has no milling item" and "extraction produced no answer".
+#
+# Derived rather than stored so the status can never drift from the values it describes.
+# It NEVER converts and never infers a quantity — it only reports which of the six situations the
+# record is in. Spec: docs/_spec/2026-08-10-milling-unit-capture.md.
+MILLING_UNIT_TOKENS = ("SY", "TON", "SY+TON", "OTHER", "NONE")
+
+MILLING_UNIT_STATUSES = (
+    "sy_only",       # unit SY — milling_sy carries the whole quantity, nothing missing
+    "tons_only",     # unit TON — CONVERSION_REQUIRED: milling_sy null BY DESIGN, milling_tons has it
+    "sy_and_tons",   # unit SY+TON — both real; the two totals are NOT addable (Dunn Job 23388)
+    "other_unit",    # a milling item in CY/LF/LS/STA — named rather than dropped
+    "not_present",   # the model asserted there is no milling item. A legitimate empty answer.
+    "unknown",       # no answer at all — extraction failure. NEVER reported as not_present.
+    "inconsistent",  # the declared unit contradicts the quantities. Surfaced, not silently resolved.
+)
+
+
+def _cell_value(record, name):
+    """The value out of a record's cell, tolerating a bare scalar (some callers hold flat dicts)."""
+    c = record.get(name)
+    if isinstance(c, dict):
+        return c.get("value")
+    return c
+
+
+def milling_unit_status(record) -> str:
+    """One of MILLING_UNIT_STATUSES for this record. Pure; never mutates and never converts."""
+    unit = _cell_value(record, "milling_measured_unit")
+    unit = str(unit).strip().upper().replace(" ", "") if unit not in (None, "") else None
+    sy = _cell_value(record, "milling_sy")
+    tons = _cell_value(record, "milling_tons")
+    has_sy = isinstance(sy, (int, float)) and sy > 0
+    has_tons = isinstance(tons, (int, float)) and tons > 0
+
+    if unit not in MILLING_UNIT_TOKENS:
+        # No answer, or an answer outside the closed vocabulary. Either way we do not know what the
+        # schedule measured — and "we do not know" is not "there was nothing there".
+        return "unknown"
+    if unit == "NONE":
+        return "not_present" if not (has_sy or has_tons) else "inconsistent"
+    if unit == "SY":
+        # A declared unit with no quantity behind it is a contradiction, not a clean SY plan.
+        return "sy_only" if (has_sy and not has_tons) else "inconsistent"
+    if unit == "TON":
+        return "tons_only" if (has_tons and not has_sy) else "inconsistent"
+    if unit == "SY+TON":
+        return "sy_and_tons" if (has_sy and has_tons) else "inconsistent"
+    return "other_unit"
 
 
 # ── Record construction ────────────────────────────────────────────────────────

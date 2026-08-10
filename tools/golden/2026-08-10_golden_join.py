@@ -17,6 +17,21 @@ Design notes
   than joining it and reporting a misleading 0% recall.
 * Failure and empty never share a return value: every result carries a `status`
   field, and `NO_GOLDEN`, `NO_EXTRACTION`, `KEY_UNUSABLE` and `OK` are distinct.
+* CONVERSION_REQUIRED is its OWN category -- not a hit and not a miss. When the
+  keys match, both sides carry a quantity, and the units disagree (the golden bid
+  schedule states SY or CY, our extraction states TON, or vice versa), what is
+  missing is the CONVERSION LAYER, not the extraction. Scoring it as a miss
+  reports a recall failure the extractor does not deserve; scoring it as a match
+  inflates precision and produces a variance figure computed across two different
+  units, which is not a number that means anything. So it is excluded from
+  `matched`, excluded from BOTH the recall and precision denominators, carries no
+  variance, and is printed on its own line so the gap stays visible.
+  Designed in docs/_spec/2026-08-10-benchmark-table.md 2.3 / 5; the concrete case
+  is NDDOT milling, which is paid by the TON (NDDOT 411.06) against a bucket
+  named `milling_sy` -- see docs/_spec/2026-08-10-milling-unit-capture.md.
+* A unit string that normalises to nothing on EITHER side is unknown, not
+  agreement: such a row keeps its previous status and `unit_match` is left blank,
+  rather than being promoted to CONVERSION_REQUIRED on a guess.
 """
 
 from __future__ import annotations
@@ -56,6 +71,49 @@ FOLDER_TO_PLAN = {
 
 BUCKETS = ["hot_mix_tons", "base_tons", "grading_quantity", "milling_sy",
            "shoulder_tons", "crushing_tons", "stockpile_tons"]
+
+
+# Unit normalisation. Deliberately a small EXPLICIT table: an unrecognised unit must come back as
+# None ("unknown") rather than as itself, so two unrecognised strings can never compare equal and be
+# read as agreement.
+_UNIT_ALIASES = {
+    "SY": "SY", "S Y": "SY", "SQ YD": "SY", "SQYD": "SY", "SQ. YD.": "SY", "SQUARE YARD": "SY",
+    "SQUARE YARDS": "SY", "SQ YDS": "SY",
+    "CY": "CY", "C Y": "CY", "CU YD": "CY", "CUYD": "CY", "CUBIC YARD": "CY", "CUBIC YARDS": "CY",
+    "TON": "TON", "TONS": "TON", "TN": "TON", "T": "TON",
+    "LF": "LF", "L F": "LF", "LIN FT": "LF", "LINEAR FOOT": "LF", "LINEAR FEET": "LF",
+    "FT": "LF", "FOOT": "LF", "FEET": "LF",
+    "SF": "SF", "S F": "SF", "SQ FT": "SF", "SQUARE FOOT": "SF", "SQUARE FEET": "SF",
+    "EACH": "EACH", "EA": "EACH",
+    "LS": "LS", "LUMP SUM": "LS", "LSUM": "LS", "L SUM": "LS", "L S": "LS",
+    "GAL": "GAL", "GALLON": "GAL", "GALLONS": "GAL",
+    "MGAL": "MGAL", "M GALLON": "MGAL", "ACRE": "ACRE", "AC": "ACRE",
+    "STA": "STA", "STATION": "STA", "ROAD STA": "STA",
+    "LB": "LB", "LBS": "LB", "POUND": "LB", "POUNDS": "LB", "HOUR": "HOUR", "HR": "HOUR",
+}
+
+
+def norm_unit(s):
+    """Canonical unit token, or None when the string is absent or unrecognised.
+
+    None means UNKNOWN and never compares equal to anything -- including another None. That is the
+    failure/empty rule applied to units: 'we could not read the unit' must not be able to masquerade
+    as 'the units agree'."""
+    if s is None:
+        return None
+    # Periods are dropped wholesale: the corpus writes 'S.Y.' as well as 'SY' and 'SQ. YD.', and a
+    # trailing-only strip left 'S.Y.' unrecognised — caught by the coverage test, not by inspection.
+    t = str(s).replace("\xa0", " ").strip().upper().replace(".", "")
+    t = re.sub(r"[()\[\]]", "", t)
+    t = re.sub(r"\s+", " ", t)
+    return _UNIT_ALIASES.get(t)
+
+
+def units_disagree(golden_unit, extracted_unit) -> bool:
+    """True only when BOTH units are known and they differ. Unknown on either side is not a
+    disagreement and is not an agreement -- the caller leaves the row's status alone."""
+    g, e = norm_unit(golden_unit), norm_unit(extracted_unit)
+    return g is not None and e is not None and g != e
 
 
 def norm_key(s: str) -> str:
@@ -104,25 +162,25 @@ def main() -> int:
     for folder, grows in sorted(golden.items()):
         if folder not in FOLDER_TO_PLAN:
             summary.append(dict(project_folder=folder, plan_id="", status="UNMAPPED_FOLDER",
-                                golden_rows=len(grows), extracted_rows=0, matched=0,
+                                golden_rows=len(grows), extracted_rows=0, matched=0, conversion_required=0,
                                 precision="", recall=""))
             continue
         plan_id = FOLDER_TO_PLAN[folder]
         if plan_id is None:
             summary.append(dict(project_folder=folder, plan_id="", status="NO_EXTRACTION",
-                                golden_rows=len(grows), extracted_rows=0, matched=0,
+                                golden_rows=len(grows), extracted_rows=0, matched=0, conversion_required=0,
                                 precision="", recall=""))
             continue
 
         kind, nspec, ntot = classify_key_column(conn, plan_id)
         if kind == "NO_ROWS":
             summary.append(dict(project_folder=folder, plan_id=plan_id, status="EXTRACTED_ZERO_ITEMS",
-                                golden_rows=len(grows), extracted_rows=0, matched=0,
+                                golden_rows=len(grows), extracted_rows=0, matched=0, conversion_required=0,
                                 precision="", recall="0.000"))
             continue
         if kind == "LINE":
             summary.append(dict(project_folder=folder, plan_id=plan_id, status="KEY_UNUSABLE",
-                                golden_rows=len(grows), extracted_rows=ntot, matched=0,
+                                golden_rows=len(grows), extracted_rows=ntot, matched=0, conversion_required=0,
                                 precision="", recall=""))
             continue
 
@@ -141,11 +199,21 @@ def main() -> int:
                 gmap[k].append(g)
 
         matched = 0
+        conversion_required = 0
         for k, gs in sorted(gmap.items()):
             es = ex.get(k, [])
             gq = sum(float(g["quantity"]) for g in gs if g["quantity"] not in ("", None))
             evals = [e["quantity"] for e in es]
             eq = sum(float(v) for v in evals if v is not None)
+            gunit, eunit = gs[0]["unit"], (es[0]["unit"] if es else None)
+            # unit_match is TRISTATE: True / False / "" (unknown). It is never coerced to a bool,
+            # because "we could not read one of the units" is a third answer.
+            if not es:
+                unit_match = ""
+            elif norm_unit(gunit) is None or norm_unit(eunit) is None:
+                unit_match = ""
+            else:
+                unit_match = norm_unit(gunit) == norm_unit(eunit)
             # A NULL extracted quantity is NOT an extracted zero. Scoring them the
             # same would report a 100% variance for every lump-sum item and bury
             # the real numeric errors -- the exact failure/empty conflation this
@@ -155,12 +223,19 @@ def main() -> int:
             elif all(v is None for v in evals):
                 status = "MATCHED_KEY_NULL_QUANTITY"
                 matched += 1
+            elif units_disagree(gunit, eunit):
+                # Both sides quantified the SAME item in DIFFERENT units. Neither a hit nor a miss:
+                # the missing piece is the conversion layer (no CSI-verified factor table exists),
+                # not the extraction. No variance -- TON minus SY is not a number.
+                status = "CONVERSION_REQUIRED"
+                conversion_required += 1
             else:
                 status = "MATCH"
                 matched += 1
             detail.append(dict(
                 plan_id=plan_id, spec_item_number=k, status=status,
-                golden_desc=gs[0]["description"][:60], golden_unit=gs[0]["unit"],
+                golden_desc=gs[0]["description"][:60], golden_unit=gunit,
+                extracted_unit=eunit or "", unit_match=unit_match,
                 golden_qty=gq, extracted_qty=eq if es else "",
                 abs_variance=abs(gq - eq) if status == "MATCH" else "",
                 pct_variance=(abs(gq - eq) / gq * 100) if status == "MATCH" and gq else "",
@@ -171,15 +246,22 @@ def main() -> int:
             e = ex[k][0]
             detail.append(dict(
                 plan_id=plan_id, spec_item_number=k, status="EXTRA_NOT_IN_GOLDEN",
-                golden_desc="", golden_unit="", golden_qty="",
+                golden_desc="", golden_unit="", extracted_unit=e["unit"] or "", unit_match="",
+                golden_qty="",
                 extracted_qty=sum(float(x["quantity"]) for x in ex[k] if x["quantity"] is not None),
                 abs_variance="", pct_variance="",
                 csi_bucket=e["csi_bucket"] or "", is_alternate=""))
 
-        prec = matched / len(ex) if ex else 0.0
-        rec = matched / len(gmap) if gmap else 0.0
+        # CONVERSION_REQUIRED rows leave BOTH denominators (spec 2026-08-10-benchmark-table 5):
+        # a known, deliberate design gap must not be reported as an extraction failure, and must
+        # not be counted as a success either.
+        prec_den = len(ex) - conversion_required
+        rec_den = len(gmap) - conversion_required
+        prec = matched / prec_den if prec_den > 0 else 0.0
+        rec = matched / rec_den if rec_den > 0 else 0.0
         summary.append(dict(project_folder=folder, plan_id=plan_id, status="OK",
                             golden_rows=len(gmap), extracted_rows=len(ex), matched=matched,
+                            conversion_required=conversion_required,
                             precision=f"{prec:.3f}", recall=f"{rec:.3f}"))
 
     out = os.path.join(HERE, "2026-08-10_golden_comparison.csv")
@@ -190,20 +272,29 @@ def main() -> int:
             w.writerows(detail)
 
     print("=== PER-PLAN SUMMARY ===")
-    hdr = f"{'status':22} {'gold':>5} {'extr':>5} {'match':>5} {'prec':>6} {'recall':>6}  plan"
+    hdr = (f"{'status':22} {'gold':>5} {'extr':>5} {'match':>5} {'conv':>5} "
+           f"{'prec':>6} {'recall':>6}  plan")
     print(hdr)
     for s in summary:
         print(f"{s['status']:22} {s['golden_rows']:>5} {s['extracted_rows']:>5} "
-              f"{s['matched']:>5} {s['precision']:>6} {s['recall']:>6}  "
+              f"{s['matched']:>5} {s.get('conversion_required', 0):>5} "
+              f"{s['precision']:>6} {s['recall']:>6}  "
               f"{s['plan_id'] or s['project_folder'][:44]}")
+    print("conv = CONVERSION_REQUIRED: same item, both sides quantified, units disagree. "
+          "NOT a miss and NOT a hit —\n       it is out of both denominators. A conversion layer "
+          "is missing, not an extraction.")
 
     ok = [s for s in summary if s["status"] == "OK"]
     print(f"\nplans joinable: {len(ok)}/{len(summary)}")
     if ok:
-        tg = sum(s["golden_rows"] for s in ok)
+        tc = sum(s.get("conversion_required", 0) for s in ok)
+        tg = sum(s["golden_rows"] for s in ok) - tc
         tm = sum(s["matched"] for s in ok)
-        te = sum(s["extracted_rows"] for s in ok)
-        print(f"pooled  recall={tm/tg:.3f} ({tm}/{tg})  precision={tm/te:.3f} ({tm}/{te})")
+        te = sum(s["extracted_rows"] for s in ok) - tc
+        rec_s = f"{tm/tg:.3f} ({tm}/{tg})" if tg > 0 else "n/a (no scoreable golden rows)"
+        prec_s = f"{tm/te:.3f} ({tm}/{te})" if te > 0 else "n/a (no scoreable extracted rows)"
+        print(f"pooled  recall={rec_s}  precision={prec_s}"
+              f"  conversion_required={tc} (excluded from both)")
 
     # per-bucket variance
     print("\n=== PER-BUCKET ABSOLUTE VARIANCE (matched items only) ===")

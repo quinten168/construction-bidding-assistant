@@ -123,6 +123,32 @@ filename sweep looks identical whether the corpus is readable or not.
 | PG binder / tack / prime | Dunn carries `PG 58S-34 ASPHALT CEMENT TON 5,468`. Pre-read question 7 *proposed* exclusion; proposed is not ruled, so the prompt stays silent |
 | The two 64,750 TON rows on `2026_BURKE-WARD-CO-ND_JOB-22484` | The `Category` column on the rtv-csv files answers this class of question where the corpus covers the project |
 
+## 2026-08-10 — D1 and D2 are BUILT (appended by the milling unit-capture agent)
+
+Report: `docs/_session/2026-08-10-milling-unit-capture.md` · Spec:
+`docs/_spec/2026-08-10-milling-unit-capture.md`
+
+- **D2 (ND milling in TONS) — done on the extraction side.** New `milling_tons` + a closed-vocabulary
+  `milling_measured_unit` (`SY`/`TON`/`SY+TON`/`OTHER`/`NONE`/null), plus a derived
+  `schema.milling_unit_status()` with seven explicit states. **Dunn now returns
+  `milling_sy = 408,216` AND `milling_tons = 67,007`** — nothing converted, no depth assumed.
+  Per-unit subtotals rather than one (value, unit) pair, because Dunn is SY and TON simultaneously.
+- **No-regression: MN/SD `milling_sy` did not move** (Stearns 140,430, Crow Wing 15,067, SD
+  `not_present`). Two ND movements declared: Fargo `milling_sy` +14 (0.007%, stable across repeat
+  runs, baseline is the correct sum) and Dunn `grading_quantity` (noisy on that document
+  independently of this change).
+- **D1 (`CONVERSION_REQUIRED`) — implemented as its own category** in
+  `tools/golden/2026-08-10_golden_join.py`: out of `matched` and out of **both** denominators, no
+  variance, own `conv` column. Pooled 0.667 / 0.983 unchanged; `conversion_required = 0` today
+  because the golden set is MN-only. Covered by `tools/golden/2026-08-10_test_conversion_required.py`
+  (walks all 1,891 corpus unit strings; caught `S.Y.` normalising to unknown on its first run).
+- **STILL NEEDS THE OWNER:** the payload-assembly edit to `report.py` (spec §5.1) — a `MILL_TON`
+  quantities row and `milling_unit_status` on identity. Deliberately **not** applied; `report.py` was
+  owned by other agents. The label must not be `MILL`: that label is written into the column named
+  `mill_sy` and into a competitor-model feature, neither of which reads `mill_unit`.
+- **Still open:** the conversion factor itself (needs CSI), and a `mill_tons` column in
+  `bid_projects` (DDL). Until then the tons value reaches the report but not the database.
+
 ## Explicitly NOT doing
 
 - Bulk rewrites of `csi_v2.db` — the archive is frozen with its version stamp
