@@ -130,7 +130,12 @@ def run_one(md_path, arm):
         archetypes=s3_extract.archetype_choices(),
         document_text=text,
     )
-    data = s3_extract.call_json(prompt)
+    # max_tokens raised 2026-08-10 to match extract_fields()'s real budget: the three
+    # base_cy_items/shoulder_cy_items/mix_sy_depth_items array fields push a real response past
+    # the call_json default (2048) and truncate mid-JSON — confirmed here (2 of 6 corpus documents
+    # failed to parse at the default before this was raised, including the Murray Co/Fulda plan
+    # that originally caught the issue). See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+    data = s3_extract.call_json(prompt, max_tokens=6000)
     if data is None:
         # call_json returns None on a parse failure. That is a FAILURE, not an empty plan.
         rec["status"] = "ERROR"

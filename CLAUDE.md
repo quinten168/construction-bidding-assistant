@@ -562,6 +562,100 @@ results are still auto-attached (no UI gate analogous to `field_confidence`'s fl
 type-ambiguous buckets (25.3% + 20.1%) are deliberately untouched pending real log data; and
 enforce has not been flipped on yet.
 
+**12. CY/SY-measured base, shoulder, and mix bid items are now CAPTURED — but the conversion into
+`base_tons`/`shldr_tons`/`mix_tons` is BEHIND A FLAG THAT IS OFF. 2026-08-10. The arithmetic that
+would make it safe is code-only, never the model's.**
+
+**Read this first — the rest of this entry describes the engine, which is dormant.**
+`material_tons_merge.CONVERSION_ENABLED` is computed at import from three gates and is **False**,
+so `merge_material_tons()` returns the native TON extraction and nothing else: no CY or SY quantity
+becomes a tonnage, no derived value reaches `quantities`, the archetype rule, or
+`scratch.bid_projects`. The three items fields ARE still extracted, and
+`material_tons_merge.conversion_report()` emits a per-bucket status
+(`disabled_withheld` / `disabled_nothing_convertible` / `disabled_not_applicable` /
+`disabled_unknown_input`) into `identity.{base,shoulder,mix}_conversion_status`, so "we withheld a
+real tonnage" never looks like "there was nothing here". The gates: **G1** every `FACTOR_TABLE` row
+carries a non-empty `blessed_by`/`blessed_on` (nobody has signed — the 1.55 and 0.0565 constants are
+a *data-validated assumption*, labelled as such in the table's `basis`, reproducing CSI's own
+arithmetic exactly but not endorsed by CSI in writing); **G2** a recorded acceptance run exists at
+`03_evaluation/outputs/2026-08-10_conversion_acceptance.json` (the file does not exist; a missing
+file is False, never "assume it passed"); **G3** `PLAN_READER_MATERIAL_CONVERSION=on` (unset is
+False; any other value is False *and logs a warning* rather than falling back silently). Inaction
+is the safe state in all three, so a fresh clone is off with no action taken and there is no config
+file to remember. Pinned by `apps/api/tests/test_2026_08_10_conversion_flag_off.py`; demonstrated
+ON-vs-OFF by `pipelines/plan_reader/03_evaluation/2026-08-10_conversion_flag_demo.py`.
+
+**Three things must land before the flag may be turned on**, all recorded in
+`docs/_session/2026-08-10-pr102-flag-off.md`: per-value provenance (today a converted number is
+byte-identical in shape to a stated one, and `field_confidence["BASE"]` reads the *absent* native
+cell so a fully-derived value renders with blank confidence and no page); the two internal
+failure/empty collapses (`merge_material_tons` returning `None` for both "no base" and "a base we
+could not convert"; `_conf` dropping the value so an excluded quantity never reaches the payload);
+and the status-key reconciliation with `2026-08-10-mapping-honesty` (both branches emit
+`base_unit_status`/`shoulder_unit_status` with partly-disjoint vocabularies, and the third key
+differs by name — `mix_unit_status` vs `hot_mix_unit_status`).
+
+Everything below describes the engine as designed and validated. It is accurate about what the code
+computes when enabled; it is NOT a description of what a report shows today.
+
+Caught the same day as invariant #1's live-prediction cutover, on the same report
+(`MN_MURRAY_CO_FULDA_2025-08-07`): `base_tons`/`shoulder_tons`/`hot_mix_tons` only ever captured
+TON-measured bid items. A CY-measured base item (2,485 CY, item 41, no depth stated) and an
+SY-measured shoulder item that states its own thickness (`8" Class 5 ... Surfacing`, item 40, 38
+SY) were extracted for nothing and silently dropped — no field, no citation, no report line. Same
+failure shape as invariant #1 and rough edge 11: a report and its own underlying data disagreeing
+— the Murray report already rendered "Work Type: Reconstruct / Rebuild" while the JSON payload's
+`archetype` said `"Grading/Earthwork"`, because the archetype rule
+(`apps/api/backend/project_registry.py::_archetype`) requires `paving` (mix ≥ 1,000 tons) **and**
+`GRADE_CY ≥ 500`, and the mix/base tonnage this fix now captures is exactly what was missing to
+satisfy `paving`.
+
+**The fix**: `pipelines/plan_reader/01_pipeline/schema.py` gained `base_cy_items` /
+`shoulder_cy_items` / `mix_sy_depth_items` — JSON arrays of `{quantity, unit, depth_in, page,
+note}`, one entry per qualifying non-TON item. `apps/api/backend/report.py` calls a new
+`pipelines/plan_reader/01_pipeline/material_tons_merge.py::merge_material_tons()` once per report,
+before both the archetype classification and the displayed quantities, so the report, the
+archetype, and the `scratch.bid_projects` row (`bid_projects_record.py` reads the merged value
+verbatim, unchanged) can never disagree — same "compute once, read everywhere" discipline invariant
+#1 exists to enforce. `AGGREGATE_TON_PER_CY = 1.55` and `MIX_TON_PER_SY_INCH = 0.0565` are
+CSI-supplied (MnDOT reference table) density constants, distinct from and more authoritative than
+`bucket_hierarchy.csv`'s unverified `1.75 Ton/CY` (rough edge 10's neighbor, invariant unchanged).
+
+**The arithmetic is code-only because the model's wasn't reliable — measured, not assumed.** The
+first version of this fix asked the model to pre-sum/pre-convert each bucket's total itself (the
+same shape as `milling_tons`'s "sum these stated numbers" design, rough edge 10's sibling feature).
+A live extraction test caught the returned **value** disagreeing with the arithmetic spelled out in
+the model's own **reason** text: for the mix bucket, the reasoning correctly computed `33,652`
+(even self-correcting mid-sentence — *"wait, recalculating..."*) but the returned value was
+`38,167`, a ~13% silent error with no relationship to the correct sum. Two-term addition of
+already-stated numbers (`milling_tons`'s exact design) is reliable — verified correct twice,
+unchanged by this fix. **Multiplication is not**, even in a 1-multiply-1-add case (`base_cy`'s
+first version was also wrong: reasoning said `2,493.44`, returned value was `2,496.06`). The fix
+redesigned these three fields to ask for zero arithmetic — raw per-item quantity and stated depth
+only — and moved every multiplication and every sum into
+`schema.resolve_cy_item`/`resolve_sy_depth_product` and `material_tons_merge.py`, auditable,
+testable Python. Re-verified live afterward: every merged total matched an independent manual
+calculation exactly, and the pre-existing `grading_quantity`/`milling_sy` fields were unperturbed by
+the three new fields sharing their extraction prompt (2,495 / 15,828, unchanged).
+
+**Two more bugs caught in the same session, before anything shipped** — recorded because they are
+exactly the class of defect this file asks every session to watch for: (1) mix's resolver first
+reused base/shoulder's `CY = SY × inches ÷ 36` geometry, silently dividing every mix product by 36
+(a wrong-formula bug, not a wrong-input bug) — undercounting mix tons 36× (`52.8` instead of the
+correct `1,901.3` on the same Murray plan) until a distinct `resolve_sy_depth_product` (no `/36`)
+was split out and the merge module's internal helper was changed to take its resolver as a
+required, never-defaulted parameter specifically so the two can't be conflated again. (2) Adding
+three array-shaped fields to the whole-document extraction prompt pushed a real response past
+`call_json`'s default `max_tokens=2048`, truncating the JSON mid-object — confirmed live before the
+fix (raised to `6000` in `s3_extract.py::extract_fields`).
+
+**Not verified**: no run against a real Supabase connection or `competitor_predict_live.py`'s live
+scoring — same `SUPABASE_TEAM_DB_URL` gap as rough edge 7. A project's `archetype` moving as a
+direct, intended consequence of a previously-missing mix/base total (see Murray above) will also
+move that project's Precision@5 candidate-pool "same_type" signal (rough edge 10) — expected, not a
+regression, but not measured against real traffic in this pass. Full design, the three bugs, and
+the exact numbers: `docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md`.
+
 ## Agent skills
 
 ### Issue tracker

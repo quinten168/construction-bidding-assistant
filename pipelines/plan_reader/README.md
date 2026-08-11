@@ -156,6 +156,20 @@ Fields are sourced by package part: **proposal** (8.5×11) → identity + bid-sc
 wages (whole-doc extractor, ±10% auto-scored vs golden); **plan-set / maps** (11×17) + special provisions →
 traffic_level, phasing, gotchas (structured retrieval). A **plan-set-only** PDF is skipped (no proposal).
 
+**Non-TON bid items are captured raw, not pre-converted, by design (2026-08-10).** `base_tons`/
+`shoulder_tons`/`hot_mix_tons` only ever capture TON-measured items. A CY-measured base item, or an
+SY-measured item that states its own thickness (e.g. `8" Class 5 ... Surfacing`), goes into a sibling
+`items`-type field instead — `base_cy_items` / `shoulder_cy_items` / `mix_sy_depth_items`, each a JSON
+array of `{quantity, unit, depth_in, page, note}`. **The extraction prompt asks for zero arithmetic on
+these fields** — no multiplying, no summing, no unit conversion — the model only reports numbers it read
+directly off the page. A live test caught the model's own pre-computed totals disagreeing with the
+arithmetic in its own citation text (a ~13% silent error), so summing and density-converting these items
+into the same `base_tons`/`shoulder_tons`/`hot_mix_tons` total is done entirely in code, not the prompt —
+`schema.resolve_cy_item`/`resolve_sy_depth_product` plus `apps/api/backend`'s
+`material_tons_merge.merge_material_tons()` (that merge module lives in `01_pipeline/` alongside
+`schema.py` but is only ever called from the live `apps/api` report path, not from any script in this
+README's own steps table). Full writeup: `docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md`.
+
 ---
 
 ## Source of truth — what to trust, and the join keys

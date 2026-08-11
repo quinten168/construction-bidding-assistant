@@ -60,6 +60,12 @@ Rules:
 - The document is annotated with page markers (e.g. `<!-- page 12 -->` or `[Page 12]`). Set "page" to that number where you found the value (null if unknown).
 - Numbers (the *_tons / *_quantity / *_sy fields): return a plain number — no commas, no units. Sum the bid-schedule line items if needed.
 - Booleans (box_culvert, prevailing_wages): return true or false.
+- Items fields (name ends in "_items", e.g. base_cy_items): "value" is a JSON ARRAY, not a number —
+  one object per qualifying bid item, in the exact shape that field's own instructions describe.
+  Return an empty array [] (not null) if no item qualifies. Each item object holds ONLY numbers you
+  read directly off the page (a quantity, a stated thickness) — do NOT multiply, sum, or convert
+  anything yourself for an items field, even though you convert/sum for ordinary number fields.
+  List one entry per qualifying bid item; downstream code does every calculation.
 - For project_type, "value" must be one of: {archetypes}
 
 Fields:
@@ -103,6 +109,46 @@ def smart_truncate(text: str, max_chars: int) -> str:
 
 # ── Claude extraction → schema cells ────────────────────────────────────────────
 
+def _coerce_num(raw_num):
+    """A single item-field number (quantity/depth_in) -> float, or None if unparseable. Shares
+    the same comma/dollar-stripping tolerance as a top-level 'num' field."""
+    if isinstance(raw_num, (int, float)):
+        return float(raw_num)
+    try:
+        return float(str(raw_num).replace("$", "").replace(",", "").strip())
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def _coerce_items(raw_list):
+    """The model's per-item list for an 'items' field -> a clean list of {quantity, unit, depth_in,
+    page, note} dicts, or None if the response wasn't a list at all (extraction failure — kept
+    distinguishable from a genuine, model-asserted empty list). Never raises on a malformed entry:
+    a single bad item is dropped rather than failing the whole field, since the field's own
+    'value is None vs value is []' distinction is what downstream status logic depends on, not
+    per-item strictness."""
+    if not isinstance(raw_list, list):
+        return None
+    items = []
+    for entry in raw_list:
+        if not isinstance(entry, dict):
+            continue
+        quantity = _coerce_num(entry.get("quantity"))
+        if quantity is None:
+            continue
+        unit = str(entry.get("unit") or "").strip().upper()
+        depth_in = _coerce_num(entry.get("depth_in"))
+        page = entry.get("page")
+        try:
+            page = int(page) if page not in (None, "", "null") else None
+        except (ValueError, TypeError):
+            page = None
+        note = str(entry.get("note", "") or "").strip()
+        items.append({"quantity": quantity, "unit": unit, "depth_in": depth_in,
+                      "page": page, "note": note})
+    return items
+
+
 def _coerce_cell(field, raw):
     """Normalize Claude's per-field object into a schema cell, coercing the value to the field's
     type. Accepts a bare scalar too (older/looser responses) by wrapping it."""
@@ -117,6 +163,12 @@ def _coerce_cell(field, raw):
         page = int(page) if page not in (None, "", "null") else None
     except (ValueError, TypeError):
         page = None
+    if field["type"] == "items":
+        # A list is never "absent" the way a scalar's "" / "null" is — an empty list [] is the
+        # model's own asserted "no qualifying item", not a missing answer. Only a genuinely
+        # missing/non-list value collapses to None here.
+        value = _coerce_items(value)
+        return schema.cell(value, conf, page, reason)
     if value in (None, "", "null"):
         return schema.cell(None, "", None)   # absent → no confidence/page/reason to report
     if field["type"] == "num":
@@ -162,7 +214,12 @@ def extract_fields(document_text: str) -> dict:
         document_text=document_text,
     )
     print("  Sending to Claude for whole-doc extraction...")
-    data = call_json(prompt) or {}
+    # max_tokens raised from the call_json default (2048) on 2026-08-10: adding the three
+    # base_cy_items/shoulder_cy_items/mix_sy_depth_items array fields pushed a real response past
+    # 2048 tokens and truncated mid-JSON (confirmed live on the Murray Co/Fulda plan — a JSON parse
+    # failure, not a clean empty result). 6000 leaves real headroom for a document with several
+    # qualifying items across all three new fields plus every existing field's own citation text.
+    data = call_json(prompt, max_tokens=6000) or {}
     return {f["name"]: _coerce_cell(f, data.get(f["name"])) for f in schema.EXTRACT_FIELDS}
 
 

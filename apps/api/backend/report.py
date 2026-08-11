@@ -25,6 +25,7 @@ from .config import settings
 from .observability import get_logger, timed
 
 import lib                # noqa: E402
+import material_tons_merge  # noqa: E402
 import schema             # noqa: E402
 import s1_convert as convert        # noqa: E402
 import s2_indexer as indexer        # noqa: E402
@@ -263,8 +264,27 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             "page": bid_deadline["page"],
         }
 
+    # Merge native-tons extraction with converted CY/SY-depth components (base/shoulder/mix) into
+    # one final total per bucket, computed once so the archetype classification below, the
+    # displayed quantities, and the DB row (bid_projects_record.py reads payload["quantities"]
+    # verbatim) all agree on the same number — never three different views of the same plan.
+    # See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+    # NOTE (2026-08-10, PR #102 integration): the conversion engine ships DORMANT. With
+    # material_tons_merge.CONVERSION_ENABLED False — the computed default, and the only state a
+    # fresh clone can be in — this returns the native TON extraction and nothing else, so every
+    # number below is the pre-#102 number. `conversion_report` is what keeps that from being a
+    # silent nothing: it says per bucket whether a conversion was withheld, was inapplicable, or
+    # could not be judged. Provenance, the two internal failure/empty collapses and the status
+    # vocabulary reconciliation land before the flag is allowed on.
+    merged_tons = material_tons_merge.merge_material_tons(record)
+    conversion_status = material_tons_merge.conversion_report(record)
+
+    def _effective(src):
+        merged_val = merged_tons.get(src)
+        return merged_val if merged_val is not None else _val(record.get(src))
+
     # archetype from the extracted quantities (v2 rule, reused from the resolver)
-    qrow = {dst: _val(record.get(src)) for src, dst in _QMAP.items()}
+    qrow = {dst: _effective(src) for src, dst in _QMAP.items()}
     archetype = project_registry._archetype(qrow)
 
     identity_fields = identity_fields_from_record(record)
@@ -277,7 +297,7 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
     quantities = []
     for src, dst in _QMAP.items():
         field = record.get(src)
-        value = _val(field)
+        value = _effective(src)
         if value in (None, "", 0):
             continue
         label = dst.replace("_TN", "").replace("_CY", "").replace("_SY", "")
@@ -300,6 +320,16 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         quantities.append({"label": "MILL_TON", "value": mill_tons_value, "unit": "TON"})
         field_confidence["MILL_TON"] = _conf(mill_tons_field)
 
+    # Raw CY/SY-depth components behind BASE/SHLDR/MIX's merged totals, surfaced for auditability
+    # without needing DB access — each already carries the model's own citation reasoning (source
+    # item, stated depth) the same way MILL's field_confidence entry does. Not added to the
+    # `quantities` list itself: BASE/SHLDR/MIX above already show the merged final value under
+    # their existing labels, and a second, unconverted row under the same material would look like
+    # a second, disagreeing quantity rather than this one's own supporting detail.
+    # See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+    for cy_field in ("base_cy_items", "shoulder_cy_items", "mix_sy_depth_items"):
+        field_confidence[cy_field] = _conf(record.get(cy_field))
+
     gotchas = [{"code": g.get("code"), "evidence": g.get("evidence"),
                 "page": g.get("page"), "confidence": g.get("confidence")}
                for g in (record.get("gotchas") or [])]
@@ -318,6 +348,18 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             # of the model. "milling in tons", "no milling item" and "extraction failed" stay three
             # distinguishable states rather than collapsing to one null.
             "milling_unit_status": schema.milling_unit_status(record),
+            # Same shape one level down: which unit(s) each bucket's non-tons component came from,
+            # so 'no CY/SY item on this plan' and 'extraction did not answer' stay distinguishable.
+            # See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+            "base_unit_status": schema.base_unit_status(record),
+            "shoulder_unit_status": schema.shoulder_unit_status(record),
+            "mix_unit_status": schema.mix_unit_status(record),
+            # Whether the CY/SY -> tons conversion ran for each bucket, and if not, whether
+            # anything was withheld by it not running. Separate from the *_unit_status keys above:
+            # those say what the SCHEDULE measured, these say what THIS SYSTEM did about it.
+            "base_conversion_status": conversion_status["base_tons"]["status"],
+            "shoulder_conversion_status": conversion_status["shoulder_tons"]["status"],
+            "mix_conversion_status": conversion_status["hot_mix_tons"]["status"],
             "latitude": latitude, "longitude": longitude,
             "coordinate_provenance": "midpoint" if latitude is not None else None,
             # Geocoded, never overwriting the extracted equivalents above. Separate keys so an

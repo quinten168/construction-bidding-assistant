@@ -99,6 +99,28 @@ SCALAR_FIELDS = [
        "patching mixtures. Do NOT count milling or removal of existing bituminous — that is "
        "milling_sy. Do NOT count aggregate.",
        golden="mix_tn", evalkind="num", group="quantities"),
+    # mix_sy_depth_items — raw per-item companion for hot_mix_tons, mirroring base_cy_items/
+    # shoulder_cy_items below. IMPORTANT: unlike an earlier version of this field, the model is
+    # NEVER asked to multiply or sum here — a live test on 2026-08-10 caught the model returning a
+    # "value" that disagreed with its own "reason" text's arithmetic (reasoning correctly computed
+    # 33,652; the returned value was 38,167). Multi-item multiply-then-sum is not reliable model
+    # arithmetic even at temperature=0. So this field asks only for RAW per-item facts — reading a
+    # printed number is what the model is actually reliable at — and material_tons_merge.py (code,
+    # not the model) does every multiplication and every sum. See
+    # docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+    _f("mix_sy_depth_items", "items", "extract",
+       "List every hot-mix-asphalt bid item that is measured in SQUARE YARDS (not tons) and whose "
+       "OWN description states a thickness in inches (e.g. '2.0\" Type SP Wearing Course Mixture'). "
+       "Do NOT list an item already counted in hot_mix_tons (a tons-measured item). Return a JSON "
+       "array, one object per qualifying item: "
+       "{\"quantity\": <the item's stated SY quantity>, \"unit\": \"SY\", "
+       "\"depth_in\": <the thickness stated in that item's own description, in inches>, "
+       "\"page\": <page number>, \"note\": <short citation, e.g. the pay item name>}. "
+       "Only use a thickness printed in that exact item's own description — never borrow one from "
+       "a different item, never assume one. Do NOT multiply, sum, or convert anything yourself — "
+       "list each item's own stated numbers verbatim, one entry per item. Return an empty array "
+       "[] (not null) if every mix item on this bid schedule is already measured in tons.",
+       golden=None, evalkind=None, group="quantities"),
     _f("base_tons", "num", "extract",
        "Total tons of aggregate/granular base material PURCHASED AND PLACED — for example "
        "'AGGREGATE BASE CLASS 5 / 6 / 13', 'GRAVEL SURFACING', 'TRAFFIC SERVICE AGGREGATE'. Do NOT "
@@ -107,6 +129,36 @@ SCALAR_FIELDS = [
        "'CEMENT STABILIZED SUBGRADE' — binder and additive, not aggregate. 'FULL DEPTH "
        "RECLAMATION' is base work, but its quantity belongs in milling_sy, not here.",
        golden="base_tn", evalkind="num", group="quantities"),
+    # base_cy_items — raw per-item companion for base_tons, capturing CY-measured base items
+    # instead of silently dropping them. Two source shapes can appear: an item already in CY, and
+    # an SY item whose own description states a thickness. The model reports each item's OWN
+    # stated numbers only — no multiplication, no summing, no unit conversion. material_tons_merge.py
+    # (code, not the model) resolves each item to a CY contribution and sums them; the density step
+    # (CY -> tons) happens there too, using a CSI-supplied constant. This field used to ask the
+    # model to pre-compute a single CY total; a live test on 2026-08-10 caught the returned value
+    # disagreeing with the arithmetic in its own reason text, so that was moved out of the prompt
+    # entirely. See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+    _f("base_cy_items", "items", "extract",
+       "List every aggregate/granular base bid item PURCHASED AND PLACED that is NOT already "
+       "counted in base_tons (a tons-measured item) — i.e. every base item measured in CUBIC "
+       "YARDS, or measured in SQUARE YARDS with its own description stating a thickness in inches. "
+       "Do NOT count 'REMOVE AGGREGATE BASE'/'REMOVAL OF AGGREGATE BASE' (demolition, not "
+       "aggregate bought for this job), 'PORTLAND CEMENT' or 'CEMENT STABILIZED SUBGRADE' (binder/"
+       "additive), or grading/earthwork even if in CY (that belongs in grading_quantity). Do NOT "
+       "list 'AGGREGATE SHOULDERING' or 'AGGREGATE SURFACING CLASS 1 / 2 / 5 / SPECIAL' items here "
+       "even if they also mention 'base' or 'Class 5' in their name — those belong exclusively in "
+       "shoulder_cy_items, matching the existing base_tons/shoulder_tons split. Every qualifying "
+       "item belongs in EXACTLY ONE of base_cy_items or shoulder_cy_items, never both. Return a "
+       "JSON array, one object per qualifying item: "
+       "{\"quantity\": <the item's stated quantity>, \"unit\": \"CY\" or \"SY\", "
+       "\"depth_in\": <the thickness stated in that item's own description, in inches — null if "
+       "the item is already in CY or no thickness is stated>, \"page\": <page number>, "
+       "\"note\": <short citation, e.g. the pay item name>}. Only use a thickness printed in that "
+       "exact item's own description — never borrow one from a different item, never assume one. "
+       "Do NOT multiply, sum, or convert anything yourself — list each item's own stated numbers "
+       "verbatim, one entry per item. Return an empty array [] (not null) if every base item on "
+       "this bid schedule is already measured in tons.",
+       golden=None, evalkind=None, group="quantities"),
     _f("grading_quantity", "num", "extract",
        "Total cubic yards (CY) of grading / earthwork — common excavation, subgrade excavation, "
        "embankment, borrow. Also count 'SALVAGE AND REUSE EXISTING AGGREGATE' and 'CLEAN ROCK'. "
@@ -121,6 +173,26 @@ SCALAR_FIELDS = [
        "'TRAFFIC SERVICE AGGREGATE' were moved to base_tons by CSI — do not count them here. "
        "'AGGREGATE SURFACING CLASS 1 / 2 / 5 / SPECIAL' is still counted here, pending a CSI ruling.",
        golden="shldr_tn", evalkind="num", group="quantities"),
+    # shoulder_cy_items — same shape and rationale as base_cy_items above, scoped to the shoulder
+    # bucket (e.g. '... Shouldering Aggregate Surfacing' items). Same no-arithmetic design.
+    _f("shoulder_cy_items", "items", "extract",
+       "List every shoulder-aggregate bid item that is NOT already counted in shoulder_tons (a "
+       "tons-measured item) — i.e. every shoulder item measured in CUBIC YARDS, or measured in "
+       "SQUARE YARDS with its own description stating a thickness in inches. This includes "
+       "'AGGREGATE SHOULDERING' and 'AGGREGATE SURFACING CLASS 1 / 2 / 5 / SPECIAL' items, matching "
+       "shoulder_tons's existing scope. Do NOT list 'GRAVEL SURFACING' or 'TRAFFIC SERVICE "
+       "AGGREGATE' items here — those belong in base_cy_items. Every qualifying item belongs in "
+       "EXACTLY ONE of base_cy_items or shoulder_cy_items, never both. Return a JSON array, one "
+       "object per qualifying item: "
+       "{\"quantity\": <the item's stated quantity>, \"unit\": \"CY\" or \"SY\", "
+       "\"depth_in\": <the thickness stated in that item's own description, in inches — null if "
+       "the item is already in CY or no thickness is stated>, \"page\": <page number>, "
+       "\"note\": <short citation, e.g. the pay item name>}. Only use a thickness printed in that "
+       "exact item's own description — never borrow one from a different item, never assume one. "
+       "Do NOT multiply, sum, or convert anything yourself — list each item's own stated numbers "
+       "verbatim, one entry per item. Return an empty array [] (not null) if every shoulder item on "
+       "this bid schedule is already measured in tons.",
+       golden=None, evalkind=None, group="quantities"),
     _f("milling_sy", "num", "extract",
        "Total square yards (SY) of milling and bituminous pavement removal: 'MILL BITUMINOUS "
        "SURFACE', 'REMOVE BITUMINOUS PAVEMENT', 'REMOVAL OF BITUMINOUS SURFACING', and 'FULL DEPTH "
@@ -297,6 +369,132 @@ def milling_unit_status(record) -> str:
     if unit == "SY+TON":
         return "sy_and_tons" if (has_sy and has_tons) else "inconsistent"
     return "other_unit"
+
+
+# ── Aggregate/mix CY unit status (derived — no model call, no conversion) ──────
+# Same standing rule as milling_unit_status above, applied to base_tons/shoulder_tons/hot_mix_tons:
+# a null items list must stay distinguishable from "nothing to capture" and from "extraction did
+# not answer". Unlike milling_unit_status, there is no model-asserted unit-summary field to read
+# here at all — base_cy_items/shoulder_cy_items/mix_sy_depth_items are RAW per-item facts (see
+# their field descriptions), so the status is derived entirely from the native tons field plus
+# this function's own classification of each item — one fewer thing the model can get wrong.
+# Spec: docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
+AGGREGATE_UNIT_STATUSES = (
+    "tons_only",            # items list is empty and the native tons field has a real value
+    "cy_only",              # every convertible item is already in CY (a direct read)
+    "sy_converted_only",    # every convertible item came from an SY-with-stated-depth conversion
+    "mixed",                # both a direct CY read and an SY-converted item are present
+    "sy_no_depth_present",  # at least one item is SY with NO stated depth — seen but not
+                             # convertible; named rather than silently excluded from the total
+    "not_present",          # items list is empty and the native tons field also has no value
+    "unknown",               # the items field itself is null — extraction produced no answer at
+                             # all. NEVER reported as not_present, which is a real, asserted answer.
+    "inconsistent",          # defensive: an item resolves to neither CY-direct nor SY-converted
+                             # nor SY-no-depth (e.g. a garbled unit token) — surfaced, not guessed
+)
+
+
+def resolve_cy_item(item: dict):
+    """One raw {quantity, unit, depth_in, ...} item -> CY contribution, or None if it cannot be
+    converted without guessing (an SY item with no stated depth, or a garbled/unrecognised unit).
+    Pure arithmetic, shared by material_tons_merge.py and the status functions below so the two
+    can never disagree about what a given item resolves to. CY = SY * inches / 36 — pure geometry,
+    no assumed density; the density step is a separate, later multiplication in
+    material_tons_merge.py, never here. Used for base_cy_items/shoulder_cy_items ONLY — the mix
+    bucket has no CY intermediate at all, see resolve_sy_depth_product below."""
+    if not isinstance(item, dict):
+        return None
+    quantity = item.get("quantity")
+    if not isinstance(quantity, (int, float)):
+        return None
+    unit = str(item.get("unit") or "").strip().upper()
+    if unit == "CY":
+        return quantity
+    if unit == "SY":
+        depth_in = item.get("depth_in")
+        if isinstance(depth_in, (int, float)) and depth_in > 0:
+            return quantity * depth_in / 36
+        return None  # SY with no usable stated depth — a real item, just not convertible
+    return None  # an unrecognised unit token
+
+
+def resolve_sy_depth_product(item: dict):
+    """One raw mix_sy_depth_items entry -> its SY*inches product, or None if unconvertible.
+    Deliberately NOT resolve_cy_item: mix skips the /36 CY-volume step entirely — its density
+    constant (MIX_TON_PER_SY_INCH) already operates on the raw SY*inches product, per the
+    CSI-supplied formula. Using resolve_cy_item here was a real bug caught in testing: it silently
+    divided the mix product by 36, undercounting mix tons by 36x. Kept as its own function, not a
+    branch inside resolve_cy_item, so the two can never be conflated again."""
+    if not isinstance(item, dict):
+        return None
+    quantity = item.get("quantity")
+    depth_in = item.get("depth_in")
+    if not isinstance(quantity, (int, float)):
+        return None
+    if str(item.get("unit") or "").strip().upper() != "SY":
+        return None
+    if not (isinstance(depth_in, (int, float)) and depth_in > 0):
+        return None  # SY with no usable stated depth — a real item, just not convertible
+    return quantity * depth_in
+
+
+def _aggregate_unit_status(record, tons_field: str, items_field: str, resolver=resolve_cy_item) -> str:
+    """Shared logic behind base_unit_status/shoulder_unit_status/mix_unit_status. Pure; never
+    mutates and never converts — classifies each item with `resolver` rather than trusting a
+    separate model-asserted summary field. `resolver` defaults to resolve_cy_item (base/shoulder);
+    mix_unit_status passes resolve_sy_depth_product instead."""
+    tons = _cell_value(record, tons_field)
+    has_tons = isinstance(tons, (int, float)) and tons > 0
+    items = _cell_value(record, items_field)
+
+    if items is None:
+        return "unknown"
+    if not isinstance(items, list):
+        return "inconsistent"
+    if not items:
+        return "tons_only" if has_tons else "not_present"
+
+    has_cy_direct = False
+    has_sy_converted = False
+    has_unconvertible = False
+    for item in items:
+        contribution = resolver(item)
+        if contribution is None:
+            has_unconvertible = True
+            continue
+        unit = str((item or {}).get("unit") or "").strip().upper()
+        if unit == "CY":
+            has_cy_direct = True
+        elif unit == "SY":
+            has_sy_converted = True
+
+    if has_unconvertible:
+        return "sy_no_depth_present"
+    if has_cy_direct and has_sy_converted:
+        return "mixed"
+    if has_cy_direct:
+        return "cy_only"
+    if has_sy_converted:
+        return "sy_converted_only"
+    return "inconsistent"  # non-empty list but nothing classified as anything — a garbled response
+
+
+def base_unit_status(record) -> str:
+    """One of AGGREGATE_UNIT_STATUSES for this record's base bucket."""
+    return _aggregate_unit_status(record, "base_tons", "base_cy_items")
+
+
+def shoulder_unit_status(record) -> str:
+    """One of AGGREGATE_UNIT_STATUSES for this record's shoulder bucket."""
+    return _aggregate_unit_status(record, "shoulder_tons", "shoulder_cy_items")
+
+
+def mix_unit_status(record) -> str:
+    """One of AGGREGATE_UNIT_STATUSES for this record's mix bucket (hot_mix_tons /
+    mix_sy_depth_items). Uses resolve_sy_depth_product, NOT resolve_cy_item — mix has no CY
+    intermediate, see that function's docstring."""
+    return _aggregate_unit_status(record, "hot_mix_tons", "mix_sy_depth_items",
+                                  resolver=resolve_sy_depth_product)
 
 
 # ── Record construction ────────────────────────────────────────────────────────
