@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { AlertTriangle, Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, Copy, Download, FileText, Info, Users } from "lucide-react";
 import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate,
   competitorNames } from "@/lib/chat-data";
 import { type GapCell, CARRIED_LABELS, QUANTITY_LABEL, QUANTITY_NOTE, carriedCell, millingCell }
@@ -558,22 +558,19 @@ export function CompetitorSection({
 
   return (
     <div>
-      {/* Summary panel — the important at-a-glance CI info, given real weight */}
+      {/* Pit access overview — NOT the competitor list itself, kept as its own labeled block so
+          site-level material-source facts and "who's likely to bid" read as two separate
+          questions. Work type/condition dropped 2026-08-11: §① Plan Snapshot (plan_reader's own
+          extraction) already shows the project type, so repeating it here was redundant. */}
       <div className="rounded-2xl border border-black/[0.08] bg-secondary/30 p-4">
         <div className="flex items-center gap-2 text-[15px] font-medium text-foreground">
-          <Users className="h-[18px] w-[18px] text-primary" />
-          Top {s.analyzed} likely competitors
+          <Info className="h-[18px] w-[18px] text-primary" />
+          Pit access overview
         </div>
 
-        {(comp.work_type || comp.condition) && (
-          <p className="mt-3 text-[13.5px] font-medium text-foreground/80">
-            {comp.work_type}
-            {comp.condition ? ` · ${comp.condition}` : ""}
-          </p>
-        )}
         {comp.pits?.public_pits && comp.pits.public_pits.length > 0 ? (
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            <p>Pit access — {comp.pits.public_pits.length} nearest public-access pit(s), click a name to find it on the map:</p>
+          <div className="mt-3 text-[12.5px] text-muted-foreground">
+            <p>{comp.pits.public_pits.length} nearest public-access pit(s) — click a name to find it on the map:</p>
             {comp.pits.public_pits.map((p, i) => (
               <button
                 key={`${p.name}-${i}`}
@@ -588,7 +585,7 @@ export function CompetitorSection({
           </div>
         ) : (
           comp.pits?.public && (
-            <p className="mt-1.5 text-[12.5px] text-muted-foreground">Pit access: {comp.pits.public}</p>
+            <p className="mt-3 text-[12.5px] text-muted-foreground">{comp.pits.public}</p>
           )
         )}
         {/* Map only once we have both a project location and at least one pit to plot -- lets
@@ -606,7 +603,12 @@ export function CompetitorSection({
 
       {/* Ranked list — best match first. Estimator-added names (typed in via the verify-competitors
           popup) get the same live win_rate/bid_rate/capacity/pit_access retrieval as everyone else,
-          just a "you added" badge to distinguish them from the model's own picks. */}
+          just a "you added" badge to distinguish them from the model's own picks. Heading sits
+          directly above the actual names, not above the project-overview block above. */}
+      <div className="mt-4 flex items-center gap-2 text-[15px] font-medium text-foreground">
+        <Users className="h-[18px] w-[18px] text-primary" />
+        Top {s.analyzed} likely competitors
+      </div>
       {/* A matched report that names nobody is a legitimate empty answer — say so, so it can never
           be mistaken for the failed-lookup case (comp == null, handled by the caller). */}
       {names.length === 0 && (
