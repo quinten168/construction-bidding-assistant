@@ -40,21 +40,40 @@ log = get_logger("bid_assistant.final_report")
 
 
 def _resolve_bid_date(identity: dict) -> str | None:
-    """The best "as of" date to scope competitor history by, in priority order: the plan's own
-    parsed bid deadline (the actual letting date -- what "before this date" is supposed to mean),
-    else construction_start, else construction_end.
+    """The best "as of" date to scope competitor history by, in priority order:
+      1. identity["bid_date"] — the ALREADY-COMPUTED machine-readable ISO date from
+         bid_date_bridge.py's dedicated 3-layer extractor (advertisement PDF / plan pages /
+         human-typed correction), which itself runs a much more format-aware, context-scored read
+         than anything below (month names, "the Nth day of Month" legal phrasing, numeric M/D/Y in
+         2- or 4-digit years, and a scoring pass that tells the actual bid deadline apart from a
+         completion date / addendum date / copyright date on the same page). This is the field CI
+         is supposed to read; re-deriving a date from scratch here was always redundant with it.
+      2. identity["bid_deadline"] (the free-text display string bid_date_bridge also writes, e.g.
+         '2025-08-07T11:00 local') re-parsed via bid_projects_record.parse_bid_date() — kept ONLY
+         as a fallback for payloads that predate bid_date_bridge (bid_date will be absent/None on
+         those), or the rare case bid_date_bridge produced a display string without the
+         machine-readable half.
+      3. construction_start, else construction_end.
+
+    Preferring step 1 was the actual fix needed 2026-08-11: step 2's regex-based re-parse is a
+    narrower, independently-maintained parser than bid_date_bridge's, so any format the latter's
+    engine already knows how to read but the former's regex doesn't (which is exactly what
+    happened with the 'T11:00 local' suffix bid_date_bridge itself introduced) silently fell
+    through past a value that had, in fact, already been correctly computed one field over.
 
     Every call site into assemble()/predict_competitors() previously skipped straight to
-    construction_start/construction_end, never attempting identity["bid_deadline"] at all. For a
-    plan dropped through the live app, bid_deadline_raw is populated far more often than
-    construction_start/end (9 of the first 10 real plan_reader-written rows had a null
-    construction_start; construction_end, when used alone, can sit a year or more after the actual
-    bid date, which both misdates the "as of" cutoff and — worse — can make a currently-open
-    bidding season look closed). Reuses bid_projects_record.parse_bid_date() rather than
-    reimplementing date parsing; that function already handles the free-text formats plan_reader
-    extracts ('09:30AM ... on August 15, 2025', '11/15/2025', ISO). Caught 2026-08-08 while
-    investigating why capacity showed "insufficient history" for freshly-processed demo plans.
+    construction_start/construction_end, never attempting the bid deadline at all. For a plan
+    dropped through the live app, bid_deadline is populated far more often than construction_start
+    /end (9 of the first 10 real plan_reader-written rows had a null construction_start;
+    construction_end, when used alone, can sit a year or more after the actual bid date, which
+    both misdates the "as of" cutoff and — worse — can make a currently-open bidding season look
+    closed). Caught 2026-08-08 while investigating why capacity showed "insufficient history" for
+    freshly-processed demo plans; the step-1-missing bug caught 2026-08-11 the same way, again on
+    a live plan's capacity coming back zero.
     """
+    machine_bid_date = identity.get("bid_date")
+    if machine_bid_date:
+        return machine_bid_date
     import bid_projects_record as bpr  # noqa: E402 — sys.path via plan_reader_bridge above
     parsed, ok = bpr.parse_bid_date(identity.get("bid_deadline"))
     if ok and parsed:
@@ -493,6 +512,12 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
             nearest_pits = None
         comp["pits"] = comp.get("pits") or {}
         comp["pits"]["public"] = _format_nearest_pits(nearest_pits)
+        # Structured form of the same data, alongside the formatted string above (kept for
+        # markdown/PDF exports and any other consumer already reading comp["pits"]["public"] as
+        # text) -- lets the chat card render one pit per line instead of parsing a comma-joined
+        # sentence back apart. None/empty distinguished the same way nearest_open_pits() does:
+        # None = lookup unavailable/failed, [] = ran fine, genuinely zero pits.
+        comp["pits"]["public_pits"] = nearest_pits
 
     return {
         "plan_id": pid,

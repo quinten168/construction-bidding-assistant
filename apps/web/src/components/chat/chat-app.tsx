@@ -44,7 +44,12 @@ export function ChatApp() {
       <div className="hidden w-14 shrink-0 flex-col items-center border-r border-border bg-[oklch(0.952_0.009_83)] py-3 md:flex">
         <RailIcon icon={PanelLeft} label="Toggle chats" active={railOpen} onClick={() => setRailOpen((o) => !o)} />
         <div className="mt-1 flex flex-col items-center gap-1">
-          <RailIcon icon={SquarePen} label="New chat" onClick={store.newConversation} />
+          <RailIcon
+            icon={SquarePen}
+            label={isEmpty ? "Already on a new chat" : "New chat"}
+            disabled={isEmpty}
+            onClick={store.newConversation}
+          />
           <RailIcon icon={MessageSquare} label="Chats" onClick={() => setRailOpen(true)} />
         </div>
         <div className="flex-1" />
@@ -248,23 +253,28 @@ function RailIcon({
   icon: Icon,
   label,
   active,
+  disabled,
   onClick,
 }: {
   icon: typeof PanelLeft;
   label: string;
   active?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       title={label}
       aria-label={label}
       className={cn(
         "grid h-9 w-9 place-items-center rounded-xl transition-colors",
-        active
-          ? "bg-card text-foreground elev-sm"
-          : "text-muted-foreground hover:bg-card hover:text-foreground",
+        disabled
+          ? "cursor-not-allowed text-muted-foreground/40"
+          : active
+            ? "bg-card text-foreground elev-sm"
+            : "text-muted-foreground hover:bg-card hover:text-foreground",
       )}
     >
       <Icon className="h-[18px] w-[18px]" strokeWidth={2} />

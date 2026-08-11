@@ -6,6 +6,7 @@ import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-reac
 import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate,
   competitorNames } from "@/lib/chat-data";
 import { Eyebrow, Chip } from "@/components/kit";
+import { PitAccessMap } from "./pit-access-map";
 
 // ────────────────────────────────────────────────────────────────────────────
 // The signature artifact: a readable plan REPORT CARD rendered INLINE in the
@@ -264,7 +265,7 @@ export function ReportCard({ final }: { final?: FinalReport }) {
         <section>
           <SectionHeader n={4} title="Competitive landscape" />
           {final.competitor ? (
-            <CompetitorSection comp={final.competitor} />
+            <CompetitorSection comp={final.competitor} identity={final.identity} />
           ) : (
             <p className="rounded-xl border border-black/[0.06] bg-secondary/30 px-3 py-2.5 text-[12px] text-muted-foreground">
               No competitor-intel report matched this project (by county + state + date).
@@ -433,8 +434,19 @@ function GotchaGroup({
 // are gone with it — deliberately not resurrected. Two things from our side are kept:
 //   1. `export` — the coverage test renders this component directly via react-dom/server.
 //   2. the competitorNames() flatten below.
-export function CompetitorSection({ comp }: { comp: Competitor }) {
+export function CompetitorSection({
+  comp, identity,
+}: {
+  comp: Competitor;
+  identity?: Record<string, string | number | boolean | null>;
+}) {
   const s = comp.summary ?? { analyzed: 0, narrative: "" };
+  const originLat = typeof identity?.latitude === "number" ? identity.latitude : null;
+  const originLon = typeof identity?.longitude === "number" ? identity.longitude : null;
+  // Which pit row is "active" -- clicking a list row opens that marker on the map below;
+  // clicking a marker highlights its row back (see PitAccessMap's onMarkerClick), so the two
+  // stay in sync regardless of which one the user interacts with first.
+  const [selectedPitIndex, setSelectedPitIndex] = useState<number | null>(null);
   // The name boundary. The wire list may hold `{ name, tier }` objects (see chat-data.ts) —
   // rendering one directly threw "Objects are not valid as a React child" and took the whole
   // card down. ci_model's executor.py still emits `tier` and is CI-owned, so this stays.
@@ -457,8 +469,36 @@ export function CompetitorSection({ comp }: { comp: Competitor }) {
             {comp.condition ? ` · ${comp.condition}` : ""}
           </p>
         )}
-        {comp.pits?.public && (
-          <p className="mt-1.5 text-[12.5px] text-muted-foreground">Pit access: {comp.pits.public}</p>
+        {comp.pits?.public_pits && comp.pits.public_pits.length > 0 ? (
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
+            <p>Pit access — {comp.pits.public_pits.length} nearest public-access pit(s), click a name to find it on the map:</p>
+            {comp.pits.public_pits.map((p, i) => (
+              <button
+                key={`${p.name}-${i}`}
+                type="button"
+                onClick={() => setSelectedPitIndex(i)}
+                className={`block w-full pl-3 text-left hover:text-foreground ${selectedPitIndex === i ? "font-medium text-foreground" : ""}`}
+              >
+                {p.name} ({p.distance_miles.toFixed(1)} mi
+                {p.quality != null ? `, quality ${p.quality}` : ""})
+              </button>
+            ))}
+          </div>
+        ) : (
+          comp.pits?.public && (
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">Pit access: {comp.pits.public}</p>
+          )
+        )}
+        {/* Map only once we have both a project location and at least one pit to plot -- lets
+            same-named pits at genuinely different coordinates (a real scratch.mn_pit_list pattern)
+            show up as visibly separate points instead of indistinguishable list rows. */}
+        {originLat != null && originLon != null && comp.pits?.public_pits && comp.pits.public_pits.length > 0 && (
+          <PitAccessMap
+            origin={{ lat: originLat, lon: originLon }}
+            pits={comp.pits.public_pits}
+            selectedIndex={selectedPitIndex}
+            onMarkerClick={setSelectedPitIndex}
+          />
         )}
       </div>
 
@@ -508,8 +548,8 @@ function CompetitorRow({
   const stateWinRate = stats?.win_rate?.state;
   const stateBidRate = stats?.bid_rate?.state;
   const inline = [
-    stateWinRate ? `Win ${fmtScoped(stateWinRate)}` : null,
-    stateBidRate ? `Bid ${fmtScoped(stateBidRate)}` : null,
+    stateWinRate?.pct != null ? `${fmtPct(stateWinRate.pct)} win rate` : null,
+    stateBidRate?.pct != null ? `${fmtPct(stateBidRate.pct)} bid rate` : null,
   ].filter(Boolean) as string[];
 
   return (
@@ -539,10 +579,18 @@ function fmtPct(pct: number | null | undefined): string {
   return pct == null ? "—" : `${Math.round(pct * 100)}%`;
 }
 
-function fmtScoped(r?: ScopedRate): string {
-  if (!r) return "—";
-  const raw = r.wins != null && r.bids != null ? `${r.wins}/${r.bids}` : r.bids != null && r.total != null ? `${r.bids}/${r.total}` : null;
-  return raw ? `${raw} · ${fmtPct(r.pct)}` : fmtPct(r.pct);
+// Full-sentence, one-scope-per-line phrasing for the win/bid rate blocks -- win_rate is wins/bids
+// ("of the times they bid, how often did they win"), bid_rate is bids/total ("of the projects they
+// were eligible for, how often did they bid at all") -- genuinely different denominators, so they
+// need different wording, not the same template with a relabeled noun.
+function fmtWinRateSentence(r?: ScopedRate): string {
+  if (!r || r.wins == null || r.bids == null) return r?.pct != null ? fmtPct(r.pct) : "—";
+  return `${r.wins} of ${r.bids} bid${r.bids === 1 ? "" : "s"} won (${fmtPct(r.pct)})`;
+}
+
+function fmtBidRateSentence(r?: ScopedRate): string {
+  if (!r || r.bids == null || r.total == null) return r?.pct != null ? fmtPct(r.pct) : "—";
+  return `${r.bids} of ${r.total} eligible project${r.total === 1 ? "" : "s"} bid on (${fmtPct(r.pct)})`;
 }
 
 function fmtTons(t: number | null | undefined): string {
@@ -561,44 +609,54 @@ function CompetitorStatsBlock({ stats }: { stats?: CompetitorStats }) {
     <div className="mt-2 grid grid-cols-1 gap-1.5 border-t border-black/[0.06] pt-2 text-[11px] sm:grid-cols-2">
       {win_rate && (
         <div>
-          <div className="font-medium text-foreground/70">Win rate</div>
+          <div className="font-medium text-foreground/70">Win rate — of the projects they bid on, how often they won</div>
           <div className="text-muted-foreground">
-            State {fmtScoped(win_rate.state)} · County {fmtScoped(win_rate.county)} · Type {fmtScoped(win_rate.project_type)}
+            <div>State: {fmtWinRateSentence(win_rate.state)}</div>
+            <div>County: {fmtWinRateSentence(win_rate.county)}</div>
+            <div>Type: {fmtWinRateSentence(win_rate.project_type)}</div>
           </div>
         </div>
       )}
       {bid_rate && (
         <div>
-          <div className="font-medium text-foreground/70">Bid rate</div>
+          <div className="font-medium text-foreground/70">Bid rate — of projects they were eligible for, how often they bid at all</div>
           <div className="text-muted-foreground">
-            State {fmtScoped(bid_rate.state)} · County {fmtScoped(bid_rate.county)} · Type {fmtScoped(bid_rate.project_type)}
+            <div>State: {fmtBidRateSentence(bid_rate.state)}</div>
+            <div>County: {fmtBidRateSentence(bid_rate.county)}</div>
+            <div>Type: {fmtBidRateSentence(bid_rate.project_type)}</div>
           </div>
         </div>
       )}
       {capacity && (
         <div>
-          <div className="font-medium text-foreground/70">Capacity</div>
+          <div className="font-medium text-foreground/70">Capacity — how much they&apos;ve won this year vs. their usual pace</div>
           <div className="text-muted-foreground">
-            {capacity.typical_capacity
-              ? `${fmtTons(capacity.ytd_won)} of ${fmtTons(capacity.typical_capacity)} typical · ${fmtPct(capacity.capacity_pct)}`
-              : `${fmtTons(capacity.ytd_won)} so far — no historical baseline yet`}
-            {capacity.last_year_total != null && ` (last year: ${fmtTons(capacity.last_year_total)})`}
+            {capacity.season_has_data === false ? (
+              "No results recorded for the current season yet — please upload this season's bid data to compute capacity."
+            ) : (
+              <>
+                {capacity.typical_capacity
+                  ? `Won ${fmtTons(capacity.ytd_won)} so far this year — ${fmtPct(capacity.capacity_pct)} of their average ${fmtTons(capacity.typical_capacity)}/year pace`
+                  : `Won ${fmtTons(capacity.ytd_won)} so far this year — no prior-year baseline to compare to yet`}
+                {capacity.last_year_total != null && ` (won ${fmtTons(capacity.last_year_total)} last year)`}
+              </>
+            )}
           </div>
         </div>
       )}
       {pit_access && (
         <div>
-          <div className="font-medium text-foreground/70">Pit access</div>
+          <div className="font-medium text-foreground/70">Pit access — material source, closer usually means a cost/logistics edge</div>
           <div className="text-muted-foreground">
             {pit_access.nearest_owned_pit ? (
               <span className="font-medium text-foreground/80">
-                Owns {pit_access.nearest_owned_pit.name} · {pit_access.nearest_owned_pit.distance_miles.toFixed(1)}mi
-                · quality {pit_access.nearest_owned_pit.quality ?? "—"}
+                Owns a pit {pit_access.nearest_owned_pit.distance_miles.toFixed(1)} mi away
+                ({pit_access.nearest_owned_pit.name}, quality {pit_access.nearest_owned_pit.quality ?? "—"})
               </span>
             ) : (
-              "No owned pit"
+              "Owns no pit near this site"
             )}
-            {" · "}{pit_access.owned_pits_within_25mi_count} owned within 25mi
+            {" — "}{pit_access.owned_pits_within_25mi_count} owned pit{pit_access.owned_pits_within_25mi_count === 1 ? "" : "s"} within 25 mi
             {pit_access.owned_pits_within_25mi_avg_quality != null &&
               ` (avg quality ${pit_access.owned_pits_within_25mi_avg_quality.toFixed(1)})`}
           </div>

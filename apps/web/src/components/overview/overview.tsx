@@ -10,6 +10,7 @@ import {
 } from "@/lib/data";
 import { Glass, Stat, SectionTitle, Eyebrow, Chip, Reveal } from "@/components/kit";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 const open = PROJECTS.filter((p) => p.status === "open");
 const pipelineValue = open.reduce((s, p) => s + p.valueUSD, 0);
@@ -31,7 +32,7 @@ export function Overview() {
         <div className="mb-6 flex items-end justify-between">
           <div>
             <Eyebrow>Wednesday · June 18</Eyebrow>
-            <h1 className="mt-1 font-serif text-3xl tracking-tight">Good morning, Tobias</h1>
+            <h1 className="mt-1 font-serif text-3xl tracking-tight">Good morning, {BRAND.user.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               <span className="text-foreground">{open.length} live opportunities</span> in the pipe ·
               {" "}3 close this week · 1 flagged as a strong fit.

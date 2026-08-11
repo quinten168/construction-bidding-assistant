@@ -71,8 +71,24 @@ function buildFields(extraction: Extraction): VerifyField[] {
   return out;
 }
 
-const needsReview = (f: Pick<VerifyField, "confidence" | "required" | "value">) =>
-  f.confidence === "low" || f.confidence === "medium" || (f.required && !f.value);
+// bid_date_bridge.py's engine (04_tools/bid_date/bid_date.py) already reads a wide range of
+// free-text date formats and writes identity.bid_deadline starting with a proper 'YYYY-MM-DD'
+// (optionally followed by 'THH:MM timezone') -- but the downstream reader that scopes competitor
+// capacity to "as of this date" is a SEPARATE, narrower parser (bid_projects_record.parse_bid_date,
+// see final_report.py::_resolve_bid_date), and it has already been wrong once (2026-08-10: choked
+// on the 'T11:00 local' suffix, silently fell back to a completion date 10 months later, reported
+// zero capacity for every competitor). A human glancing at "2025-08-07" and clicking confirm
+// cannot tell that the machine-readable half a different code path will actually key off of might
+// not agree with what's on screen. Rather than trust that every future date-shaped string this
+// pipeline ever produces stays parseable downstream, require the ISO prefix to be visibly right
+// AT THE HUMAN CHECKPOINT -- the one place a mismatch is cheap to catch.
+const ISO_DATE_PREFIX = /^\d{4}-\d{2}-\d{2}/;
+const isBidDeadlineFormatOk = (key: string, value: string) =>
+  key !== "bid_deadline" || !value || ISO_DATE_PREFIX.test(value.trim());
+
+const needsReview = (f: Pick<VerifyField, "key" | "confidence" | "required" | "value">) =>
+  f.confidence === "low" || f.confidence === "medium" || (f.required && !f.value) ||
+  !isBidDeadlineFormatOk(f.key, f.value);
 
 type FieldState = { value: string; verified: boolean; edited: boolean };
 
@@ -183,16 +199,20 @@ export function VerifyExtraction({
         {allFields.map((f) => {
           const st = fields[f.key];
           const missingRequired = f.required && !st.value;
-          const review = needsReview({ confidence: f.confidence, required: f.required, value: st.value });
-          const isEditing = editing === f.key || missingRequired; // blank required field: always editable, never silently skippable
+          const review = needsReview({ key: f.key, confidence: f.confidence, required: f.required, value: st.value });
+          const badDeadlineFormat = !isBidDeadlineFormatOk(f.key, st.value);
+          // blank required field OR a bid_deadline not shaped like yyyy-mm-dd: always editable,
+          // never silently skippable via a bare checkbox click (see isBidDeadlineFormatOk's
+          // comment for why the format specifically, not just presence, has to be human-checked).
+          const isEditing = editing === f.key || missingRequired || badDeadlineFormat;
           return (
             <Glass key={f.key} className={cn("p-3", review && !st.verified && "ring-1 ring-[var(--warn)]/40")}>
               <div className="flex items-center gap-3">
                 {/* confirm toggle */}
                 <button
                   onClick={() => setField(f.key, { verified: !st.verified })}
-                  disabled={missingRequired}
-                  title={missingRequired ? "Enter a value first" : undefined}
+                  disabled={missingRequired || badDeadlineFormat}
+                  title={missingRequired ? "Enter a value first" : badDeadlineFormat ? "Fix the date format first" : undefined}
                   className={cn(
                     "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                     st.verified ? "border-[var(--positive)] bg-[var(--positive)] text-white" : "border-black/15 text-transparent hover:border-primary",
@@ -230,18 +250,20 @@ export function VerifyExtraction({
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               const v = (e.target as HTMLInputElement).value;
-                              setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" });
-                              setEditing(null);
+                              const formatOk = isBidDeadlineFormatOk(f.key, v);
+                              setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" && formatOk });
+                              if (formatOk) setEditing(null); // bad format: stay open until it's fixed
                             }
                           }}
                           onBlur={(e) => {
                             const v = e.target.value;
-                            setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" });
-                            if (v !== "") setEditing(null);
+                            const formatOk = isBidDeadlineFormatOk(f.key, v);
+                            setField(f.key, { value: v, edited: v !== f.value, verified: v !== "" && formatOk });
+                            if (v !== "" && formatOk) setEditing(null);
                           }}
                           className={cn(
                             "w-40 rounded-lg border bg-white/70 px-2 py-1 font-mono text-sm outline-none",
-                            missingRequired ? "border-[var(--warn)]/50" : "border-primary/40",
+                            missingRequired || badDeadlineFormat ? "border-[var(--warn)]/50" : "border-primary/40",
                           )}
                         />
                         {f.unit && <span className="text-xs text-muted-foreground">{f.unit}</span>}
@@ -252,6 +274,13 @@ export function VerifyExtraction({
                           Not stated anywhere in the plan — enter the bid opening / letting date
                           (yyyy-mm-dd). This is what scopes the competitor capacity numbers to
                           &quot;as of&quot; this date.
+                        </p>
+                      )}
+                      {!missingRequired && badDeadlineFormat && (
+                        <p className="mt-1 text-[11px] leading-snug text-[var(--warn)]">
+                          Enter as yyyy-mm-dd — competitor capacity is scoped &quot;as of&quot; this
+                          date by a different reader than the one that extracted it, and a format it
+                          doesn&apos;t recognize silently falls back to a completion date instead.
                         </p>
                       )}
                     </div>

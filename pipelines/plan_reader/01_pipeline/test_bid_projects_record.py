@@ -17,6 +17,7 @@ from bid_projects_record import (  # noqa: E402
     build_project_natural_key,
     build_record,
     mapped_columns,
+    parse_bid_date,
 )
 
 
@@ -146,6 +147,58 @@ class MappedColumnsTest(unittest.TestCase):
                          "plan_uid", "join_key", "row_source",    # new_columns
                          "project_natural_key", "bid_date"):      # unpopulated (not db_default)
             self.assertIn(expected, cols)
+
+
+class ParseBidDateTest(unittest.TestCase):
+    """Regression coverage for the (?!\\d) fix -- found live 2026-08-10: a plan whose
+    bid_deadline arrived as a full ISO datetime ('2025-08-07T11:00 local') silently failed to
+    parse (the old trailing \\b never matches between a digit and the letter 'T', since both are
+    word characters), so the competitor cascade's "as of" date fell through to construction_end
+    instead -- 10 months later, landing capacity's "current season" calculation on an empty
+    season and making a real, actively-bidding competitor look like it had won nothing."""
+
+    def test_iso_datetime_with_trailing_time_and_zone_label(self):
+        self.assertEqual(parse_bid_date("2025-08-07T11:00 local"), ("2025-08-07", True))
+
+    def test_plain_iso_date_still_works(self):
+        self.assertEqual(parse_bid_date("2025-08-07"), ("2025-08-07", True))
+
+    def test_iso_date_without_zero_padding(self):
+        self.assertEqual(parse_bid_date("2025-8-7"), ("2025-08-07", True))
+
+    def test_iso_date_with_space_separated_time(self):
+        self.assertEqual(parse_bid_date("2025-08-07 11:00 AM"), ("2025-08-07", True))
+
+    def test_iso_date_slash_separated(self):
+        self.assertEqual(parse_bid_date("2025/08/07"), ("2025-08-07", True))
+        self.assertEqual(parse_bid_date("2025/8/7"), ("2025-08-07", True))
+
+    def test_free_text_formats_still_work(self):
+        self.assertEqual(
+            parse_bid_date("11:00AM Central Time on August 15, 2025"), ("2025-08-15", True))
+        self.assertEqual(parse_bid_date("August 15th, 2025"), ("2025-08-15", True))
+        self.assertEqual(parse_bid_date("15 August 2025"), ("2025-08-15", True))
+        self.assertEqual(parse_bid_date("11/15/2025"), ("2025-11-15", True))
+
+    def test_us_order_dash_separated(self):
+        # New format: MM-DD-YYYY (dash, not slash) -- must resolve to US month-day order, and
+        # must never be confused with the ISO dash pattern (checked first, but structurally can't
+        # match here since its leading group requires a 4-digit year).
+        self.assertEqual(parse_bid_date("11-15-2025"), ("2025-11-15", True))
+        self.assertEqual(parse_bid_date("8-7-2025"), ("2025-08-07", True))
+
+    def test_digits_embedded_in_longer_run_still_rejected(self):
+        # (?!\d) must keep refusing to match a date-shaped substring inside a longer digit run --
+        # that's the one thing the original \b was actually guarding against.
+        self.assertEqual(parse_bid_date("x12025-08-071x"), (None, False))
+
+    def test_impossible_date_rejected_not_guessed(self):
+        self.assertEqual(parse_bid_date("13/45/2025"), (None, False))
+
+    def test_no_date_present(self):
+        self.assertEqual(parse_bid_date("no date here"), (None, False))
+        self.assertEqual(parse_bid_date(""), (None, False))
+        self.assertEqual(parse_bid_date(None), (None, False))
 
 
 if __name__ == "__main__":

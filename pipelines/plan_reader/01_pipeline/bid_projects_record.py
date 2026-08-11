@@ -129,10 +129,26 @@ def _slug(value) -> Optional[str]:
 def parse_bid_date(raw) -> tuple[Optional[str], bool]:
     """(iso_date_or_None, was_parsed). Free text in, ISO date out.
 
-    `bid_deadline` is genuinely free text — '09:30AM Central Time on August 15, 2025', '11/15/2025',
-    or None. Returns None (not the sentinel) when it cannot parse; substituting the sentinel is the
+    `bid_deadline` is genuinely free text and the extraction pipeline's exact phrasing has already
+    drifted once (plain '2023-08-03' when this was first written, then a full ISO datetime with a
+    trailing zone label like '2025-08-07T11:00 local' — see the 2026-08-10 fix below) and should be
+    expected to drift again. Every branch here is deliberately permissive about what comes AFTER a
+    date (trailing time/timezone text, punctuation) since bid_deadline almost never arrives as a
+    bare date — but never permissive about DAY-VS-MONTH ORDER, which is where a wrong-but-plausible
+    date is worse than no date: everything numeric-and-ambiguous assumes US order (month before
+    day), since that is what every DOT in the six operating states writes, ISO's year-first order
+    aside. Returns None (not the sentinel) when it cannot parse; substituting the sentinel is the
     CALLER's decision, and keeping that split here means `bid_date` and `project_natural_key` can
     make it differently. `bid_deadline_raw` always retains the original either way.
+
+    Recognizes, in this order (first match wins — ISO first because it's unambiguous and
+    construction_start/end already arrive in this shape):
+      2025-08-07, 2025-8-7, 2025-08-07T11:00 local, 2025-08-07 11:00 AM   (ISO, dash)
+      2025/08/07                                                          (ISO, slash)
+      August 15, 2025 / Aug 15 2025 / August 15th 2025                    (month name, then day)
+      15 August 2025                                                      (day, then month name)
+      11/15/2025, 8/7/2025                                                (US order, slash)
+      11-15-2025, 8-7-2025                                                (US order, dash)
     """
     if raw is None:
         return None, False
@@ -144,8 +160,20 @@ def parse_bid_date(raw) -> tuple[Optional[str], bool]:
               ).split()
     month_alt = "|".join(m[:3] for m in months)
 
-    # ISO first — it is unambiguous, and construction_start/end already arrive in this shape.
-    if m := re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", text):
+    # ISO, dash-separated. Trailing (?!\d) instead of \b: bid_deadline now sometimes arrives as a
+    # full ISO datetime ('2025-08-07T11:00 local'), and \d/\w-class 'T' immediately after the day
+    # digits means \b never matches there (both sides are word characters) -- the whole regex used
+    # to silently fail, and the caller fell through to construction_end (which can sit a year+
+    # after the real bid date, see the module-level docstring above). (?!\d) still refuses to match
+    # inside a longer digit run, which is all \b was ever guarding against here. \d{1,2} (not a
+    # fixed \d{2}) for month/day: nothing about ISO requires zero-padding, and a non-padded
+    # extraction ('2025-8-7') is exactly as unambiguous as a padded one.
+    if m := re.search(r"\b(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)", text):
+        y, mo, d = m.groups()
+        return _valid(y, mo, d)
+    # ISO, slash-separated -- same shape, different separator; seen from OCR/copy-paste sources
+    # that normalize dashes to slashes.
+    if m := re.search(r"\b(\d{4})/(\d{1,2})/(\d{1,2})(?!\d)", text):
         y, mo, d = m.groups()
         return _valid(y, mo, d)
     # 'August 15, 2025' / 'Aug 15 2025'
@@ -162,6 +190,12 @@ def parse_bid_date(raw) -> tuple[Optional[str], bool]:
         return _valid(y, f"{mo:02d}", d)
     # '11/15/2025' — US order, which is what every DOT in the six operating states writes.
     if m := re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", text):
+        mo, d, y = m.groups()
+        return _valid(y, mo, d)
+    # '11-15-2025' — same US order, dash-separated. Checked AFTER the ISO dash pattern above, so a
+    # genuine 'YYYY-MM-DD' is never misread as this: this pattern's leading group is 1-2 digits,
+    # which cannot consume a 4-digit year, so the two never compete for the same text.
+    if m := re.search(r"\b(\d{1,2})-(\d{1,2})-(\d{4})\b", text):
         mo, d, y = m.groups()
         return _valid(y, mo, d)
     return None, False

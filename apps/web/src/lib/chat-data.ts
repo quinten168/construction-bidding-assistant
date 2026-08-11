@@ -53,6 +53,11 @@ export type CompetitorStats = {
   capacity: {
     typical_capacity: number | null; ytd_won: number; capacity_pct: number | null;
     last_year_total: number | null;
+    // False when the database has NO bid results at all for the current season -- distinguishes
+    // "this competitor won nothing so far" (a real signal) from "the corpus hasn't been updated
+    // past last season yet" (a data-freshness gap, not a claim about the competitor). Optional so
+    // older cached payloads (predating this field) don't accidentally trip the false-only check.
+    season_has_data?: boolean;
   } | null;
   pit_access: {
     nearest_owned_pit: { name: string; distance_miles: number; quality: number | null } | null;
@@ -87,7 +92,17 @@ export type Competitor = {
   work_type: string;
   condition: string;
   materials: string[];
-  pits: { public?: string; private?: string };
+  pits: {
+    public?: string;
+    private?: string;
+    // Structured form of `public`, alongside it -- lets the UI render one pit per line instead of
+    // parsing the comma-joined sentence back apart. undefined = old cached payload predating this
+    // field; null = nearest_open_pits() lookup unavailable/failed; [] = ran fine, zero pits found.
+    public_pits?: {
+      name: string; distance_miles: number; quality: number | null;
+      latitude: number; longitude: number;
+    }[] | null;
+  };
   summary: { analyzed: number; narrative: string };
   // rank-ordered names, best match first (estimator-added names appended at the end).
   // The WIRE shape is deliberately wider than what the UI renders: the CI side has also sent

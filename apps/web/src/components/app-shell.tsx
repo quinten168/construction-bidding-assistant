@@ -7,10 +7,7 @@ import { Command } from "cmdk";
 import { motion } from "motion/react";
 import {
   LayoutDashboard,
-  FileUp,
-  Sparkles,
   Search,
-  Plus,
   PanelLeft,
   Trophy,
   Mountain,
@@ -18,6 +15,7 @@ import {
   HardHat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 // Clean grouped IA, Claude/ChatGPT-style: icon + label only, no descriptor noise.
 const NAV_GROUPS: {
@@ -96,20 +94,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
-        {/* Primary action */}
-        <div className="px-3 pb-1">
-          <Link
-            href="/ingest"
-            title="New analysis"
-            className={cn(
-              "flex items-center gap-2 rounded-xl bg-primary font-medium text-primary-foreground elev-sm transition-all hover:-translate-y-px hover:elev-md",
-              collapsed ? "h-9 w-9 justify-center p-0" : "justify-center px-3 py-2.5 text-[13px]",
-            )}
-          >
-            <Plus className="h-4 w-4" /> {!collapsed && "New analysis"}
-          </Link>
-        </div>
-
         {/* Nav */}
         <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-3">
           {NAV_GROUPS.map((group, gi) => (
@@ -169,12 +153,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className={cn("flex items-center gap-2.5 rounded-xl px-2 py-1.5", collapsed && "justify-center px-0")}>
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.52_0.14_30)] text-xs text-primary-foreground elev-sm">
-              T
+              {BRAND.user.initial}
             </span>
             {!collapsed && (
               <div className="leading-tight">
-                <div className="text-[12px] font-medium">Tobias Knight</div>
-                <div className="text-[10px] text-muted-foreground">Central Specialties</div>
+                <div className="text-[12px] font-medium">{BRAND.user.name}</div>
+                <div className="text-[10px] text-muted-foreground">{BRAND.short}</div>
               </div>
             )}
           </div>
@@ -248,14 +232,6 @@ function CommandPalette({
                   </Command.Item>
                 );
               })}
-            </Command.Group>
-            <Command.Group heading="Actions" className="px-1 text-[11px] uppercase tracking-wide text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
-              <Command.Item onSelect={() => go("/ingest")} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm data-[selected=true]:bg-primary/10">
-                <FileUp className="h-4 w-4 text-muted-foreground" /> Ingest a new plan set
-              </Command.Item>
-              <Command.Item onSelect={() => go("/sweet-spot")} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm data-[selected=true]:bg-primary/10">
-                <Sparkles className="h-4 w-4 text-muted-foreground" /> Find today&apos;s sweet spot
-              </Command.Item>
             </Command.Group>
           </Command.List>
         </Command>

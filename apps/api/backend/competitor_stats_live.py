@@ -141,6 +141,8 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
     if target is None:
         return {cid: None for cid in competitor_ids}
 
+    cur_season_start = _season_start(target)
+
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -154,7 +156,21 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
         )
         rows = cur.fetchall()
 
-    cur_season_start = _season_start(target)
+        # Database-wide (not scoped to competitor_ids), so a competitor's ytd_won=0 can be told
+        # apart from "the current season isn't in the corpus at all yet" -- the latter isn't a
+        # real signal about anyone's activity, it's a data-freshness gap, and reporting it as
+        # "0% of typical pace" reads as a claim about the competitor rather than about the data.
+        # Found live 2026-08-10: scratch.bid_projects' latest bid_date was 2025-08-28, one season
+        # boundary (Sept 1) shy of covering a 2026-06-15 plan's "current season" at all -- every
+        # competitor showed ytd_won=0.0 identically, which is what made this worth checking for
+        # rather than trusting the per-competitor number at face value.
+        cur.execute(
+            "select count(*) as n from scratch.bid_projects "
+            "where bid_date >= %(season_start)s and bid_date < %(before_date)s and deleted_at is null",
+            {"season_start": cur_season_start, "before_date": before_date},
+        )
+        season_has_data = cur.fetchone()["n"] > 0
+
     by_competitor: dict[str, dict[_date, float]] = {}
     for row in rows:
         cid = row["competitor_unit_id"]
@@ -172,7 +188,8 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
         ytd_won = seasons.get(cur_season_start, 0.0)
         historical = {s: t for s, t in seasons.items() if s < cur_season_start}
         if not historical:
-            out[cid] = {"typical_capacity": None, "ytd_won": ytd_won, "capacity_pct": None, "last_year_total": None}
+            out[cid] = {"typical_capacity": None, "ytd_won": ytd_won, "capacity_pct": None,
+                        "last_year_total": None, "season_has_data": season_has_data}
             continue
         typical_capacity = sum(historical.values()) / len(historical)
         most_recent_season = max(historical)
@@ -181,6 +198,7 @@ def _capacity(conn, competitor_ids: list[str], before_date: str) -> dict[str, di
             "ytd_won": ytd_won,
             "capacity_pct": (ytd_won / typical_capacity) if typical_capacity else None,
             "last_year_total": historical[most_recent_season],
+            "season_has_data": season_has_data,
         }
     return out
 
@@ -245,7 +263,10 @@ def nearest_open_pits(project_lat: float | None, project_lon: float | None,
     """The N nearest open-access pits to the project, by distance -- no radius cutoff. Feeds the
     project-level "Pit access" summary line (final_report.py), replacing the old stale training-
     snapshot figure with a live query -- see CLAUDE.md / the commit this landed in for why a fixed-
-    radius count was rejected in favor of a plain nearest-N list.
+    radius count was rejected in favor of a plain nearest-N list. Coordinates are included (not
+    just distance) so the frontend can plot each pit on a map -- same-named pits at genuinely
+    different coordinates (a real data pattern in scratch.mn_pit_list, not a rendering bug) are
+    otherwise indistinguishable in a text list.
 
     None if coordinates are missing or the query fails (fail-open, same convention as the rest of
     this module); [] if the query succeeded but no open-access pits exist at all -- distinct from
@@ -273,7 +294,8 @@ def nearest_open_pits(project_lat: float | None, project_lon: float | None,
     with_dist.sort(key=lambda p: p[0])
 
     return [
-        {"name": r["name"], "distance_miles": d, "quality": r["rating"]}
+        {"name": r["name"], "distance_miles": d, "quality": r["rating"],
+         "latitude": r["latitude"], "longitude": r["longitude"]}
         for d, r in with_dist[:limit]
     ]
 
