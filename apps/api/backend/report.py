@@ -38,8 +38,8 @@ log = get_logger("bid_assistant.report")
 _QMAP = {"hot_mix_tons": "MIX_TN", "grading_quantity": "GRADE_CY", "base_tons": "BASE_TN",
          "shoulder_tons": "SHLDR_TN", "milling_sy": "MILL_SY", "crushing_tons": "CRUSH_TN",
          "stockpile_tons": "STOCK_TN"}
-_UNIT = {"MIX_TN": "t", "GRADE_CY": "CY", "BASE_TN": "t", "SHLDR_TN": "t", "MILL_SY": "SY",
-         "CRUSH_TN": "t", "STOCK_TN": "t"}
+_UNIT = {"MIX_TN": "tons", "GRADE_CY": "CY", "BASE_TN": "tons", "SHLDR_TN": "tons", "MILL_SY": "SY",
+         "CRUSH_TN": "tons", "STOCK_TN": "tons"}
 
 
 # Re-drop short-circuit: the same file content yields the same report, so cache the assembled

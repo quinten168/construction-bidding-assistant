@@ -90,10 +90,10 @@ _CONF_RANK = {"high": 3, "medium": 2, "low": 1, "": 0, None: 0}
 _TOP_N_GOTCHAS = 25                                   # per side — effectively "all" (max ~20/plan),
                                                       # still confidence-ranked so the strongest lead
 _EVIDENCE_CHARS = 300                                 # show (near-)verbatim evidence, not a stub
-_QUNIT = {"hot_mix_tons": ("MIX", "t"), "base_tons": ("BASE", "t"),
-          "grading_quantity": ("GRADE", "CY"), "shoulder_tons": ("SHLDR", "t"),
-          "milling_sy": ("MILL", "SY"), "crushing_tons": ("CRUSH", "t"),
-          "stockpile_tons": ("STOCK", "t")}
+_QUNIT = {"hot_mix_tons": ("MIX", "tons"), "base_tons": ("BASE", "tons"),
+          "grading_quantity": ("GRADE", "CY"), "shoulder_tons": ("SHLDR", "tons"),
+          "milling_sy": ("MILL", "SY"), "crushing_tons": ("CRUSH", "tons"),
+          "stockpile_tons": ("STOCK", "tons")}
 
 
 # --- gotcha loading -----------------------------------------------------------------------------
