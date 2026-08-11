@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { PanelRightClose, PanelRightOpen, PanelLeft, Gauge, SquarePen, MessageSquare } from "lucide-react";
-import { useChatStore } from "./use-chat-store";
-import { ConversationList } from "./conversation-list";
+import { PanelRightClose, PanelRightOpen, Gauge } from "lucide-react";
+import { useChatStoreContext } from "./chat-store-context";
 import { Thread } from "./thread";
 import { Composer } from "./composer";
 import { ContextPanel } from "./context-panel";
@@ -14,12 +13,12 @@ import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 export function ChatApp() {
-  const store = useChatStore();
+  // Shared with AppShell's sidebar (New chat button, Recents list) via context -- one store
+  // instance, not two that could drift. See chat-store-context.tsx.
+  const store = useChatStoreContext();
   // Right usage panel starts CLOSED (Claude/ChatGPT keep the canvas clean — no
   // permanent right column). It opens on demand from the usage pill.
   const [panelOpen, setPanelOpen] = useState(false);
-  // First open = clean canvas: conversation rail collapsed too (open on demand).
-  const [railOpen, setRailOpen] = useState(false);
   // Verify gate auto-opens off message state (set by processPlan once extraction lands) rather
   // than a manual trigger — it's a required checkpoint between extraction and report generation,
   // not an optional follow-up the user has to remember to click into.
@@ -40,49 +39,11 @@ export function ChatApp() {
 
   return (
     <div className="flex min-h-0 flex-1 overflow-hidden">
-      {/* Thin icon rail (always visible, ChatGPT-style) — quick actions + account */}
-      <div className="hidden w-14 shrink-0 flex-col items-center border-r border-border bg-[oklch(0.952_0.009_83)] py-3 md:flex">
-        <RailIcon icon={PanelLeft} label="Toggle chats" active={railOpen} onClick={() => setRailOpen((o) => !o)} />
-        <div className="mt-1 flex flex-col items-center gap-1">
-          <RailIcon
-            icon={SquarePen}
-            label={isEmpty ? "Already on a new chat" : "New chat"}
-            disabled={isEmpty}
-            onClick={store.newConversation}
-          />
-          <RailIcon icon={MessageSquare} label="Chats" onClick={() => setRailOpen(true)} />
-        </div>
-        <div className="flex-1" />
-        <button
-          title={`${BRAND.user.name} · ${BRAND.company}`}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.5_0.15_30)] text-[13px] text-primary-foreground elev-sm"
-        >
-          {BRAND.user.initial}
-        </button>
-      </div>
-
-      {/* Conversation rail (collapsible) — solid cream surface, not hazy glass */}
-      <AnimatePresence initial={false}>
-        {railOpen && (
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 248, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="hidden shrink-0 overflow-hidden border-r border-border bg-[oklch(0.955_0.009_83)] lg:block"
-          >
-            <div className="h-full w-[248px]">
-              <ConversationList
-                conversations={store.conversations}
-                activeId={store.activeId}
-                onSelect={store.selectConversation}
-                onNew={store.newConversation}
-                onDelete={store.deleteConversation}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* The icon rail (chat toggle / new chat / account) and the slide-out conversation list
+          that used to live here are GONE (2026-08-11) -- AppShell's persistent left sidebar now
+          owns "New chat" and the Recents list for every page, not just this one, so having a
+          second, separate copy of the same controls in here was the exact redundancy that
+          prompted the change. See app-shell.tsx. */}
 
       {/* Center: single top bar + thread + composer */}
       <div className="flex min-w-0 flex-1 flex-col">
@@ -245,39 +206,5 @@ export function ChatApp() {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-// A single icon button in the thin left rail. `active` gets a subtle filled pill.
-function RailIcon({
-  icon: Icon,
-  label,
-  active,
-  disabled,
-  onClick,
-}: {
-  icon: typeof PanelLeft;
-  label: string;
-  active?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      title={label}
-      aria-label={label}
-      className={cn(
-        "grid h-9 w-9 place-items-center rounded-xl transition-colors",
-        disabled
-          ? "cursor-not-allowed text-muted-foreground/40"
-          : active
-            ? "bg-card text-foreground elev-sm"
-            : "text-muted-foreground hover:bg-card hover:text-foreground",
-      )}
-    >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-    </button>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
+import { ChatStoreProvider } from "@/components/chat/chat-store-context";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="h-full">
-        <AppShell>{children}</AppShell>
+        <ChatStoreProvider>
+          <AppShell>{children}</AppShell>
+        </ChatStoreProvider>
       </body>
     </html>
   );

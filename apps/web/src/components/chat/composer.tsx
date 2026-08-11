@@ -207,14 +207,3 @@ export function Composer({
     </div>
   );
 }
-
-export function NewChatButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-xl border border-black/5 bg-white/50 px-3 py-2 text-sm transition-colors hover:bg-white/80"
-    >
-      <Plus className="h-4 w-4 text-primary" /> New chat
-    </button>
-  );
-}
