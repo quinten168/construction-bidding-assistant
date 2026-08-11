@@ -86,6 +86,19 @@ const ISO_DATE_PREFIX = /^\d{4}-\d{2}-\d{2}/;
 const isBidDeadlineFormatOk = (key: string, value: string) =>
   key !== "bid_deadline" || !value || ISO_DATE_PREFIX.test(value.trim());
 
+// The model's reason text for a quantity is one run-on paragraph enumerating every bid-schedule
+// line item that fed the total ("Item 0250 ... = 16,060 TON; Item 0255 ... = 5,386 TON; ... Total
+// = ... = 32,098 TON. Item 0265 ... excluded."), which reads as a wall of text. Split it into one
+// line per clause — before each "Item ####" or "Total =" that follows a ';' or '.' boundary — so a
+// human scanning the breakdown sees one bid-schedule item per row instead of a single paragraph.
+// Frontend-only formatting of free text, not a structured field — a boundary this doesn't
+// recognize just stays merged with its neighbor rather than breaking, so this degrades gracefully.
+const splitReasonLines = (reason: string): string[] =>
+  reason
+    .split(/(?<=[;.])\s+(?=(?:Item\s\d|Total\s=))/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 const needsReview = (f: Pick<VerifyField, "key" | "confidence" | "required" | "value">) =>
   f.confidence === "low" || f.confidence === "medium" || (f.required && !f.value) ||
   !isBidDeadlineFormatOk(f.key, f.value);
@@ -297,9 +310,13 @@ export function VerifyExtraction({
                     </div>
                   )}
                   {f.reason && (
-                    <p className="mt-1 text-[11px] italic leading-snug text-muted-foreground/80">
-                      {f.reason}
-                    </p>
+                    <div className="mt-1 space-y-0.5">
+                      {splitReasonLines(f.reason).map((line, i) => (
+                        <p key={i} className="text-[11px] italic leading-snug text-muted-foreground/80">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
