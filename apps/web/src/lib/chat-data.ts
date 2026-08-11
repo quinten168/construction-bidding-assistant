@@ -118,15 +118,14 @@ export type Competitor = {
   // (predicted, or an earlier name in the same submission) — not re-added, surfaced back so the
   // UI can tell them rather than silently dropping the name
   duplicate_names?: string[];
-  // name → { "Bid Rate": "...", "Recency": "...", "Experience": "...", "Local Win Rate ...": "..." }
+  // name → { "Predicted probability": "XX%" } — the live-scoring model's calibrated win
+  // probability per competitor (competitor_predict_live.py), the only per-competitor signal this
+  // module produces beyond the ranking itself.
   attrs: Record<string, Record<string, string>>;
-  deep_dives: Record<string, string[]>;
   source_file: string;
   // name → live-retrieved win/bid rate, capacity, pit access — same retrieval for every competitor
   // on the report regardless of tier (predicted or estimator-added).
   stats?: Record<string, CompetitorStats>;
-  // how confident the county+state(+date) join is — surface it so a wrong match is visible
-  _match?: { confidence: "high" | "medium" | "low" | string; basis: string; date_gap_days: number | null };
 };
 export type FinalReport = {
   plan_id: string;
@@ -206,7 +205,6 @@ export type ChatMessage = {
   // `awaitingCompetitors` flips on, so the popup shows what was actually predicted instead of an
   // empty list. `competitorsPredicting` is true while that call is in flight.
   predictedCompetitors?: string[];
-  predictedCompetitorsMatch?: { confidence: string; basis: string } | null;
   competitorsPredicting?: boolean;
 };
 

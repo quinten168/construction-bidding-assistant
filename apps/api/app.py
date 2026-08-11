@@ -293,11 +293,11 @@ async def report(file: UploadFile = File(...)):
 
 @app.post("/api/report/{plan_id}/predict-competitors", tags=["report"])
 async def report_predict_competitors(plan_id: str, req: ReportPredictCompetitorsIn):
-    """Between the two verify-gate popups: run the same three-tier competitor cascade finalize would
+    """Between the two verify-gate popups: run the same live competitor scoring finalize would
     otherwise run blind, so the estimator sees the model's predicted names in the 2nd popup instead
     of typing on top of an empty list. Result is cached by content_hash (report_svc.
-    cache_competitor_prediction) so finalize reuses it instead of re-invoking the CI subprocess /
-    live SQL a second time."""
+    cache_competitor_prediction) so finalize reuses it instead of re-invoking the live SQL scoring
+    a second time."""
     rep = await run_in_threadpool(report_svc.apply_verification, req.extraction, req.edits)
     identity = rep.get("identity", {})
     archetype = rep.get("archetype") or "Unknown/NoQty"
@@ -307,8 +307,7 @@ async def report_predict_competitors(plan_id: str, req: ReportPredictCompetitors
     # would pre-empt if passed in already truthy here. See _resolve_bid_date's docstring.
     comp = await run_in_threadpool(fr.predict_competitors, identity, archetype, quantities, None, plan_id)
     await run_in_threadpool(report_svc.cache_competitor_prediction, rep.get("content_hash"), comp)
-    return {"ok": True, "competitors": (comp or {}).get("competitors", []),
-            "match": (comp or {}).get("_match")}
+    return {"ok": True, "competitors": (comp or {}).get("competitors", [])}
 
 
 @app.post("/api/report/{plan_id}/finalize", tags=["report"])

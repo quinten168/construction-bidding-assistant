@@ -455,7 +455,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
             "county": identity.get("county", ""), "state": identity.get("state", ""),
             "bid_date": when or "", "work_type": "", "condition": "", "materials": [],
             "pits": {}, "summary": {"analyzed": 0, "narrative": ""},
-            "competitors": [], "attrs": {}, "deep_dives": {}, "source_file": "",
+            "competitors": [], "attrs": {}, "source_file": "",
         }
     duplicate_names: list[str] = []
     if manual_names and comp is not None:
@@ -534,7 +534,7 @@ def assemble(plan_payload: dict | None = None, plan_id: str | None = None,
         # renaming it is a behaviour change and belongs in its own commit, not a storage repoint.
         # It means "curated corpus set" as opposed to 'live' (fresh RAG). See #61.
         "gotcha_source": gotcha_source,              # 'sqlite[:id]' (curated) | 'live' (fresh RAG)
-        "competitor": comp,                          # parsed report + ._match, or None
+        "competitor": comp,                          # live-predicted competitor list, or None
     }
 
 
@@ -800,11 +800,11 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     # ④ competitive landscape — CI team's v3 schema: a single flat top-N ranking, no tiers/scores
     md.append("## ④ Competitive Landscape")
     if not comp:
-        md.append("_No competitor-intel report matched this project (by county + state + date)._")
+        md.append("_No competitor prediction available for this project (missing state, or the "
+                  "live scoring query failed)._")
         return "\n".join(md)
 
     s = comp["summary"]
-    mt = comp.get("_match", {})
     names = competitor_names(comp.get("competitors"))
     stats_map = comp.get("stats", {})
     md.append(f"**Top {s.get('analyzed', 0)} likely competitors**")
@@ -816,18 +816,6 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
     if pits.get("public"):
         md.append(f"_Pit access: {pits['public']}._")
     md.append("")
-    md.append(f"_Source: {comp['source_file']} · matched on {mt.get('basis')} "
-              f"({mt.get('confidence')} confidence)._")
-    if mt.get("needs_review"):
-        # county+state+date is not a unique identifier -- see CLAUDE.md rough edge 11. This was
-        # previously silent: the confidence label above was cosmetic text, never a signal a reader
-        # could act on. gap_txt keeps a defensive branch for a non-int gap even though today's
-        # only needs_review producer (live_report) always sets an int (10_000 sentinel when no date).
-        gap = mt.get("date_gap_days")
-        gap_txt = f"{gap} days apart" if isinstance(gap, int) else "no bid date to compare"
-        md.append(f"_⚠️ **Needs review** — this competitor section may belong to a DIFFERENT "
-                  f"project in the same county ({gap_txt}). County+state+date alone does not "
-                  f"uniquely identify a project; verify before relying on it._")
 
     # A matched report that names nobody is a legitimate empty answer -- say so explicitly, so it
     # can never be read as the "no report matched" failure above (which returns early).

@@ -205,7 +205,7 @@ async function predictCompetitors(
   planId: string,
   extraction: Extraction,
   edits: Record<string, string>,
-): Promise<{ ok: boolean; competitors: string[]; match?: { confidence: string; basis: string } | null }> {
+): Promise<{ ok: boolean; competitors: string[] }> {
   try {
     const res = await fetch(`/api/report/${encodeURIComponent(planId)}/predict-competitors`, {
       method: "POST",
@@ -214,7 +214,7 @@ async function predictCompetitors(
     });
     if (!res.ok) return { ok: false, competitors: [] };
     const data = await res.json();
-    return { ok: !!data.ok, competitors: data.competitors ?? [], match: data.match ?? null };
+    return { ok: !!data.ok, competitors: data.competitors ?? [] };
   } catch {
     return { ok: false, competitors: [] };
   }
@@ -462,7 +462,6 @@ export function useChatStore() {
         patchMessage(convId, messageId, {
           competitorsPredicting: false,
           predictedCompetitors: res.competitors,
-          predictedCompetitorsMatch: res.match ?? null,
         });
       });
     },

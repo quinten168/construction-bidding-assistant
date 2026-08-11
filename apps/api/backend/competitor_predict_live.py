@@ -371,6 +371,11 @@ def predict_report(
     empty except `competitors`/`summary`) matches what the now-removed county+state+date matcher
     used to return, so every downstream consumer — the manual-competitor merge,
     competitor_stats_live.compute_stats(), render_markdown(), report-card.tsx — works unmodified.
+    `deep_dives` and `_match` were dropped 2026-08-11: both were metadata about that removed
+    matcher (which historical report got copied, how confident the county+state+date join was) —
+    this module never had either concept to report, so both were always empty/constant placeholders
+    with no reader on either side (frontend never rendered them; the one markdown-export reader of
+    `_match` was removed in the same pass).
 
     None (never raises) if state is blank, the weights file is missing/unfit, or any query fails.
     """
@@ -404,7 +409,5 @@ def predict_report(
         "project_id": source_id, "location": location, "county": county, "state": state,
         "bid_date": bid_date, "work_type": project_type or "", "condition": "", "materials": [],
         "pits": {}, "summary": {"analyzed": len(names), "narrative": ""},
-        "competitors": names, "attrs": attrs, "deep_dives": {}, "source_file": "",
-        "_match": {"confidence": "predicted",
-                   "basis": "live candidate model, no CI corpus match", "date_gap_days": None},
+        "competitors": names, "attrs": attrs, "source_file": "",
     }

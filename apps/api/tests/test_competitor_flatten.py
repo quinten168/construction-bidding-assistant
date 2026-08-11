@@ -30,9 +30,8 @@ def _final(competitors):
             "project_id": "P", "location": "Dunn, ND", "county": "Dunn", "state": "ND",
             "bid_date": "2026-01-01", "work_type": "", "condition": "", "materials": [],
             "pits": {}, "summary": {"analyzed": len(competitors), "narrative": ""},
-            "competitors": competitors, "attrs": {}, "deep_dives": {}, "stats": {},
+            "competitors": competitors, "attrs": {}, "stats": {},
             "source_file": "bid_report_TEST.md",
-            "_match": {"confidence": "high", "basis": "county+state+date", "date_gap_days": 0},
         },
     }
 
@@ -83,6 +82,6 @@ def test_empty_list_and_missing_report_do_not_render_identically():
     failed = _final([])
     failed["competitor"] = None
     failed_md = fr.render_markdown(failed)
-    assert "No competitor-intel report matched" in failed_md
-    assert "No competitor-intel report matched" not in empty
+    assert "No competitor prediction available" in failed_md
+    assert "No competitor prediction available" not in empty
     assert "no competitors" in empty.lower().split("④ competitive landscape")[1]
