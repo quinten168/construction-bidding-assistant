@@ -1,0 +1,275 @@
+{
+  "plan": "Dunn Job 23388 (ND) \u2014 raw-cell confirmation arm",
+  "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2026 JOBS/26051 DUNN COUNTY ND (ND 200)/Job 23388 Request for Proposal.pdf",
+  "input": {
+    "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2026 JOBS/26051 DUNN COUNTY ND (ND 200)/Job 23388 Request for Proposal.pdf",
+    "status": "OK",
+    "error": null,
+    "doc_type": "combined",
+    "n_pages": 351,
+    "proposal_ranges": "1-107, 143-247, 249, 251, 253, 255-259, 261-351",
+    "map_ranges": "108-142, 248, 250, 252, 254, 260",
+    "n_proposal_pages": 311,
+    "chars_before_truncate": 836637,
+    "chars_sent": 180040,
+    "truncated": true,
+    "input_sha256": "50f0082f7d2a57a073949f6f75f57a7bfde9a1ff8782b63727c01f8a73b36f6c"
+  },
+  "n": 3,
+  "runs": [
+    {
+      "run": 0,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 121421,
+        "base_tons": 6506,
+        "grading_quantity": 38535,
+        "shoulder_tons": null,
+        "milling_sy": 408216,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": 66007,
+        "milling_measured_unit": "SY+TON",
+        "base_measured_unit": "TON",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "ND SUPERPAVE items in TON: RAP - SUPERPAVE FAA 43 = 121,221 TON (item 053) + PATCHING = 200 TON (item 057); total = 121,421. PG 58S-34 ASPHALT CEMENT (item 058, 5,468 TON) is a binder/additive, not a placed mixture, so excluded.",
+        "base_tons": "AGGREGATE BASE COURSE CL 5 = 6,506 TON (item 044). TRAFFIC SERVICE AGGREGATE (820 TON, item 043) goes to base_tons per CSI ruling; however the definition states 'TRAFFIC SERVICE AGGREGATE' belongs in base_tons. Adding: 6,506 + 820 = 7,326. Wait \u2014 re-reading: 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons by CSI. So base_tons = 6,506 + 820 = 7,326.",
+        "grading_quantity": "Sum of CY items: COMMON EXCAVATION-TYPE A 15,285 + TOPSOIL 6,447 + COMMON EXCAVATION-WASTE 4,352 + TOPSOIL-IMPORTED 1,898 + COMMON EXCAVATION-SUBCUT 1,469 + BORROW-EXCAVATION 11,584 = 38,535 CY (items 015-020). FOUNDATION FILL 2,720 CY (item 027) is structure excavation backfill, not standard grading \u2014 excluded as uncertain. CLEAN ROCK (item 045) is in TON not CY so not counted here.",
+        "shoulder_tons": "No AGGREGATE SHOULDERING or AGGREGATE SURFACE COURSE items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE was moved to base_tons per CSI ruling.",
+        "milling_sy": "FULL DEPTH RECLAMATION = 408,216 SY (item 046). MILLING PAVEMENT SURFACE (item 052) and REMOVAL OF BITUMINOUS SURFACING (item 011) are both measured in TON, so they go to milling_tons, not here.",
+        "crushing_tons": "No crushing pay items appear anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay items appear anywhere in the bid schedule.",
+        "milling_tons": "MILLING PAVEMENT SURFACE = 63,092 TON (item 052, p.16) + REMOVAL OF BITUMINOUS SURFACING = 3,915 TON (item 011, p.7) = 67,007. Wait: 63,092 + 3,915 = 67,007.",
+        "milling_measured_unit": "FULL DEPTH RECLAMATION is measured in SY (item 046) while MILLING PAVEMENT SURFACE and REMOVAL OF BITUMINOUS SURFACING are measured in TON (items 052 and 011).",
+        "base_measured_unit": "AGGREGATE BASE COURSE CL 5 (item 044) and TRAFFIC SERVICE AGGREGATE (item 043) are both measured in TON.",
+        "base_unconverted": "All qualifying base items are measured in tons.",
+        "shoulder_measured_unit": "No shoulder aggregate pay items appear in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in this bid schedule.",
+        "hot_mix_measured_unit": "All hot mix items (RAP - SUPERPAVE FAA 43 and PATCHING) are measured in TON.",
+        "hot_mix_unconverted": "All qualifying hot mix items are measured in tons; none are in non-ton units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 121421,
+          "confidence": "high",
+          "page": 16,
+          "reason": "ND SUPERPAVE items in TON: RAP - SUPERPAVE FAA 43 = 121,221 TON (item 053) + PATCHING = 200 TON (item 057); total = 121,421. PG 58S-34 ASPHALT CEMENT (item 058, 5,468 TON) is a binder/additive, not a placed mixture, so excluded."
+        },
+        "base_tons": {
+          "value": 6506,
+          "confidence": "high",
+          "page": 13,
+          "reason": "AGGREGATE BASE COURSE CL 5 = 6,506 TON (item 044). TRAFFIC SERVICE AGGREGATE (820 TON, item 043) goes to base_tons per CSI ruling; however the definition states 'TRAFFIC SERVICE AGGREGATE' belongs in base_tons. Adding: 6,506 + 820 = 7,326. Wait \u2014 re-reading: 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons by CSI. So base_tons = 6,506 + 820 = 7,326."
+        },
+        "grading_quantity": {
+          "value": 38535,
+          "confidence": "high",
+          "page": 10,
+          "reason": "Sum of CY items: COMMON EXCAVATION-TYPE A 15,285 + TOPSOIL 6,447 + COMMON EXCAVATION-WASTE 4,352 + TOPSOIL-IMPORTED 1,898 + COMMON EXCAVATION-SUBCUT 1,469 + BORROW-EXCAVATION 11,584 = 38,535 CY (items 015-020). FOUNDATION FILL 2,720 CY (item 027) is structure excavation backfill, not standard grading \u2014 excluded as uncertain. CLEAN ROCK (item 045) is in TON not CY so not counted here."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No AGGREGATE SHOULDERING or AGGREGATE SURFACE COURSE items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE was moved to base_tons per CSI ruling."
+        },
+        "milling_sy": {
+          "value": 408216,
+          "confidence": "high",
+          "page": 13,
+          "reason": "FULL DEPTH RECLAMATION = 408,216 SY (item 046). MILLING PAVEMENT SURFACE (item 052) and REMOVAL OF BITUMINOUS SURFACING (item 011) are both measured in TON, so they go to milling_tons, not here."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay items appear anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay items appear anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 1,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 121421,
+        "base_tons": 6506,
+        "grading_quantity": 38535,
+        "shoulder_tons": null,
+        "milling_sy": 408216,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": 67007,
+        "milling_measured_unit": "SY+TON",
+        "base_measured_unit": "TON",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "ND Superpave items in TON: RAP - SUPERPAVE FAA 43 = 121,221 TON (item 053) + PATCHING = 200 TON (item 057); total = 121,421. PG 58S-34 ASPHALT CEMENT (item 058, 5,468 TON) is a binder/additive, not a placed HMA mixture, so excluded.",
+        "base_tons": "AGGREGATE BASE COURSE CL 5 = 6,506 TON (item 044). TRAFFIC SERVICE AGGREGATE (820 TON) goes to base_tons per CSI ruling, but the definition says it belongs in base_tons \u2014 however re-reading: 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons by CSI. Adding item 043 TRAFFIC SERVICE AGGREGATE 820 TON + item 044 AGGREGATE BASE COURSE CL 5 6,506 TON = 7,326 TON.",
+        "grading_quantity": "CY items: COMMON EXCAVATION-TYPE A 15,285 + TOPSOIL 6,447 + COMMON EXCAVATION-WASTE 4,352 + TOPSOIL-IMPORTED 1,898 + COMMON EXCAVATION-SUBCUT 1,469 + BORROW-EXCAVATION 11,584 = 41,035 CY. FOUNDATION FILL 2,720 CY and BOX CULVERT FOUNDATION AGGREGATE 855 CY are structure-related, not grading/earthwork. Excluding those: 15,285+6,447+4,352+1,898+1,469+11,584 = 41,035 CY.",
+        "shoulder_tons": "No AGGREGATE SHOULDERING or AGGREGATE SURFACE COURSE items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE is classified as base_tons per CSI ruling.",
+        "milling_sy": "FULL DEPTH RECLAMATION = 408,216 SY (item 046). MILLING PAVEMENT SURFACE is measured in TON (item 052) and goes to milling_tons. REMOVAL OF BITUMINOUS SURFACING is measured in TON (item 011) and goes to milling_tons. Only SY-measured qualifying item is FULL DEPTH RECLAMATION at 408,216 SY.",
+        "crushing_tons": "No crushing/aggregate production pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile material pay item appears in the bid schedule.",
+        "milling_tons": "REMOVAL OF BITUMINOUS SURFACING = 3,915 TON (item 011, p.7) + MILLING PAVEMENT SURFACE = 63,092 TON (item 052, p.16); total = 67,007 TON.",
+        "milling_measured_unit": "FULL DEPTH RECLAMATION is in SY (item 046) and MILLING PAVEMENT SURFACE / REMOVAL OF BITUMINOUS SURFACING are in TON (items 052 and 011).",
+        "base_measured_unit": "TRAFFIC SERVICE AGGREGATE (item 043) and AGGREGATE BASE COURSE CL 5 (item 044) are both measured in TON.",
+        "base_unconverted": "All base aggregate items are measured in tons; none are in a non-ton unit.",
+        "shoulder_measured_unit": "No shoulder aggregate items appear in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in this bid schedule.",
+        "hot_mix_measured_unit": "All qualifying HMA items (RAP - SUPERPAVE FAA 43 and PATCHING) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix asphalt items are measured in tons; none are in a non-ton unit."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 121421,
+          "confidence": "high",
+          "page": 16,
+          "reason": "ND Superpave items in TON: RAP - SUPERPAVE FAA 43 = 121,221 TON (item 053) + PATCHING = 200 TON (item 057); total = 121,421. PG 58S-34 ASPHALT CEMENT (item 058, 5,468 TON) is a binder/additive, not a placed HMA mixture, so excluded."
+        },
+        "base_tons": {
+          "value": 6506,
+          "confidence": "high",
+          "page": 13,
+          "reason": "AGGREGATE BASE COURSE CL 5 = 6,506 TON (item 044). TRAFFIC SERVICE AGGREGATE (820 TON) goes to base_tons per CSI ruling, but the definition says it belongs in base_tons \u2014 however re-reading: 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons by CSI. Adding item 043 TRAFFIC SERVICE AGGREGATE 820 TON + item 044 AGGREGATE BASE COURSE CL 5 6,506 TON = 7,326 TON."
+        },
+        "grading_quantity": {
+          "value": 38535,
+          "confidence": "high",
+          "page": 10,
+          "reason": "CY items: COMMON EXCAVATION-TYPE A 15,285 + TOPSOIL 6,447 + COMMON EXCAVATION-WASTE 4,352 + TOPSOIL-IMPORTED 1,898 + COMMON EXCAVATION-SUBCUT 1,469 + BORROW-EXCAVATION 11,584 = 41,035 CY. FOUNDATION FILL 2,720 CY and BOX CULVERT FOUNDATION AGGREGATE 855 CY are structure-related, not grading/earthwork. Excluding those: 15,285+6,447+4,352+1,898+1,469+11,584 = 41,035 CY."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No AGGREGATE SHOULDERING or AGGREGATE SURFACE COURSE items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE is classified as base_tons per CSI ruling."
+        },
+        "milling_sy": {
+          "value": 408216,
+          "confidence": "high",
+          "page": 13,
+          "reason": "FULL DEPTH RECLAMATION = 408,216 SY (item 046). MILLING PAVEMENT SURFACE is measured in TON (item 052) and goes to milling_tons. REMOVAL OF BITUMINOUS SURFACING is measured in TON (item 011) and goes to milling_tons. Only SY-measured qualifying item is FULL DEPTH RECLAMATION at 408,216 SY."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing/aggregate production pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile material pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 2,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 121421,
+        "base_tons": 6506,
+        "grading_quantity": 38535,
+        "shoulder_tons": null,
+        "milling_sy": 408216,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": 66007,
+        "milling_measured_unit": "SY+TON",
+        "base_measured_unit": "TON",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "ND SUPERPAVE items: RAP - SUPERPAVE FAA 43 (Item 053) = 121,221 TON + PATCHING (Item 057) = 200 TON = 121,421 TON. (PG 58S-34 ASPHALT CEMENT is a binder/additive, not a placed mix; BLOTTER MATERIAL CL 44 is not HMA.)",
+        "base_tons": "AGGREGATE BASE COURSE CL 5 (Item 044) = 6,506 TON. TRAFFIC SERVICE AGGREGATE goes to base_tons per CSI ruling (820 TON, Item 043) \u2014 however per the field definition 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons. Total = 6,506 + 820 = 7,326. Wait \u2014 re-reading: 'TRAFFIC SERVICE AGGREGATE' and 'GRAVEL SURFACING' were moved to base_tons by CSI. So base_tons = 6,506 + 820 = 7,326.",
+        "grading_quantity": "Sum of CY items: COMMON EXCAVATION-TYPE A (015)=15,285 + TOPSOIL (016)=6,447 + COMMON EXCAVATION-WASTE (017)=4,352 + TOPSOIL-IMPORTED (018)=1,898 + COMMON EXCAVATION-SUBCUT (019)=1,469 + BORROW-EXCAVATION (020)=11,584 = 41,035 CY. FOUNDATION FILL (027)=2,720 CY is also grading. Total = 41,035 + 2,720 = 43,755. Note: CLEAN ROCK (Item 045) is listed under grading definition but is measured in TON not CY so not counted here.",
+        "shoulder_tons": "No aggregate shouldering or aggregate surface course items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE is classified as base_tons per CSI ruling.",
+        "milling_sy": "FULL DEPTH RECLAMATION (Item 046) = 408,216 SY. MILLING PAVEMENT SURFACE (Item 052) is measured in TON and goes to milling_tons. REMOVAL OF BITUMINOUS SURFACING (Item 011) is measured in TON and goes to milling_tons.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "REMOVAL OF BITUMINOUS SURFACING (Item 011) = 3,915 TON (page 7) + MILLING PAVEMENT SURFACE (Item 052) = 63,092 TON (page 16) = 67,007 TON total.",
+        "milling_measured_unit": "FULL DEPTH RECLAMATION is in SY (408,216 SY) and MILLING PAVEMENT SURFACE / REMOVAL OF BITUMINOUS SURFACING are in TON \u2014 both units appear.",
+        "base_measured_unit": "AGGREGATE BASE COURSE CL 5 (6,506 TON) and TRAFFIC SERVICE AGGREGATE (820 TON) are both measured in tons.",
+        "base_unconverted": "All qualifying base items are measured in tons; none are in a non-ton unit.",
+        "shoulder_measured_unit": "No shoulder aggregate items appear in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in this bid schedule.",
+        "hot_mix_measured_unit": "RAP - SUPERPAVE FAA 43 (121,221 TON) and PATCHING (200 TON) are both measured in tons; no hot mix item is in a non-ton unit.",
+        "hot_mix_unconverted": "All qualifying hot mix items are measured in tons; none are in a non-ton unit."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 121421,
+          "confidence": "high",
+          "page": 16,
+          "reason": "ND SUPERPAVE items: RAP - SUPERPAVE FAA 43 (Item 053) = 121,221 TON + PATCHING (Item 057) = 200 TON = 121,421 TON. (PG 58S-34 ASPHALT CEMENT is a binder/additive, not a placed mix; BLOTTER MATERIAL CL 44 is not HMA.)"
+        },
+        "base_tons": {
+          "value": 6506,
+          "confidence": "high",
+          "page": 13,
+          "reason": "AGGREGATE BASE COURSE CL 5 (Item 044) = 6,506 TON. TRAFFIC SERVICE AGGREGATE goes to base_tons per CSI ruling (820 TON, Item 043) \u2014 however per the field definition 'TRAFFIC SERVICE AGGREGATE' is moved to base_tons. Total = 6,506 + 820 = 7,326. Wait \u2014 re-reading: 'TRAFFIC SERVICE AGGREGATE' and 'GRAVEL SURFACING' were moved to base_tons by CSI. So base_tons = 6,506 + 820 = 7,326."
+        },
+        "grading_quantity": {
+          "value": 38535,
+          "confidence": "high",
+          "page": 10,
+          "reason": "Sum of CY items: COMMON EXCAVATION-TYPE A (015)=15,285 + TOPSOIL (016)=6,447 + COMMON EXCAVATION-WASTE (017)=4,352 + TOPSOIL-IMPORTED (018)=1,898 + COMMON EXCAVATION-SUBCUT (019)=1,469 + BORROW-EXCAVATION (020)=11,584 = 41,035 CY. FOUNDATION FILL (027)=2,720 CY is also grading. Total = 41,035 + 2,720 = 43,755. Note: CLEAN ROCK (Item 045) is listed under grading definition but is measured in TON not CY so not counted here."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No aggregate shouldering or aggregate surface course items appear in the bid schedule; TRAFFIC SERVICE AGGREGATE is classified as base_tons per CSI ruling."
+        },
+        "milling_sy": {
+          "value": 408216,
+          "confidence": "high",
+          "page": 13,
+          "reason": "FULL DEPTH RECLAMATION (Item 046) = 408,216 SY. MILLING PAVEMENT SURFACE (Item 052) is measured in TON and goes to milling_tons. REMOVAL OF BITUMINOUS SURFACING (Item 011) is measured in TON and goes to milling_tons."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    }
+  ],
+  "field_set": {
+    "n_extract_fields": 24,
+    "model": "claude-sonnet-4-6",
+    "max_chars": 180000
+  }
+}

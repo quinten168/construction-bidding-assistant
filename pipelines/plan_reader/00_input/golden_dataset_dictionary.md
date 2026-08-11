@@ -69,3 +69,34 @@ by **SOURCE** so it's clear who fills it:
   and ~146 master rows may be mis-attributed (the date+county key collision).
 - **PDF-only and HAND columns are blank** awaiting (a) more local plan PDFs and (b) the
   extractor being aligned to this schema.
+
+---
+
+## ⛔ The seven quantity columns are NOT to be edited to track a CSI ruling — 2026-08-10
+
+`mix_tn` / `grade_cy` / `base_tn` / `shldr_tn` / `mill_sy` / `crush_tn` / `stock_tn` hold **CSI's
+own recorded practice at the time the letting was bid**. They predate the 2026-08-07 rulings in
+`pipelines/plan_reader/05_knowledge/quantity_crosswalk.py::CSI_RULINGS_2026_08_07`. Where a ruling
+changed which bucket a quantity belongs in, this file **still states the pre-ruling number, and
+that is correct** — it is what makes the file independent ground truth rather than a second copy of
+our own crosswalk.
+
+Concretely: contract **1630** (Murray Co MN / Fulda, `9786015.pdf`) states `mill_sy = 8,731`. The
+pipeline now produces **15,828**, because Alex's ruling #5 moved `REMOVE BITUMINOUS PAVEMENT`
+(7,097 SY on that plan) from grading into milling. **Both numbers are right for their own rule
+set.** Editing 8,731 to 15,828 would erase the only evidence that ruling #5 changes how CSI's own
+`MILL SY` column was filled.
+
+**The benchmark is ruling-aware instead.** It carries three values, never two — the raw golden, the
+ruling delta with the ruling that produced it named, and the derived adjusted value — and reports
+`MATCH_RAW`, `MATCH_RULING_ADJUSTED` and `RULING_CONTRADICTS_GOLDEN` as separate statuses:
+
+| | |
+|---|---|
+| design | `docs/_spec/2026-08-10-ruling-aware-golden.md` |
+| tool | `tools/golden/2026-08-10_ruling_impact.py` → `2026-08-10_ruling_impact.csv` |
+| evidence | `docs/_session/2026-08-10-golden-reconcile.md` |
+| enforcement | `tools/golden/2026-08-10_test_ruling_aware.py` asserts all seven quantity columns are byte-identical to the committed version. A "just fix the golden" commit fails this test. |
+
+Correcting a **transcription error** (a value that never matched what CSI wrote) is a different
+thing and is allowed — record it in `notes` and set `manually_verified_by`.

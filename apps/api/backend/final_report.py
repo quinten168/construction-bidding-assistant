@@ -598,6 +598,26 @@ def _bar(value: float, vmax: float, width: int = 10) -> str:
     return "▇" * max(0, min(width, n))
 
 
+def _mill_ton_legend(qs: list) -> list:
+    """The MILL_TON gloss, or nothing when the plan has no tons-measured milling.
+
+    `MILL_TON` reads as a typo to an estimator: it appears beside `MILL` with no explanation that
+    the two are the same work stated in two different units. NDDOT §411.06's pay unit is literally
+    "Ton or Square Yard", so a plan carrying both is normal, not an error — and the two must never
+    be added. Presentation only: the wire label stays `MILL_TON` (see the alignment comment in
+    render_markdown for why `MILL` is load-bearing downstream).
+
+    Returns [] rather than None so the caller can always `extend` — an absent legend and a failed
+    one are not the same thing, and a bare None here would be a `TypeError` at the call site rather
+    than a silent gap, which is the behaviour we want if this ever regresses.
+    """
+    if not any(q.get("label") == "MILL_TON" for q in (qs or [])):
+        return []
+    return ["",
+            "_MILL_TON — milling measured in TONS, carried unconverted. Where a plan states both, "
+            "MILL (SY) and MILL_TON are the same work in two units and are not addable._"]
+
+
 def _gotcha_line(g: dict) -> str:
     """One gotcha as: **code** · p.N — "verbatim evidence". The quotes signal it is pulled text."""
     code = (g.get("code") or "").replace("_", " ")
@@ -751,10 +771,17 @@ def render_markdown(final: dict, include_dives: bool = True, ascii_bars: bool = 
         vmax = max((q["value"] for q in qs), default=0)
         md.append("```")
         for q in qs:
-            md.append(f"{q['label']:<6}{q['value']:>11,.0f} {q['unit']:<3} {_bar(q['value'], vmax)}")
+            # `:<9` not `:<6` — MILL_TON is 8 characters and was misaligning every export that
+            # contained it (2026-08-10). The label itself must NOT be shortened: "MILL" is written
+            # straight into the `mill_sy` column by bid_projects_record.py and mapped into the
+            # fitted competitor weights by competitor_predict_live.py, neither of which reads a
+            # unit, so a tons value arriving under "MILL" would be a silent unit corruption.
+            md.append(f"{q['label']:<9}{q['value']:>11,.0f} {q['unit']:<3} {_bar(q['value'], vmax)}")
         md.append("```")
+        md.extend(_mill_ton_legend(qs))
     else:
         md.append(" · ".join(f"**{q['label']}** {q['value']:,.0f} {q['unit']}" for q in qs))
+        md.extend(_mill_ton_legend(qs))
     md.append("")
 
     # ③ gotchas — split by intent (the calibrated, page-cited verbatim flags)

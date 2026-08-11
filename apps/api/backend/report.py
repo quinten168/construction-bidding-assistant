@@ -142,6 +142,26 @@ def identity_fields_from_record(record: dict) -> dict:
 def _classify_read_error(e: Exception) -> tuple[str, str]:
     """Map a raw pipeline exception to a (reason_code, human_message) so the UI can tell the user
     *why* a PDF couldn't be read instead of a bare 'ValueError'."""
+    # The extraction call's own three-state contract (s3_extract.call_json_result) reaches us as a
+    # duck-typed attribute on the exception — `truncated` or `malformed` — so we never have to guess
+    # from the message text, and report.py needs no import of s3_extract's exception class. A
+    # truncated extraction is an ERROR with its own reason code; it is NEVER a valid empty result,
+    # and because we return ok:False here the payload is never built and therefore never cached
+    # (apply_verification, the only cache writer, is only ever reached from a successful payload —
+    # and refuses non-ok payloads besides).
+    kind = getattr(e, "extraction_failure_kind", None)
+    if kind == "truncated":
+        return ("extraction_truncated",
+                "The plan was read, but the extraction answer was cut off at the model's output-token "
+                "limit, so it is incomplete. Nothing was saved — an incomplete extraction is reported "
+                "as an error rather than shown as a plan with no values. Re-run; if it repeats, the "
+                "output budget (s3_extract.EXTRACT_MAX_TOKENS) needs raising.")
+    if kind == "malformed":
+        return ("extraction_unreadable",
+                "The plan was read, but the extraction answer came back unreadable (malformed JSON). "
+                "Nothing was saved — this is a failed extraction, not a plan with no values. "
+                "Re-running usually clears it.")
+
     msg = str(e).lower()
     if "textpage" in msg or "no text" in msg or "cannot extract text" in msg or "empty" in msg:
         return ("no_text_layer",
@@ -360,6 +380,12 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             "base_conversion_status": conversion_status["base_tons"]["status"],
             "shoulder_conversion_status": conversion_status["shoulder_tons"]["status"],
             "mix_conversion_status": conversion_status["hot_mix_tons"]["status"],
+            # And the same question for the CY bucket: cy_only / unconverted_only /
+            # cy_and_unconverted / not_present / unknown / inconsistent. CSI assigned CLEAN ROCK to
+            # grading and Dunn prices it in TONS, so a grading total of 38,535 CY that silently
+            # omits 758 T now carries a status saying so.
+            # docs/_spec/2026-08-11-grading-unit-capture.md.
+            "grading_unit_status": schema.grading_unit_status(record),
             "latitude": latitude, "longitude": longitude,
             "coordinate_provenance": "midpoint" if latitude is not None else None,
             # Geocoded, never overwriting the extracted equivalents above. Separate keys so an
@@ -454,12 +480,23 @@ def apply_verification(rep: dict, edits: dict) -> dict:
     rep["verified"] = True
 
     content_hash = rep.get("content_hash")
-    if content_hash:
+    # ONLY a payload that actually succeeded may be cached. A cached empty plan is permanent and
+    # silent — strictly worse than the transient failure that produced it — so the one writer of the
+    # payload cache refuses anything that isn't ok:True. process_pdf already returns ok:False (with
+    # reason `extraction_truncated` / `extraction_unreadable`) rather than a null-cell payload, so
+    # this is belt-and-braces on the same rule at the layer that makes it permanent.
+    if content_hash and rep.get("ok"):
         try:
             _PAYLOAD_CACHE.mkdir(parents=True, exist_ok=True)
             _payload_cache_path(content_hash).write_text(json.dumps(rep))
         except Exception:                                     # best-effort, same as the old cache write
             pass
+    elif content_hash:
+        # Say so. A silently-skipped cache write is how "why is this plan re-processing every time?"
+        # becomes an afternoon; and if a caller ever hands us a payload with `ok` stripped, this line
+        # is the evidence rather than a mystery.
+        log.warning("report: refusing to cache payload for %s — not ok:True (reason=%s)",
+                    content_hash, rep.get("reason"))
     return rep
 
 

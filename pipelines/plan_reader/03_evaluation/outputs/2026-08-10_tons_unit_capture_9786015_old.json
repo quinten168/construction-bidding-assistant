@@ -1,0 +1,23 @@
+[
+  {
+    "hash": "a3171c2187e8af85",
+    "arm": "old",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 2495,
+      "shoulder_tons": null,
+      "milling_sy": 15828,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "capture": null,
+    "statuses": {
+      "hot_mix_tons": "unknown",
+      "base_tons": "unknown",
+      "shoulder_tons": "unknown"
+    },
+    "error": null
+  }
+]

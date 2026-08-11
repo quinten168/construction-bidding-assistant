@@ -1,0 +1,143 @@
+{
+  "plan": "Job 24133 Morton (ND)",
+  "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.15.25 MORTON CO ND JOB 24133 (ND 1806) SS-1-806(058)057 FIELD APPROACH/Job 24133 Request for Proposal.pdf",
+  "input": {
+    "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.15.25 MORTON CO ND JOB 24133 (ND 1806) SS-1-806(058)057 FIELD APPROACH/Job 24133 Request for Proposal.pdf",
+    "status": "OK",
+    "error": null,
+    "doc_type": "combined",
+    "n_pages": 146,
+    "proposal_ranges": "1-88, 90-146",
+    "map_ranges": "89",
+    "n_proposal_pages": 145,
+    "chars_before_truncate": 387606,
+    "chars_sent": 180040,
+    "truncated": true,
+    "input_sha256": "bebfefc10a1c31ec13d6de275b0a2c5757fc18fc40c30de843a3fc45c1553b6c"
+  },
+  "n": 3,
+  "runs": [
+    {
+      "run": 0,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 4911,
+        "shoulder_tons": 170,
+        "milling_sy": 152,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "NONE",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "NONE",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "No hot mix asphalt pay items appear anywhere in the bid schedule.",
+        "base_tons": "No aggregate base course pay item appears in the bid schedule; Item 004 is 'REMOVE AGGREGATE BASE' (demolition, excluded per rules), and Item 018 is 'AGGREGATE SURFACE COURSE CL 13' which belongs in shoulder_tons.",
+        "grading_quantity": "Sum of CY-measured earthwork items: COMMON EXCAVATION-TYPE B 155 CY (Item 006) + TOPSOIL 1,343 CY (Item 007) + BORROW-EXCAVATION 3,413 CY (Item 008) = 4,911 CY.",
+        "shoulder_tons": "Item 018: 'AGGREGATE SURFACE COURSE CL 13' | 170 TON \u2014 ND section 302 surface course belongs in shoulder_tons per field definition.",
+        "milling_sy": "Item 005: 'REMOVAL OF BITUMINOUS SURFACING' | 152 SY \u2014 the only qualifying milling/removal item measured in square yards.",
+        "crushing_tons": "No crushing pay items appear anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay items appear anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous-surface-removal item in this bid schedule is measured in tons.",
+        "milling_measured_unit": "Item 005 'REMOVAL OF BITUMINOUS SURFACING' is measured in SY; no ton-measured milling item exists.",
+        "base_measured_unit": "No aggregate/granular base pay items (as defined) appear in the bid schedule.",
+        "base_unconverted": "No aggregate base items exist in this bid schedule.",
+        "shoulder_measured_unit": "Item 018 'AGGREGATE SURFACE COURSE CL 13' is measured in TON.",
+        "shoulder_unconverted": "The only shoulder item (AGGREGATE SURFACE COURSE CL 13) is measured in tons, so no unconverted items to report.",
+        "hot_mix_measured_unit": "No hot mix asphalt pay items appear in the bid schedule.",
+        "hot_mix_unconverted": "No hot mix asphalt items exist in this bid schedule."
+      },
+      "error": null
+    },
+    {
+      "run": 1,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 4911,
+        "shoulder_tons": 170,
+        "milling_sy": 152,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "NONE",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "NONE",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "No hot mix asphalt / Superpave / bituminous mixture pay items appear anywhere in the bid schedule.",
+        "base_tons": "No aggregate base course pay item appears in the bid schedule; Item 004 is 'REMOVE AGGREGATE BASE' (demolition, excluded per rules) and Item 018 is 'AGGREGATE SURFACE COURSE CL 13' (shoulder/surfacing, not base).",
+        "grading_quantity": "Bid items measured in CY: Item 006 COMMON EXCAVATION-TYPE B = 155 CY, Item 007 TOPSOIL = 1,343 CY, Item 008 BORROW-EXCAVATION = 3,413 CY; total = 155 + 1343 + 3413 = 4911 CY.",
+        "shoulder_tons": "Item 018 'AGGREGATE SURFACE COURSE CL 13' = 170 TON on page 8; per rules, ND section 302 'AGGREGATE SURFACE COURSE' counts as shoulder/surfacing.",
+        "milling_sy": "Item 005 'REMOVAL OF BITUMINOUS SURFACING' = 152 SY; this is the only qualifying milling/removal item measured in SY.",
+        "crushing_tons": "No crushing pay items appear in the bid schedule.",
+        "stockpile_tons": "No stockpile pay items appear in the bid schedule.",
+        "milling_tons": "No milling or bituminous surface removal item is measured in tons in this bid schedule.",
+        "milling_measured_unit": "Item 005 'REMOVAL OF BITUMINOUS SURFACING' is measured in SY; no milling items are measured in tons.",
+        "base_measured_unit": "No aggregate base course pay items exist in this bid schedule (REMOVE AGGREGATE BASE is demolition; AGGREGATE SURFACE COURSE CL 13 is surfacing/shoulder).",
+        "base_unconverted": "No aggregate base items exist in this bid schedule.",
+        "shoulder_measured_unit": "Item 018 'AGGREGATE SURFACE COURSE CL 13' is measured in TON.",
+        "shoulder_unconverted": "The only shoulder item (AGGREGATE SURFACE COURSE CL 13) is measured in tons, so no unconverted items to report.",
+        "hot_mix_measured_unit": "No hot mix asphalt pay items exist in this bid schedule.",
+        "hot_mix_unconverted": "No hot mix asphalt items exist in this bid schedule."
+      },
+      "error": null
+    },
+    {
+      "run": 2,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 4911,
+        "shoulder_tons": 170,
+        "milling_sy": 152,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "NONE",
+        "base_unconverted": null,
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "NONE",
+        "hot_mix_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "No hot mix asphalt (Superpave or bituminous mixture) pay items appear anywhere in the bid schedule.",
+        "base_tons": "No aggregate base course pay item appears in the bid schedule; Item 004 is 'REMOVE AGGREGATE BASE' (demolition, excluded per rules), and Item 018 is 'AGGREGATE SURFACE COURSE CL 13' (shoulder/surfacing, not base).",
+        "grading_quantity": "Sum of CY items: Item 006 COMMON EXCAVATION-TYPE B 155 CY + Item 007 TOPSOIL 1,343 CY + Item 008 BORROW-EXCAVATION 3,413 CY = 4,911 CY.",
+        "shoulder_tons": "Item 018 'AGGREGATE SURFACE COURSE CL 13' 170 TON (ND section 302 surface course, counted in shoulder per rules).",
+        "milling_sy": "Item 005 'REMOVAL OF BITUMINOUS SURFACING' 152 SY is the only qualifying milling/removal item measured in square yards.",
+        "crushing_tons": "No crushing pay items appear anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay items appear anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous surface removal item is measured in tons in this bid schedule.",
+        "milling_measured_unit": "Item 005 'REMOVAL OF BITUMINOUS SURFACING' is measured in SY; no ton-measured milling items exist.",
+        "base_measured_unit": "No aggregate/granular base pay items (as defined) appear in the bid schedule.",
+        "base_unconverted": "No aggregate base items exist in the bid schedule.",
+        "shoulder_measured_unit": "Item 018 'AGGREGATE SURFACE COURSE CL 13' is measured in TON, the only shoulder aggregate item.",
+        "shoulder_unconverted": "The only shoulder item (AGGREGATE SURFACE COURSE CL 13) is measured in tons, so no unconverted items exist.",
+        "hot_mix_measured_unit": "No hot mix asphalt pay items appear in the bid schedule.",
+        "hot_mix_unconverted": "No hot mix asphalt items exist in the bid schedule."
+      },
+      "error": null
+    }
+  ],
+  "field_set": {
+    "n_extract_fields": 24,
+    "model": "claude-sonnet-4-6",
+    "max_chars": 180000
+  }
+}

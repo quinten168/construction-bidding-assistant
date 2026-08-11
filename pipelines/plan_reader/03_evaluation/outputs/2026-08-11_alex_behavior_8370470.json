@@ -1,0 +1,143 @@
+{
+  "plan": "8370470 White Shield Street Improvements (McLean Co ND)",
+  "pdf": "/Users/t/dev/csi/csi-bid-intelligence/pipelines/plan_reader/00_input/plans/8370470.pdf",
+  "input": {
+    "pdf": "/Users/t/dev/csi/csi-bid-intelligence/pipelines/plan_reader/00_input/plans/8370470.pdf",
+    "status": "OK",
+    "error": null,
+    "doc_type": "combined",
+    "n_pages": 274,
+    "proposal_ranges": "1-218",
+    "map_ranges": "219-274",
+    "n_proposal_pages": 218,
+    "chars_before_truncate": 539402,
+    "chars_sent": 180040,
+    "truncated": true,
+    "input_sha256": "a7df0d02b49b9ce3ae11cc498e1126d1899b65891922f2d91cf8743f7681c916"
+  },
+  "n": 3,
+  "runs": [
+    {
+      "run": 0,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 14775,
+        "shoulder_tons": null,
+        "milling_sy": 3650,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Aggregate Base Course Cl 5 | 2700 | CY",
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON+OTHER",
+        "hot_mix_unconverted": "Superpave FAA 43 - 3\" | 3200 | SY\nSuperpave FAA 43 - 4\" | 12500 | SY\nSuperpave FAA 43 - 5\" | 5400 | SY\nPatching | 7200 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "Superpave items (lines 9, 10, 11) and Patching (line 33) are measured in SY, not tons; no ton-based hot mix quantity is stated, so a tonnage total cannot be derived without conversion.",
+        "base_tons": "Aggregate Base Course Cl 5 (line 8) is measured in CY (2700 CY), not tons; no ton-based base quantity is stated.",
+        "grading_quantity": "Bid schedule line 4: Common Excavation-Type A 13000 CY + line 5: Embankment-Type A 775 CY + line 22: Salvage and Reuse Existing Aggregate 1000 CY = 14775 CY; all measured in CY per bid schedule.",
+        "shoulder_tons": "No aggregate shouldering or aggregate surface course line items appear in the bid schedule; NONE applies.",
+        "milling_sy": "Bid schedule line 20: Full Depth Reclamation 3650 SY \u2014 qualifies under the reclamation kind-(b) definition; no other milling or bituminous removal items measured in SY are present.",
+        "crushing_tons": "No crushing pay items appear anywhere in the document.",
+        "stockpile_tons": "No stockpile pay items measured in tons appear in the document.",
+        "milling_tons": "No milling or bituminous surface removal items measured in tons appear in the bid schedule.",
+        "milling_measured_unit": "Full Depth Reclamation (line 20) is the only qualifying milling/reclamation item and it is measured in SY.",
+        "base_measured_unit": "Bid schedule line 8: Aggregate Base Course Cl 5 is measured in CY (2700 CY), not tons.",
+        "base_unconverted": "Line 8 of the bid schedule lists Aggregate Base Course Cl 5 at 2700 CY \u2014 the only base item in the schedule.",
+        "shoulder_measured_unit": "No shoulder aggregate or aggregate surface course items appear anywhere in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in the bid schedule.",
+        "hot_mix_measured_unit": "Superpave items (lines 9, 10, 11) and Patching (line 33) are measured in SY, not tons; no ton-measured hot mix items are visible \u2014 all hot mix items appear to be in SY, so 'OTHER' may be more accurate, but confidence is low as the patching item description is ambiguous.",
+        "hot_mix_unconverted": "Lines 9, 10, 11, and 33 are hot mix items measured in SY; 'Patching' (line 33) is listed under the Patching section and likely refers to bituminous patching, but the description alone is ambiguous."
+      },
+      "error": null
+    },
+    {
+      "run": 1,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 14775,
+        "shoulder_tons": null,
+        "milling_sy": 3650,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Aggregate Base Course Cl 5 | 2700 | CY",
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "Superpave FAA 43 - 3\" | 3200 | SY\nSuperpave FAA 43 - 4\" | 12500 | SY\nSuperpave FAA 43 - 5\" | 5400 | SY\nPatching | 7200 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "Superpave items (lines 9, 10, 11, 33) are measured in SY, not tons; no tonnage is stated and conversion is not permitted.",
+        "base_tons": "Aggregate Base Course Cl 5 (line 8) is measured in CY (2700 CY), not tons; no tonnage is stated and conversion is not permitted.",
+        "grading_quantity": "Bid schedule line 4: Common Excavation-Type A 13,000 CY + line 5: Embankment-Type A 775 CY + line 22: Salvage and Reuse Existing Aggregate 1,000 CY = 14,775 CY; all measured in CY.",
+        "shoulder_tons": "No aggregate shouldering or aggregate surface course items appear in the bid schedule.",
+        "milling_sy": "Bid schedule line 20: Full Depth Reclamation 3,650 SY \u2014 qualifies under the reclamation kind (b) definition; no other milling or bituminous removal items measured in SY are present.",
+        "crushing_tons": "No crushing pay item appears anywhere in the document.",
+        "stockpile_tons": "No stockpile tonnage pay item appears in the bid schedule; stockpiling is referenced only as a construction method in specifications.",
+        "milling_tons": "No milling or bituminous surface removal items measured in tons appear in the bid schedule.",
+        "milling_measured_unit": "Full Depth Reclamation (line 20) is the only qualifying milling/reclamation item and it is measured in SY.",
+        "base_measured_unit": "Aggregate Base Course Cl 5 (line 8) is measured in CY, not tons.",
+        "base_unconverted": "Bid schedule line 8: Aggregate Base Course Cl 5, 2700 CY \u2014 the only base item, measured in CY not tons.",
+        "shoulder_measured_unit": "No shoulder aggregate or aggregate surface course items appear anywhere in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in the bid schedule.",
+        "hot_mix_measured_unit": "All Superpave hot mix items (lines 9, 10, 11, 33) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Bid schedule lines 9, 10, 11 (Superpave FAA 43 in SY) and line 33 (Patching in SY) are hot mix items not measured in tons, listed exactly as printed."
+      },
+      "error": null
+    },
+    {
+      "run": 2,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 14775,
+        "shoulder_tons": null,
+        "milling_sy": 3650,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Aggregate Base Course Cl 5 | 2700 | CY",
+        "shoulder_measured_unit": "NONE",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "Superpave FAA 43 - 3\" | 3200 | SY\nSuperpave FAA 43 - 4\" | 12500 | SY\nSuperpave FAA 43 - 5\" | 5400 | SY\nPatching | 7200 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "Superpave items (lines 9, 10, 11, 33) are measured in SY, not tons; no tonnage is stated and no conversion factor is provided in the document.",
+        "base_tons": "Aggregate Base Course Cl 5 (line 8) is measured in CY (2700 CY), not tons; no tonnage is stated.",
+        "grading_quantity": "Bid schedule line 4: Common Excavation-Type A (P) = 13000 CY; line 5: Embankment-Type A = 775 CY; line 22: Salvage and Reuse Existing Aggregate = 1000 CY. Sum = 14775 CY.",
+        "shoulder_tons": "No aggregate shouldering or aggregate surface course line items appear in the bid schedule.",
+        "milling_sy": "Bid schedule line 20: Full Depth Reclamation = 3650 SY. No other milling or bituminous surface removal items measured in SY are present.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule or specifications.",
+        "stockpile_tons": "No stockpile tonnage pay item appears in the bid schedule; stockpiling is referenced only as a construction method in specifications.",
+        "milling_tons": "No milling or bituminous surface removal items measured in tons appear in the bid schedule.",
+        "milling_measured_unit": "Full Depth Reclamation (line 20) is the only qualifying milling/reclamation item and it is measured in SY.",
+        "base_measured_unit": "Aggregate Base Course Cl 5 (line 8) is measured in CY (2700 CY), not tons.",
+        "base_unconverted": "Bid schedule line 8 lists Aggregate Base Course Cl 5 at 2700 CY as stated in the bid schedule quantities table.",
+        "shoulder_measured_unit": "No shoulder aggregate or aggregate surface course items appear anywhere in the bid schedule.",
+        "shoulder_unconverted": "No shoulder aggregate items exist in the bid schedule.",
+        "hot_mix_measured_unit": "All Superpave hot mix items (lines 9, 10, 11, 33) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Bid schedule lines 9, 10, 11, and 33 list Superpave/hot mix items measured in SY as stated in the bid schedule quantities table."
+      },
+      "error": null
+    }
+  ],
+  "field_set": {
+    "n_extract_fields": 24,
+    "model": "claude-sonnet-4-6",
+    "max_chars": 180000
+  }
+}

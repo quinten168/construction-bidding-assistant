@@ -36,6 +36,13 @@ rather than manual transcription. But **"38 golden plans" cannot go in Wednesday
 and the 33 `*QUANITIES.pdf` files and 174 Daily Ads digests are now a larger share of the available
 ground truth than the rtv-csvs are. The golden-dataset agent has been sent this correction.
 
+**CORRECTION (2026-08-10, late — measured at N=10).** The claim below was half wrong and is
+retained so the error is visible rather than edited away. `BASE` still matches the rtv-csv at 5,849.
+**`GRADE` does not**: the live path now returns **15,876** on 10 runs out of 10, against the
+rtv-csv's `grade_cy = 7,707`. It is not drift — it is stable and wrong, and it equals
+excavation + both embankments, so the model is making a defensible-looking selection the golden
+disagrees with. Do not repeat "exact match on both" to CSI.
+
 **One golden match is already confirmed, for free.** The Crow Wing rtv-csv lists
 `2106.507 EXCAVATION - COMMON (C Y) = 7,707` and `2211.509 AGGREGATE BASE CLASS 5 (TON) = 5,849`.
 Our cached live-path payload for that same project (`9ff5dc83b09d4079.json`) holds `GRADE 7707 CY`

@@ -1,0 +1,896 @@
+{
+  "plan": "Stearns 9813645 (MN) \u2014 2026-08-11 conformance, N=10",
+  "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.28.25 STEARNS CO MN CP 073-123-025 (CR 123) PAVEMENT RESURFACING AND REHAB/9813645.pdf",
+  "input": {
+    "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.28.25 STEARNS CO MN CP 073-123-025 (CR 123) PAVEMENT RESURFACING AND REHAB/9813645.pdf",
+    "status": "OK",
+    "error": null,
+    "doc_type": "proposal",
+    "n_pages": 80,
+    "proposal_ranges": "1-80",
+    "map_ranges": "",
+    "n_proposal_pages": 80,
+    "chars_before_truncate": 246293,
+    "chars_sent": 180039,
+    "truncated": true,
+    "input_sha256": "fa8ea4bebac490b3fae55f2cfd1708b6e1edc02f6849d28d78db4a4036ab8caa"
+  },
+  "n": 10,
+  "runs": [
+    {
+      "run": 0,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total; confirmed by advertisement summary 'Bituminous Surfacing 14,480 TON' on page 79.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON total; FDR is reported separately in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON, directly stated.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item measured in tons appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three milling line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base CLASS 2 and CLASS 6 are in TON; FULL DEPTH RECLAMATION (item 13) is in SY \u2014 so both TON and OTHER (SY) units are present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY, directly stated; FDR is a base item measured in SY per CSI rules.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items present.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in non-ton units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in cubic yards (COMMON TOPSOIL BORROW = 200 CY); no grading items in non-CY units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total; confirmed by advertisement summary 'Bituminous Surfacing 14,480 TON' on page 79."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON total; FDR is reported separately in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON, directly stated."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item measured in tons appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 1,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) 8,192 TON = 14,480 TON.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 (20 TON) + AGGREGATE BASE CLASS 6 (250 TON) = 270 TON; FULL DEPTH RECLAMATION is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW 200 CY \u2014 the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") 96 SY + MILL BITUMINOUS SURFACE (4.0\") 2,000 SY = 70,263 SY.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in SY; none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base Class 2 and Class 6 are in TON; FULL DEPTH RECLAMATION (item 13) is in SY \u2014 making it TON+OTHER.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION 70,167 SY \u2014 CSI rules FDR belongs to base and must be reported here.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in CY; no non-CY grading items exist."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) 8,192 TON = 14,480 TON."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 (20 TON) + AGGREGATE BASE CLASS 6 (250 TON) = 270 TON; FULL DEPTH RECLAMATION is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW 200 CY \u2014 the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") 96 SY + MILL BITUMINOUS SURFACE (4.0\") 2,000 SY = 70,263 SY."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 2,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three milling line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items are in TON (items 11 and 12), and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; per rules, FDR is always listed here.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in CY; no non-CY grading items exist per the definition."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 3,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total; confirmed by advertisement summary '14,480 TON' on page 79.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON total.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading/earthwork item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three milling line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base Class 2 and Class 6 are in TON; Full Depth Reclamation (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; FDR is a base item measured in square yards per CSI rules.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "All shoulder aggregate items are measured in tons; none are in other units.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only qualifying grading item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in cubic yards; no non-CY grading items exist."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total; confirmed by advertisement summary '14,480 TON' on page 79."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON total."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading/earthwork item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 4,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FULL DEPTH RECLAMATION (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three milling line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base Class 2 and Class 6 are measured in TON; FULL DEPTH RECLAMATION (item 13) is measured in SY, making it TON+OTHER.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; per CSI rules, FDR is base and its SY quantity is reported here.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only qualifying grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is measured in RDST (road stations), not a grading item per the definition.",
+        "grading_unconverted": "All qualifying grading items are measured in cubic yards; no non-CY grading items exist."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FULL DEPTH RECLAMATION (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 5,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item measured in tons appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in SY; none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items (items 11, 12) are in TON, and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; FDR is a base item measured in SY per CSI rules.",
+        "shoulder_measured_unit": "SHOULDER BASE AGGREGATE CLASS 1 (item 14) is measured in TON.",
+        "shoulder_unconverted": "The shoulder item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in CY; no non-CY grading items exist per the definition."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item measured in tons appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 6,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items (items 11 and 12) are in TON, and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY (MnDOT item 2215.504/00010), measured in square yards per the bid schedule.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is measured in RDST (road stations), not a grading item per the definition.",
+        "grading_unconverted": "Every qualifying grading item (COMMON TOPSOIL BORROW) is measured in cubic yards; no grading items are in non-CY units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 7,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items in the bid schedule are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items (items 11 and 12) are in TON, and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; per rules, FDR is always listed here.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items present.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix asphalt items are measured in tons; none in other units.",
+        "grading_measured_unit": "The only qualifying grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items are measured in cubic yards (COMMON TOPSOIL BORROW | 200 | CY); no grading items in non-CY units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON; FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 8,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item measured in tons appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items are measured in square yards (SY); none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items (items 11 and 12) are in TON, and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 both units present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY; per rules, FDR is always listed here.",
+        "shoulder_measured_unit": "SHOULDER BASE AGGREGATE CLASS 1 (item 14) is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix asphalt items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is measured in RDST (road stations), not a grading item per definition.",
+        "grading_unconverted": "All qualifying grading items (COMMON TOPSOIL BORROW) are measured in cubic yards; no grading items are in non-CY units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item measured in tons appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 9,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": 14480,
+        "base_tons": 270,
+        "grading_quantity": 200,
+        "shoulder_tons": 460,
+        "milling_sy": 70263,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "TON+OTHER",
+        "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+        "shoulder_measured_unit": "TON",
+        "shoulder_unconverted": null,
+        "hot_mix_measured_unit": "TON",
+        "hot_mix_unconverted": null,
+        "grading_measured_unit": "CY",
+        "grading_unconverted": null
+      },
+      "reasons": {
+        "hot_mix_tons": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total.",
+        "base_tons": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted.",
+        "grading_quantity": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards.",
+        "shoulder_tons": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON.",
+        "milling_sy": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total.",
+        "crushing_tons": "No crushing pay item measured in tons appears in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears in the bid schedule.",
+        "milling_tons": "All milling items in the bid schedule are measured in square yards; none are measured in tons.",
+        "milling_measured_unit": "All three MILL BITUMINOUS SURFACE line items (items 15, 16, 17) are measured in SY.",
+        "base_measured_unit": "Aggregate Base items (items 11 and 12) are in TON, and FULL DEPTH RECLAMATION (item 13) is in SY \u2014 so both TON and OTHER units are present.",
+        "base_unconverted": "Bid schedule item 13: FULL DEPTH RECLAMATION = 70,167 SY (MnDOT item 2215.504/00010), measured in square yards per the bid schedule.",
+        "shoulder_measured_unit": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 is measured in TON.",
+        "shoulder_unconverted": "The shoulder aggregate item is measured in tons; no non-ton shoulder items exist.",
+        "hot_mix_measured_unit": "Both hot mix items (items 18 and 19) are measured in TON.",
+        "hot_mix_unconverted": "All hot mix asphalt items are measured in tons; none are in other units.",
+        "grading_measured_unit": "The only grading/earthwork item (COMMON TOPSOIL BORROW) is measured in CY; SUBGRADE PREPARATION is measured in RDST (road stations), not a grading item per the definition.",
+        "grading_unconverted": "Every qualifying grading item (COMMON TOPSOIL BORROW) is measured in cubic yards; no grading items are in non-CY units."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": 14480,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 18 and 19: TYPE SP 12.5 WEARING COURSE MIX (2,B) = 6,288 TON + TYPE SP 12.5 NON WEAR COURSE MIX (2,B) = 8,192 TON = 14,480 TON total."
+        },
+        "base_tons": {
+          "value": 270,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 11 and 12: AGGREGATE BASE CLASS 2 = 20 TON + AGGREGATE BASE CLASS 6 = 250 TON = 270 TON. FDR (item 13) is reported in base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 200,
+          "confidence": "high",
+          "page": 78,
+          "reason": "Bid schedule item 21: COMMON TOPSOIL BORROW = 200 CY, the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": 460,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule item 14: SHOULDER BASE AGGREGATE CLASS 1 = 460 TON."
+        },
+        "milling_sy": {
+          "value": 70263,
+          "confidence": "high",
+          "page": 77,
+          "reason": "Bid schedule items 15, 16, 17: MILL BITUMINOUS SURFACE (1.0\") = 68,167 SY + MILL BITUMINOUS SURFACE (1.5\") = 96 SY + MILL BITUMINOUS SURFACE (4.0\") = 2,000 SY = 70,263 SY total."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item measured in tons appears in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears in the bid schedule."
+        }
+      }
+    }
+  ],
+  "field_set": {
+    "n_extract_fields": 26,
+    "model": "claude-sonnet-4-6",
+    "max_chars": 180000
+  }
+}

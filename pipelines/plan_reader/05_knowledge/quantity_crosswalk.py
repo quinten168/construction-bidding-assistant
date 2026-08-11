@@ -200,6 +200,16 @@ CSI_RULINGS_2026_08_07 = [
     # --- PREVIOUSLY UNASSIGNED, resolved ----------------------------------------------------------
     ("SALVAGE AND REUSE EXISTING AGGREGATE", "grading", None, "CSI 08-07: unassigned -> grading"),
     ("CLEAN ROCK", "grading", None, "CSI 08-07: unassigned -> grading"),
+    # The other two of the four assigned rows on the unassigned table. They were filed in
+    # CSI_DO_NOT_COUNT_2026_08_07 until 2026-08-11, which asserted CSI had ruled them OUT when the
+    # returned .docx ticks a BUCKET for each — worse than a miss, because it launders our
+    # transcription error as the client's decision. THE FINGERPRINT that proves it was ours: that
+    # list held 13 entries = the 11 genuinely-unassigned rows PLUS these 2, i.e. all 15 unassigned
+    # rows were swept into "do not count" and only 2 of the 4 assigned ones were then rescued.
+    # Marks decoded from w14:checkbox XML and cross-checked against the visible glyph — two methods,
+    # agreeing. docs/_session/2026-08-11-alex-conformance-encoding.md §2, rulings #2 and #3.
+    ("FULL DEPTH BITUMINOUS STREET REPAIR", "mixed", None, "CSI 08-07: unassigned -> Mixed_tons"),
+    ("GRANULAR BEDDING", "grading", None, "CSI 08-07: unassigned -> grading"),
 
     # --- REMOVALS: the FDR treatment applied to the same shape (T, 2026-08-07) --------------------
     # Mark's standing rule is that pavement/base removal "is considered grading work". That is a
@@ -233,7 +243,10 @@ CSI_DO_NOT_COUNT_2026_08_07 = [
     "CONTROLLED DENSITY FILL", "CONCRETE VALLEY GUTTER", "STRUCTURAL CONCRETE",
     "NON-REINF CONCRETE PVMT CL AE-DOWELED", "NON REINF CONCRETE PVMT CL AE-DOWELED",
     "CONCRETE PENETRATING SEALER", "CONCRETE MEDIAN PAVING", "RAPID STABILIZATION METHOD 4",
-    "FULL DEPTH BITUMINOUS STREET REPAIR", "GRANULAR BEDDING",
+    # 2026-08-11: `FULL DEPTH BITUMINOUS STREET REPAIR` and `GRANULAR BEDDING` were REMOVED from
+    # this list and moved into CSI_RULINGS_2026_08_07 above — Alex assigned each a bucket, so
+    # recording them here inverted his decision. 11 entries, which is exactly the number of
+    # genuinely-unassigned rows on the form.
 ]
 
 # STILL UNANSWERED by CSI as of 2026-08-07 — flagged, NOT assumed. Do not add rulings for these

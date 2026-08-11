@@ -1,0 +1,896 @@
+{
+  "plan": "9786015 Murray CSAH 2 / Fulda (MN) \u2014 DEMO PLAN, 2026-08-11 conformance, N=10",
+  "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.07.25 MURRAY CO MN, FULDA PROJ 254021 (CSAH 2) INFRASTRUCTURE IMPS/9786015.pdf",
+  "input": {
+    "pdf": "/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/00_summer 2026/00_CSI_ELP/CSI ELP 2026/2025 Bid year (9.1.24-8.31.25) - CURRENT/12 - AUGUST/Plans Proposals/08.07.25 MURRAY CO MN, FULDA PROJ 254021 (CSAH 2) INFRASTRUCTURE IMPS/9786015.pdf",
+    "status": "OK",
+    "error": null,
+    "doc_type": "combined",
+    "n_pages": 466,
+    "proposal_ranges": "1-426",
+    "map_ranges": "427-466",
+    "n_proposal_pages": 426,
+    "chars_before_truncate": 941358,
+    "chars_sent": 180040,
+    "truncated": true,
+    "input_sha256": "354a57ea30dce3e6f8c46b16ab09f5ab7c47d331a63bde90da2b96d7c06ebe0b"
+  },
+  "n": 10,
+  "runs": [
+    {
+      "run": 0,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2,485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY\n12\" Cement Stabilized Subgrade (CV) (P) | 1,566 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt pay items (Items 44\u201347) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous removal item in this bid schedule is measured in tons; all are in SY.",
+        "milling_measured_unit": "Items 5 and 7 (milling and remove bituminous pavement) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base item is in tons.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards as stated in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY); this is the only item that could qualify as shoulder aggregate and it is not in tons.",
+        "shoulder_unconverted": "Item 40 is measured in SY, not tons; classified as shoulder/surfacing aggregate based on description but unit is SY.",
+        "hot_mix_measured_unit": "All four hot mix asphalt items (Items 44\u201347: Type SP 9.5 and SP 12.5 mixtures) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as stated verbatim in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 grading-related items appear in both CY and SY.",
+        "grading_unconverted": "Item 40 is aggregate surfacing measured in SY (borderline \u2014 could be shoulder rather than grading); Item 42 is cement stabilized subgrade in SY which CSI excludes, but listed here for human review. Item 43 Cement Powder (TON) is a binder/additive excluded per rules."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt pay items (Items 44\u201347) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 1,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All hot mix asphalt items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be computed; see hot_mix_unconverted.",
+        "base_tons": "The only aggregate base item (Item 41, Class 5 Aggregate Base) is measured in cubic yards (CY), not tons; see base_unconverted.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards. Item 40 (aggregate surfacing) is in SY and Item 41 (aggregate base) is in CY but belongs to base_tons, not grading. Item 42 (cement stabilized subgrade) is in SY and excluded per rules.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing' is measured in SY, not tons; no shoulder aggregate item is measured in tons.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY plus Item 7 'Remove Bituminous Pavement' = 7,097 SY; total = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous removal item in this bid schedule is measured in tons; all are in SY.",
+        "milling_measured_unit": "Items 5 and 7 (milling and remove bituminous pavement) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in cubic yards (CY), not tons; no base item is in tons.",
+        "base_unconverted": "Item 41 is the only aggregate base item and is measured in CY as stated in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY, not tons.",
+        "shoulder_unconverted": "Item 40 is the shoulder/surfacing aggregate item measured in SY as stated in the bid schedule.",
+        "hot_mix_measured_unit": "All four hot mix items (Items 44\u201347: Type SP 9.5 and SP 12.5 mixtures) are measured in square yards (SY), not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as stated in the bid schedule.",
+        "grading_measured_unit": "Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing' is in SY \u2014 a grading-adjacent item measured in a non-CY unit appears alongside the CY excavation item.",
+        "grading_unconverted": "Item 40 is a surfacing/base item measured in SY that would count toward grading if in CY; reported verbatim as required."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All hot mix asphalt items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be computed; see hot_mix_unconverted."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "The only aggregate base item (Item 41, Class 5 Aggregate Base) is measured in cubic yards (CY), not tons; see base_unconverted."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards. Item 40 (aggregate surfacing) is in SY and Item 41 (aggregate base) is in CY but belongs to base_tons, not grading. Item 42 (cement stabilized subgrade) is in SY and excluded per rules."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing' is measured in SY, not tons; no shoulder aggregate item is measured in tons."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY plus Item 7 'Remove Bituminous Pavement' = 7,097 SY; total = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 2,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt pay items (Items 44\u201347) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "All milling and bituminous removal items are measured in SY, not tons; no ton-measured milling items exist in this bid schedule.",
+        "milling_measured_unit": "Items 5 and 7 (milling and bituminous removal) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no other base items exist.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards, not tons.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons.",
+        "shoulder_unconverted": "Item 40 is the only shoulder/surfacing aggregate item and it is measured in SY.",
+        "hot_mix_measured_unit": "Items 44, 45, 46, and 47 (all hot mix asphalt pay items) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as stated in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 mixed units.",
+        "grading_unconverted": "Item 40 is a grading/surfacing item measured in SY, not CY. Item 42 (Cement Stabilized Subgrade) is excluded per CSI rules. Item 41 (Class 5 Aggregate Base) is a base item, not grading."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt pay items (Items 44\u201347) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 3,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards; Item 41 (Class 5 Aggregate Base, CY) is base not grading, and Item 42 (Cement Stabilized Subgrade, SY) is excluded per rules.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons, so no shoulder tonnage total is available.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule or document.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule or document.",
+        "milling_tons": "All milling and bituminous removal items in this bid schedule are measured in SY, not tons; no ton-measured milling items exist.",
+        "milling_measured_unit": "Items 5 and 7 (milling and bituminous pavement removal) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY); no ton-measured base items exist in the schedule.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards, not tons, as stated verbatim in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is the only shoulder-type item and it is measured in SY (38 SY), not tons.",
+        "shoulder_unconverted": "Item 40 is measured in SY and is the only shoulder/surfacing aggregate item; it would count toward shoulder_tons if measured in tons but cannot be converted.",
+        "hot_mix_measured_unit": "All four hot mix asphalt items (Items 44, 45, 46, 47 \u2014 Type SP 9.5 and SP 12.5 mixtures) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as stated verbatim in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY \u2014 a grading-adjacent item measured in a non-CY unit also appears in the schedule.",
+        "grading_unconverted": "Item 40 is measured in SY and appears to be an aggregate surfacing/shouldering item placed as part of the grading/base work; it would count toward grading if measured in CY but cannot be converted."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards; Item 41 (Class 5 Aggregate Base, CY) is base not grading, and Item 42 (Cement Stabilized Subgrade, SY) is excluded per rules."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons, so no shoulder tonnage total is available."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule or document."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule or document."
+        }
+      }
+    },
+    {
+      "run": 4,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules.",
+        "crushing_tons": "No crushing pay item or quantity is stated anywhere in the document.",
+        "stockpile_tons": "No stockpile pay item or quantity is stated anywhere in the document.",
+        "milling_tons": "No milling or bituminous removal items are measured in tons in this bid schedule.",
+        "milling_measured_unit": "Items 5 and 7 (milling and remove bituminous pavement) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base item is measured in tons.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in CY as stated in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons.",
+        "shoulder_unconverted": "Item 40 is the only shoulder aggregate pay item and it is measured in SY as stated in the bid schedule.",
+        "hot_mix_measured_unit": "All four hot mix asphalt items (Items 44, 45, 46, 47 \u2014 Type SP 9.5 and SP 12.5 mixtures) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44, 45, 46, and 47 are all hot mix asphalt pay items measured in SY as stated in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 grading items appear in both CY and other units.",
+        "grading_unconverted": "Item 40 is a non-bituminous surfacing/base removal item measured in SY; Item 42 '12\" Cement Stabilized Subgrade' is excluded per CSI rules (cement stabilized subgrade is not counted). Item 40 is the only qualifying non-CY grading item."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No crushing pay item or quantity is stated anywhere in the document."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No stockpile pay item or quantity is stated anywhere in the document."
+        }
+      }
+    },
+    {
+      "run": 5,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2,485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY\n12\" Cement Stabilized Subgrade (CV) (P) | 1,566 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules.",
+        "crushing_tons": "No crushing pay item or tonnage is stated anywhere in the document.",
+        "stockpile_tons": "No stockpile pay item or tonnage is stated anywhere in the document.",
+        "milling_tons": "All milling and bituminous removal items (Items 5 and 7) are measured in SY, not tons; no milling item is measured in tons.",
+        "milling_measured_unit": "Items 5 and 7 (milling and bituminous removal) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards as stated in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY; this is the only item that could qualify as shoulder aggregate, and it is not in tons.",
+        "shoulder_unconverted": "Item 40 references 'Shouldering' in its description and is measured in SY; classification as shoulder aggregate is inferred from the item name.",
+        "hot_mix_measured_unit": "Items 44, 45, 46, and 47 (all hot mix asphalt items) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44, 45, 46, and 47 are all hot mix asphalt pay items measured in SY as stated in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 grading-related items appear in both CY and SY.",
+        "grading_unconverted": "Item 40 is aggregate surfacing measured in SY (borderline \u2014 could be shoulder/base rather than grading); Item 42 Cement Stabilized Subgrade is excluded per CSI rules, but listed here for human review. Note: CSI explicitly excludes 'CEMENT STABILIZED SUBGRADE' from grading_unconverted, so Item 42 should be dropped; Item 40 is ambiguous."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No crushing pay item or tonnage is stated anywhere in the document."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No stockpile pay item or tonnage is stated anywhere in the document."
+        }
+      }
+    },
+    {
+      "run": 6,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2,485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards; Item 41 (Class 5 Aggregate Base, CY) is base not grading, and Item 42 (Cement Stabilized Subgrade, SY) is excluded per rules.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no ton-measured shoulder aggregate items exist.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "All milling and bituminous removal items (Items 5 and 7) are measured in SY, not tons; no ton-measured milling items exist in this bid schedule.",
+        "milling_measured_unit": "Items 5 and 7 (the qualifying milling/removal items) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in CY as stated verbatim in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons.",
+        "shoulder_unconverted": "Item 40 is the only shoulder/surfacing aggregate item and is measured in SY; classification as shoulder vs. base is uncertain given the combined description.",
+        "hot_mix_measured_unit": "Items 44, 45, 46, and 47 (all hot mix asphalt items) are all measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as stated verbatim in the bid schedule on page 27.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY \u2014 a grading-adjacent item measured in a non-CY unit also appears in the schedule.",
+        "grading_unconverted": "Item 40 is measured in SY and functions as aggregate surfacing/shouldering placed on the roadway; it is listed here as a non-CY grading-adjacent item per the rules, though its classification is uncertain."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is 2,495 CY \u2014 the only grading item measured in cubic yards; Item 41 (Class 5 Aggregate Base, CY) is base not grading, and Item 42 (Cement Stabilized Subgrade, SY) is excluded per rules."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no ton-measured shoulder aggregate items exist."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 7,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY\n12\" Cement Stabilized Subgrade (CV) (P) | 1566 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous removal item in this bid schedule is measured in tons; all are in SY.",
+        "milling_measured_unit": "Items 5 and 7 (milling and remove bituminous pavement) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base item is in tons.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards as stated in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY); this is the only item that could qualify as shoulder aggregate and it is not in tons.",
+        "shoulder_unconverted": "Item 40 is the only potential shoulder aggregate item and is measured in SY; flagged for human review as it may be classified differently.",
+        "hot_mix_measured_unit": "All four hot mix asphalt items (Items 44, 45, 46, 47 \u2014 Type SP 9.5 and SP 12.5 mixtures) are measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44, 45, 46, and 47 are all hot mix asphalt pay items measured in SY as stated in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 mixed units.",
+        "grading_unconverted": "Item 40 is aggregate surfacing measured in SY (borderline grading/shoulder item); Item 42 Cement Stabilized Subgrade is excluded per CSI rules but listed here as it appears in the grading section \u2014 flagged for human review. Note: CSI excludes 'CEMENT STABILIZED SUBGRADE' so Item 42 should NOT be listed; only Item 40 qualifies if it is treated as a grading item. However, Item 40 is more accurately a shoulder/surfacing item. Flagged for human review."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44, 45, 46, 47) are measured in square yards (SY), not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 8,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2,485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY\n12\" Cement Stabilized Subgrade (CV) (P) | 1,566 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards, not tons; no tonnage is stated anywhere in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 'Class 5 Alley & Shouldering Aggregate Surfacing' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "No milling or bituminous removal item in this bid schedule is measured in tons; all are in SY.",
+        "milling_measured_unit": "Items 5 and 7 (milling and remove bituminous pavement) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base item is in tons.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in cubic yards as printed in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 'Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons.",
+        "shoulder_unconverted": "Item 40 is the only shouldering/surfacing item and is measured in SY; classified here as shoulder aggregate surfacing based on description.",
+        "hot_mix_measured_unit": "All four hot mix items (Items 44\u201347: Type SP 9.5 and SP 12.5 mixtures) are measured in square yards, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as printed in the bid schedule.",
+        "grading_measured_unit": "Common Excavation is in CY; Item 40 'Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 grading-related items appear in both CY and other units.",
+        "grading_unconverted": "Item 40 is aggregate surfacing measured in SY (borderline \u2014 could be shoulder/base rather than grading); Item 42 is cement stabilized subgrade in SY which the rules exclude ('CEMENT STABILIZED SUBGRADE'), so only Item 40 is a true candidate. However, Item 42 is listed here for human review given ambiguity."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards, not tons; no tonnage is stated anywhere in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no base tonnage is stated."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY; this is the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 'Class 5 Alley & Shouldering Aggregate Surfacing' is measured in SY (38 SY), not tons; no shoulder aggregate tonnage is stated."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    },
+    {
+      "run": 9,
+      "status": "OK",
+      "values": {
+        "hot_mix_tons": null,
+        "base_tons": null,
+        "grading_quantity": 2495,
+        "shoulder_tons": null,
+        "milling_sy": 15828,
+        "crushing_tons": null,
+        "stockpile_tons": null,
+        "milling_tons": null,
+        "milling_measured_unit": "SY",
+        "base_measured_unit": "OTHER",
+        "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2,485 | CY",
+        "shoulder_measured_unit": "OTHER",
+        "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+        "hot_mix_measured_unit": "OTHER",
+        "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5,368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1,703 | SY",
+        "grading_measured_unit": "CY+OTHER",
+        "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY\n12\" Cement Stabilized Subgrade (CV) (P) | 1,566 | SY"
+      },
+      "reasons": {
+        "hot_mix_tons": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document.",
+        "base_tons": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule.",
+        "grading_quantity": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards.",
+        "shoulder_tons": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons, so no shoulder tonnage can be reported.",
+        "milling_sy": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules.",
+        "crushing_tons": "No crushing pay item appears anywhere in the bid schedule.",
+        "stockpile_tons": "No stockpile pay item appears anywhere in the bid schedule.",
+        "milling_tons": "All milling and bituminous removal items in the bid schedule are measured in SY, not tons; no ton-measured milling items exist.",
+        "milling_measured_unit": "Items 5 and 7 (milling and bituminous removal) are both measured in square yards.",
+        "base_measured_unit": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist.",
+        "base_unconverted": "Item 41 is the only aggregate base pay item and it is measured in CY, not tons, as printed in the bid schedule.",
+        "shoulder_measured_unit": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY) \u2014 the only potential shoulder item, and it is not in tons.",
+        "shoulder_unconverted": "Item 40 is the only shoulder-type aggregate item and is measured in SY, not tons; flagged for human review as it could also be classified as grading.",
+        "hot_mix_measured_unit": "Items 44, 45, 46, and 47 (all Type SP hot mix asphalt items) are all measured in SY, not tons.",
+        "hot_mix_unconverted": "Items 44\u201347 are all hot mix asphalt pay items measured in SY as printed in the bid schedule.",
+        "grading_measured_unit": "Item 39 Common Excavation is in CY; Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is in SY and Item 42 '12\" Cement Stabilized Subgrade (CV) (P)' is in SY \u2014 grading-related items appear in both CY and other units.",
+        "grading_unconverted": "Item 40 is aggregate surfacing measured in SY (borderline \u2014 could be shoulder rather than grading); Item 42 Cement Stabilized Subgrade is excluded per CSI rules, but listed here for human review. Item 42 is actually excluded by CSI rules so only Item 40 qualifies; however, Item 40 is aggregate surfacing which may belong in shoulder_tons rather than grading \u2014 flagged for human review."
+      },
+      "error": null,
+      "raw_quantity_cells": {
+        "hot_mix_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "All four hot mix asphalt bid items (Items 44\u201347) are measured in square yards (SY), not tons, so no tonnage total can be derived without a conversion factor not provided in the document."
+        },
+        "base_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 41 'Class 5 Aggregate Base (CV) (P)' is measured in CY (2,485 CY), not tons; no ton-measured base items exist in the bid schedule."
+        },
+        "grading_quantity": {
+          "value": 2495,
+          "confidence": "high",
+          "page": 27,
+          "reason": "Item 39 'Common Excavation (CV) (P)' is listed at 2,495 CY \u2014 the only grading item measured in cubic yards."
+        },
+        "shoulder_tons": {
+          "value": null,
+          "confidence": "low",
+          "page": 27,
+          "reason": "Item 40 '8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P)' is measured in SY (38 SY), not tons, so no shoulder tonnage can be reported."
+        },
+        "milling_sy": {
+          "value": 15828,
+          "confidence": "high",
+          "page": 26,
+          "reason": "Item 5 'Mill Bituminous Surface (2.0\") (CSAH 2)' = 8,731 SY and Item 7 'Remove Bituminous Pavement' = 7,097 SY; sum = 15,828 SY. Item 8 'Remove Driveway Pavement' is excluded per CSI rules."
+        },
+        "crushing_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No crushing pay item appears anywhere in the bid schedule."
+        },
+        "stockpile_tons": {
+          "value": null,
+          "confidence": "high",
+          "page": null,
+          "reason": "No stockpile pay item appears anywhere in the bid schedule."
+        }
+      }
+    }
+  ],
+  "field_set": {
+    "n_extract_fields": 26,
+    "model": "claude-sonnet-4-6",
+    "max_chars": 180000
+  }
+}

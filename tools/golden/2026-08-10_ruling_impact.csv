@@ -1,0 +1,75 @@
+contract_id,plan_id,plan_match_method,state,county,bucket,golden_raw,ruling_delta,ruling_ids,ruling_basis,golden_ruling_adjusted,extracted,extracted_pre_ruling,status,note
+1622,2025_DAY-CO-SD_PCN-09GX_NOBID,state_county_year,SD,Day County,grading_quantity,2152,0,,,2152,1986,1986,MATCH_RAW,
+1622,2025_DAY-CO-SD_PCN-09GX_NOBID,state_county_year,SD,Day County,base_tons,444,444.4,CSI#7,CSI_2026-08-07,888.4,444.4,,RULING_CONTRADICTS_GOLDEN,+444.4 Gravel Surfacing (CSI#7)
+1622,2025_DAY-CO-SD_PCN-09GX_NOBID,state_county_year,SD,Day County,shoulder_tons,,-444.4,CSI#7,CSI_2026-08-07,,,444.4,BOTH_ABSENT,-444.4 Gravel Surfacing (CSI#7)
+1623,2025_YANKTON-CO-SD_9738173_NOBID,state_county_year,SD,Yankton County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1625,2025_POPE-CO-MN_9776825_NOBID,state_county_year,MN,Pope County,grading_quantity,6788,0,,,6788,10881,10881,MISMATCH,
+1625,2025_POPE-CO-MN_9776825_NOBID,state_county_year,MN,Pope County,base_tons,1970,0,,,1970,,,EXTRACTION_ABSENT,
+1625,2025_POPE-CO-MN_9776825_NOBID,state_county_year,MN,Pope County,shoulder_tons,,0,,,,1970,1970,GOLDEN_ABSENT,
+1626,2025_JACKSON-CO-SD_09MD_NOBID,state_county_year,SD,Jackson County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1627,,unresolved,SD,Hand County,,,,,,,,,AMBIGUOUS_COUNTY,"SD/Hand: 3 plans, 2 golden rows, no distinguishing quantity"
+1628,2025_DUNN-CO-ND_9782095_NOBID,state_county_year,ND,Dunn County,grading_quantity,1980,0,,,1980,1980,1980,MATCH_RAW,
+1628,2025_DUNN-CO-ND_9782095_NOBID,state_county_year,ND,Dunn County,base_tons,7637,0,,,7637,7637,7637,MATCH_RAW,
+1629,,unresolved,MN,Kandiyohi County,,,,,,,,,AMBIGUOUS_COUNTY,"MN/Kandiyohi: 2 plans, 2 golden rows, no distinguishing quantity"
+1630,2025_MURRAY-CO-MN_CSAH-2_NOBID,state_county_year,MN,Murray County,hot_mix_tons,1850,0,,,1850,,,EXTRACTION_ABSENT,
+1630,2025_MURRAY-CO-MN_CSAH-2_NOBID,state_county_year,MN,Murray County,grading_quantity,2495,0,,,2495,2495,2495,MATCH_RAW,
+1630,2025_MURRAY-CO-MN_CSAH-2_NOBID,state_county_year,MN,Murray County,base_tons,3479,0,,,3479,,,EXTRACTION_ABSENT,
+1630,2025_MURRAY-CO-MN_CSAH-2_NOBID,state_county_year,MN,Murray County,shoulder_tons,16,0,,,16,,,EXTRACTION_ABSENT,
+1630,2025_MURRAY-CO-MN_CSAH-2_NOBID,state_county_year,MN,Murray County,milling_sy,8731,7097,CSI#5,CSI_2026-08-07,15828,15828,8731,MATCH_RULING_ADJUSTED,+7097 Remove Bituminous Pavement (CSI#5)
+1631,2025_DIVIDE-CO-ND_9776856_NOBID,state_county_year,ND,Divide County,hot_mix_tons,441,0,,,441,,,EXTRACTION_ABSENT,
+1631,2025_DIVIDE-CO-ND_9776856_NOBID,state_county_year,ND,Divide County,grading_quantity,250,0,,,250,,,EXTRACTION_ABSENT,
+1631,2025_DIVIDE-CO-ND_9776856_NOBID,state_county_year,ND,Divide County,base_tons,350,0,,,350,,,EXTRACTION_ABSENT,
+1632,2025_RENVILLE-CO-MN_SAP-065-599-097_NOBID,state_county_year,MN,Renville County,grading_quantity,536,0,,,536,310,310,MISMATCH,
+1632,2025_RENVILLE-CO-MN_SAP-065-599-097_NOBID,state_county_year,MN,Renville County,base_tons,1000,0,,,1000,,,EXTRACTION_ABSENT,
+1632,2025_RENVILLE-CO-MN_SAP-065-599-097_NOBID,state_county_year,MN,Renville County,shoulder_tons,,0,,,,500,500,GOLDEN_ABSENT,
+1633,2025_JACKSON-CO-MN_SAP-032-629-048_NOBID,contract_id,MN,Jackson County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1634,2025_CASS-CO-MN_SAP-011-636-007_NOBID,state_county_year,MN,Cass County,hot_mix_tons,23601,0,,,23601,23601,23601,MATCH_RAW,
+1634,2025_CASS-CO-MN_SAP-011-636-007_NOBID,state_county_year,MN,Cass County,grading_quantity,941,0,,,941,1448,1448,MISMATCH,
+1634,2025_CASS-CO-MN_SAP-011-636-007_NOBID,state_county_year,MN,Cass County,base_tons,2557,0,,,2557,,,EXTRACTION_ABSENT,
+1634,2025_CASS-CO-MN_SAP-011-636-007_NOBID,state_county_year,MN,Cass County,shoulder_tons,,0,,,,2440,2440,GOLDEN_ABSENT,
+1634,2025_CASS-CO-MN_SAP-011-636-007_NOBID,state_county_year,MN,Cass County,milling_sy,116072,114708,"CSI#5,CSI#9",CSI_2026-08-07,230780,230780,116072,MATCH_RULING_ADJUSTED,+506 REMOVE BITUMINOUS PAVEMENT (CSI#5); +114202 FULL DEPTH RECLAMATION (CSI#9)
+1635,2025_SHERBURNE-CO-MN_9747843_NOBID,state_county_year,MN,Sherburne County,hot_mix_tons,5444,0,,,5444,5100,5100,MATCH_RAW,
+1635,2025_SHERBURNE-CO-MN_9747843_NOBID,state_county_year,MN,Sherburne County,grading_quantity,100,0,,,100,100,100,MATCH_RAW,
+1635,2025_SHERBURNE-CO-MN_9747843_NOBID,state_county_year,MN,Sherburne County,milling_sy,32000,2500,CSI#5,CSI_2026-08-07,34500,34500,32000,MATCH_RAW,+2500 REMOVE BITUMINOUS PAVEMENT (ROAD) (CSI#5)
+1636,,unresolved,SD,Lincoln County,,,,,,,,,AMBIGUOUS_COUNTY,SD/Lincoln: no 2025 plan extracted
+1637,2025_PENNINGTON-CO-SD_PCN-09GR_NOBID,state_county_year,SD,Pennington County,grading_quantity,28116,0,,,28116,42074,42074,MISMATCH,
+1637,2025_PENNINGTON-CO-SD_PCN-09GR_NOBID,state_county_year,SD,Pennington County,base_tons,4394,0,,,4394,8788,8788,MISMATCH,
+1637,2025_PENNINGTON-CO-SD_PCN-09GR_NOBID,state_county_year,SD,Pennington County,stockpile_tons,2274,0,,,2274,4548,4548,MISMATCH,
+1639,,unresolved,MN,Stearns County,,,,,,,,,AMBIGUOUS_COUNTY,"MN/Stearns: 2 golden rows; 1659 resolved by evidence, 1639 not"
+1640,2025_MINNEHAHA-CO-SD_UNKNOWN_NOBID,state_county_year,SD,Minnehaha County,hot_mix_tons,7714,0,,,7714,7714,7714,MATCH_RAW,
+1641,2025_STUTSMAN-CO-ND_CR-68_NOBID,contract_id,ND,Stutsman County,grading_quantity,49229,0,,,49229,48894,48894,MATCH_RAW,
+1641,2025_STUTSMAN-CO-ND_CR-68_NOBID,contract_id,ND,Stutsman County,base_tons,6546,0,,,6546,6546,6546,MATCH_RAW,
+1642,2025_MORTON-CO-ND_JOB-24133_NOBID,state_county_year,ND,Morton County,grading_quantity,4911,0,,,4911,3568,3568,MISMATCH,
+1642,2025_MORTON-CO-ND_JOB-24133_NOBID,state_county_year,ND,Morton County,base_tons,170,-378,T#removal,T_2026-08-07,-208,170,548,RULING_CONTRADICTS_GOLDEN,-378 REMOVE AGGREGATE BASE (T#removal)
+1642,2025_MORTON-CO-ND_JOB-24133_NOBID,state_county_year,ND,Morton County,milling_sy,,152,CSI#6,CSI_2026-08-07,,152,,GOLDEN_ABSENT,+152 REMOVAL OF BITUMINOUS SURFACING (CSI#6)
+1643,2025_MOUNTRAIL-CO-ND_9790217_NOBID,state_county_year,ND,Mountrail County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1644,2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,contract_id,MN,Watonwan County,hot_mix_tons,3983,0,,,3983,,,EXTRACTION_ABSENT,
+1644,2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,contract_id,MN,Watonwan County,grading_quantity,19042,0,,,19042,19042,19042,MATCH_RAW,
+1644,2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,contract_id,MN,Watonwan County,base_tons,8068,0,,,8068,,,EXTRACTION_ABSENT,
+1645,,unresolved,IA,Poweshiek County,,,,,,,,,AMBIGUOUS_COUNTY,IA/Poweshiek: no 2025 plan extracted
+1646,,unresolved,IA,Worth County,,,,,,,,,AMBIGUOUS_COUNTY,IA/Worth: no 2025 plan extracted
+1647,2025_HUBBARD-CO-MN_SP-2905-39_NOBID,state_county_year,MN,Hubbard County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1648,2025_BUFFALO-CO-SD_9809453_NOBID,state_county_year,SD,Buffalo County,grading_quantity,6470,0,,,6470,3295,3295,MISMATCH,
+1648,2025_BUFFALO-CO-SD_9809453_NOBID,state_county_year,SD,Buffalo County,base_tons,804,335,CSI#7,CSI_2026-08-07,1139,335,,MISMATCH,+335 Gravel Surfacing (CSI#7)
+1648,2025_BUFFALO-CO-SD_9809453_NOBID,state_county_year,SD,Buffalo County,shoulder_tons,,-335,CSI#7,CSI_2026-08-07,,,335,BOTH_ABSENT,-335 Gravel Surfacing (CSI#7)
+1649,2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,contract_id,MN,Douglas County,hot_mix_tons,6296,0,,,6296,6296,6296,MATCH_RAW,
+1649,2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,contract_id,MN,Douglas County,grading_quantity,4063,0,,,4063,,,EXTRACTION_ABSENT,
+1650,,unresolved,MN,Kandiyohi County,,,,,,,,,AMBIGUOUS_COUNTY,"MN/Kandiyohi: 2 plans, 2 golden rows, no distinguishing quantity"
+1651,2025_BEADLE-CO-SD_SD-2025_NOBID,state_county_year,SD,Beadle County,hot_mix_tons,14357,0,,,14357,14357,14357,MATCH_RAW,
+1651,2025_BEADLE-CO-SD_SD-2025_NOBID,state_county_year,SD,Beadle County,milling_sy,650,0,,,650,650,650,MATCH_RAW,
+1652,2025_KOOCHICHING-CO-MN_SAP-036-624-026_NOBID,state_county_year,MN,Koochiching County,hot_mix_tons,37405,0,,,37405,37405,37405,MATCH_RAW,
+1652,2025_KOOCHICHING-CO-MN_SAP-036-624-026_NOBID,state_county_year,MN,Koochiching County,base_tons,4736,0,,,4736,,,EXTRACTION_ABSENT,
+1652,2025_KOOCHICHING-CO-MN_SAP-036-624-026_NOBID,state_county_year,MN,Koochiching County,shoulder_tons,,0,,,,3538,3538,GOLDEN_ABSENT,
+1652,2025_KOOCHICHING-CO-MN_SAP-036-624-026_NOBID,state_county_year,MN,Koochiching County,milling_sy,300253,12480,CSI#9,CSI_2026-08-07,312733,118237,105757,MISMATCH,"+12480 FULL DEPTH RECLAMATION (10"") (CSI#9)"
+1653,2025_MELLETTE-CO-SD_PCN-09A6_UNKNOWN,state_county_year,SD,Mellette County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1654,2025_HAND-CO-SD_08MQ_NOBID,contract_id,SD,Hand County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1655,2025_PERKINS-CO-SD_PCN-09V7_NOBID,state_county_year,SD,Perkins County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1656,2025_LYMAN-CO-SD_PCN-080A_NOBID,state_county_year,SD,Lyman County,,,,,,,,,EXTRACTED_ZERO_ITEMS,"plan exists, materials table has no rows for it"
+1658,,unresolved,NE,Knox County,,,,,,,,,AMBIGUOUS_COUNTY,NE/Knox: no 2025 plan extracted
+1659,2025_STEARNS-CO-MN_CP-073-123_NOBID,evidence_bucket_total,MN,Stearns County,hot_mix_tons,14480,0,,,14480,14480,14480,MATCH_RAW,
+1659,2025_STEARNS-CO-MN_CP-073-123_NOBID,evidence_bucket_total,MN,Stearns County,grading_quantity,200,0,,,200,,,EXTRACTION_ABSENT,
+1659,2025_STEARNS-CO-MN_CP-073-123_NOBID,evidence_bucket_total,MN,Stearns County,base_tons,1955,0,,,1955,270,270,MISMATCH,
+1659,2025_STEARNS-CO-MN_CP-073-123_NOBID,evidence_bucket_total,MN,Stearns County,shoulder_tons,460,0,,,460,2145,2145,MISMATCH,
+1659,2025_STEARNS-CO-MN_CP-073-123_NOBID,evidence_bucket_total,MN,Stearns County,milling_sy,70263,70167,CSI#9,CSI_2026-08-07,140430,140430,70263,MATCH_RULING_ADJUSTED,+70167 FULL DEPTH RECLAMATION (CSI#9)
+1660,,unresolved,NE,Cuming County,,,,,,,,,AMBIGUOUS_COUNTY,NE/Cuming: no 2025 plan extracted
+1661,,unresolved,NE,Sarpy County,,,,,,,,,AMBIGUOUS_COUNTY,NE/Sarpy: no 2025 plan extracted

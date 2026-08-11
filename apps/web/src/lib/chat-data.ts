@@ -133,6 +133,15 @@ export type FinalReport = {
   title: string;
   archetype: string;
   pages?: number | null; // real page count from the backend (structure.n_pages)
+  // `identity` is passed through WHOLE by final_report.assemble — there is no key whitelist — so it
+  // also carries GAP-STATE keys this type does not enumerate (narrowing it would need every
+  // producer typed, which is not a change worth making this week):
+  //   <field>_status        detected | none_found | extraction_failed  (payload_carry.CARRIED_FIELDS)
+  //   milling_unit_status   schema.MILLING_UNIT_STATUSES (7 states)
+  //   <bucket>_unit_status  schema.BUCKET_UNIT_STATUSES (6 states)
+  // Read them through lib/gap-status.ts, NEVER with a bare truthiness check — a falsy value here
+  // means one of three different things ("the plan says none", "we never read it", "detected but
+  // empty"), and collapsing them is board item F2's exact failure.
   identity: Record<string, string | number | boolean | null>;
   tldr: string;
   quantities: { label: string; value: number | string; unit: string }[];

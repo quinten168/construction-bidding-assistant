@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, Copy, Download, FileText, Users } from "lucide-react";
 import { type FinalReport, type FinalGotcha, type Competitor, type CompetitorStats, type ScopedRate,
   competitorNames } from "@/lib/chat-data";
+import { type GapCell, CARRIED_LABELS, QUANTITY_LABEL, QUANTITY_NOTE, carriedCell, millingCell }
+  from "@/lib/gap-status";
 import { Eyebrow, Chip } from "@/components/kit";
 import { PitAccessMap } from "./pit-access-map";
 
@@ -25,6 +27,21 @@ const IDENTITY_LABELS: [string, string][] = [
   ["location", "Location"],
   ["traffic_level", "Traffic level"],
   ["construction_start", "Construction start"],
+];
+
+// Identity fields that carry a THREE-VALUED presence (`<field>_status`) from the backend, rendered
+// through lib/gap-status.ts. These are never filtered out and never render an em dash: for these
+// the backend tells us WHICH of "the plan says none" / "we never read it" is true, so collapsing
+// them into one blank cell throws away the only thing that distinguishes them.
+//
+// HELD — the shape-dependent half. `hot_mix_unconverted` / `base_unconverted` /
+// `shoulder_unconverted` belong in this list (their labels are already in payload_carry._LABELS),
+// but HOW an off-unit bucket reaches the payload is undecided (2a's verbatim capture vs #102's
+// merged totals), and under 2a the value may be an ARRAY of items rather than a string. Adding the
+// three tuples here — plus BUCKET_UNIT_CELL in gap-status.ts and a per-bucket "Measured in" row —
+// is the whole of that half. Spec: docs/_spec/2026-08-10-frontend-gap-rendering.md §5.
+const GAP_FIELDS: [string, string][] = [
+  ["phasing_requirements", CARRIED_LABELS.phasing_requirements],
 ];
 
 // Two-letter DOT state code → full name (we surface the full state, not the abbreviation).
@@ -69,22 +86,44 @@ function humanize(code: string): string {
     .join(" ");
 }
 
-function reportToMarkdown(f: FinalReport): string {
-  const lines = [`# ${f.title}`, "", `**Archetype:** ${f.archetype}`, "", f.tldr, ""];
-  lines.push("## Identity");
-  for (const [k, label] of IDENTITY_LABELS) {
-    if (f.identity[k] != null && f.identity[k] !== "") lines.push(`- **${label}:** ${fmtVal(f.identity[k])}`);
+// Copy the EXPORT's markdown, byte for byte. This used to be a second, hand-built markdown
+// renderer (`reportToMarkdown`) that silently drifted from /api/report/export — and it already
+// HAD: it skipped identity rows whose value was empty, so a user who copied from the UI got a
+// SHORTER report than the same user who downloaded it, with no signal that anything was missing.
+// Now the backend is the single renderer and the UI just relays it.
+//
+// Returns null on success, or an error STRING the caller surfaces — a failure and a good copy
+// never share a return value, and on failure NOTHING is written to the clipboard. A partial or
+// stale copy must not look like a good one.
+//
+// `deps` is injectable purely so the coverage test can drive it without a DOM
+// (tests/2026-08-10-report-card-gaps.test.mjs, T9).
+export async function copyReportMarkdown(
+  final: FinalReport,
+  deps?: { fetch?: typeof fetch; writeText?: (t: string) => Promise<void> },
+): Promise<string | null> {
+  const doFetch = deps?.fetch ?? globalThis.fetch;
+  const writeText = deps?.writeText
+    ?? ((t: string) => navigator.clipboard.writeText(t));
+  let res: Response;
+  try {
+    res = await doFetch("/api/report/export", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ final, fmt: "md" }),
+    });
+  } catch {
+    return "Couldn't reach the export service.";
   }
-  if (f.quantities.length) {
-    lines.push("", "## Quantities");
-    for (const q of f.quantities) lines.push(`- ${q.label}: ${q.value} ${q.unit}`);
+  if (!res.ok) return `Export failed (${res.status}).`;
+  const text = await res.text();
+  if (!text.trim()) return "The export came back empty.";
+  try {
+    await writeText(text);
+  } catch {
+    return "Couldn't write to the clipboard.";
   }
-  const all = [...f.gotchas.go_no_go, ...f.gotchas.pricing];
-  if (all.length) {
-    lines.push("", "## Gotchas");
-    for (const g of all) lines.push(`- [${g.family ?? "flag"}] ${g.code} (p.${g.page ?? "?"}) — "${g.evidence ?? ""}"`);
-  }
-  return lines.join("\n");
+  return null;
 }
 
 // POST the assembled report to the export proxy and trigger a browser download of the returned
@@ -146,8 +185,10 @@ export function ReportCard({ final }: { final?: FinalReport }) {
     );
   }
 
-  const copy = () => {
-    navigator.clipboard?.writeText(reportToMarkdown(final));
+  const copy = async () => {
+    setDlError(null);
+    const err = await copyReportMarkdown(final);
+    if (err) return setDlError(err);   // never a silent short copy
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
@@ -155,7 +196,24 @@ export function ReportCard({ final }: { final?: FinalReport }) {
   const goNoGo = final.gotchas.go_no_go ?? [];
   const pricing = final.gotchas.pricing ?? [];
   const allGotchas: FinalGotcha[] = [...goNoGo, ...pricing];
-  const identityRows = IDENTITY_LABELS.filter(([k]) => final.identity[k] != null && final.identity[k] !== "");
+
+  // F2 — a gap must render visibly wrong, not blank. The empty-row filter that used to live here
+  // is GONE: an absent field became an absent row, so a plan whose phasing we never read looked
+  // exactly like a plan with no phasing section.
+  //
+  // Two lists, two deliberately different contracts:
+  //  · the six base fields KEEP fmtVal's em dash, because final_report.py renders those same six
+  //    with `or "—"` in the export and the UI diverging from the export is the bug the clipboard
+  //    fix above closes, not one to introduce here. Crucially the backend sends NO presence signal
+  //    for these six, so the UI genuinely cannot tell "the plan says nothing" from "extraction
+  //    failed" — printing a status we do not have would be fabricating one. Follow-up F2b: give
+  //    them payload_carry-style presence keys, then this em dash goes too.
+  //  · the carried/gap fields below are never filtered, never em-dashed, and always a GapCell.
+  const identityRows = IDENTITY_LABELS;
+  const gapRows: [string, string, GapCell][] =
+    GAP_FIELDS.map(([k, label]) => [k, label, carriedCell(final.identity, k)]);
+  const milling = millingCell(final.identity, final.quantities.map((q) => q.label));
+  if (milling) gapRows.push(["milling_unit_status", "Milling measured in", milling]);
 
   const bidDate = final.competitor?.bid_date || null;
 
@@ -203,7 +261,7 @@ export function ReportCard({ final }: { final?: FinalReport }) {
             <Snapshot label="Final completion" value={fmtVal(final.identity.final_completion)} />
             <Snapshot label="Prevailing wage" value={fmtVal(final.identity.prevailing_wages)} />
           </div>
-          {identityRows.length > 0 && (
+          {(identityRows.length > 0 || gapRows.length > 0) && (
             <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
               {identityRows.map(([k, label]) => (
                 <div key={k} className="flex items-baseline justify-between gap-3 border-b border-black/[0.04] py-1.5">
@@ -212,6 +270,9 @@ export function ReportCard({ final }: { final?: FinalReport }) {
                     {fmtIdentity(k, final.identity[k])}
                   </dd>
                 </div>
+              ))}
+              {gapRows.map(([k, label, cell]) => (
+                <GapRow key={k} label={label} cell={cell} />
               ))}
             </dl>
           )}
@@ -233,7 +294,16 @@ export function ReportCard({ final }: { final?: FinalReport }) {
                 <tbody>
                   {final.quantities.map((q, i) => (
                     <tr key={`${q.label}-${i}`} className="border-t border-black/[0.05] odd:bg-black/[0.015]">
-                      <td className="px-4 py-2.5 font-medium">{q.label}</td>
+                      {/* The WIRE label is authoritative and unchanged — bid_projects_record.py
+                          writes it into the `mill_sy` column and competitor_predict_live.py maps
+                          "MILL" into fitted weights. Only the presentation is glossed, so
+                          MILL_TON does not read as a typo to an estimator. */}
+                      <td className="px-4 py-2.5 font-medium">
+                        {QUANTITY_LABEL[q.label] ?? q.label}
+                        {QUANTITY_NOTE[q.label] && (
+                          <span className="ml-1 cursor-help text-muted-foreground/70" title={QUANTITY_NOTE[q.label]}>ⓘ</span>
+                        )}
+                      </td>
                       <td className="px-4 py-2.5 text-right font-mono tnum">
                         {typeof q.value === "number" ? q.value.toLocaleString() : q.value}
                       </td>
@@ -242,6 +312,11 @@ export function ReportCard({ final }: { final?: FinalReport }) {
                   ))}
                 </tbody>
               </table>
+              {final.quantities.some((q) => q.label === "MILL_TON") && (
+                <p className="border-t border-black/[0.06] bg-secondary/20 px-4 py-2 text-[12px] text-muted-foreground">
+                  {QUANTITY_NOTE.MILL_TON}
+                </p>
+              )}
             </div>
           </section>
         )}
@@ -376,6 +451,33 @@ function Snapshot({ label, value, accent }: { label: string; value: string; acce
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="mt-1 truncate text-[16px] font-medium" title={value}>{value}</div>
     </div>
+  );
+}
+
+// One §① row whose value may be a gap state. THREE visually distinct outcomes and never a blank
+// cell: a real value, a muted "None stated in the plan", and a loud amber "Not captured".
+// "We never read it" vs "the plan says none" is carried by three independent channels — colour
+// (amber vs muted), an icon (present vs absent) and the wording. One channel is enough for a test;
+// three are enough for an estimator glancing at a screen.
+// `data-gap` is the test surface (tests/2026-08-10-report-card-gaps.test.mjs).
+function GapRow({ label, cell }: { label: string; cell: GapCell }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-black/[0.04] py-1.5">
+      <dt className="shrink-0 text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="line-clamp-2 text-right text-[15px]" data-gap={cell.tone} title={cell.text}>
+        <GapText cell={cell} />
+      </dd>
+    </div>
+  );
+}
+
+function GapText({ cell }: { cell: GapCell }) {
+  if (cell.tone === "value") return <span className="font-medium">{cell.text}</span>;
+  if (cell.tone === "empty") return <span className="italic text-muted-foreground">{cell.text}</span>;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-md bg-[var(--warn)]/[0.12] px-1.5 py-0.5 text-[13px] font-medium text-[var(--warn)]">
+      <AlertTriangle className="h-3.5 w-3.5 shrink-0" /> {cell.text}
+    </span>
   );
 }
 

@@ -60,7 +60,13 @@ QUANTITY_FIELDS = ["hot_mix_tons", "base_tons", "grading_quantity", "shoulder_to
 # re-run shows what the milling unit-capture change (2026-08-10, docs/_spec/
 # 2026-08-10-milling-unit-capture.md) actually produced per document, rather than requiring a
 # separate run to find out.
-EXTRA_FIELDS = ["milling_tons", "milling_measured_unit"]
+EXTRA_FIELDS = ["milling_tons", "milling_measured_unit",
+                # 2026-08-11: FDR's quantity moved from milling_sy to base (Alex's own mark), and
+                # since FDR is SY and base_tons is TON it lands in `base_unconverted`. Without
+                # these three captured, a diff would show 408,216 SY LEAVING milling_sy with no
+                # evidence of where it went — a drop and a move would look identical.
+                "base_measured_unit", "base_unconverted",
+                "grading_measured_unit", "grading_unconverted"]
 
 # The OLD descriptions, recorded verbatim from schema.py at git HEAD before the ruling change
 # (commit f035b90). Held as a literal so the `old` arm is reproducible after the file is edited.
@@ -130,12 +136,15 @@ def run_one(md_path, arm):
         archetypes=s3_extract.archetype_choices(),
         document_text=text,
     )
-    # max_tokens raised 2026-08-10 to match extract_fields()'s real budget: the three
-    # base_cy_items/shoulder_cy_items/mix_sy_depth_items array fields push a real response past
-    # the call_json default (2048) and truncate mid-JSON — confirmed here (2 of 6 corpus documents
-    # failed to parse at the default before this was raised, including the Murray Co/Fulda plan
-    # that originally caught the issue). See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
-    data = s3_extract.call_json(prompt, max_tokens=6000)
+    # 2026-08-11 — THE HARNESS WAS MEASURING A DIFFERENT TOKEN BUDGET THAN THE ONE THAT SHIPS.
+    # This called `call_json(prompt)`, taking that function's DEFAULT max_tokens of 2048, while the
+    # live path (`s3_extract.extract_fields`, :316) uses EXTRACT_MAX_TOKENS = 6000. It went unnoticed
+    # because the 2026-08-10 field set happened to fit in 2048 — until the grading capture fields
+    # were added and 9 of 18 documents came back truncated ("hit the max_tokens cap (2048) — the
+    # JSON parsed but is INCOMPLETE"). A harness that gives the model a smaller budget than
+    # production is not measuring production. Raising it cannot inflate or deflate a total; it only
+    # stops the answer being cut off mid-JSON.
+    data = s3_extract.call_json(prompt, max_tokens=s3_extract.EXTRACT_MAX_TOKENS)
     if data is None:
         # call_json returns None on a parse failure. That is a FAILURE, not an empty plan.
         rec["status"] = "ERROR"
@@ -169,19 +178,38 @@ EXPLAINED = [
     ("milling_sy", "up",
      "CSI 08-07 #5/#6/#9: bituminous pavement removal and FULL DEPTH RECLAMATION arrive in milling_sy"),
     ("milling_sy", "down",
-     "CSI 08-07 #1/#2: driveway removals leave milling_sy; concrete pavement removal leaves for grading"),
+     "CSI 08-07 #1/#2: driveway removals leave milling_sy; concrete pavement removal leaves for "
+     "grading. AND ALEX 08-11 (MI2, `Move to __base____`): FULL DEPTH RECLAMATION's QUANTITY moved "
+     "to base — it is SY and base_tons is TON, so it is reported verbatim in base_unconverted. "
+     "CHECK THE `extras` BLOCK of the same document: a genuine move leaves the SY visible there, a "
+     "silent drop does not. This REVERSES the 2026-08-10 ruling-#9 direction"),
     ("shoulder_tons", "down",
      "CSI 08-07 #7/#8: GRAVEL SURFACING and TRAFFIC SERVICE AGGREGATE move to base_tons"),
     ("base_tons", "up",
-     "CSI 08-07 #7/#8: GRAVEL SURFACING and TRAFFIC SERVICE AGGREGATE arrive in base_tons"),
+     "CSI 08-07 #7/#8: GRAVEL SURFACING and TRAFFIC SERVICE AGGREGATE arrive in base_tons; AND "
+     "ALEX 08-11 (P3, BA5 Agree): 'SALVAGED BASE COURSE' now counts — base salvaged from this job "
+     "and re-laid is base PLACED, while 'REMOVE AGGREGATE BASE' stays excluded"),
     ("grading_quantity", "up",
-     "CSI 08-07 #10/#11: SALVAGE AND REUSE EXISTING AGGREGATE and CLEAN ROCK arrive in grading"),
+     "CSI 08-07 #10/#11: SALVAGE AND REUSE EXISTING AGGREGATE and CLEAN ROCK arrive in grading; "
+     "AND ALEX 08-11 (P2): the five topsoil rows, each printed 'NEW, not counted today' and each "
+     "ticked Agree (~539,000 CY corpus-wide), plus GRANULAR BEDDING"),
     ("grading_quantity", "down",
      "CSI 08-07 #5/#6: bituminous pavement removal leaves grading for milling"),
     ("hot_mix_tons", "up",
      "state vocabulary: SUPERPAVE (ND) / ASPHALT CONCRETE (SD) now named, so mix previously missed "
      "is now counted (the 605x Dunn miss)"),
+    # ── 2026-08-11, Alex's returned .docx. The other three marks fold into the entries above; this
+    # is the one direction that did not exist before. ──────────────────────────────────────────
+    ("hot_mix_tons", "down",
+     "ALEX 08-11 (P1, 'Agree, flag only' on binder & coatings): PG cement, tack and prime are a "
+     "deliberate scope-flag exclusion and leave hot_mix_tons (Dunn PG 58S-34, 5,468 T)"),
 ]
+
+# Directions that are NOT in EXPLAINED, stated out loud so nobody has to infer them from an
+# omission. Each of these fails the run on purpose:
+#   milling_sy up beyond the removal rulings, base_tons down past the exclusions, grading down for
+#   any reason other than bituminous removal leaving. If a ruling later predicts one, add it HERE
+#   with the mark that justifies it — never widen a rule to make a run pass.
 
 
 def classify(field, before, after):

@@ -21,6 +21,7 @@ import os
 import re
 import datetime
 from pathlib import Path
+from typing import NamedTuple
 import pdfplumber
 import anthropic
 
@@ -187,23 +188,173 @@ def _coerce_cell(field, raw):
     return schema.cell(value, conf, page, reason)
 
 
-def call_json(prompt: str, max_tokens: int = 2048):
-    """One Claude call that returns parsed JSON (object or array), or None on parse failure.
-    Shared by the whole-doc extractor and the structured RAG step (01_pipeline/s4_extract_rag.py)."""
+# ── The three-state contract for one Claude JSON call ──────────────────────────
+#
+# A failure and a legitimate empty answer must never share a return value. One Claude JSON call has
+# exactly three outcomes and they are now three distinct values, not one None:
+#
+#   OK        — the model answered and the answer parsed. `data` may legitimately be {} / [] —
+#               that is an EMPTY ANSWER, not a failure, and it is only ever reachable here.
+#   TRUNCATED — resp.stop_reason == "max_tokens". The answer was cut off mid-JSON. Read off the
+#               API's own stop_reason, never inferred from the JSONDecodeError text.
+#   MALFORMED — the response ended normally but did not parse.
+#
+# Vocabulary is deliberately the one s4_extract_rag already uses for the same class of problem
+# (`record["rag_scalar_parse_failures"]`, 2026-08-10): the *word* for "the model's reply was
+# unreadable" is a PARSE FAILURE, and truncation is one named kind of it. No second vocabulary.
+OK = "ok"
+TRUNCATED = "truncated"
+MALFORMED = "malformed"
+
+
+class JsonResult(NamedTuple):
+    """One Claude JSON call's outcome. `status` is OK / TRUNCATED / MALFORMED; `data` is the parsed
+    JSON on OK and None otherwise; `message` names the cause in one line (log/UI-ready)."""
+    status: str
+    data: object
+    message: str
+    stop_reason: str
+
+    @property
+    def is_ok(self) -> bool:
+        return self.status == OK
+
+
+class ExtractionParseFailure(RuntimeError):
+    """The whole-doc extraction call did not produce a usable answer. Raised — never returned as an
+    empty record — so a truncated or unreadable extraction surfaces as an ERROR instead of a full
+    record of clean null cells that reads exactly like a plan stating nothing.
+
+    `kind` is s3_extract.TRUNCATED or s3_extract.MALFORMED. It is also exposed as the duck-typed
+    attribute `extraction_failure_kind`, which is what apps/api/backend/report.py's
+    _classify_read_error branches on (so report.py needs no import of this class)."""
+
+    def __init__(self, result: "JsonResult"):
+        super().__init__(result.message)
+        self.kind = result.status
+        self.extraction_failure_kind = result.status   # what report.py::_classify_read_error reads
+        self.stop_reason = result.stop_reason
+
+
+def _first_balanced_json(text: str):
+    """The first BALANCED top-level {...} or [...] in `text`, as (parsed, preamble_length).
+
+    Returns None when there is nothing salvageable — never a partial parse, and never a bare
+    exception: the caller has to be able to tell "salvaged" from "genuinely malformed", so those
+    must not share a return value.
+
+    Balanced rather than regex because a brace or bracket inside a STRING value would truncate a
+    naive match mid-object and hand back a plausible-looking half record. Tracks string state and
+    backslash escapes for that reason.
+    """
+    for start, opener in enumerate(text):
+        if opener not in "{[":
+            continue
+        closer = "}" if opener == "{" else "]"
+        depth, in_string, escaped = 0, False, False
+        for i in range(start, len(text)):
+            ch = text[i]
+            if escaped:
+                escaped = False
+                continue
+            if ch == "\\" and in_string:
+                escaped = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == opener:
+                depth += 1
+            elif ch == closer:
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start:i + 1]), start
+                    except json.JSONDecodeError:
+                        break   # this candidate is not valid JSON; try the next opener
+        # unbalanced to end of text, or invalid — fall through to the next candidate
+    return None
+
+
+def call_json_result(prompt: str, max_tokens: int = 2048) -> JsonResult:
+    """One Claude call → JsonResult (the three-state contract above). This is the shared low-level
+    call; `call_json` below is the legacy shim over it."""
     client = anthropic.Anthropic(api_key=API_KEY)
     # temperature=0: extraction is a deterministic task. The default (1.0) made the gotcha/date pass
     # FLAKY — the same plan returned 3 gotchas on one run and 0 on the next (~1 in 3 empty). Pinning
     # to 0 makes extraction reproducible and reliable (the single biggest fix for the "0 gotchas" bug).
     resp = client.messages.create(model=MODEL, max_tokens=max_tokens, temperature=0,
                                   messages=[{"role": "user", "content": prompt}])
+    stop_reason = getattr(resp, "stop_reason", None)
     raw = resp.content[0].text.strip()
     raw = re.sub(r"^```(?:json)?\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
     try:
-        return json.loads(raw)
+        data = json.loads(raw)
     except json.JSONDecodeError as e:
-        print(f"  WARNING: JSON parse failed ({e}). Raw:\n{raw[:400]}")
-        return None
+        # PREAMBLE SALVAGE, added 2026-08-10 from the ruling-#9 measurement. Making the field
+        # descriptions more procedural ("do X, then Y") measurably improved WHAT the model
+        # extracted and cost parseability: 9 of 9 unparseable runs across 30 failed with
+        # `Expecting value: line 1 column 1` — a sentence of prose in front of otherwise valid
+        # JSON. That is a 6.7% total loss of correct answers to a formatting habit.
+        #
+        # Salvage the first BALANCED top-level object/array rather than regexing for braces, so a
+        # brace inside a string value cannot truncate the payload mid-object.
+        #
+        # Deliberately AFTER the strict parse and BEFORE the truncation branch: a cut-off response
+        # must stay TRUNCATED. A salvaged prefix of a truncated answer would be a partial record
+        # wearing an OK status, which is the exact defect this function was written to kill.
+        if stop_reason != "max_tokens":
+            salvaged = _first_balanced_json(raw)
+            if salvaged is not None:
+                data, span = salvaged
+                print(f"  NOTE: stripped a {span}-char preamble before valid JSON "
+                      f"(salvaged, not a failure)")
+                return JsonResult(OK, data, "", stop_reason)
+        # NAME THE CAUSE, and name it from stop_reason rather than from the exception text. Seen
+        # live 2026-08-10: adding six schema fields pushed the whole-doc extraction to exactly 2048
+        # output tokens on plan 9786015 — the "failure" was a full, correct answer that ran out of
+        # room, and the shipped code reported it as bad JSON and returned a null record.
+        if stop_reason == "max_tokens":
+            msg = (f"extraction response was CUT OFF at the max_tokens cap ({max_tokens}) — this is "
+                   f"TRUNCATION, not bad JSON; raise the token budget")
+            status = TRUNCATED
+        else:
+            msg = f"malformed JSON from the model ({e})"
+            status = MALFORMED
+        print(f"  WARNING: JSON parse failed — {msg}. Raw:\n{raw[:400]}")
+        return JsonResult(status, None, msg, stop_reason)
+    if stop_reason == "max_tokens":
+        # Parsed *and* cut off: possible when the cut happens to land on a syntactically complete
+        # prefix. The answer is still incomplete, so it is TRUNCATED, not OK — a partial record must
+        # not be handed on as a finished one.
+        msg = (f"extraction response hit the max_tokens cap ({max_tokens}) — the JSON parsed but is "
+               f"INCOMPLETE; raise the token budget")
+        print(f"  WARNING: {msg}")
+        return JsonResult(TRUNCATED, None, msg, stop_reason)
+    return JsonResult(OK, data, "", stop_reason)
+
+
+def call_json(prompt: str, max_tokens: int = 2048):
+    """Legacy shim: parsed JSON, or None on ANY failure (truncated or malformed).
+
+    Kept for the callers that only have one non-null branch anyway — s4_extract_rag's gotcha /
+    special-requirements / scalar passes (which already convert a None into an explicit
+    `rag_scalar_parse_failures` entry rather than a null cell) and the 03_evaluation runners. New
+    code should call `call_json_result` and branch on the three states; this shim exists so that
+    fixing the whole-doc collapse did not require editing four other callers the night before a demo.
+    """
+    return call_json_result(prompt, max_tokens=max_tokens).data
+
+
+# Output-token budget for the whole-doc extraction. Sized to the FIELD COUNT, not guessed: every
+# extract field returns a {value, confidence, page, reason} cell and the `reason` is prose, so the
+# response grows with the schema. At 24 fields the old shared default of 2048 was hit exactly (plan
+# 9786015, 2026-08-10) and the whole extraction came back as null cells. Raise this when fields are
+# added — see the truncation note in call_json.
+EXTRACT_MAX_TOKENS = 6000
 
 
 def extract_fields(document_text: str) -> dict:
@@ -214,12 +365,15 @@ def extract_fields(document_text: str) -> dict:
         document_text=document_text,
     )
     print("  Sending to Claude for whole-doc extraction...")
-    # max_tokens raised from the call_json default (2048) on 2026-08-10: adding the three
-    # base_cy_items/shoulder_cy_items/mix_sy_depth_items array fields pushed a real response past
-    # 2048 tokens and truncated mid-JSON (confirmed live on the Murray Co/Fulda plan — a JSON parse
-    # failure, not a clean empty result). 6000 leaves real headroom for a document with several
-    # qualifying items across all three new fields plus every existing field's own citation text.
-    data = call_json(prompt, max_tokens=6000) or {}
+    result = call_json_result(prompt, max_tokens=EXTRACT_MAX_TOKENS)
+    if not result.is_ok:
+        # The old code was `call_json(...) or {}`, which turned BOTH failure states into a full
+        # record of clean null cells — byte-identical to a plan that states nothing, and (worse)
+        # cacheable by report.py::apply_verification as if it were finished. Raise instead: the
+        # caller classifies it (report.py returns ok:False, reason extraction_truncated /
+        # extraction_unreadable) and nothing empty is ever written anywhere as a result.
+        raise ExtractionParseFailure(result)
+    data = result.data if isinstance(result.data, dict) else {}
     return {f["name"]: _coerce_cell(f, data.get(f["name"])) for f in schema.EXTRACT_FIELDS}
 
 
@@ -244,7 +398,14 @@ def process_pdf(pdf_path: str):
 
     plan_id = lib.plan_id_for(path.stem)
     record = schema.blank_record(plan_id, path.name, datetime.date.today().isoformat())
-    fill_extract_fields(record, text)
+    try:
+        fill_extract_fields(record, text)
+    except ExtractionParseFailure as e:
+        # Exit non-zero rather than writing a results.csv row of nulls that looks like a real read.
+        print(f"\nERROR: extraction failed ({e.kind}) — {e}")
+        print("       Nothing was written to results.csv. Re-run; if this is 'truncated', "
+              "raise EXTRACT_MAX_TOKENS.")
+        sys.exit(2)
 
     print("\nExtracted whole-doc fields (value [conf] p.page):")
     for f in schema.EXTRACT_FIELDS:

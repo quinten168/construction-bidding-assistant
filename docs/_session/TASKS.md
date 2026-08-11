@@ -179,6 +179,56 @@ Report: `docs/_session/2026-08-10-milling-unit-capture.md` · Spec:
 - **Still open:** the conversion factor itself (needs CSI), and a `mill_tons` column in
   `bid_projects` (DDL). Until then the tons value reaches the report but not the database.
 
+## 2026-08-10 — task 2b placed-material conversion is SPEC'd, NOT built (appended by the 2b agent)
+
+Spec: `docs/_spec/2026-08-10-placed-material-conversion.md`. **No code written. No `.py` file in this
+repo gained a multiplication from this task.** Sits ON TOP of task 2a
+(`docs/_spec/2026-08-10-tons-bucket-unit-capture.md`, already shipped in `schema.py`), never replaces it.
+
+- **All three of CSI's numbers on plan 9786015 reproduce from the proposed factors.** Mix 1,901.34 t
+  (Δ −0.002 against CSI's total), base 3,851.75 t (exact), shoulder 13.09 t (exact to 2 dp).
+  Arithmetic shown line by line in spec §10.1. **CSI's per-item 909.86 is a rounding artifact, not a
+  factor problem** — CSI's own four per-item figures sum to 1,901.32 while their stated total is
+  1,901.34, which is exactly the unrounded computation. No factor was adjusted to fit.
+- **Proposed factors, for ALEX to bless — not decided here:** bituminous mix **113 lb/SY per inch**;
+  Class 5 base **3,100 lb/CY (1.55 ton/CY)**; shoulder = SY × depth ÷ 36 → CY, then the base factor.
+  None has an external citation in this repo. They reproduce what CSI *used*; that is not evidence of
+  what CSI *endorses*.
+- **The gate is class-based, not depth-based.** `Class 5 Aggregate Base | 2,485 | CY` needs no depth
+  (CY is already a volume) and is the largest tonnage on the plan; a depth gate would refuse it.
+  Conversely `Mill Bituminous Surface (2.0")` HAS a depth and must never convert.
+- **Depth availability, measured on `csi_v2.db` v2 (6,385 rows, 66 plans, noise-filtered):** genuine
+  placed-mix SY rows state a depth **15/16 = 93.8%**; raw `hma`+SY is 15/19 = 78.9% and **the 4
+  misses include a removal, an FDR and a seal coat that the bare `BITUMINOUS` keyword mis-routes into
+  `hma`** — reported as a finding, not fixed. Placed base is mostly CY (no depth needed); 11 of the
+  16 base+SY rows are FDR, which ruling #9 excludes anyway. **Most of the corpus already states TON**
+  (hma 71/177, base 41/94), so this is a minority-case fix with a large per-plan effect.
+- **Flag design so "not ready" is automatic:** `enabled = G1_blessed and G2_reproduces and
+  operator_opt_in`, computed not configured. An unsigned factor table leaves `blessed_by` empty,
+  which is False, which is off. Off emits status `disabled` — never `none_converted`, never null.
+  **Recommendation: ship Aug 12 with opt-in unset even if both gates pass** — 9786015's `hot_mix_tons`
+  going null → 1,901 is a visible change on a plan CSI knows by hand (same lesson as P1 #20/Stearns).
+- **Rulings sit ABOVE conversion.** `milling_sy` / `milling_tons` must be bit-identical before and
+  after; that is blocking test A7. FDR and milling are protected structurally (no milling class in the
+  blessed table), not by a bolted-on special case.
+- **Two board corrections.** (a) `quantity_crosswalk.py::CSI_OPEN_QUESTIONS_2026_08_07` literally
+  contains only `["riprap classification", "crushing/stockpile exclusion"]` — the aggregate-surfacing
+  question lives in the live-mapping spec, not in that constant. (b) The "67,000 T in `shldr_tons`"
+  figure does not reproduce against the current store: `csi_v2.db` v2 shows **18 rows / 33,771 TON**
+  of `AGGREGATE SURFACING` (bucket total 57,173 T). Not reconciled; does not affect the spec. The
+  bucket question is **noted and NOT resolved** — all 18 rows are already in TON, so it is a ruling,
+  not a conversion.
+- **`bucket_hierarchy.csv`'s 1.75 Ton/CY and SDDOT's 1.50 tons/CY are NOT interchangeable with these**
+  and must never be harmonised — placed vs removed vs salvaged, three states, three provenances
+  (unsourced / citable / client-signed). Full table in spec §12. Third document to say this.
+- **Flagged, not fixed (other agents' files):** `schema.py`'s *"no verified depth or density factor
+  exists"* is the right conclusion for the wrong stated reason — **21 of 79 milling rows DO state a
+  depth**. Removals stay unconverted because CSI ruled the bucket and unit, and because no removal
+  *density* factor is verified. Two reasons, neither of them "depth unknown".
+- **CSI's historical 1,850 t vs the computed 1,901.34 t (2.8%) is NOT an acceptance criterion** — it
+  is plan quantity vs CSI's spreadsheet, exactly what P1 #16's three-way column exists to explain.
+  Do not tune a factor toward 1,850.
+
 ## Explicitly NOT doing
 
 - Bulk rewrites of `csi_v2.db` — the archive is frozen with its version stamp

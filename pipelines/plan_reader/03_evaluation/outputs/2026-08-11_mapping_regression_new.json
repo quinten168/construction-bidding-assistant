@@ -1,0 +1,434 @@
+[
+  {
+    "hash": "187bbb4f79af22ad",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 47313,
+      "shoulder_tons": 301,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "AGGREGATE SURFACING CL 1 | 301 | TON",
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "AGGREGATE BASE (CV) CL 6 | 749 | CY",
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "193968928775465b",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 4911,
+      "shoulder_tons": 170,
+      "milling_sy": 152,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "22a6c16cf64b7cfa",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 12159,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "SUBGRADE PREPARATION | 68 | SY",
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "AGGREGATE BASE (CV) CLASS 5 MODIFIED (P) | 45 | CY",
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "2b2438a4eaaa0e79",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": 250,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "OTHER",
+      "grading_unconverted": "EXCAVATION - NEW INSTALLATIONS AND EXISTING ASPHALT PATCHES | 320 | SY",
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "2c83fa4ee425fe1b",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 2100,
+      "base_tons": 1070,
+      "grading_quantity": 4500,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "Subgrade Preparation-Type A-12In | 9745 | SY",
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "TON+OTHER",
+      "base_unconverted": "Salvaged Base Course | 1050 | CY",
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "3929bfb697838f3c",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 7714,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "3b5d49a5a6e4107f",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "inconsistent"
+    },
+    "error": null
+  },
+  {
+    "hash": "47bcf6b258b8547c",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 17935,
+      "base_tons": 340,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": 116362,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "TON",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "609a8b856ceed52a",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 27900,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": 192221,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "6c906b5819b25040",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 6300,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "AGGREGATE BASE CLASS 5 | 1900 | CY",
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "760e9a1dfd751c92",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 17432.3,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": 1981,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "823d011b34af0e82",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": 1000,
+      "grading_quantity": 13775,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "Ditch Grading | 7200 | LF\nTopsoil Stripping & Spreading | 30000 | SY\nSubgrade Preparation-Type A-12In | 21100 | SY",
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "TON+OTHER",
+      "base_unconverted": "Aggregate Base Course Cl 5 | 2700 | CY\nFull Depth Reclamation | 3650 | SY\nRemove And Relay Blended Base Course | 3650 | SY\nSalvage and Reuse Existing Aggregate | 1000 | CY",
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "9ff5dc83b09d4079",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 4732,
+      "base_tons": 5849,
+      "grading_quantity": 15876,
+      "shoulder_tons": 478,
+      "milling_sy": 15067,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "OBLITERATE OLD ROADWAY | 800 | LF",
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "TON",
+      "base_unconverted": null,
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "a3171c2187e8af85",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 2495,
+      "shoulder_tons": null,
+      "milling_sy": 15828,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY",
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "c0e327cf80827ab9",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 121421,
+      "base_tons": 6506,
+      "grading_quantity": 43755,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY+OTHER",
+      "grading_unconverted": "REMOVAL OF CONCRETE PAVEMENT | 182 | SY\nSUBCUT AGGREGATE | 2,482 | TON\nCLEAN ROCK | 758 | TON",
+      "milling_tons": 67007,
+      "milling_measured_unit": "TON",
+      "base_measured_unit": "TON+OTHER",
+      "base_unconverted": "FULL DEPTH RECLAMATION | 408,216 | SY",
+      "milling_unit_status": "tons_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "d3c6880efb06473e",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 1588,
+      "base_tons": null,
+      "grading_quantity": 8814,
+      "shoulder_tons": null,
+      "milling_sy": 6603,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "Class 5 Aggregate Base Course (Div1 Item 13) | 1,021 | C.Y.\nClass 5 Aggregate Base Course (Div2 Item 4) | 37 | C.Y.\nClass 5 Aggregate Base Course (AltA Item 5) | 758 | C.Y.",
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  },
+  {
+    "hash": "e9ae6f092ccca1bf",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": null,
+      "shoulder_tons": null,
+      "milling_sy": null,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "NONE",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "NONE",
+      "base_measured_unit": "NONE",
+      "base_unconverted": null,
+      "milling_unit_status": "not_present"
+    },
+    "error": null
+  },
+  {
+    "hash": "f19c9df671fd2fd7",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": 14480,
+      "base_tons": 270,
+      "grading_quantity": 200,
+      "shoulder_tons": 460,
+      "milling_sy": 70263,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "extras": {
+      "grading_measured_unit": "CY",
+      "grading_unconverted": null,
+      "milling_tons": null,
+      "milling_measured_unit": "SY",
+      "base_measured_unit": "TON+OTHER",
+      "base_unconverted": "FULL DEPTH RECLAMATION | 70167 | SY",
+      "milling_unit_status": "sy_only"
+    },
+    "error": null
+  }
+]

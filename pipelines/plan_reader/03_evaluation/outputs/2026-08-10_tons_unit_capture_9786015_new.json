@@ -1,0 +1,30 @@
+[
+  {
+    "hash": "a3171c2187e8af85",
+    "arm": "new",
+    "status": "OK",
+    "totals": {
+      "hot_mix_tons": null,
+      "base_tons": null,
+      "grading_quantity": 2495,
+      "shoulder_tons": null,
+      "milling_sy": 15828,
+      "crushing_tons": null,
+      "stockpile_tons": null
+    },
+    "capture": {
+      "hot_mix_measured_unit": "OTHER",
+      "hot_mix_unconverted": "2.0\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n3.0\" Depth Type SP 12.5 Non Wearing Course Mixture (2,B) (P) (CSAH 2) | 5368 | SY\n1.5\" Depth Type SP 9.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY\n2.5\" Depth Type SP 12.5 Wearing Course Mixture (2,B) (P) (MARYLAND AVE) | 1703 | SY",
+      "base_measured_unit": "OTHER",
+      "base_unconverted": "Class 5 Aggregate Base (CV) (P) | 2485 | CY",
+      "shoulder_measured_unit": "OTHER",
+      "shoulder_unconverted": "8\" Class 5 Alley & Shouldering Aggregate Surfacing (CV) (P) | 38 | SY"
+    },
+    "statuses": {
+      "hot_mix_tons": "unconverted_only",
+      "base_tons": "unconverted_only",
+      "shoulder_tons": "unconverted_only"
+    },
+    "error": null
+  }
+]
