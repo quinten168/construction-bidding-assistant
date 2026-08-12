@@ -89,13 +89,17 @@ const isBidDeadlineFormatOk = (key: string, value: string) =>
 // The model's reason text for a quantity is one run-on paragraph enumerating every bid-schedule
 // line item that fed the total ("Item 0250 ... = 16,060 TON; Item 0255 ... = 5,386 TON; ... Total
 // = ... = 32,098 TON. Item 0265 ... excluded."), which reads as a wall of text. Split it into one
-// line per clause — before each "Item ####" or "Total =" that follows a ';' or '.' boundary — so a
-// human scanning the breakdown sees one bid-schedule item per row instead of a single paragraph.
-// Frontend-only formatting of free text, not a structured field — a boundary this doesn't
-// recognize just stays merged with its neighbor rather than breaking, so this degrades gracefully.
+// line per clause — before each "Item ####"/"line ####" or "Total ="/"total =" that follows a
+// ';' or '.' boundary — so a human scanning the breakdown sees one bid-schedule item per row
+// instead of a single paragraph. Case-insensitive and matches both "Item"/"line" and
+// "Total"/"total": the model doesn't phrase this the same way twice (seen both "Item 0250 ..."
+// and "line 0130: ..." for the same kind of clause across different reports), and a case-sensitive
+// match silently stopped splitting the moment the wording varied. Frontend-only formatting of free
+// text, not a structured field — a boundary this doesn't recognize just stays merged with its
+// neighbor rather than breaking, so this degrades gracefully.
 const splitReasonLines = (reason: string): string[] =>
   reason
-    .split(/(?<=[;.])\s+(?=(?:Item\s\d|Total\s=))/)
+    .split(/(?<=[;.])\s+(?=(?:item|line)\s+\d|total\s*=)/i)
     .map((s) => s.trim())
     .filter(Boolean);
 
