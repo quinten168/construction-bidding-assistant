@@ -88,18 +88,20 @@ const isBidDeadlineFormatOk = (key: string, value: string) =>
 
 // The model's reason text for a quantity is one run-on paragraph enumerating every bid-schedule
 // line item that fed the total ("Item 0250 ... = 16,060 TON; Item 0255 ... = 5,386 TON; ... Total
-// = ... = 32,098 TON. Item 0265 ... excluded."), which reads as a wall of text. Split it into one
-// line per clause — before each "Item ####"/"line ####" or "Total ="/"total =" that follows a
-// ';' or '.' boundary — so a human scanning the breakdown sees one bid-schedule item per row
-// instead of a single paragraph. Case-insensitive and matches both "Item"/"line" and
-// "Total"/"total": the model doesn't phrase this the same way twice (seen both "Item 0250 ..."
-// and "line 0130: ..." for the same kind of clause across different reports), and a case-sensitive
-// match silently stopped splitting the moment the wording varied. Frontend-only formatting of free
-// text, not a structured field — a boundary this doesn't recognize just stays merged with its
-// neighbor rather than breaking, so this degrades gracefully.
+// = ... = 32,098 TON.") — reads as a wall of text. An earlier version of this split before
+// specific keywords ("Item"/"line", "Total"/"total"), which kept breaking every time a different
+// report phrased the same kind of clause differently (this prose is model-generated, not a fixed
+// template — there is no finite keyword list that covers every wording it might use). Split on
+// PUNCTUATION instead — any ';' or '.' followed by whitespace — since every clause boundary in
+// this prose is marked that way regardless of what words the clause itself uses. This is why it's
+// safe to split unconditionally rather than only before a recognized keyword: a decimal number
+// like "12.5" has no space after its period, so it's never mistaken for a clause boundary, and a
+// mid-clause abbreviation with a trailing space (rare in this domain's text) just costs an extra,
+// harmless line break rather than silently failing to split at all. Frontend-only formatting of
+// free text, not a structured field.
 const splitReasonLines = (reason: string): string[] =>
   reason
-    .split(/(?<=[;.])\s+(?=(?:item|line)\s+\d|total\s*=)/i)
+    .split(/(?<=[;.])\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 
