@@ -324,11 +324,25 @@ SCALAR_FIELDS = [
     # 2026-08-10 arms established (add the LINE ITEMS, each exactly once, do not build subtotals)
     # is kept: Stearns still prints three separate milling lines and the double-count it guards
     # against was never about reclamation.
+    #
+    # 2026-08-11 — 'REMOVE BITUMINOUS SHOULDER PAVEMENT' named explicitly, not left to inference.
+    # Grant Co MN plan SP 2680-44 (TH 94, cache 14554c5ed88cbb49) bid schedule line 0145, 76,527 SY
+    # — 83% of that plan's 92,123 SY milling total. The model already included it (reasoning cited
+    # "per the milling_sy definition, 'REMOVE BITUMINOUS PAVEMENT' qualifies" and folded the
+    # shoulder-specific line in without this field ever naming it), which means the majority of a
+    # real Mill total was riding on inference, not a stated rule. App owner confirmed Mill (not
+    # Shoulder) is the correct bucket for this item — this is that confirmation, not a CSI ruling.
+    # NOTE: the batch/CI-corpus crosswalk (05_knowledge/quantity_crosswalk.py, used only to build
+    # pipelines/ci_model's training corpus, never the live path) still has no rule for this exact
+    # item name and would currently fall through SPEC_MAP's bare "BITUMINOUS" keyword to "hma" —
+    # a known, unresolved disagreement with the live classification here, left alone in this pass
+    # since fixing it touches historical training data outside plan_reader's scope.
     _f("milling_sy", "num", "extract",
        "Total square yards (SY) of milling and bituminous pavement removal — ONE total: the sum of "
        "every qualifying pay item's square yards, each pay item counted EXACTLY ONCE. Qualifying "
        "items are MILLING / BITUMINOUS SURFACE REMOVAL: 'MILL BITUMINOUS SURFACE', 'REMOVE "
-       "BITUMINOUS PAVEMENT', 'REMOVAL OF BITUMINOUS SURFACING'. Example: a schedule with 12,000 "
+       "BITUMINOUS PAVEMENT', 'REMOVE BITUMINOUS SHOULDER PAVEMENT', 'REMOVAL OF BITUMINOUS "
+       "SURFACING'. Example: a schedule with 12,000 "
        "SY, 300 SY and 40,000 SY of such items returns 52,300 — three line items, each added once. "
        "Add the qualifying LINE ITEMS themselves, each exactly once — do not build subtotals and "
        "add those, and do not add a summary-page quantity that restates a line you already counted. "
@@ -342,6 +356,32 @@ SCALAR_FIELDS = [
        "yards only; if the bid schedule measures milling in tons, report those tons in "
        "milling_tons instead and leave this field null rather than converting.",
        golden="mill_sy", evalkind="num", group="quantities"),
+    # milling_sy_items — raw per-item companion for milling_sy, added 2026-08-11 after a live,
+    # 4-for-4 reproducible failure on the Grant Co plan cited above: the model's own milling_sy
+    # VALUE (83,777) disagreed with its own REASON text's arithmetic, which correctly computed
+    # 8,346 + 7,250 + 76,527 = 92,123 every run. The same value-disagrees-with-its-own-reason
+    # failure class docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md documented for the mix
+    # bucket (rough edge 12) — but unlike base_cy_items/mix_sy_depth_items, NO unit conversion is
+    # needed here: every qualifying item is already in SY, milling_sy's own native unit. This field
+    # exists purely to get the ADDITION out of the model, not to bridge a unit.
+    # material_tons_merge.sum_milling_sy_items() sums these; report.py prefers that code-computed
+    # sum over the model's own milling_sy scalar whenever this list is non-empty, falling back to
+    # milling_sy only when the model reports no items — milling_sy itself is kept, unremoved, as
+    # the golden-eval target and as that fallback.
+    _f("milling_sy_items", "items", "extract",
+       "List EVERY milling / bituminous-pavement-removal line item that qualifies for milling_sy — "
+       "the SAME items that field's own definition names: 'MILL BITUMINOUS SURFACE', 'REMOVE "
+       "BITUMINOUS PAVEMENT', 'REMOVE BITUMINOUS SHOULDER PAVEMENT', 'REMOVAL OF BITUMINOUS "
+       "SURFACING' — one entry per pay item, each qualifying item EXACTLY ONCE. Do NOT count FULL "
+       "DEPTH RECLAMATION under any of its names, 'REMOVE CONCRETE DRIVEWAY PAVEMENT', 'REMOVE "
+       "BITUMINOUS DRIVEWAY PAVEMENT', or concrete pavement removal — same exclusions as "
+       "milling_sy. Return a JSON array, one object per qualifying item: "
+       "{\"quantity\": <the item's own stated SY quantity>, \"unit\": \"SY\", "
+       "\"page\": <page number>, \"note\": <short citation, e.g. the pay item name>}. "
+       "Do NOT add, sum, or combine anything yourself — report each item's own stated number "
+       "verbatim, one entry per item; the sum is computed afterward, not by you. Return an empty "
+       "array [] (not null) if this bid schedule has no qualifying milling item.",
+       golden=None, evalkind=None, group="quantities"),
     # milling_tons / milling_measured_unit — capture the value AND its native unit, DO NOT CONVERT.
     # NDDOT pays milling by the ton (NDDOT spec §411.06, Pay Unit "Ton or Square Yard"), so on an ND
     # plan milling_sy is legitimately null while a real quantity exists. Dunn Job 23388 is the case:
@@ -360,7 +400,8 @@ SCALAR_FIELDS = [
        "Report the tons EXACTLY as stated and DO NOT convert them to square yards. Include the "
        "TON-measured lines from BOTH kinds of pay item and ADD THEM TOGETHER: the milling items "
        "(e.g. 'MILLING PAVEMENT SURFACE') AND the removal-of-existing-bituminous items (e.g. "
-       "'REMOVAL OF BITUMINOUS SURFACING', 'REMOVE BITUMINOUS PAVEMENT') — CSI classes both as the "
+       "'REMOVAL OF BITUMINOUS SURFACING', 'REMOVE BITUMINOUS PAVEMENT', 'REMOVE BITUMINOUS "
+       "SHOULDER PAVEMENT') — CSI classes both as the "
        "same work, and the two often sit in different sections of the schedule (a removal item in "
        "the 200-series section, a milling item in the 400-series). Sum only items whose unit is TON. "
        "Any pay item named in the milling_sy definition belongs HERE instead whenever its unit is "
@@ -670,6 +711,22 @@ def resolve_sy_depth_product(item: dict):
     if not (isinstance(depth_in, (int, float)) and depth_in > 0):
         return None  # SY with no usable stated depth — a real item, just not convertible
     return quantity * depth_in
+
+
+def resolve_milling_sy_item(item: dict):
+    """One raw milling_sy_items entry -> its SY quantity, or None if unusable. No unit conversion
+    at all — every qualifying milling_sy item is already in SY, milling_sy's own native unit — this
+    only validates the item's shape before material_tons_merge.sum_milling_sy_items() adds it in.
+    See milling_sy_items's field description for why this field exists (a live, reproducible case
+    of milling_sy's own returned value disagreeing with its own reasoning's arithmetic)."""
+    if not isinstance(item, dict):
+        return None
+    quantity = item.get("quantity")
+    if not isinstance(quantity, (int, float)):
+        return None
+    if str(item.get("unit") or "").strip().upper() != "SY":
+        return None
+    return quantity
 
 
 def _aggregate_unit_status(record, tons_field: str, items_field: str, resolver=resolve_cy_item) -> str:

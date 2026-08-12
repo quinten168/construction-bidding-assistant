@@ -257,6 +257,26 @@ def merge_material_tons(record: dict) -> dict:
     return merged
 
 
+def sum_milling_sy_items(record: dict) -> float | None:
+    """record -> the code-computed milling_sy total, summing milling_sy_items — or None if the
+    model reported no items (null) or an empty list, so the caller (report.py) can fall back to
+    the model's own milling_sy scalar.
+
+    Deliberately NOT wired into merge_material_tons/_BUCKETS above: those three buckets convert a
+    DIFFERENT unit into tons using an unverified, CSI-gated density factor (CONVERSION_ENABLED).
+    milling_sy_items needs no conversion and no gate — every entry is already in SY, milling_sy's
+    own native unit, so this is plain same-unit addition, not an unverified constant, and ships
+    unconditionally regardless of CONVERSION_ENABLED.
+
+    Added 2026-08-11 after a live, 4-for-4 reproducible case (Grant Co MN, SP 2680-44): the
+    model's own milling_sy VALUE (83,777) disagreed with its own REASON text's arithmetic (which
+    correctly computed 8,346 + 7,250 + 76,527 = 92,123) on every run — the same
+    value-disagrees-with-its-own-reason failure class the mix bucket hit before this file existed.
+    """
+    items = schema._cell_value(record, "milling_sy_items")
+    return _sum_items(items, schema.resolve_milling_sy_item)
+
+
 def conversion_report(record: dict) -> dict:
     """record -> {'base_tons': {...}, 'shoulder_tons': {...}, 'hot_mix_tons': {...}}, one entry per
     bucket, each holding a `status` from CONVERSION_STATUSES plus the item counts behind it.

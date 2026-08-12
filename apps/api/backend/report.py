@@ -298,6 +298,13 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
     # vocabulary reconciliation land before the flag is allowed on.
     merged_tons = material_tons_merge.merge_material_tons(record)
     conversion_status = material_tons_merge.conversion_report(record)
+    # milling_sy: prefer the code-computed sum of milling_sy_items over the model's own milling_sy
+    # scalar (falls back to the scalar only when the model reported no items). Not part of
+    # merge_material_tons/CONVERSION_ENABLED above — that gate exists for an unverified density
+    # constant, and this needs no conversion at all (every item is already in SY). Added 2026-08-11
+    # after a live, reproducible case where milling_sy's own value disagreed with its own reasoning.
+    # See material_tons_merge.sum_milling_sy_items.
+    merged_tons["milling_sy"] = material_tons_merge.sum_milling_sy_items(record)
 
     def _effective(src):
         merged_val = merged_tons.get(src)
