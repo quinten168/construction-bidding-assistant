@@ -49,9 +49,11 @@ export function ChatApp() {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* One merged top bar: brand + active title (left) · usage + account (right) */}
         <div className="flex h-[52px] shrink-0 items-center justify-between border-b border-border bg-card/70 px-3 backdrop-blur-xl">
+          {/* Title itself is NOT repeated here — AppShell's own header (the bar directly above
+              this one) already shows store.active.title, and a second copy right underneath it
+              read as two stacked "New chat" labels. This bar keeps only what AppShell's header
+              doesn't have: the source-file count. */}
           <div className="flex min-w-0 items-center gap-2 text-sm">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary text-[13px] text-primary-foreground elev-sm">{BRAND.mark}</span>
-            <span className="truncate font-serif tracking-tight text-foreground">{store.active.title}</span>
             {activeFiles.length > 0 && (
               <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                 {activeFiles.length} {activeFiles.length === 1 ? "source" : "sources"}
