@@ -51,12 +51,40 @@ _UNIT = {"MIX_TN": "tons", "GRADE_CY": "CY", "BASE_TN": "tons", "SHLDR_TN": "ton
 # isn't "final" the moment extraction finishes, it's final once a human has been through the verify
 # gate. process_pdf() still checks the cache first (a re-drop of an already-verified plan skips the
 # whole pipeline AND the verify step, same instant-return behavior as before), it just never writes
-# it — an unverified extraction is never cached, so it can't be mistaken for a finished one.
+# it — an unverified extraction is never cached HERE, so it can't be mistaken for a finished one.
+# See _RAW_EXTRACTION_CACHE below for the separate, unverified-tier cache this implies process_pdf
+# still needs.
 _PAYLOAD_CACHE = lib.DATA_DIR / "_report_payload_cache"
 
 
 def _payload_cache_path(content_hash: str) -> Path:
     return _PAYLOAD_CACHE / (content_hash + ".json")
+
+
+# Raw-extraction cache — a SEPARATE, lower tier from _PAYLOAD_CACHE above, added 2026-08-15 to close
+# a real duplicate-row bug: two independent uploads of the identical PDF, BOTH before either one was
+# verified, ran two independent extraction passes (no cache existed yet for either), and the model's
+# RAG-extracted route/milepost fields came back slightly different across the two runs — enough that
+# midpoint_bridge's computed lat/long diverged by tens to hundreds of miles between them. Since
+# project_natural_key (bid_projects_record.py) is built FROM that lat/long, the two uploads of the
+# SAME file silently produced TWO DIFFERENT natural keys, and bid_projects_writer.py's dedup only
+# flags a same-plan_uid/different-key collision (duplicate_flag/duplicate_reason) — it does not merge
+# the rows. See the 2026-08-15 Grant Co MN incident.
+#
+# This cache closes the gap AT THE SOURCE: process_pdf writes the raw (unverified) extraction here on
+# every successful run, and checks it BEFORE re-running the pipeline. A second drop of the same
+# content, no matter how soon after the first (verified or not), now reuses the exact same
+# route/milepost/lat-long numbers instead of asking the model again — so the two runs can no longer
+# disagree, because there is only ever one real run per content hash. This is deliberately a
+# DIFFERENT cache/directory from _PAYLOAD_CACHE, not a relaxation of its "verified only" invariant —
+# a hit here still returns `verified: False` and still routes through the verify gate in app.py
+# (`rep.get("verified")` is unaffected by this cache existing), it just skips the expensive
+# convert/ingest/extract/midpoint work that produced that unverified result the first time.
+_RAW_EXTRACTION_CACHE = lib.DATA_DIR / "_report_raw_extraction_cache"
+
+
+def _raw_extraction_cache_path(content_hash: str) -> Path:
+    return _RAW_EXTRACTION_CACHE / (content_hash + ".json")
 
 
 # Sibling cache for the competitor-prediction cascade (final_report.predict_competitors), keyed the
@@ -192,6 +220,19 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         try:
             rep = json.loads(cache.read_text())
             log.info("report: payload cache hit (%s) — skipping convert/ingest/extract", cache.name)
+            return rep
+        except Exception:                                  # corrupt cache → fall through and rebuild
+            pass
+
+    # Same content, still unverified — reuse the exact same raw extraction (see
+    # _RAW_EXTRACTION_CACHE's docstring above) so a second not-yet-verified drop of this content
+    # can't get a different route/milepost/lat-long than the first.
+    raw_cache = _raw_extraction_cache_path(content_hash)
+    if raw_cache.exists():
+        try:
+            rep = json.loads(raw_cache.read_text())
+            log.info("report: raw-extraction cache hit (%s) — skipping convert/ingest/extract",
+                     raw_cache.name)
             return rep
         except Exception:                                  # corrupt cache → fall through and rebuild
             pass
@@ -422,9 +463,21 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
         "field_confidence": field_confidence,
         "content_hash": content_hash,
         # False until a human has been through the verify gate and apply_verification() writes the
-        # cache below — see apply_verification()'s docstring for why caching moved out of here.
+        # _PAYLOAD_CACHE cache — see apply_verification()'s docstring for why caching moved out of
+        # here. This is still an entirely separate concern from the write below.
         "verified": False,
     }
+    # Write-through to the raw-extraction cache (see _RAW_EXTRACTION_CACHE's docstring above) — only
+    # for a payload that actually succeeded, same "never cache a failure" rule apply_verification's
+    # _PAYLOAD_CACHE write follows for the same reason. Best-effort: a write failure here should never
+    # turn a working extraction into an error, it just means the NEXT re-drop re-extracts instead of
+    # reusing this one.
+    if content_hash and rep.get("ok"):
+        try:
+            _RAW_EXTRACTION_CACHE.mkdir(parents=True, exist_ok=True)
+            _raw_extraction_cache_path(content_hash).write_text(json.dumps(rep))
+        except Exception:
+            pass
     return rep
 
 
