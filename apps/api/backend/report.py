@@ -500,10 +500,20 @@ def apply_verification(rep: dict, edits: dict) -> dict:
 
     for field, value in (edits or {}).items():
         if field in ("latitude", "longitude"):
+            # Fail-CLOSED, not fail-open. This used to fall back to `identity[field] = value` on a
+            # parse failure — silently storing the raw non-numeric string into a field every
+            # downstream consumer (haul-distance, competitor scoring) assumes is a float. No crash,
+            # no error, just a report that quietly stops working. The verify UI's own CoordInput now
+            # rejects non-numeric keystrokes and gates "Confirm location" on a real parsed coordinate
+            # (verify-extraction.tsx), so this should be unreachable from that path — kept here as
+            # defense in depth for any other caller of apply_verification, where "reject the bad edit,
+            # keep whatever value was already there" is the only safe fallback for a field everything
+            # downstream needs to be a float.
             try:
                 identity[field] = float(value)
             except (TypeError, ValueError):
-                identity[field] = value
+                log.warning("report: refusing non-numeric %s edit %r — keeping existing value",
+                            field, value)
         elif field in by_label:
             try:
                 by_label[field]["value"] = float(value)
