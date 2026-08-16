@@ -83,9 +83,16 @@ FAMILY_QUERIES = {
     "Contract & compliance": "prevailing wage Davis-Bacon DBE liquidated damages density failure QC inspection coordination",
 }
 
+# 2026-08-11 — reordered to reason-before-value, same fix and same reason as
+# s3_extract.py::EXTRACTION_PROMPT (see docs/_session/2026-08-11-reason-before-value.md): "value"
+# written before "reason" let the model commit to a number before finishing its reasoning, so a
+# mid-"reason" self-correction couldn't reach an already-emitted "value". Fixed there for whole-doc
+# fields; fixed here too since these RAG-retrieved fields (traffic_level, construction dates,
+# phasing) go through the identical shape and would carry the identical risk.
 SCALAR_PROMPT = """You are reading retrieved excerpts from a highway bid plan. Extract ONLY the fields
-below from these excerpts. Return a JSON object; each field an OBJECT
-  {{"value": <value or null>, "confidence": "high"|"low", "page": <the p.PAGE from the [n] tag, or null>, "reason": <short explanation>}}
+below from these excerpts. Return a JSON object; each field an OBJECT, with "reason" BEFORE "value" —
+work out your reasoning FIRST, then decide "value" LAST so it reflects the reasoning's conclusion:
+  {{"reason": <short explanation, written BEFORE you decide the value>, "confidence": "high"|"low", "page": <the p.PAGE from the [n] tag, or null>, "value": <value you land on AFTER "reason", or null>}}
 Use null if the excerpts don't contain it — do NOT use outside knowledge or guess.
 confidence is "high" ONLY when the value is stated directly/verbatim in the excerpts; "low" for
 anything inferred, interpreted, or not fully certain — low-confidence fields get flagged for a
