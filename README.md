@@ -19,6 +19,9 @@ Two workstreams share this repo: the **plan reader** (PDF → structured facts) 
 
 ## Running it
 
+New to this repo? [`docs/SETUP.md`](docs/SETUP.md) walks through repo access, both `.env` files
+(including the two optional Google Maps keys), and running both servers, step by step.
+
 Backend:
 
 ```bash
