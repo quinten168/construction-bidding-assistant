@@ -105,6 +105,18 @@ const splitReasonLines = (reason: string): string[] =>
     .map((s) => s.trim())
     .filter(Boolean);
 
+// Coordinate validation — added 2026-08-15 after a teammate caught this: the location inputs
+// accepted any string ("abc" satisfied the old !loc.lat/!loc.lon non-empty check and enabled
+// Confirm), which apply_verification()'s float(value) parse then silently fell back to storing
+// as a raw string on failure — no crash, no error, just a report that quietly can't compute
+// haul-distance/competitor scoring downstream. isValidCoord rejects that at the source: not just
+// "is this text present" but "does this parse as a real latitude/longitude".
+const isValidCoord = (value: string, min: number, max: number): boolean => {
+  if (value.trim() === "") return false;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= min && n <= max;
+};
+
 const needsReview = (f: Pick<VerifyField, "key" | "confidence" | "required" | "value">) =>
   f.confidence === "low" || f.confidence === "medium" || (f.required && !f.value) ||
   !isBidDeadlineFormatOk(f.key, f.value);
@@ -201,16 +213,32 @@ export function VerifyExtraction({
             : " No coordinates could be computed automatically — enter the lat/long (or paste a Google Maps pin) so haul-distance and competitor scoring can run."}
         </p>
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
-          <CoordInput label="Latitude" placeholder="47.3600" value={loc.lat} onChange={(v) => setLoc((p) => ({ ...p, lat: v, confirmed: false }))} />
-          <CoordInput label="Longitude" placeholder="-102.6000" value={loc.lon} onChange={(v) => setLoc((p) => ({ ...p, lon: v, confirmed: false }))} />
+          <CoordInput
+            label="Latitude" placeholder="47.3600" value={loc.lat}
+            invalid={loc.lat.trim() !== "" && !isValidCoord(loc.lat, -90, 90)}
+            onChange={(v) => setLoc((p) => ({ ...p, lat: v, confirmed: false }))}
+          />
+          <CoordInput
+            label="Longitude" placeholder="-102.6000" value={loc.lon}
+            invalid={loc.lon.trim() !== "" && !isValidCoord(loc.lon, -180, 180)}
+            onChange={(v) => setLoc((p) => ({ ...p, lon: v, confirmed: false }))}
+          />
           <button
-            onClick={() => setLoc((p) => ({ ...p, confirmed: Boolean(p.lat && p.lon) }))}
-            disabled={!loc.lat || !loc.lon}
+            onClick={() => setLoc((p) => ({
+              ...p, confirmed: isValidCoord(p.lat, -90, 90) && isValidCoord(p.lon, -180, 180),
+            }))}
+            disabled={!isValidCoord(loc.lat, -90, 90) || !isValidCoord(loc.lon, -180, 180)}
             className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[12px] font-medium text-primary-foreground transition-all hover:-translate-y-px disabled:opacity-40"
           >
             <Check className="h-3.5 w-3.5" /> Confirm location
           </button>
         </div>
+        {((loc.lat.trim() !== "" && !isValidCoord(loc.lat, -90, 90))
+          || (loc.lon.trim() !== "" && !isValidCoord(loc.lon, -180, 180))) && (
+          <p className="mt-1.5 text-[11px] leading-snug text-[var(--warn)]">
+            Latitude must be a number between -90 and 90, longitude between -180 and 180.
+          </p>
+        )}
       </Glass>
 
       {/* Fields */}
@@ -360,15 +388,32 @@ export function VerifyExtraction({
   );
 }
 
-function CoordInput({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+// A partial-number pattern (not the FULL isValidCoord check upstream — this only needs to allow
+// everything a real number could still become mid-typing, e.g. "-", "47.", so keystrokes aren't
+// rejected while the user is still in the middle of typing a valid value) — rejects letters and
+// stray punctuation at the keystroke level, which is the "force the user to input a number" half
+// of the fix; isValidCoord (range + finite check) upstream is the "and it has to be a real
+// coordinate" half.
+const PARTIAL_NUMBER = /^-?\d*\.?\d*$/;
+
+function CoordInput({ label, placeholder, value, onChange, invalid }: {
+  label: string; placeholder: string; value: string; onChange: (v: string) => void; invalid?: boolean;
+}) {
   return (
     <label className="flex flex-col gap-0.5">
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
       <input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === "" || PARTIAL_NUMBER.test(v)) onChange(v);
+        }}
+        inputMode="decimal"
         placeholder={placeholder}
-        className="w-32 rounded-lg border border-black/10 bg-white/70 px-2 py-1.5 font-mono text-[13px] outline-none focus:border-primary/50"
+        className={cn(
+          "w-32 rounded-lg border bg-white/70 px-2 py-1.5 font-mono text-[13px] outline-none focus:border-primary/50",
+          invalid ? "border-[var(--warn)]/60" : "border-black/10",
+        )}
       />
     </label>
   );

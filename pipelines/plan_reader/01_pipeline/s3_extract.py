@@ -43,12 +43,32 @@ def archetype_choices():
             '"Grading/Earthwork", "Aggregate/Base/Gravel"')
 
 
+# 2026-08-11 — cell shape reordered to reason-before-value, project-wide. Caught live: a Pope Co MN
+# plan's base_tons cell wrote "AGGREGATE SURFACING CLASS 1 MOD ... Value is null" in its own reason
+# text, then returned value=8225 anyway — the exact wrong figure the reasoning had just excluded, and
+# also double-counted (correctly) into shoulder_tons for the same line. Root cause: the old shape was
+# {"value": ..., ..., "reason": ...} — value FIRST. JSON is generated left-to-right/top-to-bottom, so
+# the model commits to a number before it has finished reasoning; a mid-"reason" self-correction
+# ("however... re-evaluating...") can no longer reach the "value" key already written. Same mechanism
+# as the milling_sy fix earlier the same day (Grant Co plan, 83,777 vs. reasoning's own 92,123) — that
+# fix worked around it for one field (raw-item capture, arithmetic moved to code); THIS fix addresses
+# the shared root cause directly, for every field. Verified empirically before shipping, not assumed:
+# reordering alone (nothing else changed) fixed both the Pope Co base/shoulder case (base_tons: 8225 ->
+# 0, matching "Value is null") and the Grant Co milling_sy case (92123 on 2/2 fresh runs, previously
+# wrong on every run) — see docs/_session/2026-08-11-reason-before-value.md.
 EXTRACTION_PROMPT = """You are reading a highway-construction RFP / bid plan for a paving contractor.
-Extract the fields listed below into a single JSON object. For EVERY field, return an OBJECT:
-  {{"value": <the value, or null if not stated>, "confidence": "high" | "low", "page": <page number or null>, "reason": <short explanation>}}
+Extract the fields listed below into a single JSON object. For EVERY field, return an OBJECT with
+"reason" BEFORE "value" — work out and write your reasoning FIRST, then decide "value" LAST, so the
+value you write is the conclusion of the reasoning rather than a number you commit to before you've
+finished thinking it through:
+  {{"reason": <short explanation, written BEFORE you decide the value>, "confidence": "high" | "low", "page": <page number or null>, "value": <the value you land on AFTER writing "reason" — or null if not stated>}}
 
 Rules:
 - Do NOT guess. If the document doesn't state a field, use "value": null.
+- Write "reason" first and let it be where you actually work out the answer — including reconsidering
+  or ruling out a candidate item — and only then commit to "value". If "reason" concludes an item is
+  excluded or belongs elsewhere, "value" must reflect that conclusion (null or the corrected number),
+  never the pre-correction number.
 - confidence is "high" ONLY when the value is stated directly in the text you were given (verbatim,
   or an unambiguous sum of explicit bid-schedule line items) — set "page" to where it appears.
 - confidence is "low" for everything else: a value you had to infer, interpret, or aren't fully
