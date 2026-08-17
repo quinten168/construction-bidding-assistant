@@ -117,3 +117,7 @@ pipelines/plan_reader/05_knowledge/*.pdf
 # Timestamped backups of cleared payload-cache entries (2026-08-10 re-warm). Recoverable
 # local artifacts, same class as the cache itself, which is already ignored above.
 **/00_input/_report_payload_cache_backup_*/
+
+# Handoff cleanup 2026-08-17 — archived-out material, retained locally only
+20260817_handoff_archive/
+.claude/

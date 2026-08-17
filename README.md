@@ -14,10 +14,8 @@ Two workstreams share this repo: the **plan reader** (PDF → structured facts) 
 |---|---|
 | `apps/` | The running product — `apps/api` (FastAPI, :8010) and `apps/web` (Next.js, :3000). |
 | `pipelines/` | The two processing modules: `plan_reader/` and `ci_model/`. |
-| `research/` | Notebooks and one-off analysis. Not part of any runtime path. |
 | `data/` | Shared inputs and outputs — `raw/`, `processed/`, `reference/`, plus the cleaning script. |
-| `docs/` | Architecture, changelog, and archived documents. |
-| `reference/` | Three competitor CSVs read by nine scripts via CWD-relative paths. See ARCHITECTURE.md. |
+| `docs/` | Architecture reference plus data access and inventory notes. |
 
 ## Running it
 
@@ -59,8 +57,3 @@ orchestrations, where every external API call happens, and the known rough edges
 the single source of truth for system design; this README deliberately does not duplicate it.
 
 For agent sessions working in this repo, start with [`CLAUDE.md`](CLAUDE.md).
-
----
-
-_The pre-restructure README (2026-06-07) is preserved at
-[`docs/ARCHIVE_README_2026-06-07.md`](docs/ARCHIVE_README_2026-06-07.md) — archived, not deleted._

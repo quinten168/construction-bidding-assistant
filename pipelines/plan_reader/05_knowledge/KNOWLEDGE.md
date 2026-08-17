@@ -53,7 +53,8 @@ not a low weight, is what lets a decision-only query hide it. Only BOILERPLATE i
 
 ## Status
 
-- Section taxonomy v2 and the gotcha relevance split are **proposals pending Alex's sign-off**
-  (see `_markup/`). `material_source` is explicitly flagged for him (traffic level → quarry
-  capability is arguably a decision/fit question, not pure pricing).
-- The gap analysis that motivated v2: `../outputs/2026-06-10_section_taxonomy_v2.md`.
+- Section taxonomy v2 and the gotcha relevance split are **proposals pending Alex's sign-off**.
+  `material_source` is explicitly flagged for him (traffic level to quarry capability is arguably
+  a decision/fit question, not pure pricing).
+- The supporting markup, gap analysis, and CSI review documents behind these proposals are not in
+  this repository. They are covered in the knowledge transfer document.

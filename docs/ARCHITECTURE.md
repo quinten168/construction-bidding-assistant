@@ -805,9 +805,3 @@ publisher is on the live request path (`/api/report`, `/api/chat`); `apps/api/ba
 data sources for those are exclusively local: CSVs under `data/processed/`, `pipelines/plan_reader/
 csi_v2.db` (SQLite), and the local Chroma vector store. `competitor_live.py` invokes the CI model as
 a subprocess against those same local paths.
-
----
-
-_The previous occupant of this path documented the `t/live-stack` branch only and is preserved at
-[`ARCHIVE_t-live-stack-architecture.md`](ARCHIVE_t-live-stack-architecture.md), alongside
-[`ARCHIVE_t-live-stack-module-layout.md`](ARCHIVE_t-live-stack-module-layout.md)._

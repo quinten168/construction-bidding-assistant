@@ -1,9 +1,0 @@
-plan_id,state,outcome,project_type_extracted,rule_archetype_master,n_mat_types_master,bid_item_count,n_base,n_alt,has_alternates,n_spec_categories,spec_categories,has_structures_work,has_traffic_control,has_erosion_control,mobilization_present,contract_duration_days,gotcha_count,gotcha_weight,gotcha_burden_tier,parse_status
-2023_BROOKINGS-CO-SD_SURFACING_LOST,SD,bid_lost,Standard Paving,(no contract_id),,0,0,0,False,0,,False,False,False,False,75,8,16,high,fallback: conversion mangled header (merged cells)
-2023_DUNN-CO-ND_CP-13_WON,ND,bid_won,Complex/Messy,(no contract_id),,39,37,2,True,9,base|erosion|grading|hma|milling|mobilization|pavement_marking|surfacing|traffic_control,False,True,True,True,,12,23,high,clean
-2023_OTTER-TAIL-CO-MN_CP-4069-304_LOST,MN,bid_lost,Standard Paving,(no contract_id),,7,7,0,False,6,base|erosion|hma|milling|surfacing|traffic_control,False,True,True,False,,9,16,high,clean
-2023_WALSH-CO-ND_HWY-9_LOST,ND,bid_lost,Standard Paving,(no contract_id),,56,56,0,False,8,base|erosion|grading|hma|milling|mobilization|pavement_marking|traffic_control,False,True,True,True,,8,15,high,clean
-2023_WATONWAN-CO-MN_SP-8303-48_LOST,MN,bid_lost,Standard Paving,(no contract_id),,0,0,0,False,0,,False,False,False,False,327,10,20,high,fallback: conversion mangled header (merged cells)
-2025_DOUGLAS-CO-MN_SAP-021-600-023_NOBID,MN,no_bid,Standard Paving,Reconstruct/Rebuild,2,0,0,0,False,0,,False,False,False,False,,10,18,high,fallback: conversion mangled header (merged cells)
-2025_STUTSMAN-CO-ND_CR-68_NOBID,ND,no_bid,Earthwork Heavy,Grading/Earthwork,2,28,28,0,False,6,base|erosion|grading|mobilization|structures|traffic_control,True,True,True,True,,9,17,high,clean
-2025_WATONWAN-CO-MN_WATLINE-TRAIL_NOBID,MN,no_bid,Complex/Messy,Reconstruct/Rebuild,3,0,0,0,False,0,,False,False,False,False,273,10,18,high,fallback: conversion mangled header (merged cells)
