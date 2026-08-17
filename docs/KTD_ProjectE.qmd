@@ -77,14 +77,14 @@ Its purpose is to enable CSI to independently run, interpret, and maintain the p
 
 | Deliverable | Description | Primary Audience |
 |:---|:---|:---|
-| **Supervised Bidding-Probability Model** | ML model predicting each competitor's probability of bidding on a given project | [TODO: confirm file names, e.g. `03_training/train_*.py`] |
+| **Supervised Bidding-Probability Model** | ML model predicting each competitor's probability of bidding on a given project (`pipelines/ci_model/03_training/train_simple_rule_baseline.py`; fitted weights in `03_training/outputs/simple_rule_baseline_weights.json`) | Analytics |
 | **Rule-Based Benchmark Models** | Distance-based, capacity-based, and historical win-rate-based rules, benchmarked against the ML model via Winner Hit Rate | Analytics |
-| **LLM-Based Report Generator** | Produces competitor-analysis narratives from model outputs (bidding probability + feature importance) | Estimating / Business |
+| **LLM-Based Report Generator** | Produces competitor-analysis narratives from model outputs (bidding probability + feature importance) — command-line tool, see @sec-report-guide | Estimating / Business |
 | **User-Input Path (Top-3 Manual Entry)** | Parallel, explicitly separate pipeline: client manually enters their own top-3 predicted competitors, which get enriched from historical data — NOT the same pipeline as the model-output path | Estimating |
-| **Update Utility — Competitor List** | Add/update/merge company records; fuzzy-match confirmation step for new or ambiguous names | Analytics / Admin |
-| **Update Utility — Pit / PID Location** | [TODO: confirm scope/file] Updates material pit / PID location reference data | Analytics / Admin |
-| **Update Utility — Manual Bid-Result Input** | Structured manual entry of bid results (explicitly not automated email parsing — see @sec-limitations) | Estimating / Admin |
-| **Single Configuration File** | One externalized file holding all parameterizable values: system prompts, model version, thresholds, etc. [TODO: confirm final file name/path] | Engineering / Admin |
+| **Update Utility — Competitor List** | Add/update/merge company records; fuzzy-match confirmation step for new or ambiguous names. Web page: `/competitor-registry` | Analytics / Admin |
+| **Update Utility — Pit / PID Location** | Add/edit/remove material pit locations and ownership. Web page: `/pit-list` | Analytics / Admin |
+| **Update Utility — Manual Bid-Result Input** | Structured manual entry of bid results (explicitly not automated email parsing — see @sec-limitations). Web page: `/bid-results` | Estimating / Admin |
+| **Configuration** | NOT a single file — split between three plain-English prompt files (safe for anyone to edit) and two Python program files (developer-only). See @sec-maintenance, Configuration Authority. | Engineering / Admin |
 | **Knowledge Transfer Documentation** (this document) | Full technical and operational handoff manual | All Audiences |
 
 : Deliverables provided. {#tbl-deliverables}
@@ -229,15 +229,20 @@ New project ──────────────────────�
                                                      │
 CSI estimator's top-3 picks ──► User-Input Path ────┘  (separate — not reconciled with model output)
 
-Update Utilities: competitor list | pit/PID location | manual bid-result input
+Update Utilities (web pages): competitor list | pit/PID location | manual bid-result input
                         │
                         ▼
-                 Single Config File (system prompts, model version, thresholds)
+     Prompt files (system/polish/reflection — plain English, safe to edit)
+     + orchestrator.py / config.py (model version, thresholds — developer-only)
 ```
 
 ## Model-Output Path: ML Model + Rule-Based Benchmarks
 
-[TODO: confirm final algorithm choice(s) and feature set — see @sec-methodology]
+The production model is the 4-feature logistic regression documented in full in @sec-methodology
+(county / type / state / size-fit). The rule-based benchmarks (distance-based, capacity-based,
+historical win-rate-based) run alongside it as first-principles comparison points, also detailed in
+@sec-methodology — see that chapter for the full feature list, fitted weights, and the benchmark
+comparison against alternative models (36-feature logistic, decision tree, SVM, XGBoost).
 
 ## User-Input Path: Client-Entered Top-3 Competitors
 
@@ -247,20 +252,28 @@ This is an **explicit architectural fork**, not a fallback mode of the model-out
 
 ## LLM Report Generator
 
-The report generator takes model outputs (bidding probability + feature importance) [TODO: confirm exact inputs — does it also take user-input-path outputs?] and produces a narrative competitor-analysis report via an LLM call.
-
-[TODO: confirm architecture — agent/orchestrator structure, prompt files, model provider/version]
+The report generator (`pipelines/ci_model/06_reporting/`) takes the model-output path's predictions
+(bidding probability + per-feature log-odds contributions) — it does **not** currently take
+user-input-path (client-entered top-3) output as an input; see the callout above on that being an
+unreconciled, separate fork. It runs as a command-line tool, detailed step by step in
+@sec-report-guide, using model provider Anthropic (`claude-sonnet-4-6`, hardcoded in
+`agent/orchestrator.py`, not user-configurable without editing that file).
 
 | Component | Role |
 |:---|:---|
-| System prompt | [TODO: confirm location — should live in the single config file per the externalization requirement] |
-| Orchestrator / planner / executor / reflector / reporter [TODO: confirm which of these are actually part of the final delivered architecture] | [TODO] |
-| Narrative templates | [TODO] |
+| Planner | Selects which competitors (up to the requested top-N) get a full write-up for this project. |
+| Executor | Computes each selected competitor's bid probability and pulls its supporting stats/log-odds contributions (`tools/predict_and_explain.py`). |
+| Reflector | Mandatory self-critique pass on every drafted narrative — checks threat-label/probability consistency, that every claim is grounded in an actual stat, and no ML jargon leaked through; revises up to twice, flags for human review if still failing (`agent/reflector.py`). Full detail in @sec-methodology, LLM Report Generator Methodology. |
+| Reporter | Assembles the final file (Project Introduction, Competitor List, Deep Dives) — see @sec-output-files for exactly what's in it. |
+| System / polish / reflection prompts | Three plain-English `.txt` files under `06_reporting/prompts/` — the only part of this component non-technical staff can safely edit themselves. See @sec-maintenance. |
 
 : LLM report generator components. {#tbl-report-generator-components}
 
 ::: {.callout-note}
-No custom UI was built for CSI to tweak report generation. All tunable parameters (system prompt, model version, thresholds) live in one config file. See @sec-maintenance for exactly which field to edit for each common change.
+No custom UI was built for CSI to tweak report *generation itself* — it runs from a command line
+(@sec-report-guide), not a web form. The three update-utility web pages are a separate thing: they
+let CSI add/correct data the reports draw from, not change how a report is written. See
+@sec-maintenance for exactly what can and can't be self-edited.
 :::
 
 ## Update Utilities
@@ -342,7 +355,7 @@ test-split projects where the actual winning bidder lands in the top 10 ranked c
 | 36-feature logistic regression | 36 (adds pit-distance, per-material scope-match, recency windows) | 61.7% |
 | Linear SVM | 36 | 59.6% |
 | Shallow decision tree (max depth 5) | 36 | 56.7% |
-| XGBoost | 36 | [TODO: confirm final number for external use if reporting XGBoost to client] |
+| XGBoost | 36 | 64.4% |
 | Random ranking baseline | — | 5.4% |
 
 The 32 additional engineered features in the 36-feature model buy roughly **4 percentage points**
@@ -360,9 +373,33 @@ in the repository purely as comparison/evaluation artifacts (`03_training/output
 stays checkable, not because they were abandoned mid-build.
 :::
 
-[TODO: confirm these are the final numbers approved for external/client-facing use before this
-document goes out — see `pipelines/ci_model/experiments/four_feature_swap/` for the full
-comparison methodology and re-run scripts if the underlying data changes before delivery.]
+::: {.callout-warning}
+**Data-integrity note — read before treating this table as final.** The rows above are not all
+drawn from the same evaluation run, and this needs to be resolved before external/client-facing
+use:
+
+- **Decision tree / SVM / XGBoost** (56.7% / 59.6% / 64.4%) come from the 243-project filtered-pool
+  comparison (`04_evaluation/outputs/model_comparison_p10_winner_hitrate.csv` and
+  `experiments/first_principles_rules/outputs/all_methods_winner_hit_rate_comparison.csv` — the two
+  agree to 4 decimal places on every model they share, confirming they're the same run).
+- **The 4-feature production row (57.4%)** comes from a DIFFERENT run — the 209-project `test` split
+  in `04_evaluation/outputs/winner_hit_rate_metrics.csv` (its `simple_rule_based` row) — because that
+  is the only file in the repo that evaluates the real, currently-fitted production weights rather
+  than the `3.0/2.0/1.0/1.0` illustrative fallback. The 243-project file's own `simple_rule_based`
+  row (55.3%) uses that fallback, not the real weights, so it is NOT a valid substitute here.
+- **Neither file has a decision-tree/SVM/XGBoost row evaluated on the SAME 209-project split as the
+  production number**, and the 209-project file's own logistic regression (62.7%) and XGBoost
+  (67.5%) figures — which WOULD be pool-matched to the production row — are higher than the 243-pool
+  figures used above (61.1%/64.4%) and were not used in this table.
+- The 36-feature logistic regression figure above (61.7%) does not exactly match either source
+  (61.1% in the 243-pool file, 62.7% in the 209-pool file) — likely a transcription slip from an
+  earlier run; needs to be re-pulled from source before delivery, not assumed correct as printed.
+
+**Before this table goes external**, either (a) re-run decision tree/SVM/XGBoost on the same
+209-project split the real production model was evaluated on, or (b) re-fit and re-evaluate the real
+production weights on the 243-project split, so every row in one table is pool-matched. See
+`pipelines/ci_model/experiments/four_feature_swap/` for the comparison harness and re-run scripts.
+:::
 
 ## Rule-Based Benchmark Models
 
@@ -371,18 +408,84 @@ Three first-principles, single-factor rules were built specifically to test whet
 | Rule | Definition | Known Coverage Caveat |
 |:---|:---|:---|
 | Distance-based | Ranks competitors by distance from their nearest owned material pit to the project site | Pit-ownership location data currently covers a subset of competitors and a subset of geography — competitors without a recorded pit location cannot be ranked by this rule alone |
-| Capacity-based | [TODO: confirm which variant was selected for the final deliverable — project-material-scale fit vs. raw historical bid volume, or both] | |
-| Historical win-rate-based | Candidate pool restricted to same-state history only (no cross-state selection); scored by win rate for the project's type within that state | |
+| Capacity-based | Ranks competitors by `log(1 + total historical bid dollar volume)` as of the project's bid date — raw historical scale, no project-fit involved | None specific to this rule; every competitor with any bid history gets a score |
+| Historical win-rate-based | Candidate pool restricted to same-state history only (no cross-state selection); scored by win rate for the project's type within that state | Companies with no in-state bid history cannot be scored by this rule |
 
 : Rule-based benchmark definitions. {#tbl-rule-definitions}
 
 ::: {.callout-note}
-[TODO: once final numbers are approved for external use] Early experimentation found that no single rule came close to CSI's stated ~90% expectation on its own — the composite/ML approaches meaningfully outperformed any individual factor. See @sec-key-findings.
+**Two capacity-based variants were actually tested, not one — this table reports the winner.**
+`pipelines/ci_model/experiments/first_principles_rules/` built and evaluated TWO single-factor
+capacity rules on the identical full-universe (no pre-filtering) pool, 243 projects:
+
+| Variant | Definition | Winner Hit Rate@10 |
+|:---|:---|---:|
+| **`capacity_volume` (used above)** | `log(1 + total historical bid dollar volume)`, pure scale, no project-fit | **25.0%** |
+| `capacity_size_fit` (rejected) | Company's historical average material quantity vs. this project's required quantity (log-gap fit score, only over materials the project actually needs, ≥3 prior bids/material required) | 1.3% |
+
+`capacity_size_fit` was rejected on real evidence, not a coin flip: an early version scored *worse
+than random* (winner's average rank percentile 0.63 vs. 0.5 random) due to a `NaN`-handling bug
+that silently scored most of the ~700-company pool off missing-material columns; after fixing that
+bug the rank percentile improved to 0.37 (better than random) but the Hit Rate@10 stayed at 1.3% —
+matching a project's material scale to a company's historical average is a materially weaker
+"who wins" signal than raw company scale. Full bug writeup and re-run script:
+`pipelines/ci_model/experiments/first_principles_rules/README.md`.
+
+**Confirm before delivery**: the Deliverables table (@tbl-deliverables) lists one "capacity-based"
+rule, singular. `capacity_volume` is what this document assumes ships as that rule (it is the one
+carried into the comparison table below and is the only variant the codebase's own README calls
+"the strongest single factor") — but that is this document's inference from the evaluation results,
+not a recorded team decision. Confirm this is in fact what CSI receives, or state explicitly if both
+variants ship.
+
+**On the ~90% question**: none of the four single-factor rules came remotely close to CSI's stated
+~90% expectation on their own —
+
+| Rule | Winner Hit Rate@5 | @10 | @20 |
+|:---|---:|---:|---:|
+| `capacity_volume` | 17.9% | 25.0% | 29.9% |
+| Distance-based | 14.7% | 15.2% | 15.2% |
+| Historical win-rate-based | 1.4% | 1.8% | 3.2% |
+| `capacity_size_fit` (rejected variant) | 0.0% | 1.3% | 5.8% |
+
+All four sit well below the composite 4-feature production model (39.7%/57.4%/68.4% at @5/@10/@20,
+§Supervised ML Model above) and the ML models. See @sec-key-findings for the full discussion of why
+no single factor reproduces CSI's intuition. Source:
+`pipelines/ci_model/experiments/first_principles_rules/outputs/summary.csv`.
 :::
 
 ## LLM Report Generator Methodology
 
-[TODO: confirm prompt design, inputs (probability + feature importance), and any reflection/polish step in the final delivered pipeline]
+The narrative-writing step (`06_reporting/agent/`) is a small three-stage pipeline that turns the
+model's numeric output into a plain-English paragraph per competitor — it never re-scores or
+re-ranks anything; scoring is finished before this stage ever runs.
+
+1. **Inputs — probability + feature importance, not raw model internals.** For each competitor,
+   `tools/predict_and_explain.py` computes the bid probability and a per-feature **log-odds
+   contribution** (`raw_contributions`), then splits those into `top_reasons_to_bid` /
+   `top_reasons_not_to_bid` (sorted descending/ascending, zero-contribution features excluded). Only
+   these — the probability, the threat level (HIGH/MEDIUM/LOW) derived from it, and the named top
+   reasons — are ever handed to the LLM. The model's coefficients, feature names in raw form, and any
+   other internals never reach the prompt.
+2. **Drafting — one fixed system prompt, one per-competitor user prompt.**
+   `06_reporting/prompts/system_prompt.txt` sets hard rules the model must follow for every
+   narrative: no ML/statistics jargon ("no 'logistic regression', 'coefficients', 'z-scores',
+   'features', 'model output'"), ground every claim in the specific signals provided, don't add
+   unlisted information, and treat probability as a plain likelihood band (>70% high, 40–70%
+   moderate, <40% unlikely). `06_reporting/prompts/polish_prompt.txt` then feeds in the competitor
+   name, bid likelihood, threat level, and a bullet-point rendering of the top signals
+   (`tools/generate_narrative.py`), asking for 2–3 plain-language sentences referencing specific
+   numbers from those signals only.
+3. **Reflection/polish — a mandatory self-critique pass, not optional.**
+   `06_reporting/agent/reflector.py::reflect()` runs a second LLM call
+   (`prompts/reflection_prompt.txt`, `temperature=0.0`) against every drafted narrative, checking
+   five things: threat-level/probability consistency (HIGH requires ≥70%, MEDIUM 40–69%, LOW <40%),
+   every claim grounded in an actual signal value, no ML jargon, no logical contradictions, and every
+   scope-match claim (paving/grading/structure/etc.) actually present in the signals list. A failed
+   check returns a revised narrative, which is re-checked; up to `MAX_REVISIONS = 2` attempts. If
+   still failing after 2 revisions, the narrative is flagged `reflection_passed: False` for human
+   review rather than shipped silently — this failure mode has an explicit code path, not a bare
+   assumption that the LLM got it right.
 
 ## Winner Hit Rate as the Benchmark Metric
 
@@ -396,44 +499,216 @@ Winner Hit Rate depends heavily on candidate pool size and definition. A rule ev
 
 # Output Files and Interpretation Guide {#sec-output-files}
 
+::: {.callout-note}
+**How to read this chapter if you've never opened a code file before.** Everything below describes
+a single result: one plain-text report about one project, sitting in one folder on the computer that
+runs this system. You do not need any programming knowledge to open or read it — you need to know
+which folder to look in and what the sections inside mean. That's what this chapter is for.
+:::
+
 ## Output File Inventory
 
-[TODO: finalize once the production output file list is frozen]
+Every time the report generator runs (see @sec-report-guide), it produces **one file** — not a
+dashboard, not a database, not something you check inside the web browser. That file lands in this
+folder on disk:
 
-| Output File | Unit | Created By | Purpose |
+```
+pipelines/ci_model/06_reporting/outputs/reports/
+```
+
+| Output File | One File Per | Created By | How to Open It |
 |:---|:---|:---|:---|
-| [TODO] | | | |
+| `bid_report_<project key>.md` | One project | Running the report generator (default format) | Any plain-text editor (Notepad, TextEdit), or a free Markdown viewer. It is readable as-is even in a plain text editor — the `#`/`##`/`-` symbols are just section markers, similar to how you might use ALL CAPS or dashes in an email to organize it. |
+| `bid_report_<project key>.docx` | One project | Running the report generator with the `--format docx` option | Microsoft Word — opens like any other Word document. |
 
 : Output file inventory. {#tbl-output-files}
 
+The "project key" in the filename is the same identifier used to run the report — see
+@sec-report-guide. Each run creates a new file (or overwrites the old one with the same name);
+nothing is deleted automatically, so old reports for the same project stay unless someone removes
+them by hand.
+
+::: {.callout-important}
+**This is a separate thing from the live web app.** If your team also uses the chat-based web app
+(where you drop in a PDF plan and chat with it), that produces its OWN report, shown directly in
+your browser — it does not create or read these `.md`/`.docx` files, and this generator does not
+touch what you see in the browser. The two are related in *purpose* (both analyze competitors for a
+project) but are two separate tools with two separate outputs. Do not expect a file from one to show
+up in the other.
+:::
+
 ## Key Field Dictionary
 
-[TODO: populate once output schema is frozen — e.g. predicted probability, rule score, winner_hit_rate flags, feature importance fields]
+Opening the file, you'll find it organized top to bottom like this (matching what a real generated
+report actually contains — not a hypothetical schema):
+
+| Section (as it appears in the file) | What's in it, in plain terms |
+|:---|:---|
+| **Bid Intelligence Report** (title) + project line | Project ID, county/state, the bid date, and when this report was generated. |
+| **PROJECT INTRODUCTION** | The project's location, its "Work Type" (a plain-English category like *Mill & Overlay* or *Reconstruct / Rebuild* — see the small reference table right below it in the same file for what each type means), coordinates, and a note on nearby material pits (public-access and, separately, any private pits owned by a listed competitor). |
+| **COMPETITOR LIST** | Two groups: **Priority Competitors** (companies CSI already tracks as known, frequent competitors) and **Discovery Competitors** (companies the system found in the historical data as plausible bidders, that aren't on CSI's known-priority list). Both groups are just names at this point — the detail is below. |
+| **Deep Dives** (one block per competitor, under a `###` heading with the company name) | Five to six plain-language stats for that one company, always in this order: |
+| — Bid Rate | How often this company bids at all, out of everything it *could* have bid on (e.g. "11% historically — highly selective"). |
+| — Recency | Whether they've bid recently (e.g. "actively bidding — last bid within 30 days") or gone quiet. |
+| — Capacity | Whether their typical workload this season looks lighter or heavier than usual, if there's enough history to say. |
+| — Experience | How many times they've bid this *exact* type of project before. |
+| — Win Rate (by project type) | Their win percentage on this project type, with the raw count (e.g. "26% — 14 wins from 53 Mill & Overlay bids"). |
+| — Win Rate (by county) | Same, but narrowed to this specific county — often shows "insufficient data" if there have been fewer than 3 bids there, which is intentional (see below), not a bug. |
+| — *(LLM-enhanced runs only, see @sec-report-guide)* Bid Likelihood, Threat Level, and a 2–3 sentence written explanation | A % likelihood this company bids, a HIGH/MEDIUM/LOW label, and a short plain-English paragraph explaining why — written by an AI model, always grounded in the stats immediately above it, never introducing a number that isn't already in this same file. |
+
+: Key field dictionary. {#tbl-key-fields}
 
 ## Recommended Interpretation Rules
 
-[TODO — draft once findings are finalized, following the reference doc's numbered-rules pattern, e.g. "do not treat rule-based score as a calibrated probability," "check candidate pool size before comparing hit rates," etc.]
+1. **"Insufficient data" is the system being honest, not broken.** When a stat says "fewer than 3
+   bids — insufficient data," that's a deliberate floor: the system refuses to state a win rate off
+   1 or 2 data points because that number would be meaningless (a company that bid once and won
+   would otherwise show "100% win rate," which is misleading). Read this the same way you'd read a
+   blank cell in an Excel pivot table with too few rows to summarize — it means "not enough history,"
+   not "zero."
+2. **A HIGH/MEDIUM/LOW threat label and its % likelihood always agree, by rule, not by chance.**
+   HIGH always means ≥70% likelihood, MEDIUM 40–69%, LOW under 40% — a second AI pass specifically
+   checks this consistency on every report before it's finalized (see @sec-report-guide's "Reflection
+   Pass"). If you ever see a label that doesn't match its own percentage, treat that report as
+   something to flag, not something to trust.
+3. **Priority vs. Discovery is not a ranking of importance.** "Priority" means CSI already has this
+   company flagged as a known competitor; "Discovery" means the system found supporting bid history
+   for them but they aren't on that known list yet. A Discovery competitor can still have a higher
+   bid likelihood than a Priority one — read the individual stats, not just which group a name is
+   filed under.
+4. **A written narrative sentence is an explanation of the numbers above it, not a separate opinion.**
+   Per the system's own writing rules (@sec-report-guide), it is not allowed to introduce any claim
+   that isn't already backed by one of the stats in that same deep-dive block. If a sentence seems to
+   claim something the stats don't support, that's worth flagging for review — it should not happen
+   by design, but "should not happen by design" is not the same guarantee as "cannot happen."
+5. **This is one project's report, not a season-wide comparison.** The stats inside are all scoped
+   to the one project named at the top. Comparing a "Win Rate" number from one project's report
+   against a different project's report is comparing two different scopes (different work types,
+   different counties) and will not mean what it looks like it means.
 
 \newpage
 
 # Report Generator User Guide {#sec-report-guide}
 
+::: {.callout-important}
+**Read this before anything else in this chapter.** Unlike the three update tools in
+@sec-maintenance (which are ordinary web pages — click a button, fill in a box, exactly like
+updating a spreadsheet through a form), running the report generator today means typing an exact
+line of text into a "Terminal" or "Command Prompt" window and pressing Enter — the same kind of
+black window a software developer works in, not a web page. **This is not something we recommend a
+first-time, non-technical user attempt alone.** If something is typed slightly wrong, the result is
+a page of red technical error text (shown as-is below, not simplified), not a friendly "please check
+this field" message the way Excel or a web form would show you.
+
+**Our recommendation**: during the transition window, CSI should designate one person — whoever is
+most comfortable following exact, copy-pasteable instructions on a computer (even someone with no
+programming background can do this if they follow the steps below exactly and don't improvise) — as
+the person who runs this tool. Steps below are written to be followed exactly, character for
+character, by that person.
+:::
+
 ## How to Run the Report Generator
 
-[TODO: confirm the actual invocation — CLI command, required inputs, expected runtime]
+**What you need before you start**: the exact "project key" for the project you want a report on —
+a text ID that looks like `MN_STEARNS_CO_MELROSE_2023-08-03` (STATE _ COUNTY _ CITY _ DATE). There is
+currently no search box for this — it has to be looked up by opening
+`data/processed/projects.csv` (a spreadsheet-style file — it can be opened directly in Excel) and
+finding the row for the project you want, then copying its `project_natural_key` column value
+exactly.
+
+**The exact command** (this whole block, typed or pasted as one line, from the very top folder of
+the project — ask your technical contact/IT to confirm you're in the right folder first if unsure):
+
+```bash
+python pipelines/ci_model/06_reporting/agent/orchestrator.py \
+  --project-key MN_STEARNS_CO_MELROSE_2023-08-03 \
+  --predictions "pipelines/ci_model/03_training/outputs/ranking_predictions.csv" \
+  --model "pipelines/ci_model/03_training/outputs/simple_rule_baseline_weights.json" \
+  --registry "pipelines/ci_model/01_candidates/outputs/competitor_name_registry - name_variants.csv"
+```
+
+Replace only the text after `--project-key` with your own project's key — do not change anything
+else in the line, including the quotation marks.
+
+::: {.callout-warning}
+**Do not omit the `--predictions`/`--model`/`--registry` parts to "keep it simple."** The tool has a
+built-in fallback that LOOKS like it should work without them, but that fallback points at a folder
+that does not actually exist in this delivery — running the shorter version WILL fail with a
+`FileNotFoundError`. Always include all four lines above.
+:::
+
+What happens next depends on one thing: whether an Anthropic API key is set up on this computer.
+
+- **If it is set up**: the tool takes roughly a few minutes per report (it's contacting an AI
+  service, one call per competitor, so more competitors = more time) and produces a report with
+  full written explanations for each competitor.
+- **If it is not set up** (or CSI has chosen to run without one): the tool automatically falls back
+  to a faster, no-AI version — same facts and numbers, just without the written explanation
+  sentences — and finishes in seconds. It tells you this is happening; you do not need to do
+  anything differently.
+
+**What success looks like** — you should see something like this scroll by in the window, ending
+with a line telling you exactly where the file was saved:
+
+```
+============================================================
+  CSI Bid Intelligence Agent
+  Project: MN_STEARNS_CO_MELROSE_2023-08-03
+============================================================
+  Tier 1 (priority): 25  |  Tier 2 (discovery): 13
+[1/4] Planner — selecting top 3 competitors...
+[2/4] Executor — running predictions and narratives...
+[3/4] Reflector — quality checking narratives...
+[4/4] Reporter — assembling report...
+============================================================
+  Report saved: .../pipelines/ci_model/06_reporting/outputs/reports/bid_report_<your project key>.md
+============================================================
+```
+
+**What failure looks like**: a block of red/orange text ending in a line starting with an error type
+(most commonly `FileNotFoundError` — one of the four lines above was typed wrong or a file has moved
+— or `ValueError: No rows found for project_natural_key=...` — the project key was mistyped or
+doesn't exist in the data). There is no friendly rewording of these messages today; if you see one,
+double-check the project key against `projects.csv` first, and if it still fails, that's the point
+to bring in technical support rather than keep guessing at the command.
 
 ## Report Sections
 
-[TODO: confirm what the generated narrative report actually contains — predicted competitors, probability, feature importance explanation, etc.]
+See @tbl-key-fields in @sec-output-files for the full field-by-field breakdown of what's inside the
+finished file — Project Introduction, the Priority/Discovery competitor list, and a Deep Dive block
+per competitor (bid rate, recency, capacity, experience, win rate, and — only when the AI-written
+version ran — a likelihood percentage, a HIGH/MEDIUM/LOW label, and a short written explanation).
 
 ## Recommended Review Workflow
 
-[TODO]
+1. Confirm the project key matched the project you actually meant (check the county/date printed at
+   the top of the finished report against what you expected).
+2. Read the Priority Competitors first — these are the names CSI already watches closely.
+3. For each HIGH-threat competitor (or, in the no-AI version, each competitor with a high recent bid
+   rate and recent activity), sanity-check the stats against what your own team already knows about
+   that company. The system is built to explain itself with real numbers specifically so this
+   sanity-check is possible — if a claim doesn't match what you know, that's useful signal, not
+   something to silently override.
+4. Treat "insufficient data" entries as missing information, not as a "no" answer (see
+   @sec-output-files, Recommended Interpretation Rules).
 
 ## Interpretation Warnings
 
-- The report is generated by an LLM from model outputs; it should be read as an explanatory narrative, not as an independent source of truth beyond what the underlying model/rule scores already say.
-- [TODO: any other warnings specific to the final system]
+- The written narrative sentences (when present) are generated by an AI model reading the numeric
+  stats already in the same report — read them as a plain-language SUMMARY of those numbers, not as
+  a separate, independently-researched opinion. Everything the narrative claims should already be
+  traceable to a number sitting right above it in the same competitor's block.
+- A second, automatic AI pass checks every narrative for consistency (does the HIGH/MEDIUM/LOW label
+  actually match the stated likelihood percentage? does every claim trace back to a real number?)
+  before the report is finalized — but this is a quality check, not a guarantee. If something reads
+  as inconsistent or unsupported, flag it rather than assume the check must have caught it.
+- This tool and the separate, browser-based plan-upload chat tool (if CSI also uses that) are two
+  different systems that do not share outputs — see the callout in @sec-output-files.
+- The report reflects the historical bid data files this tool reads (`data/processed/`,
+  `pipelines/ci_model/*/outputs/`) as of whenever those files were last regenerated. **Entering a
+  new bid result through the web update tool (@sec-maintenance) does NOT automatically flow into
+  this report generator** — see the data-flow warning in @sec-maintenance before assuming a recent
+  entry will show up here.
 
 \newpage
 
@@ -495,61 +770,139 @@ The tentative, qualitative observation across this preliminary experimentation w
 
 ## Configuration Authority
 
-The single config file at [TODO: confirm final path] is the authoritative source for all tunable parameters: system prompts, model version, and rule/threshold values. There is intentionally no custom UI for editing these — CSI edits the file directly, using the field-by-field guide below.
-
 ::: {.callout-important}
-**No custom configuration UI was built.** This was a deliberate design decision, not an omission. To change a parameter, edit the named field in the config file directly — see the table below and Appendix B for the full parameter dictionary.
+**Correction to how this was originally scoped**: this document previously promised "one single
+config file" for everything. That turned out not to match what was actually built. There are, in
+practice, **two different kinds of settings, in different kinds of files, needing different levels
+of comfort with computers to touch**:
+
+| Kind of setting | Where it lives | Can a non-technical person safely edit it? |
+|:---|:---|:---|
+| The wording the AI is instructed to write reports with (tone, jargon rules, what counts as HIGH/MEDIUM/LOW) | Three plain-English `.txt` files — see table below | **Yes.** These are literally sentences of instructions, no code. Open in Notepad/TextEdit, edit the English, save. |
+| Which AI model version is used, and the numeric thresholds that decide which competitors are even eligible to be scored | `pipelines/ci_model/06_reporting/agent/orchestrator.py` (model version) and `pipelines/ci_model/shared/config.py` (thresholds) | **No.** These are Python program files. A misplaced comma or quotation mark breaks the whole tool with a technical error, not a friendly warning. Route any change here through a technical contact. |
+
+There is no custom point-and-click settings screen for either category — see the update tools in
+this chapter for the parts of the system that DO have a proper web screen (those are a completely
+separate set of things: adding competitors, pits, and bid results, not these settings).
 :::
 
 ## Configuration Parameters
 
-[TODO: populate once config file is frozen — include a "how to change X" row for each common change the advisor flagged, e.g.:]
-
-| Common Change | File / Field to Edit |
-|:---|:---|
-| Change the LLM system prompt | [TODO: e.g. `SYSTEM_PROMPT` in config file] |
-| Change the LLM model version | [TODO] |
-| Change rule-based score thresholds | [TODO] |
-| Change candidate pool filtering rules | [TODO] |
+| Common Change | File to Edit | Who Should Do It |
+|:---|:---|:---|
+| Change how the AI is told to write (tone, banned jargon, what counts as a "likely" bid) | `pipelines/ci_model/06_reporting/prompts/system_prompt.txt` | Anyone — plain English text file |
+| Change the wording of the per-competitor writeup instructions | `pipelines/ci_model/06_reporting/prompts/polish_prompt.txt` | Anyone — plain English text file |
+| Change what the AI's self-check step looks for | `pipelines/ci_model/06_reporting/prompts/reflection_prompt.txt` | Anyone — plain English text file |
+| Change which AI model version is used | `pipelines/ci_model/06_reporting/agent/orchestrator.py`, the line reading `_LLM_MODEL = "claude-sonnet-4-6"` | Technical contact only — this is inside program code |
+| Change which competitors are eligible to be scored at all (lookback windows, recency windows) | `pipelines/ci_model/shared/config.py`, the `V3_*` values near the top of the file | Technical contact only — tied to how the trained model itself was built; changing without understanding the model risks silently breaking predictions |
 
 : How to make common configuration changes. {#tbl-common-config-changes}
 
 ## Handling New Competitors, Mergers, and Name Variants
 
-This is one of the most common maintenance tasks CSI will need to perform independently. Process:
+**This one has a real web page — no code, no command line.** Go to the **Competitor names** page
+(`/competitor-registry` in the web app). It works like a contact list with a merge function:
 
-1. **New competitor appears in a bid.** Run the competitor-list update utility. If the name doesn't fuzzy-match an existing entity above the confirmation threshold, it is added as a new entity — a human must confirm this before it's finalized.
-2. **Company merger or acquisition.** Use the competitor-list update utility's merge function to combine two existing entities into one canonical `competitor_unit_id`, preserving historical bid history under the surviving entity.
-3. **Name variant (rebrand, abbreviation, typo in source data).** Same fuzzy-match confirmation workflow — confirm it's a variant of an existing entity rather than creating a duplicate.
+1. **New competitor appears in a bid.** Click **"Add competitor"** (top right), type the company's
+   name into **"Canonical company name"** (optionally tag it if it's one of CSI's known top
+   competitors), and save. If a very similar name already exists, the page will warn you before you
+   add a duplicate — read that warning before clicking through it.
+2. **Company merger, acquisition, or rebrand.** Select the old name(s), type the correct/surviving
+   company name into the **"Target canonical name"** box, and click **"Consolidate"** — this merges
+   their bid history under the one name going forward, it does not delete history.
+3. **Wrong entry, typo, or a name that should never have been added.** Click the trash-can icon on
+   that row. You'll be asked to confirm ("Confirm remove" / cancel) before anything is actually
+   deleted — nothing is removed on the first click.
 
 ::: {.callout-important}
-Skipping the confirmation step (or bulk-importing names without review) risks silently fragmenting one company's history across multiple entity IDs, which will quietly degrade both the ML model's features and the rule-based benchmarks' historical counts. [TODO: confirm exact utility name/command]
+Skipping the confirmation prompts, or adding many names at once without reviewing each one, risks
+one company's real bid history getting split across multiple different name entries. Every stat this
+system produces for that company (bid rate, win rate, capacity) would then be based on only part of
+their real history, and there would be no error message telling you this happened — it would just
+quietly look like a smaller, less active company than it really is. Take the extra ten seconds on
+each confirmation prompt.
 :::
 
 ## Pit / PID Location Updates
 
-[TODO: confirm scope and process — how does CSI add a new pit or correct a PID location?]
+Also a real web page: **Aggregate pit locations** (`/pit-list`). To add a pit: click **"Add pit"**,
+enter its **Latitude**/**Longitude** (county and state fill in automatically once you enter
+coordinates), pick who owns/has access to it, and save. There's also a **"Find nearest pits"** panel
+if you want to check what's near a specific project or address before adding anything new. Editing
+an existing pit uses the pencil icon on its row; deleting uses the trash-can icon, with the same
+confirm-before-delete pattern as the competitor page above.
 
 ## Manual Bid-Result Input Workflow
 
-[TODO: confirm exact process/tool for entering a bid result — who enters it, how often, what fields are required]
+Also a real web page: **Bid results** (`/bid-results`). Two ways to use it:
+
+- **Editing an already-recorded result**: click directly on the cell you want to change in the
+  table — it edits in place, like a spreadsheet cell.
+- **Entering results for a brand-new project** (one with no results recorded yet): the page shows a
+  list of such projects on the left — search for it, click it, then for each company that bid, type
+  the **"Bidder name"** and **"Bid amount"**. Click **"Add bidder"** to add more rows as needed. The
+  page automatically shows a trophy icon on whichever row currently has the lowest bid amount (that's
+  who it will record as the winner) — check that this matches what you actually know before saving.
+  Click **"Save results"** when done.
+
+::: {.callout-warning}
+**Important — this does NOT currently feed into the report generator described in @sec-report-guide,
+even though it may look and feel like it should.** Entries made on this page are saved live to CSI's
+shared database, and DO immediately affect the numbers shown in the browser-based plan-upload chat
+tool (if CSI uses that tool). But the separate, file-based report generator in @sec-report-guide
+reads its own historical-data files, which are a **different copy** that is not automatically
+refreshed from this page. A newly entered bid result will not show up in a report generated the way
+@sec-report-guide describes until someone with technical access re-exports/regenerates those files.
+Ask your technical contact how often that refresh happens, or request it explicitly before relying on
+a just-entered result showing up in a generated report. **The competitor-names page above is the one
+exception** — corrections made there DO have a working (if manual) pull-back process into the report
+generator's data; bid results and pit locations do not have that yet.
+:::
 
 ## When to Rerun the Pipeline
 
-Rerun when:
+Re-run the report generator (@sec-report-guide) when:
 
-- new bid data is added;
-- a competitor-list, pit/PID, or bid-result update has been made;
-- any config parameter is changed;
-- [TODO: any other triggers specific to CSI's operating cadence]
+- You need an updated report for a project and it's been a while since the last one was generated
+  for it.
+- Someone has confirmed (with your technical contact, per the warning above) that the underlying
+  historical-data files have actually been refreshed with new bid results, pit locations, or
+  competitor-name corrections — re-running before that refresh happens will just reproduce the same
+  report with the same old data.
+- A technical contact has changed one of the settings in @tbl-common-config-changes.
+
+Updating the three web pages above (competitor names, pit locations, bid results) does **not**
+itself require re-running anything — those changes save immediately when you click save/confirm.
 
 ## Troubleshooting Guide
 
-[TODO: build once common failure modes are known — follow the reference doc's Symptom / Likely Cause / Recommended Fix table pattern]
+| Symptom | Likely Cause | What To Do |
+|:---|:---|:---|
+| Red/orange error text ending in `FileNotFoundError` when running the report generator | One of the file-path lines in the command was typed differently than shown in @sec-report-guide (a changed quote mark, a missing dash) | Re-copy the exact command block from @sec-report-guide rather than retyping it by hand |
+| Red/orange error text ending in `ValueError: No rows found for project_natural_key=...` | The project key doesn't match any row in `data/processed/projects.csv` | Re-open that file and re-copy the `project_natural_key` value exactly — do not type it from memory |
+| Report generated with no written explanation sentences, just numbers | This is expected, not an error, when no AI service key is configured on the machine — the tool says so and falls back automatically | Nothing to fix unless CSI specifically wants the written narrative version; ask your technical contact to confirm the AI service key is set up |
+| A newly entered bid result / pit / competitor correction isn't showing up in a generated report | The web pages and the report generator read different copies of the data (see the warning above) | Confirm with your technical contact whether/when the underlying files were refreshed |
+| A competitor's stats look wrong (win rate, bid rate) | Their bid history may be split across two different name entries | Check the Competitor names page (`/competitor-registry`) for a near-duplicate name that should be merged |
+| Any error message not covered above | — | Do not guess/retry repeatedly — bring the exact error text to a technical contact |
+
+: Troubleshooting guide. {#tbl-troubleshooting}
 
 ## Recommended Review Process
 
-[TODO: draft a numbered pre-use QA checklist, following the reference doc's pattern]
+Before treating any generated report as ready to act on:
+
+1. Confirm the project name/county/date at the top of the report matches the project you meant to
+   check.
+2. If any bid results or pit corrections were recently entered on the web pages, confirm with your
+   technical contact that they were pulled into the report generator's data before this run — see
+   the warning above.
+3. Skim the Priority Competitors' deep dives against what your own team already knows — flag, don't
+   silently accept, anything that looks off (@sec-output-files, Recommended Interpretation Rules).
+4. If the report includes AI-written explanation sentences, spot-check at least one against the
+   numbers directly above it in the same block, to confirm the sentence isn't claiming anything the
+   numbers don't support.
+5. Only after 1–4: use the report to inform a bid/no-bid discussion. Per @sec-limitations, this
+   system is decision **support**, not a decision-maker — the final call is still CSI's.
 
 \newpage
 
@@ -603,17 +956,18 @@ The rule-based and ML models are evaluated against who actually bid historically
 
 [TODO: finalize once the production file list is frozen — draft below based on known repo structure, confirm before treating as final]
 
-| File | Purpose |
-|:---|:---|
-| [TODO: config file path] | Authoritative configuration |
-| `03_training/train_simple_rule_baseline.py` | **Production** bidding-probability model (4-feature logistic regression) — the file actually read by the live report pipeline (`apps/api/backend/config.py: CI_MODEL_JSON`) |
-| Other `03_training/train_*.py` scripts (36-feature logistic, SVM, decision tree, XGBoost) | Comparison/evaluation models only — not read by the live pipeline; kept so the choice of the simpler production model stays checkable (see @sec-methodology) |
-| Rule-based benchmark scripts | Distance / capacity / historical win-rate rules |
-| `06_reporting/agent/*` | LLM report generator orchestration [TODO: confirm which files ship in the final handoff vs. remain internal] |
-| `06_reporting/prompts/*` | [TODO: should be superseded by single config file per externalization requirement — confirm] |
-| Competitor list update utility | Add/update/merge competitor records |
-| Pit/PID location update utility | [TODO] |
-| Manual bid-result input utility | [TODO] |
+| File | Purpose | Non-technical-editable? |
+|:---|:---|:---|
+| `pipelines/ci_model/shared/config.py` | Candidate-eligibility thresholds, train/validation split dates | No — Python |
+| `pipelines/ci_model/06_reporting/agent/orchestrator.py` | LLM report generator entry point; also hardcodes the AI model version (`_LLM_MODEL`) | No — Python |
+| `03_training/train_simple_rule_baseline.py` | **Production** bidding-probability model (4-feature logistic regression) — the file actually read by the live report pipeline (`apps/api/backend/config.py: CI_MODEL_JSON`) | No — Python |
+| Other `03_training/train_*.py` scripts (36-feature logistic, SVM, decision tree, XGBoost) | Comparison/evaluation models only — not read by the live pipeline; kept so the choice of the simpler production model stays checkable (see @sec-methodology) | No — Python |
+| `pipelines/ci_model/experiments/first_principles_rules/rules.py` | Distance / capacity / historical win-rate benchmark rule implementations | No — Python |
+| `06_reporting/agent/{planner,executor,reflector,reporter}.py` | LLM report generator's four stages — see @sec-methodology and @tbl-report-generator-components | No — Python |
+| `06_reporting/prompts/{system_prompt,polish_prompt,reflection_prompt}.txt` | The AI's writing instructions — see @sec-maintenance | **Yes — plain English text files** |
+| `/competitor-registry` (web page) | Add/update/merge competitor records — see @sec-maintenance | Yes — web form |
+| `/pit-list` (web page) | Add/edit/remove material pit locations — see @sec-maintenance | Yes — web form |
+| `/bid-results` (web page) | Manual bid-result entry — see @sec-maintenance (note the data-flow caveat there) | Yes — web form |
 
 : Code file inventory. {#tbl-code-inventory}
 
