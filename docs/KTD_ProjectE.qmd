@@ -514,6 +514,26 @@ The single config file at [TODO: confirm final path] is the authoritative source
 
 : How to make common configuration changes. {#tbl-common-config-changes}
 
+## Required API Keys and Credentials {#sec-api-keys}
+
+Before the pipeline can run on CSI's own infrastructure, three credentials must be provisioned under **CSI's own accounts** — not reused from the development team's:
+
+| Key | Purpose | Required For | Where to Set It |
+|:---|:---|:---|:---|
+| `ANTHROPIC_API_KEY` | Cloud LLM API key that powers the report generator's narrative-generation calls | LLM Report Generator | Repo-root `.env` (canonical copy) [TODO: confirm final path in the frozen handoff package] |
+| `SUPABASE_TEAM_DB_URL` | Postgres connection string (DSN) for the historical bid-data database | Model-output path, rule-based benchmarks, and all update utilities that read/write historical data | Repo-root `.env` (canonical copy — must exist in exactly **one** place; the app warns at startup if it finds a duplicate elsewhere) |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Public, HTTP-referrer-restricted Google Maps/Geocoding key | Pit/PID location update utility's map view and coordinate lookups | The web app's own env file (`apps/web/.env.local`) — separate from the two keys above because this one is shipped to the browser, not read server-side |
+
+: Required API keys and credentials. {#tbl-api-keys}
+
+::: {.callout-important}
+**These must be CSI's own credentials, not the development team's.** [TODO: confirm final config file field names and paths match the production deliverable — the locations above reflect the current development repository's structure and may be renamed/consolidated before the frozen handoff package.] CSI is responsible for provisioning its own Anthropic API key, its own Postgres/Supabase database and connection string, and its own Google Cloud Maps/Geocoding key restricted to CSI's own domain, then setting these values in the files listed above. See @sec-limitations — "This Is a Handoff, Not Ongoing Support."
+:::
+
+::: {.callout-note}
+A template for each env file ships alongside it — copy `.env.example` to `.env` (repo root) and `apps/web/.env.example` to `apps/web/.env.local`, then fill in the real values. Do not commit the filled-in `.env`/`.env.local` files.
+:::
+
 ## Handling New Competitors, Mergers, and Name Variants
 
 This is one of the most common maintenance tasks CSI will need to perform independently. Process:
