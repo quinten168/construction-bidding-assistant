@@ -190,6 +190,38 @@ npm run dev
 Open `http://localhost:3000`. The frontend proxies API calls to `http://127.0.0.1:8010` by
 default; override with `BIDINTEL_API_URL` if the backend runs somewhere else.
 
+## 6a. Seed the vector corpus (required for chat over past plans)
+
+**A fresh clone has an EMPTY vector store, and that fails silently.** The app starts, reports
+run, and new PDFs process fine — but chat cannot answer questions about any plan ingested on a
+different machine, because `pipelines/plan_reader/06_chroma/` is gitignored.
+
+The prebuilt corpus (68,572 chunks across 199 plans) ships as a **GitHub Release asset**, not a
+committed file — GitHub rejects files over 100 MB, and a regenerated ~500 MB binary would bloat
+git history permanently. **It does NOT come down with `git clone`.** You have to fetch it.
+
+```powershell
+.\scripts\fetch-corpus.ps1
+```
+
+That uses the GitHub CLI if it is installed and signed in. The repo is private, so if `gh` is
+absent the script prints the release URL and stops — download the zip in a browser while signed
+in to GitHub, then re-run:
+
+```powershell
+.\scripts\fetch-corpus.ps1 -ZipPath "$env:USERPROFILE\Downloads\06_chroma_corpus_199plans.zip"
+```
+
+Release page:
+<https://github.com/Tobias-V-Knight/csi-bid-intelligence/releases/tag/chroma-corpus-2026-07-14>
+
+The script installs to `pipelines/plan_reader/06_chroma/` and verifies by reading the collection
+back — expect **68572**. A count of `0` means it landed in the wrong place. Restart the backend
+afterwards. Chat additionally needs `ANTHROPIC_API_KEY`.
+
+On macOS/Linux, or if you would rather do it by hand: download the zip, extract it, and place the
+resulting `06_chroma` folder at `pipelines/plan_reader/06_chroma`.
+
 ## 7. Verify it actually works
 
 Drop a bid-proposal PDF into the chat UI at `http://localhost:3000`. If extraction runs and you
@@ -201,7 +233,7 @@ reach the human-in-the-loop verification step, both required keys from §3a are 
 | Missing thing                                                                                                | What actually happens                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pipelines/ci_model/03_training/outputs/ranking_predictions.csv` (~94 MB, gitignored — too large to commit) | The competitor-prediction cascade's tier-1 subprocess (fresh reports for projects already in CSI's historical corpus) can't run. Every plan falls through to tier 3 instead — a **live prediction** computed from that plan's own data against Postgres. This is not an error and not stale data — it's just the less-detailed of two real prediction tiers. To recover the file, see `pipelines/ci_model/README.md`. |
-| `pipelines/plan_reader/06_chroma/` (the vector index — grows with usage, not pre-built)                     | Nothing — it auto-creates itself. Each PDF drop writes its own chunks into it on first upload. The only thing that doesn't carry over to a new machine: chat history about plans a *different* machine already uploaded (that index lives only in this directory). Copy it over by hand if you want that history to travel.                                                                                            |
+| `pipelines/plan_reader/06_chroma/` (the vector index — grows with usage, not pre-built) | It auto-creates itself, so new PDFs you upload are searchable immediately. **But it starts EMPTY, so chat cannot answer questions about plans ingested on another machine.** Seed it with the prebuilt corpus — see §6a. This is the one gitignored thing that needs an explicit step. |
 
 ## If something doesn't start
 
