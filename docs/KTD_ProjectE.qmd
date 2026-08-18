@@ -730,7 +730,7 @@ Of the production model's 4 features (@sec-methodology), `county` carries the la
 
 ## Finding 2: The Distance-Based Rule's Real-World Usefulness Is Capped by Pit-Ownership Data Coverage
 
-The distance-based rule (@sec-methodology) ranks competitors by proximity from their nearest owned material pit — but the pit-location reference data behind it (`MN_pit_list_cleaned.csv`) is 100% Minnesota: every one of its 2,398 rows is an MN pit, while the project dataset spans 6 states (IA, MN, MT, ND, NE, SD). The rule can only ever be meaningfully applied to Minnesota projects today. Even within Minnesota, ownership is recorded for a minority of pits: of the 2,398 rows, 1,524 (63.6%) have `unknown` access/ownership, 433 (18.1%) are `open`-access, and only 258 (10.8%) are tagged to a specific competitor. This is not a flaw in the rule's logic — it is a data-coverage gap, and it is the direct, measured reason the distance-based rule's own Winner Hit Rate underperforms the composite model (@sec-methodology, Rule-Based Benchmark Models). Expanding pit-ownership coverage, geographically and by known-owner percentage, is the single highest-leverage data investment for improving this specific rule — see @sec-future-recommendations.
+The distance-based rule (@sec-methodology) ranks competitors by proximity from their nearest owned material pit — but the pit-location reference data behind it (`MN_pit_list_cleaned.csv`) is 100% Minnesota: every one of its 2,398 rows is an MN pit, while the project dataset spans 6 states (IA, MN, MT, ND, NE, SD). The rule can only ever be meaningfully applied to Minnesota projects today. Even within Minnesota, ownership is recorded for a minority of pits — the full `access_type` breakdown across all 2,398 rows: 1,524 (63.6%) `unknown`, 433 (18.1%) `open`-access, 258 (10.8%) tagged to a specific competitor, 95 (4.0%) `knife_river_pending`, 83 (3.5%) `client`, and 5 (0.2%) `closed`. Only the 258 competitor-tagged rows (10.8%) are usable by the distance-based rule at all. This is not a flaw in the rule's logic — it is a data-coverage gap, and it is the direct, measured reason the distance-based rule's own Winner Hit Rate underperforms the composite model (@sec-methodology, Rule-Based Benchmark Models). Expanding pit-ownership coverage, geographically and by known-owner percentage, is the single highest-leverage data investment for improving this specific rule — see @sec-future-recommendations.
 
 ## Finding 3: The Production Model Is the Simplest of Four Tested, Not the Most Accurate
 
@@ -757,7 +757,7 @@ resolved — all four models in the table above (@sec-methodology) are now evalu
 before external/client-facing use.
 :::
 
-## Finding N: Winner Hit Rate Is an Open Experimental Question, Not a Confirmed Finding
+## Finding 4: Winner Hit Rate Is an Open Experimental Question, Not a Confirmed Finding
 
 ::: {.callout-important}
 **This finding is tentative.** It reflects a preliminary internal experiment, not a validated, sign-off-ready conclusion. The direction (no single rule matches CSI's ~90% intuition) held across what was tested so far, but the scope, dataset, and methodology have not been finalized — this should not be presented to CSI as settled without further validation and team review.
@@ -801,7 +801,7 @@ of comfort with computers to touch**:
 |:---|:---|:---|
 | The wording the AI is instructed to write reports with (tone, jargon rules, what counts as HIGH/MEDIUM/LOW) | Three plain-English `.txt` files — see table below | **Yes.** These are literally sentences of instructions, no code. Open in Notepad/TextEdit, edit the English, save. |
 | Which AI model version is used, and the numeric thresholds that decide which competitors are even eligible to be scored | `pipelines/ci_model/06_reporting/agent/orchestrator.py` (model version) and `pipelines/ci_model/shared/config.py` (thresholds) | **No.** These are Python program files. A misplaced comma or quotation mark breaks the whole tool with a technical error, not a friendly warning. Route any change here through a technical contact. |
-| API keys and credentials (Anthropic, Google Maps) | Environment variable files (`.env.local`, not committed to the repository) | **Partially.** Setting up an account and generating a key is a one-time task best done by CSI's technical contact (see "Setting Up the Google Maps API Key" below), but no code is edited — it's account setup, not programming. |
+| API keys and credentials (Anthropic, Google Maps) | Environment variable files — the repo-root `.env` is canonical for all of them (see @sec-api-keys); not committed to the repository | **Partially.** Setting up an account and generating a key is a one-time task best done by CSI's technical contact (see "Setting Up the Google Maps API Key" below), but no code is edited — it's account setup, not programming. |
 
 There is no custom point-and-click settings screen for either category — see the update tools in
 this chapter for the parts of the system that DO have a proper web screen (those are a completely
@@ -817,7 +817,7 @@ separate set of things: adding competitors, pits, and bid results, not these set
 | Change what the AI's self-check step looks for | `pipelines/ci_model/06_reporting/prompts/reflection_prompt.txt` | Anyone — plain English text file |
 | Change which AI model version is used | `pipelines/ci_model/06_reporting/agent/orchestrator.py`, the line reading `_LLM_MODEL = "claude-sonnet-4-6"` | Technical contact only — this is inside program code |
 | Change which competitors are eligible to be scored at all (lookback windows, recency windows) | `pipelines/ci_model/shared/config.py`, the `V3_*` values near the top of the file | Technical contact only — tied to how the trained model itself was built; changing without understanding the model risks silently breaking predictions |
-| Set up or rotate the Google Maps API key (pit-list map and geocoding) | `apps/web/.env.local`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Technical contact — requires a Google Cloud Console account and billing setup, see "Setting Up the Google Maps API Key" below |
+| Set up or rotate the Google Maps API key (pit-list map and geocoding) | Repo-root `.env`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (or `apps/web/.env.local` for a per-machine override) | Technical contact — requires a Google Cloud Console account and billing setup, see "Setting Up the Google Maps API Key" below |
 
 : How to make common configuration changes. {#tbl-common-config-changes}
 
@@ -827,14 +827,21 @@ Before the pipeline can run on CSI's own infrastructure, three credentials must 
 
 | Key | Purpose | Required For | Where to Set It |
 |:---|:---|:---|:---|
-| `ANTHROPIC_API_KEY` | Cloud LLM API key that powers the report generator's narrative-generation calls | LLM Report Generator | Repo-root `.env` (canonical copy) [TODO: confirm final path in the frozen handoff package] |
+| `ANTHROPIC_API_KEY` | Cloud LLM API key that powers the report generator's narrative-generation calls | LLM Report Generator | Repo-root `.env` — confirmed canonical: `.env.example`'s own header now states "Every key used anywhere in the repo is listed here," and `apps/web/next.config.ts` was updated to load from it too |
 | `SUPABASE_TEAM_DB_URL` | Postgres connection string (DSN) for the historical bid-data database | Model-output path, rule-based benchmarks, and all update utilities that read/write historical data | Repo-root `.env` (canonical copy — must exist in exactly **one** place; the app warns at startup if it finds a duplicate elsewhere) |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Public, HTTP-referrer-restricted Google Maps/Geocoding key | Pit/PID location update utility's map view and coordinate lookups | The web app's own env file (`apps/web/.env.local`) — separate from the two keys above because this one is shipped to the browser, not read server-side |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Public, HTTP-referrer-restricted Google Maps/Geocoding key | Pit/PID location update utility's map view and coordinate lookups | Repo-root `.env` (backfills this into the web app via `next.config.ts`) — or `apps/web/.env.local` for a per-machine override, e.g. if one teammate needs a different key than the shared one |
 
 : Required API keys and credentials. {#tbl-api-keys}
 
 ::: {.callout-important}
-**These must be CSI's own credentials, not the development team's.** [TODO: confirm final config file field names and paths match the production deliverable — the locations above reflect the current development repository's structure and may be renamed/consolidated before the frozen handoff package.] CSI is responsible for provisioning its own Anthropic API key, its own Postgres/Supabase database and connection string, and its own Google Cloud Maps/Geocoding key restricted to CSI's own domain, then setting these values in the files listed above. See @sec-limitations — "This Is a Handoff, Not Ongoing Support."
+**These must be CSI's own credentials, not the development team's.** The repo-root `.env` is the
+confirmed, single canonical location for all four keys above — this was an open question as of
+2026-08-17 (env values were split across three separate `.env.example` files with no single source
+of truth) and was resolved the same week by consolidating `.env.example` into the complete key
+index and updating `apps/web/next.config.ts` to load from it. CSI is responsible for provisioning
+its own Anthropic API key, its own Postgres/Supabase database and connection string, and its own
+Google Cloud Maps/Geocoding key restricted to CSI's own domain, then setting these values in
+`.env`. See @sec-limitations — "This Is a Handoff, Not Ongoing Support."
 :::
 
 ::: {.callout-note}
@@ -901,7 +908,9 @@ CSI's technical contact:
      anyone will ever run the app locally
    - Under **API restrictions**, select **"Restrict key"** and check only the two APIs enabled in
      step 4
-7. Set it in `apps/web/.env.local` as `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<the key>`.
+7. Set it in the repo-root `.env` as `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<the key>` (the canonical
+   location, per @sec-api-keys) — or in `apps/web/.env.local` instead if this is a personal,
+   per-machine override rather than the shared team key.
 
 ::: {.callout-important}
 The referrer restriction in step 6 is what makes it safe for this to be a `NEXT_PUBLIC_*`
@@ -1064,7 +1073,7 @@ The ~25 companies flagged as CSI's own priority competitors in the registry are 
 
 - Build a reconciliation/comparison view between CSI's client-entered top-3 picks and the model's own predictions, so disagreement between "what I think" and "what the model thinks" (@sec-limitations) is surfaced automatically instead of requiring a manual check.
 - Fully bridge the file-based report generator to Plan Reader (@sec-limitations), so a freshly uploaded, human-verified plan can generate a standalone `.md`/`.docx` report without first needing to exist in the CLI tool's local files.
-- Explore whether a combined rule+ML ensemble, or an expanded feature set validated against a larger, multi-year dataset, closes more of the gap toward CSI's stated ~90% intuition (@sec-key-findings, Finding N).
+- Explore whether a combined rule+ML ensemble, or an expanded feature set validated against a larger, multi-year dataset, closes more of the gap toward CSI's stated ~90% intuition (@sec-key-findings, Finding 4).
 
 \newpage
 
