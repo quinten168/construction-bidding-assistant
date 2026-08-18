@@ -748,13 +748,14 @@ gates both consumers so neither touches `window.google` before it exists.
 
 This is a deliberate exception to CLAUDE.md's "`apps/web` proxies to `apps/api` and nothing else"
 rule, not an oversight — see CLAUDE.md's folder-responsibilities table for why (map tiles can't
-reasonably be proxied through our own server). The key,
-`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (`apps/web/.env.example`), is **public by design**: Next.js
-inlines any `NEXT_PUBLIC_*` var into the browser bundle, and Google Maps keys are meant to be seen —
-they're secured by an HTTP-referrer restriction in Google Cloud Console, not by secrecy. This is a
-different trust model from every other credential in this repo (`ANTHROPIC_API_KEY`,
-`SUPABASE_TEAM_DB_URL`), which are server-only secrets — don't apply that pattern here, and don't
-apply this pattern there.
+reasonably be proxied through our own server). The key, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (repo-root
+`.env.example` — `apps/web/next.config.ts` loads it directly via `dotenv`, so `apps/web` keeps no
+`.env` of its own; `apps/web/.env.example` still exists but only as an optional per-machine
+override, see `docs/SETUP.md`), is **public by design**: Next.js inlines any `NEXT_PUBLIC_*` var
+into the browser bundle, and Google Maps keys are meant to be seen — they're secured by an
+HTTP-referrer restriction in Google Cloud Console, not by secrecy. This is a different trust model
+from every other credential in this repo (`ANTHROPIC_API_KEY`, `SUPABASE_TEAM_DB_URL`), which are
+server-only secrets — don't apply that pattern here, and don't apply this pattern there.
 
 The `access_company` picker itself does **not** call Google — it fetches
 `GET /api/ci-data/competitors` (the existing registry endpoint, §9 above) and filters client-side;

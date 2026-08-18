@@ -147,7 +147,7 @@ export function PitMap({
         <MapPin className="h-5 w-5 text-muted-foreground" />
         <p className="text-[12.5px] text-muted-foreground">
           Set <code className="rounded bg-black/5 px-1 py-0.5">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in
-          <code className="rounded bg-black/5 px-1 py-0.5">apps/web/.env.local</code> to enable the map.
+          the repo-root <code className="rounded bg-black/5 px-1 py-0.5">.env</code> to enable the map.
         </p>
       </Glass>
     );
