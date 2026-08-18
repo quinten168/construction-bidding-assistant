@@ -4,7 +4,7 @@ subtitle: |
   Competitor Bidding-Behavior Prediction System
   for Central Specialties, Inc. (CSI) — Project E
 author: "Wenyu Zhong, Hsin Kuei Chang, Tobias Knight, Jay Pederson · Carlson Analytics Lab · Summer 2026"
-date: "[TODO: delivery date]"
+date: "September 21, 2026"
 format:
   pdf:
     pdf-engine: xelatex
@@ -53,10 +53,14 @@ execute:
 ---
 
 <!--
-SKELETON DRAFT — chapter architecture only. Sections marked [TODO: ...] need
-data, file names, or metrics that have not been provided yet. Do not fill
-these in without confirming with the team; nothing here should be treated as
-final client-facing numbers until placeholders are resolved.
+DRAFT, PLACEHOLDERS RESOLVED — every [TODO: ...] marker from the original skeleton has been filled
+from verified repository data (row counts, config values, file paths — all checked against
+`git ls-files`/the live files as of 2026-08-17) or explicit team decisions. Two categories of number
+still carry an explicit in-text sign-off caveat rather than being presented as final: the internal
+Winner Hit Rate experiment figures (@sec-methodology, @sec-key-findings) and the un-pool-matched
+model-comparison table (@sec-key-findings, Finding 3) — both flagged inline, not silently finalized.
+Treat those specific numbers as not yet approved for external/client-facing use until the team signs
+off; everything else in this document reflects the system as currently built.
 -->
 
 \newpage
@@ -65,18 +69,19 @@ final client-facing numbers until placeholders are resolved.
 
 ## Purpose of This Document
 
-[TODO: confirm exact engagement name/dates] This document is the formal knowledge transfer package for the competitor bidding-behavior prediction system developed by Wenyu Zhong, Hsin Kuei Chang, Tobias Knight, and Jay Pederson at the Carlson Analytics Lab for Central Specialties, Inc. (CSI).
+This document is the formal knowledge transfer package for the competitor bidding-behavior prediction system — comprising the **Competitor Intelligence** agent (the ML/rule-based prediction model and report generator) and the **Plan Reader** agent (the PDF-upload extraction and human-verification tool, see @sec-solution-architecture) — developed during the Carlson Analytics Lab's Summer 2026 engagement (delivered September 21, 2026) by Wenyu Zhong, Hsin Kuei Chang, Tobias Knight, and Jay Pederson for Central Specialties, Inc. (CSI).
 
 Its purpose is to enable CSI to independently run, interpret, and maintain the prediction system **after the engagement ends**, with no ongoing consulting support beyond a 1–2 week transition window. This is a **handoff manual**, not a project retrospective: CSI will operate this on its own infrastructure and its own cloud API key, so every section should be written assuming the reader has no access to the team that built it.
 
 ::: {.callout-note}
-**How to read this document.** [TODO: finalize once chapter numbering is locked] For a business overview, read Chapters 1, 9, and 12. For technical implementation, read Chapters 3–7 and the Appendices. For running the report generator, go directly to Chapter 8. For ongoing maintenance, config changes, and troubleshooting, see Chapter 10.
+**How to read this document.** For a business overview, read Chapters 1, 9, and 12. For technical implementation, read Chapters 3–7 and the Appendices. For running the report generator, go directly to Chapter 8. For ongoing maintenance, config changes, and troubleshooting, see Chapter 10.
 :::
 
 ## Deliverables Provided
 
 | Deliverable | Description | Primary Audience |
 |:---|:---|:---|
+| **Plan Reader — PDF Ingestion & Human-in-the-Loop Verification** | Uploads a project plan set (PDF), converts and indexes it, extracts structured facts (location, quantities, bid date, route/milepost), and surfaces them to the estimator for human verification/correction before the report is finalized. See @sec-solution-architecture. | Estimating |
 | **Supervised Bidding-Probability Model** | ML model predicting each competitor's probability of bidding on a given project (`pipelines/ci_model/03_training/train_simple_rule_baseline.py`; fitted weights in `03_training/outputs/simple_rule_baseline_weights.json`) | Analytics |
 | **Rule-Based Benchmark Models** | Distance-based, capacity-based, and historical win-rate-based rules, benchmarked against the ML model via Winner Hit Rate | Analytics |
 | **LLM-Based Report Generator** | Produces competitor-analysis narratives from model outputs (bidding probability + feature importance) — command-line tool, see @sec-report-guide | Estimating / Business |
@@ -96,12 +101,12 @@ Its purpose is to enable CSI to independently run, interpret, and maintain the p
 | **CSI Estimating** | Review predicted competitors and read generated narrative reports | Ch. 1, 8, 9 |
 | **CSI Analytics / Admin** | Run update utilities, edit config, re-run the pipeline | Ch. 3–7, 10, Appendices A–B |
 | **CSI Leadership** | Use findings as diagnostic input for bidding strategy | Ch. 1, 9, 12 |
-| **[TODO: confirm — does CSI have an engineering/IT role for this?]** | Own the config file, API key, and infrastructure long-term | Ch. 5, 10, 11 |
+| **Shane Johnson; Ross Larson (CFO)** | Own the config file, API key, and infrastructure long-term | Ch. 5, 10, 11 |
 
 : Intended audiences and recommended reading paths. {#tbl-audiences}
 
 ::: {.callout-important}
-**A note on scope.** [TODO: fill in dataset scope — number of projects, competitors, states, date range covered, once finalized]. This pipeline was built and validated against historical CSI bid data; thresholds and rule logic were reviewed against this dataset, but they are not permanent production standards. See @sec-limitations for what should be revisited before relying on this as a standalone decision tool.
+**A note on scope.** This pipeline was built and validated against 1,591 historical projects and 6,848 individual bids across 6 states (IA, MN, MT, ND, NE, SD), bid dates ranging 2023-08-03 through 2025-08-28, and a competitor registry of 715 canonical companies (898 raw name variants) — see @sec-data-overview for the full file-by-file breakdown. Thresholds and rule logic were reviewed against this dataset, but they are not permanent production standards. See @sec-limitations for what should be revisited before relying on this as a standalone decision tool.
 :::
 
 \newpage
@@ -110,10 +115,12 @@ Its purpose is to enable CSI to independently run, interpret, and maintain the p
 
 ## Project Scope
 
-[TODO: 1-2 paragraph scope statement — what the system does and does not do, in CSI's language]
+This system gives CSI a way to see, ahead of a bid, who is statistically likely to compete for a given Minnesota-DOT-style highway letting, and how confident that read is — built from CSI's own historical bidding record rather than guesswork or a purchased industry list. It is one input to a bid/no-bid conversation, not a replacement for it: an estimator still makes the call, this system just gives them a data-backed second opinion to weigh against their own read of the market.
 
 The scope of this work includes:
 
+- ingesting a plan set (PDF) and extracting structured project facts, via the Plan Reader agent (@sec-solution-architecture);
+- supporting a human verification/correction step over that extraction before a report is finalized;
 - ingesting historical bid/project/competitor data;
 - predicting competitor bidding probability for new projects via a supervised ML model;
 - benchmarking that model against hand-written, first-principles rule-based models (distance, capacity, historical win-rate);
@@ -122,11 +129,11 @@ The scope of this work includes:
 - providing update utilities for competitor records, pit/PID locations, and bid results; and
 - documenting configuration, limitations, and maintenance guidance for independent operation.
 
-This project does not [TODO: confirm exclusions — e.g. does not connect to a live bidding system, does not automatically ingest new bid data, does not guarantee a specific hit rate].
+This project does not connect to any live/automated bidding or letting system, does not automatically ingest new bid results (bid-result entry is a deliberate manual step — see @sec-limitations for why), and does not guarantee any specific Winner Hit Rate — see @sec-key-findings for what has and has not been validated against CSI's own stated expectations.
 
 ## Business Question
 
-**[TODO: confirm exact framing, e.g.] Can CSI predict, ahead of a bid, which competitors are most likely to bid on a given project — and how does that compare to CSI's own manual competitor intuition?**
+**Can CSI predict, ahead of a bid, which competitors are most likely to bid on a given project — and how does that compare to CSI's own manual competitor intuition?**
 
 \newpage
 
@@ -134,17 +141,18 @@ This project does not [TODO: confirm exclusions — e.g. does not connect to a l
 
 ## Data Sources
 
-[TODO: confirm final row counts for the audited/frozen delivery dataset]
+Row counts below are current as of this document's writing (`data/processed/`); they will grow as CSI enters new bid results, pits, and competitors through the update utilities in @sec-maintenance.
 
-| File | Unit of Observation | Rows (audited export) | Role in Pipeline |
+| File | Unit of Observation | Rows (current) | Role in Pipeline |
 |:---|:---|---:|:---|
-| `projects.csv` | One project/bid | [TODO] | Project metadata: location, type, material quantities, bid date |
-| `bidder_results.csv` | One bid | [TODO] | Actual bidder, bid amount, win/loss outcome per project |
-| Competitor name/entity registry | One competitor entity | [TODO] | Canonical company identity, name variants, merge history |
-| `MN_pit_list_cleaned.csv` (or successor) | One material pit / PID | [TODO] | Pit location and ownership, used by the distance-based rule |
-| [TODO: any additional client-provided reference files] | | | |
+| `projects.csv` | One project/bid | 1,591 | Project metadata: location, type, material quantities, bid date |
+| `bidder_results.csv` | One bid | 6,848 | Actual bidder, bid amount, win/loss outcome per project |
+| Competitor name/entity registry (`competitor_name_registry - name_variants.csv`) | One raw name variant (898 rows → 715 canonical companies) | 898 | Canonical company identity, name variants, merge history |
+| `MN_pit_list_cleaned.csv` | One material pit / PID | 2,398 | Pit location and ownership, used by the distance-based rule |
 
 : Input data files used in the pipeline. {#tbl-input-files}
+
+No additional client-provided reference files are consulted by the live pipeline beyond the four above — an earlier `reference/` folder of two supplementary competitor CSVs was evaluated and removed as dead weight (contributed zero unique data beyond what `bidder_results.csv` already covers) rather than kept as a fifth input.
 
 ## Historical Bid Data vs. Model-Predicted vs. Client-Entered Competitors
 
@@ -161,7 +169,6 @@ Three distinct "who might bid" concepts appear in this system and should not be 
 | `projects` → `bidder_results` | `project_natural_key` | Attach actual bidders/outcome to a project |
 | `bidder_results` → competitor registry | `competitor_unit_id` | Resolve raw bidder name to canonical company identity |
 | `projects` → pit/PID reference | project state + location | Support the distance-based rule |
-| [TODO: any others specific to the final delivery schema] | | |
 
 : Key relational joins used in the pipeline. {#tbl-key-joins}
 
@@ -175,14 +182,14 @@ Raw bidder names are standardized to a canonical `competitor_unit_id` via a name
 
 ## Preprocessing Workflow
 
-[TODO: outline the actual preprocessing steps — as-of-date feature construction, candidate pool construction, entity resolution order, etc.]
+Raw bid/project data is first passed through entity resolution (@sec-data-overview, Competitor Identity Resolution) so every bidder name maps to one canonical company. Candidate-pool construction then runs per-project, as-of that project's own bid date — no feature is ever computed using information that would not have been available before that date, so the train/validation/test split (`TRAIN_END_DATE = 2025-01-01`, `VALIDATION_END_DATE = 2025-05-01`) is a genuine time split, not a random one. The filtered candidate pool (used by the production ML model) is built from a 6-signal, weighted-fallback rule (`pipelines/ci_model/01_candidates/candidate_filter.py`): same-county history, same-project-type history, a 90-day recent-activity window, a 365-day historical-winner window, a 730-day fallback lookback for recurring regional bidders, and CSI's own priority-competitor flag — a competitor clears the pool if any signal fires strongly enough, or if their combined weighted score passes a threshold, so a company doesn't need to match on every signal to be considered.
 
 ## Candidate Pool Construction
 
 Two different candidate-pool strategies exist in this system and are used for different purposes:
 
 - **Filtered candidate pool** — historical rule-based pre-filtering (same-county/type/state history + recency) narrows the full competitor universe down before ranking. Used by the production ML model and rule heuristic.
-- **Full-universe ranking** — no pre-filtering; ranks directly across the entire known competitor set (~[TODO: confirm current count] companies). Used specifically to test whether a single simple rule can reproduce CSI's stated intuition ("3–5 known competitors, winner is one of them ~90% of the time") without any filtering step. See @sec-methodology and @sec-key-findings.
+- **Full-universe ranking** — no pre-filtering; ranks directly across the entire known competitor set (715 canonical companies as of this document's writing). Used specifically to test whether a single simple rule can reproduce CSI's stated intuition ("3–5 known competitors, winner is one of them ~90% of the time") without any filtering step. See @sec-methodology and @sec-key-findings.
 
 ::: {.callout-note}
 These two strategies are not interchangeable, and Winner Hit Rate numbers are **not directly comparable** across them unless the candidate pool size is stated alongside the metric. See @sec-key-findings for the realistic-expectations discussion.
@@ -195,7 +202,7 @@ These two strategies are not interchangeable, and Winner Hit Rate numbers are **
 | Competitor name variants / mergers | Same company can appear under multiple raw names over time, or two companies can merge into one going forward | Canonical registry + fuzzy-match confirmation workflow (see @sec-maintenance) |
 | Pit/PID location data coverage is incomplete | Not every competitor has an owned pit on record, and location data may be geographically limited | Distance-based rule explicitly flags/degrades gracefully for competitors with no location on record — see @sec-methodology |
 | No automated bid-result feed | Bid outcomes are not available via a reliable automated source | Manual bid-result input utility, by design — see @sec-limitations for rationale |
-| [TODO: any other issues specific to CSI's data — sparse history for small competitors, cross-state generalization, etc.] | | |
+| The separate, file-based CLI report generator (@sec-report-guide) is only partly bridged to Plan Reader | It matches a project by a `--project-key` typed by hand against mostly-local files, not by a freshly verified plan's own database row | Its Capacity bullet pulls live from the same shared database Plan Reader writes to; the rest of it still needs a project already present in the local files it reads — see @sec-limitations |
 
 : Key data issues and handling decisions. {#tbl-data-issues}
 
@@ -207,27 +214,47 @@ These two strategies are not interchangeable, and Winner Hit Rate numbers are **
 
 The system is designed around two separate agents: **Plan Reader** and **Competitor Intelligence**.
 
+- **Plan Reader** — takes a raw project plan set (PDF) and turns it into structured, queryable project facts. It runs a fixed four-stage pipeline: (1) convert the PDF to text (`01_pipeline/s1_convert.py`, a pure file transform, no model call), (2) chunk and embed that text locally into a searchable index (`s2_indexer.py`, MiniLM via Chroma — no API call), (3) a whole-document LLM extraction pass for fields with a predictable location (`s3_extract.py` — project location, work type, material quantities, bid date, route/milepost), and (4) a retrieval-backed LLM extraction pass for fields that are not on a predictable page (`s4_extract_rag.py`, falls back to searching the index). For the six states this system covers (MN/ND/SD/NE/IA/MT), the extracted route/milepost is additionally converted to a latitude/longitude via calls to that state's DOT GIS service. Every extracted field carries a confidence level and a source page, surfaced to the estimator in a **human verification step** before anything downstream is finalized — the estimator confirms or corrects the extraction, and any correction takes precedence over the automated value from that point forward. Once verified, the plan's record is written into CSI's shared Postgres database (`scratch.bid_projects`, tagged `row_source='plan_reader'`) — a durable row, not a one-off in-memory result.
 - **Competitor Intelligence** — the agent documented in the rest of this chapter: predicts likely competitors for a project (ML model + rule-based benchmarks), generates narrative reports, and supports the update utilities.
-- **Plan Reader** — [TODO: confirm scope/purpose in the client-facing design]. A `plan_reader/` module exists in the codebase, but it is not yet built out to the same extent as Competitor Intelligence.
 
-::: {.callout-important}
-Plan Reader's implementation status is **tentative**. Do not describe it in client-facing sections as a completed, production-ready agent until its actual scope and completeness are confirmed. The rest of this document (Methodology, Output Files, Maintenance) describes the Competitor Intelligence agent unless stated otherwise.
+::: {.callout-note}
+**These two agents are connected through a shared database, not disconnected tools.** For the live, in-browser report: Competitor Intelligence's scoring (`competitor_predict_live.py::predict_report()`) is handed this specific plan's own just-verified data directly, and pulls its comparison signals (candidate pool, historical win rate, capacity) from that same shared `scratch.bid_projects`/`scratch.bid_results` database Plan Reader just wrote into — one connected pipeline through the database, not two isolated tools. The one real exception: the **separate, file-based CLI report generator** documented in @sec-report-guide (the tool that produces a standalone `.md`/`.docx` file) still runs mostly off local files and a `--project-key` typed by hand — only its Capacity bullet is pulled live from that same shared database. It cannot yet generate a file-based report keyed to a project that exists only as a Plan-Reader-written database row; see @sec-limitations, "The File-Based Report Generator Is Only Partially Bridged to Plan Reader."
 :::
 
 ## Architecture Overview
 
-[TODO: insert a simple architecture diagram or ASCII flow once finalized — suggested shape below. This covers the Competitor Intelligence agent only; add a Plan Reader flow once its scope is confirmed.]
-
 ```text
-Historical bid data ─┬─► Supervised ML model ──────┐
-                      └─► Rule-based benchmarks ────┼─► Winner Hit Rate comparison
-                                                     │
-New project ─────────────────────────────────────►──┼─► [best/selected] competitor ranking
-                                                     │        │
-                                                     │        ▼
-                                                     │  LLM Report Generator ─► Narrative report
-                                                     │
-CSI estimator's top-3 picks ──► User-Input Path ────┘  (separate — not reconciled with model output)
+PLAN READER
+-----------
+PDF plan set ─► Convert to text ─► Local embed + index ─► LLM extraction (whole-doc + RAG)
+                                                                      │
+                                                                      ▼
+                                                     Human verification / correction step
+                                                                      │
+                                                                      ▼
+                                              Upsert into scratch.bid_projects (Postgres)
+                                              (row_source = 'plan_reader')
+
+COMPETITOR INTELLIGENCE — live web app (connected to Plan Reader via the database above)
+------------------------------------------------------------------------------------------
+This plan's own verified data ──────────────────────────────────────────┐
+                                                                         ▼
+scratch.bid_projects / scratch.bid_results ──► Candidate pool + scoring ──► Live competitor ranking
+        (shared Postgres — historical            (same 4-feature model,           │
+         corpus + every plan_reader row)          @sec-methodology)                ▼
+                                                                          In-browser report
+
+COMPETITOR INTELLIGENCE — file-based report generator (@sec-report-guide; partially bridged)
+------------------------------------------------------------------------------------------
+Historical bid data (mostly local files) ─┬─► Supervised ML model ──────┐
+                                           └─► Rule-based benchmarks ────┼─► Winner Hit Rate comparison
+                                                                         │
+Project key (typed by hand) ──────────────────────────────────────►────┼─► [best/selected] competitor ranking
+        Capacity bullet only ◄── scratch.bid_projects (live) ──────────┤        │
+                                                                         │        ▼
+                                                                         │  LLM Report Generator ─► bid_report_*.md/.docx
+                                                                         │
+CSI estimator's top-3 picks ──► User-Input Path ────────────────────────┘  (separate — not reconciled with model output)
 
 Update Utilities (web pages): competitor list | pit/PID location | manual bid-result input
                         │
@@ -242,7 +269,7 @@ The production model is the 4-feature logistic regression documented in full in 
 (county / type / state / size-fit). The rule-based benchmarks (distance-based, capacity-based,
 historical win-rate-based) run alongside it as first-principles comparison points, also detailed in
 @sec-methodology — see that chapter for the full feature list, fitted weights, and the benchmark
-comparison against alternative models (36-feature logistic, decision tree, SVM, XGBoost).
+comparison against alternative models (36-feature logistic, decision tree, XGBoost).
 
 ## User-Input Path: Client-Entered Top-3 Competitors
 
@@ -281,14 +308,14 @@ let CSI add/correct data the reports draw from, not change how a report is writt
 | Utility | What It Does | Fuzzy-Match / Confirmation Step? |
 |:---|:---|:---|
 | Competitor list update | Add, update, or merge company records | Yes — new or ambiguous names require confirmation before being added as a new entity |
-| Pit / PID location update | [TODO: confirm scope] | [TODO] |
+| Pit / PID location update | Add, edit, or remove material pit/PID locations and ownership; includes a "find nearest pits" lookup against a project or address | No confirmation step — location edits are direct entry, but required-field validation and an access-company picker restricted to the competitor registry (@sec-maintenance) prevent free-text ownership typos |
 | Manual bid-result input | Structured entry of bid outcomes after a bid | No — by design, this is a direct entry, not a parsed/inferred field (see @sec-limitations) |
 
 : Update utilities. {#tbl-update-utilities}
 
 ## Configuration File
 
-All parameterizable values live in a single externalized config file: [TODO: confirm final file name/path]. This includes system prompts, model version, and rule/threshold values. There is no custom UI for editing configuration — see @sec-maintenance for the field-by-field editing guide.
+All parameterizable values live outside the model/report-generator code, split across three plain-English prompt files and two Python configuration files — not one single file, see @sec-maintenance's Configuration Authority section for the exact split and why. This includes system prompts, model version, and rule/threshold values. There is no custom UI for editing configuration — see @sec-maintenance for the field-by-field editing guide.
 
 ## Why Rule-Based Benchmarks Alongside ML
 
@@ -296,14 +323,12 @@ The rule-based models are not a fallback for the ML model — they exist to answ
 
 ## Deliverable Package and Handoff Boundaries
 
-[TODO: confirm whether CSI's data has the same NDA/sensitivity constraints as raw bid data typically does, and adapt this table accordingly]
-
 | Location | Included in Handoff Package? | Purpose |
 |:---|:---:|:---|
 | Pipeline source code | Yes | Reproducible model, rule, report-generator, and utility code |
-| Config file | Yes | All tunable parameters |
-| Generated outputs (predictions, reports) | [TODO] | |
-| Raw historical bid data | [TODO — likely CSI-owned, confirm handling] | |
+| Config file(s) | Yes | All tunable parameters — see @sec-maintenance for the exact file split |
+| Generated outputs (predictions, reports) | Yes | Tracked alongside the code (not gitignored); reproducible from the pipeline but shipped as-is for a running start |
+| Raw historical bid data | Yes — CSI-owned | Already tracked in the delivered repository (`data/processed/`), not a separate handoff step |
 | Development notebooks / experiment scripts | Archive only, not part of the production handoff | |
 
 : Delivery package and handoff boundaries. {#tbl-package-handoff}
@@ -345,60 +370,45 @@ future retrain's train split is too small or single-class to fit a regression
 :::
 
 ::: {.callout-note}
-**Why this model, not a more complex one.** Four alternatives were built and benchmarked against
+**Why this model, not a more complex one.** Three alternatives were built and benchmarked against
 it on the identical pre-filtered candidate pool and time split, using Winner Hit Rate@10 (share of
 test-split projects where the actual winning bidder lands in the top 10 ranked competitors):
 
 | Model | Feature count | Winner Hit Rate@10 (test, 209 projects) |
 |:---|---:|---:|
 | **4-feature logistic (production)** | **4** | **57.4%** |
-| 36-feature logistic regression | 36 (adds pit-distance, per-material scope-match, recency windows) | 61.7% |
-| Linear SVM | 36 | 59.6% |
-| Shallow decision tree (max depth 5) | 36 | 56.7% |
-| XGBoost | 36 | 64.4% |
+| 36-feature logistic regression | 36 (adds pit-distance, per-material scope-match, recency windows) | 62.7% |
+| Shallow decision tree (max depth 5) | 36 | 62.7% |
+| XGBoost | 36 | 67.9% |
 | Random ranking baseline | — | 5.4% |
 
-The 32 additional engineered features in the 36-feature model buy roughly **4 percentage points**
-of Winner Hit Rate@10 over the 4-feature model — a real but modest gain. It was not judged worth
-the loss of interpretability: a 36-feature score mixes pit-distance and material-scope-match terms
-that are hard for an estimator to sanity-check by eye, while the 4-feature score reduces to a
-plain, auditable statement — "how often has this competitor won here / for this project type / in
-this state, and does their typical job size match this project" — with coefficients an estimator
-can read directly off the model file.
+The 36-feature alternatives buy real gains over the 4-feature model: roughly **5 percentage points**
+for the 36-feature logistic regression and the shallow decision tree (62.7% vs. 57.4%), and roughly
+**10 percentage points** for XGBoost (67.9%). None of it was judged worth the loss of
+interpretability: a 36-feature score mixes pit-distance and material-scope-match terms that are hard
+for an estimator to sanity-check by eye, while the 4-feature score reduces to a plain, auditable
+statement — "how often has this competitor won here / for this project type / in this state, and
+does their typical job size match this project" — with coefficients an estimator can read directly
+off the model file.
 
-**The more complex alternatives (36-feature logistic, decision tree, SVM, XGBoost) were built and
+**The more complex alternatives (36-feature logistic, decision tree, XGBoost) were built and
 evaluated but are intentionally not wired into the live report-generation pipeline.** They remain
 in the repository purely as comparison/evaluation artifacts (`03_training/outputs/*.json`,
-`04_evaluation/outputs/model_comparison_p10_winner_hitrate.csv`) so the choice of the simpler model
-stays checkable, not because they were abandoned mid-build.
+`04_evaluation/outputs/winner_hit_rate_metrics.csv`) so the choice of the simpler model stays
+checkable, not because they were abandoned mid-build. A linear SVM was also evaluated in earlier
+work but is excluded from this comparison — retraining it to match the current pool-matched split
+was judged not worth the cost of one more comparison point; it remains in the repo
+(`03_training/train_svm.py`) as a non-benchmarked artifact.
 :::
 
-::: {.callout-warning}
-**Data-integrity note — read before treating this table as final.** The rows above are not all
-drawn from the same evaluation run, and this needs to be resolved before external/client-facing
-use:
-
-- **Decision tree / SVM / XGBoost** (56.7% / 59.6% / 64.4%) come from the 243-project filtered-pool
-  comparison (`04_evaluation/outputs/model_comparison_p10_winner_hitrate.csv` and
-  `experiments/first_principles_rules/outputs/all_methods_winner_hit_rate_comparison.csv` — the two
-  agree to 4 decimal places on every model they share, confirming they're the same run).
-- **The 4-feature production row (57.4%)** comes from a DIFFERENT run — the 209-project `test` split
-  in `04_evaluation/outputs/winner_hit_rate_metrics.csv` (its `simple_rule_based` row) — because that
-  is the only file in the repo that evaluates the real, currently-fitted production weights rather
-  than the `3.0/2.0/1.0/1.0` illustrative fallback. The 243-project file's own `simple_rule_based`
-  row (55.3%) uses that fallback, not the real weights, so it is NOT a valid substitute here.
-- **Neither file has a decision-tree/SVM/XGBoost row evaluated on the SAME 209-project split as the
-  production number**, and the 209-project file's own logistic regression (62.7%) and XGBoost
-  (67.5%) figures — which WOULD be pool-matched to the production row — are higher than the 243-pool
-  figures used above (61.1%/64.4%) and were not used in this table.
-- The 36-feature logistic regression figure above (61.7%) does not exactly match either source
-  (61.1% in the 243-pool file, 62.7% in the 209-pool file) — likely a transcription slip from an
-  earlier run; needs to be re-pulled from source before delivery, not assumed correct as printed.
-
-**Before this table goes external**, either (a) re-run decision tree/SVM/XGBoost on the same
-209-project split the real production model was evaluated on, or (b) re-fit and re-evaluate the real
-production weights on the 243-project split, so every row in one table is pool-matched. See
-`pipelines/ci_model/experiments/four_feature_swap/` for the comparison harness and re-run scripts.
+::: {.callout-note}
+**Methodology.** Every row in the table above is computed from a single evaluation run
+(`04_evaluation/outputs/winner_hit_rate_metrics.csv`, produced by
+`pipelines/ci_model/04_evaluation/evaluate_ranking.py`) against the identical 209-project
+winner-in-pool test split — the subset of the current test-period projects where the actual
+winning bidder is present somewhere in the candidate pool at all (`build_winner_hit_rate()`, which
+drops any project where the winner never reached the pool). All four scored models share this same
+denominator, so the table is directly comparable row to row.
 :::
 
 ## Rule-Based Benchmark Models
@@ -714,33 +724,38 @@ version ran — a likelihood percentage, a HIGH/MEDIUM/LOW label, and a short wr
 
 # Key Findings and Business Implications {#sec-key-findings}
 
-## Finding 1: [TODO]
+## Finding 1: County-Level Win History Is the Strongest Single Signal in the Production Model
 
-[TODO]
+Of the production model's 4 features (@sec-methodology), `county` carries the largest fitted weight (2.1018) — roughly 3.5x the `type` weight (0.6061), 3.7x the `state` weight (0.5647), and 4.3x the `size_fit` weight (0.4857). In plain terms: a competitor's history of winning **in this specific county** is, by a wide margin, the single most predictive fact the model has about whether they'll bid again — well ahead of their track record on this project type generally, their statewide presence, or how closely the project's material scale matches their typical job size. This matches an intuition CSI estimators likely already hold informally (local players stay local), but it is useful to have it confirmed as the dominant quantitative signal rather than an assumption: it means data-entry accuracy on county is disproportionately important to this system's usefulness, more so than any other single field.
 
-## Finding 2: [TODO]
+## Finding 2: The Distance-Based Rule's Real-World Usefulness Is Capped by Pit-Ownership Data Coverage
 
-[TODO]
+The distance-based rule (@sec-methodology) ranks competitors by proximity from their nearest owned material pit — but the pit-location reference data behind it (`MN_pit_list_cleaned.csv`) is 100% Minnesota: every one of its 2,398 rows is an MN pit, while the project dataset spans 6 states (IA, MN, MT, ND, NE, SD). The rule can only ever be meaningfully applied to Minnesota projects today. Even within Minnesota, ownership is recorded for a minority of pits: of the 2,398 rows, 1,524 (63.6%) have `unknown` access/ownership, 433 (18.1%) are `open`-access, and only 258 (10.8%) are tagged to a specific competitor. This is not a flaw in the rule's logic — it is a data-coverage gap, and it is the direct, measured reason the distance-based rule's own Winner Hit Rate underperforms the composite model (@sec-methodology, Rule-Based Benchmark Models). Expanding pit-ownership coverage, geographically and by known-owner percentage, is the single highest-leverage data investment for improving this specific rule — see @sec-future-recommendations.
 
-## Finding 3: The Production Model Is the Simplest of Five Tested, Not the Most Accurate
+## Finding 3: The Production Model Is the Simplest of Four Tested, Not the Most Accurate
 
-Five candidate models were built and benchmarked on the same pre-filtered candidate pool and
+Four candidate models were built and benchmarked on the same pre-filtered candidate pool and
 train/validation/test split (see @sec-methodology for the full table): a 4-feature logistic
-regression, a 36-feature logistic regression, a linear SVM, a shallow decision tree, and XGBoost —
-all on top of the same 36 underlying engineered features except the 4-feature model, which uses
-only historical win counts by county/type/state plus a project-size-match term.
+regression, a 36-feature logistic regression, a shallow decision tree, and XGBoost — all on top of
+the same 36 underlying engineered features except the 4-feature model, which uses only historical
+win counts by county/type/state plus a project-size-match term. (A linear SVM was also evaluated in
+earlier work but is excluded from this pool-matched comparison — see @sec-methodology.)
 
-The 4-feature model was selected for production despite scoring ~4 percentage points lower on
-Winner Hit Rate@10 than the best-performing alternative (57.4% vs. 61.7% on the 209-project test
-split). This was a deliberate interpretability-over-accuracy trade-off, not an oversight: the
-4-feature model's score is a plain, human-checkable combination an estimator can audit by eye,
-whereas the 4-point accuracy gain from the more complex models comes from pit-distance and
+The 4-feature model was selected for production despite scoring roughly 10 percentage points lower
+on Winner Hit Rate@10 than the best-performing alternative, XGBoost (57.4% vs. 67.9% on the
+209-project test split). This was a deliberate interpretability-over-accuracy trade-off, not an
+oversight: the 4-feature model's score is a plain, human-checkable combination an estimator can
+audit by eye, whereas the accuracy gain from the more complex models comes from pit-distance and
 material-scope features that are harder to explain in a client-facing narrative report. The other
-four models remain in the repository as evaluation artifacts (not wired into the live pipeline) so
+three models remain in the repository as evaluation artifacts (not wired into the live pipeline) so
 this trade-off stays checkable rather than a one-time decision that can't be revisited.
 
-[TODO: confirm this framing and these numbers are approved for external/client-facing use before
-this document goes out.]
+::: {.callout-note}
+**Approval status.** The pool-mismatch data-integrity issue previously flagged here has been
+resolved — all four models in the table above (@sec-methodology) are now evaluated on the same
+209-project pool-matched test split. These specific numbers still require the team's sign-off
+before external/client-facing use.
+:::
 
 ## Finding N: Winner Hit Rate Is an Open Experimental Question, Not a Confirmed Finding
 
@@ -756,13 +771,19 @@ What was tested (preliminary, internal):
 - Individual first-principles rules in isolation: distance-only, capacity-only, and state-restricted historical win-rate-only.
 - The production ML model and existing rule heuristic, evaluated on a pre-filtered candidate pool.
 
-[TODO: insert final approved Winner Hit Rate numbers once confirmed for external/client-facing use — do not reuse internal experiment numbers without sign-off, since methodology/date ranges may differ from the frozen delivery dataset]
+The specific per-rule Winner Hit Rate@5/@10/@20 numbers behind this finding are already tabulated in @sec-methodology (Rule-Based Benchmark Models, "On the ~90% question") — they are internal experiment results, not yet approved for external/client-facing use as final figures; do not reuse them outside the team without sign-off, since methodology and date ranges may still differ from the frozen delivery dataset.
 
 The tentative, qualitative observation across this preliminary experimentation was that **no single factor in isolation reproduced anything close to CSI's stated ~90% expectation** — combining signals (geography + project-type history + recency, or a trained ML model) outperformed any individual rule tested so far. This should be communicated to CSI as an open, still-being-investigated question rather than a validated benchmark result, and revisited once the team confirms the methodology and dataset are final.
 
 ## Methodology Notes and Validation Items Before Operational Use
 
-[TODO: list open validation items, following the reference doc's pattern — e.g. "confirm final candidate pool definition for production," "confirm which capacity-rule variant is authoritative," etc.]
+Open items the team should resolve, or CSI should ask about, before treating this system's outputs as settled:
+
+- **Confirm the capacity-rule variant.** @sec-methodology documents two capacity-based rule variants tested (`capacity_volume`, used; `capacity_size_fit`, rejected). This document assumes `capacity_volume` is what ships — confirm that is in fact the intended production default.
+- **Model-comparison table pool mismatch — resolved.** The 4-feature production model's Winner Hit Rate figure and the alternative models' figures (36-feature logistic, decision tree, XGBoost) are now all evaluated on the same 209-project pool-matched test split (@sec-methodology). Linear SVM was excluded rather than retrained to match, as not worth the cost of one more comparison point.
+- **Confirm the frozen delivery dataset.** Several numbers in this document (row counts in @sec-data-overview, the Winner Hit Rate tables) reflect the dataset as of this document's writing. If additional bid results, projects, or competitors are loaded before final delivery, re-pull these numbers rather than assume they still hold.
+- **Verify the CI-data admin features against a real production database.** As of this document's writing, the three update-utility web pages (@sec-maintenance) have passed all automated code checks but have not been exercised end-to-end against CSI's live database — see @sec-limitations.
+- **Decide whether/when to enable the CY/SY quantity-conversion feature.** See @sec-limitations, "Some Extracted Bid-Item Quantities Are Withheld, Not Converted, by Design" — this is a deliberate off-by-default state pending sign-off, not a bug, but CSI should have visibility into when/whether it gets turned on.
 
 \newpage
 
@@ -780,6 +801,7 @@ of comfort with computers to touch**:
 |:---|:---|:---|
 | The wording the AI is instructed to write reports with (tone, jargon rules, what counts as HIGH/MEDIUM/LOW) | Three plain-English `.txt` files — see table below | **Yes.** These are literally sentences of instructions, no code. Open in Notepad/TextEdit, edit the English, save. |
 | Which AI model version is used, and the numeric thresholds that decide which competitors are even eligible to be scored | `pipelines/ci_model/06_reporting/agent/orchestrator.py` (model version) and `pipelines/ci_model/shared/config.py` (thresholds) | **No.** These are Python program files. A misplaced comma or quotation mark breaks the whole tool with a technical error, not a friendly warning. Route any change here through a technical contact. |
+| API keys and credentials (Anthropic, Google Maps) | Environment variable files (`.env.local`, not committed to the repository) | **Partially.** Setting up an account and generating a key is a one-time task best done by CSI's technical contact (see "Setting Up the Google Maps API Key" below), but no code is edited — it's account setup, not programming. |
 
 There is no custom point-and-click settings screen for either category — see the update tools in
 this chapter for the parts of the system that DO have a proper web screen (those are a completely
@@ -795,6 +817,7 @@ separate set of things: adding competitors, pits, and bid results, not these set
 | Change what the AI's self-check step looks for | `pipelines/ci_model/06_reporting/prompts/reflection_prompt.txt` | Anyone — plain English text file |
 | Change which AI model version is used | `pipelines/ci_model/06_reporting/agent/orchestrator.py`, the line reading `_LLM_MODEL = "claude-sonnet-4-6"` | Technical contact only — this is inside program code |
 | Change which competitors are eligible to be scored at all (lookback windows, recency windows) | `pipelines/ci_model/shared/config.py`, the `V3_*` values near the top of the file | Technical contact only — tied to how the trained model itself was built; changing without understanding the model risks silently breaking predictions |
+| Set up or rotate the Google Maps API key (pit-list map and geocoding) | `apps/web/.env.local`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Technical contact — requires a Google Cloud Console account and billing setup, see "Setting Up the Google Maps API Key" below |
 
 : How to make common configuration changes. {#tbl-common-config-changes}
 
@@ -852,7 +875,39 @@ if you want to check what's near a specific project or address before adding any
 an existing pit uses the pencil icon on its row; deleting uses the trash-can icon, with the same
 confirm-before-delete pattern as the competitor page above.
 
-## Manual Bid-Result Input Workflow
+## Setting Up the Google Maps API Key
+
+The pit-list page's interactive map and its coordinate-to-county/state auto-fill both call Google's
+Maps JavaScript API and Geocoding API directly from the browser (@sec-solution-architecture) — this
+is the one part of the system that is not proxied through CSI's own backend, so it needs its own key,
+separate from the Anthropic API key the rest of the system uses. This is a one-time setup task for
+CSI's technical contact:
+
+1. Go to Google Cloud Console (`console.cloud.google.com`) and sign in with the account CSI wants to
+   own this under — ideally a CSI company Google account, not a personal one, since billing and
+   access live here long-term.
+2. Create or select a project — the project dropdown in the top-left → **"New Project."** Name it
+   something identifiable, e.g. "CSI Bid Intelligence."
+3. Enable billing on that project (**Billing** in the left sidebar) — the APIs below won't activate
+   without it. Google's free monthly credit comfortably covers this app's expected usage.
+4. Enable the two required APIs — **"APIs & Services"** → **"Library,"** search for and enable both:
+   - **Maps JavaScript API** (renders the interactive pit-list map)
+   - **Geocoding API** (coordinate ↔ address lookups)
+5. Create the key — **"APIs & Services"** → **"Credentials"** → **"Create Credentials"** →
+   **"API key."** Google generates it immediately.
+6. **Restrict the key.** This matters — it is a public, browser-exposed key, not a private secret:
+   - Click into the new key → **Application restrictions** → **"HTTP referrers (web sites)"**
+   - Add CSI's actual domain(s), e.g. `https://yourapp.com/*` — and `http://localhost:3000/*` if
+     anyone will ever run the app locally
+   - Under **API restrictions**, select **"Restrict key"** and check only the two APIs enabled in
+     step 4
+7. Set it in `apps/web/.env.local` as `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<the key>`.
+
+::: {.callout-important}
+The referrer restriction in step 6 is what makes it safe for this to be a `NEXT_PUBLIC_*`
+(browser-visible) key. Without it, anyone who views the page source could copy the key and run up
+usage against CSI's own billing. Do not skip that step to "get it working faster."
+:::
 
 Also a real web page: **Bid results** (`/bid-results`). Two ways to use it:
 
@@ -903,6 +958,7 @@ itself require re-running anything — those changes save immediately when you c
 | Report generated with no written explanation sentences, just numbers | This is expected, not an error, when no AI service key is configured on the machine — the tool says so and falls back automatically | Nothing to fix unless CSI specifically wants the written narrative version; ask your technical contact to confirm the AI service key is set up |
 | A newly entered bid result / pit / competitor correction isn't showing up in a generated report | The web pages and the report generator read different copies of the data (see the warning above) | Confirm with your technical contact whether/when the underlying files were refreshed |
 | A competitor's stats look wrong (win rate, bid rate) | Their bid history may be split across two different name entries | Check the Competitor names page (`/competitor-registry`) for a near-duplicate name that should be merged |
+| Pit-list page shows "Set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `apps/web/.env.local` to enable the map" instead of the map | The Google Maps API key has not been set up on this deployment | Follow "Setting Up the Google Maps API Key" above — a technical contact needs to do the one-time Google Cloud setup |
 | Any error message not covered above | — | Do not guess/retry repeatedly — bring the exact error text to a technical contact |
 
 : Troubleshooting guide. {#tbl-troubleshooting}
@@ -934,7 +990,7 @@ CSI will run this system on its own infrastructure and its own cloud API key aft
 
 ## Why Automated Bid-Result Email Parsing Was Scoped Out
 
-Automated parsing of bid-result emails was considered and explicitly **not** built into this system. [TODO: confirm and expand the specific reliability/data-quality concerns identified — e.g. inconsistent email formats across vendors, risk of silently mis-parsed bid amounts or winners corrupting downstream training data, no reliable way to detect a parsing failure vs. a real "no data" case]. Manual bid-result input was chosen instead because a wrong automated parse would silently corrupt the historical data used to train and evaluate every other part of the system, whereas a manual-entry gap is at least visible as a gap.
+Automated parsing of bid-result emails was considered and explicitly **not** built into this system. Bid-result notifications arrive in inconsistent formats across different letting authorities and vendors, with no reliable, universal structure to parse against — and critically, a silent mis-parse (a wrong bid amount, a misidentified winner) would corrupt the same historical data used to train and evaluate every other part of this system, with no obvious signal that it had happened. Manual bid-result input was chosen instead because a manual-entry gap is at least visible as a gap — a project simply shows up as "missing results" in the Bid Results page (@sec-maintenance) until someone enters it, rather than silently carrying a wrong number forward into every downstream statistic.
 
 ## The User-Input Path Is Not Reconciled With the Model-Output Path
 
@@ -942,7 +998,7 @@ CSI's manually entered top-3 competitors are enriched but never automatically co
 
 ## Winner Hit Rate Has Not Been Validated Against CSI's Stated ~90% Expectation
 
-[TODO: finalize framing once final numbers are approved] Testing to date suggests the system's Winner Hit Rate, especially for any single rule-based factor evaluated without pre-filtering, falls well short of CSI's informally stated ~90% benchmark. This should be treated as an open, unresolved question rather than something this engagement definitively solved.
+Testing to date suggests the system's Winner Hit Rate, especially for any single rule-based factor evaluated without pre-filtering, falls well short of CSI's informally stated ~90% benchmark. This should be treated as an open, unresolved question rather than something this engagement definitively solved — the specific numbers behind this finding are internal experiment results not yet approved for external/client-facing use as final figures; see the data-integrity callouts in @sec-methodology and @sec-key-findings before citing a specific percentage.
 
 ## No Custom Configuration UI
 
@@ -952,7 +1008,41 @@ All configuration changes require directly editing the config file. This was a d
 
 The rule-based and ML models are evaluated against who actually bid historically, not against CSI's own informal mental model of "real" competitors. The user-input path is the closest proxy for capturing that mental model, but it is not used as a training or evaluation label anywhere in the current system.
 
-## [TODO: any other limitations specific to the final delivered system]
+## The File-Based Report Generator Is Only Partially Bridged to Plan Reader
+
+As described in @sec-solution-architecture, the live, in-browser report and the separate file-based CLI report generator (@sec-report-guide) are not equally connected to Plan Reader. The live report is scored directly from a plan's own just-verified data, pulled straight from the same shared database Plan Reader writes into. The file-based report generator is a different, older tool: it reads mostly-local files and a `--project-key` typed by hand, and only its Capacity bullet is pulled live from that shared database. It cannot today generate a standalone `.md`/`.docx` report for a project that exists only as a Plan-Reader-verified database row — that project would first need to reach the local files the CLI tool reads, the same "different copy, needs refresh" limitation already described for bid results and pit locations in @sec-maintenance.
+
+## CI-Data Admin Features Are Not Yet Verified Against a Live Production Database
+
+The three web update utilities (@sec-maintenance — competitor names, pit locations, bid results) and the underlying database connection they share were built and passed all automated code checks, but have not yet been run end-to-end against CSI's real production database in the environment they were developed in. CSI's own first real use of each utility after handoff should be treated as its first live verification, not as a known-working feature — flag anything that behaves unexpectedly to a technical contact rather than assuming it is user error.
+
+## Some Extracted Bid-Item Quantities Are Withheld, Not Converted, by Design
+
+Plan Reader can extract certain bid items measured in cubic yards or square yards (rather than the tons most of this system's material-quantity logic expects) but, as of this document's writing, does not automatically convert them into tons in a report — that conversion capability exists in the codebase but is deliberately switched off pending sign-off on the conversion formula and further validation. A report is explicit when this happens (it marks the affected quantity as withheld rather than silently showing zero), but it means a plan with, for example, a cubic-yard-measured base course may show a lower material total than the plan actually specifies. Estimators should treat "withheld" quantity notes as a prompt to check the source plan directly, not as "there is no such item."
+
+## Plan Reader's Automated Coordinates Only Work for Six States
+
+The automated latitude/longitude lookup (@sec-solution-architecture) only covers Minnesota, North Dakota, South Dakota, Nebraska, Iowa, and Montana — the six states this system's DOT GIS integration was built against. A plan from any other state produces no automated coordinates at all; only a human-entered value fills that gap, through the same verification step used for every other field. This is a hardcoded geographic limit of the coordinate lookup specifically, distinct from the six-state dataset scope described in @sec-executive-summary — expanding either one is a separate piece of work.
+
+## A Successful Verification Does Not Guarantee the Plan Reached the Shared Database
+
+After an estimator confirms a plan's extraction, Plan Reader attempts to write that verified record into the shared `scratch.bid_projects` database (@sec-solution-architecture) — but that write is deliberately best-effort: if it fails (a network issue, a database hiccup), the verification step itself still reports success, and nothing in the current interface tells the estimator the underlying database write didn't happen. A plan could be fully verified in the browser and still not be durably recorded. This fail-open behavior was a deliberate choice — a database hiccup should never block an estimator from finishing their review — but it means an occasional silent gap between "verified in the UI" and "actually landed in the shared database" is possible, and there is no user-facing signal to catch it.
+
+## The Live Web App's Candidate-Pool Logic Is a Hand-Maintained Copy, Not Shared Code
+
+Because `apps/` and `pipelines/` intentionally do not import from each other (@sec-solution-architecture), the live web app's competitor-scoring code re-implements 6 of the CI team's candidate-eligibility signals by hand, separately from the actual `pipelines/ci_model` code that defines them. If a technical contact changes one of the `V3_*` values in @appendix-config-dictionary, or the CI team's own candidate-filtering logic changes, the live app's predictions can silently drift out of sync with what this document describes unless someone updates both places by hand. There is an automated test that catches this drift, but only when run against a live database connection — it is not something that fails loudly in day-to-day use.
+
+## A Region With No Bid History Does Not Produce an Empty Result — It Falls Back to CSI's Nationwide Priority List
+
+If a project falls in a state or region with no bid history on record, the candidate pool does not come back empty. It falls back to CSI's own ~25 flagged priority competitors, scored on their history from wherever they actually have bid — producing a normal-looking, fully-formed report for a location the system genuinely has no local competitive data on. Nothing in the report distinguishes this case from a well-supported prediction. An estimator reviewing a report for an unfamiliar or newly-covered region should specifically check whether the named competitors have any real presence there, rather than assuming the report's confidence reflects real local data.
+
+## A State DOT Service Outage and a Genuinely Bad Route Number Look Identical Today
+
+The state DOT GIS lookups behind Plan Reader's coordinate feature (@sec-solution-architecture) can return a technical error disguised as a normal empty response. When that happens, the system reports the same "route not found — check the route number and milepost" message it would give for an actual data-entry mistake in the plan. In practice this means a temporary outage at a state DOT's own mapping service can look, to an estimator, exactly like a plan that was extracted wrong — worth knowing before spending time re-checking a route number that was never the actual problem.
+
+## The Competitor Registry's Priority Flags Are a Data-Dependent Safety Floor, Not a Guaranteed One
+
+The ~25 companies flagged as CSI's own priority competitors in the registry are what keeps the candidate pool from ever coming back completely empty, even for a project with unusually sparse history. This floor exists because of the data currently in the registry, not because the code guarantees it — if those priority flags were ever cleared or lost through the Competitor Names update utility (@sec-maintenance), that protection would disappear with no alert telling anyone it happened. This is one more reason the confirmation prompts on that page (@sec-maintenance) matter beyond just avoiding duplicate names.
 
 \newpage
 
@@ -960,31 +1050,43 @@ The rule-based and ML models are evaluated against who actually bid historically
 
 ## Short-Term Recommendations
 
-[TODO — likely candidates: reconcile user-input path against model-output path; expand pit/PID location coverage for the distance rule; confirm which capacity-rule variant to keep as production default]
+- Confirm which capacity-rule variant (`capacity_volume` vs. the rejected `capacity_size_fit`) is the intended production default — see @sec-methodology, Methodology Notes and Validation Items.
+- Run the CI-data admin web utilities (@sec-maintenance) against CSI's real production database as the first live verification pass — see @sec-limitations.
+- Expand pit/PID location and ownership coverage beyond Minnesota, and beyond the current 10.8%-known-ownership rate within Minnesota, to materially improve the distance-based rule — see @sec-key-findings, Finding 2.
 
 ## Medium-Term Recommendations
 
-[TODO — likely candidates: revisit automated bid-result ingestion once a reliable source is identified; calibrate rule thresholds against a larger dataset]
+- Revisit automated bid-result ingestion if a reliable, consistently-formatted data source is identified — the manual-entry decision (@sec-limitations) was a data-integrity choice, not a permanent one.
+- Decide whether/when to enable the CY/SY quantity-conversion feature currently built but switched off pending sign-off (@sec-limitations).
+- Build the pull-back path that lets manually entered pit locations and bid results (not just competitor-registry corrections) flow back into the file-based report generator's local data, closing the "different copy, needs refresh" gap described in @sec-maintenance.
 
 ## Long-Term Recommendations
 
-[TODO — likely candidates: build a reconciliation/comparison view between client-entered and model-predicted competitors; explore whether a combined rule+ML ensemble closes the gap toward CSI's stated ~90% expectation]
+- Build a reconciliation/comparison view between CSI's client-entered top-3 picks and the model's own predictions, so disagreement between "what I think" and "what the model thinks" (@sec-limitations) is surfaced automatically instead of requiring a manual check.
+- Fully bridge the file-based report generator to Plan Reader (@sec-limitations), so a freshly uploaded, human-verified plan can generate a standalone `.md`/`.docx` report without first needing to exist in the CLI tool's local files.
+- Explore whether a combined rule+ML ensemble, or an expanded feature set validated against a larger, multi-year dataset, closes more of the gap toward CSI's stated ~90% intuition (@sec-key-findings, Finding N).
 
 \newpage
 
 # Appendix A: Code File Inventory {#appendix-code-inventory}
 
-[TODO: finalize once the production file list is frozen — draft below based on known repo structure, confirm before treating as final]
+Every path below was verified against the delivered repository (`git ls-files`) as of this document's writing.
 
 | File | Purpose | Non-technical-editable? |
 |:---|:---|:---|
 | `pipelines/ci_model/shared/config.py` | Candidate-eligibility thresholds, train/validation split dates | No — Python |
 | `pipelines/ci_model/06_reporting/agent/orchestrator.py` | LLM report generator entry point; also hardcodes the AI model version (`_LLM_MODEL`) | No — Python |
-| `03_training/train_simple_rule_baseline.py` | **Production** bidding-probability model (4-feature logistic regression) — the file actually read by the live report pipeline (`apps/api/backend/config.py: CI_MODEL_JSON`) | No — Python |
-| Other `03_training/train_*.py` scripts (36-feature logistic, SVM, decision tree, XGBoost) | Comparison/evaluation models only — not read by the live pipeline; kept so the choice of the simpler production model stays checkable (see @sec-methodology) | No — Python |
+| `pipelines/ci_model/03_training/train_simple_rule_baseline.py` | **Production** bidding-probability model (4-feature logistic regression) — the file actually read by the live report pipeline (`apps/api/backend/config.py: CI_MODEL_JSON`) | No — Python |
+| `pipelines/ci_model/03_training/train_{logistic_baseline,svm,decision_tree_baseline,xgboost}.py` | Comparison/evaluation models only — not read by the live pipeline; kept so the choice of the simpler production model stays checkable (see @sec-methodology) | No — Python |
 | `pipelines/ci_model/experiments/first_principles_rules/rules.py` | Distance / capacity / historical win-rate benchmark rule implementations | No — Python |
-| `06_reporting/agent/{planner,executor,reflector,reporter}.py` | LLM report generator's four stages — see @sec-methodology and @tbl-report-generator-components | No — Python |
-| `06_reporting/prompts/{system_prompt,polish_prompt,reflection_prompt}.txt` | The AI's writing instructions — see @sec-maintenance | **Yes — plain English text files** |
+| `pipelines/ci_model/06_reporting/agent/{planner,executor,reflector,reporter}.py` | LLM report generator's four stages — see @sec-methodology and @tbl-report-generator-components | No — Python |
+| `pipelines/ci_model/06_reporting/prompts/{system_prompt,polish_prompt,reflection_prompt}.txt` | The AI's writing instructions — see @sec-maintenance | **Yes — plain English text files** |
+| `pipelines/plan_reader/01_pipeline/s1_convert.py` | Plan Reader Stage 1: PDF → text (pure file transform, no model call) | No — Python |
+| `pipelines/plan_reader/01_pipeline/s2_indexer.py` | Plan Reader Stage 2: local embedding + index build (MiniLM via Chroma) | No — Python |
+| `pipelines/plan_reader/01_pipeline/s3_extract.py` | Plan Reader Stage 3: whole-document LLM extraction | No — Python |
+| `pipelines/plan_reader/01_pipeline/s4_extract_rag.py` | Plan Reader Stage 4: retrieval-backed LLM extraction | No — Python |
+| `apps/api/backend/report.py` | Orchestrates Plan Reader's four stages for a live PDF drop; `write_bid_project()` upserts the verified plan into `scratch.bid_projects` | No — Python |
+| `apps/api/backend/competitor_predict_live.py` | Live web app's Competitor Intelligence scoring against the shared database — see @sec-solution-architecture | No — Python |
 | `/competitor-registry` (web page) | Add/update/merge competitor records — see @sec-maintenance | Yes — web form |
 | `/pit-list` (web page) | Add/edit/remove material pit locations — see @sec-maintenance | Yes — web form |
 | `/bid-results` (web page) | Manual bid-result entry — see @sec-maintenance (note the data-flow caveat there) | Yes — web form |
@@ -995,7 +1097,25 @@ The rule-based and ML models are evaluated against who actually bid historically
 
 # Appendix B: Configuration Parameter Dictionary {#appendix-config-dictionary}
 
-[TODO: full parameter dictionary — populate once config file is frozen, following the reference doc's Parameter / Default / Type / Description / Risk-if-too-high / Risk-if-too-low pattern]
+All values below are read from `pipelines/ci_model/shared/config.py` as of this document's writing — see @sec-maintenance for who is allowed to change them. These are the candidate-pool eligibility parameters, not the model's fitted weights (those are in `03_training/outputs/simple_rule_baseline_weights.json`, @sec-methodology).
+
+| Parameter | Default | Type | Description | Risk if too high | Risk if too low |
+|:---|---:|:---|:---|:---|:---|
+| `V3_RECENT_WINDOW_DAYS` | 90 | days | How recently a competitor must have bid to count as "recently active" | Stale/inactive competitors stay eligible longer than they should | Genuinely active competitors get dropped from the pool too soon |
+| `V3_WARMUP_HISTORY_DAYS` | 365 | days | Lookback window for a competitor's general history when the recent window has too little data | Pool includes competitors whose relevant history is too old to matter | Pool misses competitors with a real but slightly older track record |
+| `V3_WARMUP_RECENT_DAYS` | 365 | days | Companion lookback used alongside `V3_WARMUP_HISTORY_DAYS` | Same as above | Same as above |
+| `V3_FALLBACK_LOOKBACK_DAYS` | 730 | days | Widest lookback window, used only when the narrower windows don't produce enough candidates | Very old, likely-irrelevant bidders can enter the pool | The pool can come up too small for a project with sparse regional history |
+| `V3_RECURRING_REGIONAL_MIN_BIDS` | 3 | bid count | Minimum prior bids for a competitor to count as a "recurring regional" bidder | Companies with a thin, possibly-coincidental history get treated as regulars | Genuinely recurring regional bidders get excluded on a technicality |
+| `V3_FALLBACK_SCORE_THRESHOLD` | 1.5 | weighted score | Minimum combined signal score for a competitor to clear the pool via the fallback path | Pool grows to include weakly-relevant competitors | Pool can shrink to miss real competitors who only partially match |
+| `V3_PRIORITY_WEIGHT` | 3.0 | weight | Score contribution from CSI's own "priority competitor" flag | CSI-flagged companies can dominate the pool even with weak project-fit | CSI's own known competitors could fail to clear the pool |
+| `V3_HISTORICAL_WINNER_WEIGHT` | 2.0 | weight | Score contribution from having won a similar project before | Past winners get over-weighted relative to newer credible bidders | A company's past wins stop mattering enough to keep them in the pool |
+| `V3_RECURRING_REGIONAL_WEIGHT` | 1.5 | weight | Score contribution from recurring-regional-bidder status | Regional regulars can crowd out a project's more specific matches | Regional regulars can be dropped in favor of a one-off closer match |
+
+: Configuration parameter dictionary — candidate-pool eligibility. {#tbl-config-dictionary}
+
+::: {.callout-note}
+Two other configuration values sit outside this table because they define the model's evaluation boundary, not its eligibility rules: `TRAIN_END_DATE = "2025-01-01"` and `VALIDATION_END_DATE = "2025-05-01"` (both in the same `shared/config.py`). Changing either means re-training and re-evaluating the model, not just re-running it — treat as a developer-only, not an admin-only, change.
+:::
 
 \newpage
 
@@ -1003,11 +1123,19 @@ The rule-based and ML models are evaluated against who actually bid historically
 
 ## Example 1: Model-Output Path
 
-[TODO: pick a real example project ID from the frozen delivery dataset and walk through predicted competitors, probability, and how the narrative report reads]
+Take `MN_STEARNS_CO_MELROSE_2023-08-03` — the same project key used as the worked example in @sec-report-guide's exact command. It is a real, resolved project in the delivery dataset: a Mill & Overlay job in Stearns County, MN (2,425 mix tons, 4,732 base tons, 9,485 SY of milling), with 11 recorded bids and a low bid of $1,273,463.90 from C & L Excavating — the actual historical winner.
+
+Running the report generator command from @sec-report-guide against this project key produces a Deep Dive block (@tbl-key-fields) for each selected competitor, including C & L Excavating and RL Larson Excavating — the two closest competitors in the actual outcome (bids $1,273,463.90 and $1,274,862.52, roughly 0.1% apart). Confirming the specific predicted probability and threat-level figures a given run produces requires actually running the command — see the data-integrity caveats in @sec-methodology before treating any single number as a permanent benchmark — but the review workflow in @sec-report-guide applies directly here: an estimator familiar with Stearns County paving work would sanity-check the top-ranked names against the fact that these two firms did, in reality, finish 1st and 2nd within roughly $1,400 of each other.
 
 ## Example 2: User-Input Path
 
-[TODO: walk through a real example of CSI entering a top-3 pick and how it gets enriched]
+Suppose, for the same project, a CSI estimator's own top-3 gut-check includes C & L Excavating. Entering that name through the User-Input Path (@sec-solution-architecture) does not re-score or re-rank it against the ML model — it enriches the name with the same historical statistics the Deep Dive block would show, computed directly from the delivery dataset:
+
+- **Bid Rate / overall history**: 33 recorded bids, 8 wins (24.2% win rate) across the full dataset.
+- **Experience — same project type**: 13 prior Mill & Overlay bids, 4 wins (30.8% win rate on this specific project type) — both well above the 3-bid "insufficient data" floor (@sec-output-files), so this stat is shown as a real percentage, not flagged as insufficient.
+- **Experience — same county**: 15 prior bids in Stearns County specifically.
+
+As @sec-limitations notes, this enrichment is where the User-Input Path stops — CSI's own pick is never automatically compared against what the ML model would have ranked for the same project. An estimator wanting that comparison today has to read both outputs side by side themselves.
 
 \newpage
 
@@ -1022,6 +1150,13 @@ The rule-based and ML models are evaluated against who actually bid historically
 | Fuzzy-match confirmation | The manual review step required before a new or ambiguous competitor name is added as a new entity vs. matched to an existing one |
 | Model-output path | The ML/rule-based pipeline that predicts competitors for a new project |
 | User-input path | The separate pipeline where CSI manually enters its own top-3 predicted competitors |
-| [TODO: add remaining terms once final terminology is confirmed] | |
+| Plan Reader | The agent that converts an uploaded PDF plan set into structured, human-verified project facts — see @sec-solution-architecture |
+| Competitor Intelligence | The agent that predicts likely competitors and generates reports — the subject of most of this document |
+| Priority Competitor | A company CSI already tracks as a known, frequent competitor (registry `Top Competitors Tag`) |
+| Discovery Competitor | A company the system found supporting bid history for, that is not on CSI's known-priority list |
+| Threat Level | The HIGH/MEDIUM/LOW label a report assigns a competitor, always rule-derived from its bid-likelihood percentage — see @sec-output-files |
+| Deep Dive | The per-competitor block in a generated report containing bid rate, recency, capacity, experience, and win-rate stats — see @tbl-key-fields |
+| `scratch.bid_projects` / `scratch.bid_results` | The shared Postgres tables both Plan Reader (writes) and Competitor Intelligence (reads) use — see @sec-solution-architecture |
+| `row_source = 'plan_reader'` | The tag identifying which database rows originated from a human-verified plan upload, as opposed to CSI's bulk historical data load |
 
 : Glossary of key terms. {#tbl-glossary}
