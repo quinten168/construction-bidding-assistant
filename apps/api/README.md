@@ -1,7 +1,7 @@
-# CSI Bid Assistant
+# Construction Bidding Assistant
 
 A conversational **bid-intelligence assistant** for highway construction — a FastAPI backend
-serving a Next.js frontend (`apps/web`), answering questions about CSI's plans and
+serving a Next.js frontend (`apps/web`), answering questions about the client's plans and
 bidding record with grounded, cited answers.
 
 > **t/live-stack note:** the Chainlit UI that used to mount at `/chat` was removed on this branch.
@@ -13,7 +13,7 @@ The assistant is **agentic**: Claude (Sonnet 4.6) is given tools and decides whi
 | Question | Tool | Source |
 |---|---|---|
 | What does a plan require? (wages, phasing, gotchas) | `search_plans` | plan PDFs via ChromaDB — answers cite the page |
-| How many bids has CSI placed / won? (by state/year) | `query_bid_history` | the master bid CSV |
+| How many bids has the client placed / won? (by state/year) | `query_bid_history` | the master bid CSV |
 | Tell me about a specific named/located project | `find_projects` | a unified registry (1,700 projects) → drills into the others |
 
 ## Run it

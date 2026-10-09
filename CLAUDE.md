@@ -7,10 +7,10 @@ Context for AI coding assistants working in this repository. Humans should start
 
 ## What this system is
 
-Decision support for CSI's bid/no-bid decisions on Minnesota DOT highway lettings. A user uploads
-a project plan set (PDF) and asks questions about it. The system answers from two sources: facts
-extracted from that PDF, and CSI's historical bid corpus, which also drives a model predicting
-which competitors are likely to bid.
+Decision support for a highway construction contractor's bid/no-bid decisions on Minnesota DOT
+highway lettings. A user uploads a project plan set (PDF) and asks questions about it. The system
+answers from two sources: facts extracted from that PDF, and the client's historical bid corpus,
+which also drives a model predicting which competitors are likely to bid.
 
 It is decision support, not a classifier. The output informs a human estimator; it does not emit a
 bid/no-bid verdict.

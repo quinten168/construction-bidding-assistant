@@ -14,8 +14,8 @@ Outputs:
 access_type definitions:
     open                  — "Everyone"; all competitors may use this pit
     unknown               — blank/NaN; treated as open for model purposes
-    client                — CSI's own pits; excluded from competitor scoring,
-                            kept for future CSI bid-decision model
+    client                — the client's own pits; excluded from competitor scoring,
+                            kept for future client bid-decision model
     competitor            — restricted to a named company; access_company holds
                             the canonical bidder name from bidder_full_company_list.csv
     knife_river_pending   — "Knife River"; disambiguation pending between
@@ -30,7 +30,7 @@ How access_company was derived:
     2. Confirmed / corrected matches using Claude Code analysis — no external API call.
     3. Result saved to data/cleaning_review/access_standardization.csv.
     4. 22 of 41 names mapped to canonical bidder names.
-    5. 19 names marked NOT_IN_BIDDER_LIST (private pit owners not in CSI bid history).
+    5. 19 names marked NOT_IN_BIDDER_LIST (private pit owners not in the client's bid history).
 """
 
 import re

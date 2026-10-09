@@ -98,7 +98,7 @@ def _registry() -> pd.DataFrame:
 
     # --- plan-corpus projects (the ingested plans) ----------------------------------------------
     # Fold in every plan from the manifest. Where a plan's contract_id matches a master project we
-    # attach the plan to that row; plans with no master match (e.g. NOBIDs CSI never bid) are added
+    # attach the plan to that row; plans with no master match (e.g. NOBIDs the client never bid) are added
     # as their own rows so they are still findable by name/location/SP.
     if MANIFEST.exists():
         man = pd.read_csv(MANIFEST, dtype=str).fillna("")
@@ -192,7 +192,7 @@ TOOL_SCHEMA = {
         "Resolve a project the user names or describes — by name, location (county/city/route), or "
         "an id like an SP/CP/PCN/contract number — to the actual project record(s). Use this when "
         "the user asks about a SPECIFIC project ('the Stearns CP-073 job', 'the Highway 23 project', "
-        "'Dunn County reconstruct'). Returns matching projects with their archetype, whether CSI bid/"
+        "'Dunn County reconstruct'). Returns matching projects with their archetype, whether the client bid/"
         "won, and whether a plan document is ingested (so you can then search_plans for its contents, "
         "filtering by plan_id). If several match, present them and ask which one."),
     "input_schema": {

@@ -1,9 +1,9 @@
 """
 Competitor-intelligence tool — "who do we run into, and who beats us?"
 
-Answers questions like "who are our biggest competitors in South Dakota?" or "who beats CSI most
-often?". Computed from the master CSV: for every project CSI bid on, look at the other bidders and
-whether they out-ranked CSI (a lower rank number = a better/lower bid).
+Answers questions like "who are our biggest competitors in South Dakota?" or "who beats the client most
+often?". Computed from the master CSV: for every project the client bid on, look at the other bidders and
+whether they out-ranked the client (a lower rank number = a better/lower bid).
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ _STATE_ALIASES = {"sd": "south dakota", "nd": "north dakota", "mn": "minnesota",
 
 @lru_cache(maxsize=1)
 def _head_to_head() -> pd.DataFrame:
-    """One row per (competitor, project CSI also bid): did the competitor out-rank CSI?"""
+    """One row per (competitor, project the client also bid): did the competitor out-rank the client?"""
     df = pd.read_csv(MASTER_CSV, dtype=str, low_memory=False)
     df["rank"] = pd.to_numeric(df["Bid_Rank"], errors="coerce")
     df["state_l"] = df["State"].astype(str).str.strip().str.lower()
@@ -27,14 +27,14 @@ def _head_to_head() -> pd.DataFrame:
     csi = (df[df["Is_CSI"] == "TRUE"][["Contract_Id", "rank"]]
            .rename(columns={"rank": "csi_rank"}).drop_duplicates("Contract_Id"))
     others = (df[df["Is_CSI"] != "TRUE"]
-              .merge(csi, on="Contract_Id", how="inner")        # only projects CSI also bid
+              .merge(csi, on="Contract_Id", how="inner")        # only projects the client also bid
               .dropna(subset=["rank", "csi_rank"]))
     others["beat_csi"] = others["rank"] < others["csi_rank"]
     return others
 
 
 def query_competitors(state: str | None = None, top_n: int = 5) -> dict:
-    """CSI's most-frequent competitors (optionally in one state) and how often they beat CSI."""
+    """The client's most-frequent competitors (optionally in one state) and how often they beat the client."""
     h2h = _head_to_head()
     scope = "all states"
     if state:
@@ -57,17 +57,17 @@ def query_competitors(state: str | None = None, top_n: int = 5) -> dict:
         "competitors": [{"name": r["Bidder_Clean_Name"], "shared_projects": int(r["shared"]),
                          "beat_csi_count": int(r["beat"]), "beat_csi_pct": r["beat_pct"]}
                         for _, r in g.iterrows()],
-        "note": "'shared' = projects both CSI and they bid; 'beat_csi_pct' = share of those where "
-                "they out-bid CSI (lower rank). Ranked by how often CSI runs into them.",
+        "note": "'shared' = projects both the client and they bid; 'beat_csi_pct' = share of those where "
+                "they out-bid the client (lower rank). Ranked by how often the client runs into them.",
     }
 
 
 TOOL_SCHEMA = {
     "name": "query_competitors",
     "description": (
-        "Look up CSI's competitors — who CSI most frequently bids against (optionally in one state) "
-        "and how often each beats CSI. Use for questions like 'who are our biggest competitors in "
-        "South Dakota', 'who beats us most often'. Computed from CSI's shared-project bidding record."),
+        "Look up the client's competitors — who the client most frequently bids against (optionally in one state) "
+        "and how often each beats the client. Use for questions like 'who are our biggest competitors in "
+        "South Dakota', 'who beats us most often'. Computed from the client's shared-project bidding record."),
     "input_schema": {
         "type": "object",
         "properties": {

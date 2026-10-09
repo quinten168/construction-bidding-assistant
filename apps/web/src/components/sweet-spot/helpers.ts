@@ -2,7 +2,7 @@ import { PROJECTS, WORK_TYPES, type Project, type WorkType } from "@/lib/data";
 
 // ── Sweet-spot thresholds (the quadrant lines) ───────────────────
 // A project lands in the "sweet spot" when model fit is strong AND the
-// projected/realized margin clears CSI's healthy-margin floor.
+// projected/realized margin clears the client's healthy-margin floor.
 export const FIT_LINE = 60; // fit ≥ 60 = a "go" candidate
 export const MARGIN_LINE = 10; // marginPct ≥ 10% = healthy work
 

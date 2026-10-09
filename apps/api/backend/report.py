@@ -375,7 +375,7 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
     # ND measures milling in TONS (NDDOT §411.06 pay unit is "Ton or Square Yard"), and milling_sy
     # is square yards by name and by contract. Dunn Job 23388 is BOTH at once — 408,216 SY of FDR
     # and 67,007 TON of milling/bituminous removal — so the tons are carried as their own row,
-    # unconverted. No depth is assumed: conversion waits on a CSI-supplied factor.
+    # unconverted. No depth is assumed: conversion waits on a client-supplied factor.
     # See docs/_spec/2026-08-10-milling-unit-capture.md.
     #
     # THE LABEL MUST NOT BE "MILL". bid_projects_record.py writes that label straight into the
@@ -429,7 +429,7 @@ def process_pdf(pdf_path: str | Path, plan_id: str | None = None) -> dict:
             "shoulder_conversion_status": conversion_status["shoulder_tons"]["status"],
             "mix_conversion_status": conversion_status["hot_mix_tons"]["status"],
             # And the same question for the CY bucket: cy_only / unconverted_only /
-            # cy_and_unconverted / not_present / unknown / inconsistent. CSI assigned CLEAN ROCK to
+            # cy_and_unconverted / not_present / unknown / inconsistent. The client assigned CLEAN ROCK to
             # grading and Dunn prices it in TONS, so a grading total of 38,535 CY that silently
             # omits 758 T now carries a status saying so.
             # docs/_spec/2026-08-11-grading-unit-capture.md.

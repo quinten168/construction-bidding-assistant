@@ -1,4 +1,4 @@
-# Search — feature spec (CSI Bidding Intelligence)
+# Search — feature spec (Construction Bidding Assistant)
 
 Status: proposed · 2026-06-30 · owner: T
 Context: we removed the Search + Pin rail icons (no functionality yet). This specs the

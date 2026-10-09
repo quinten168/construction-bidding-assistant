@@ -28,7 +28,7 @@ import bid_date  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Real corpus phrasings — (label, text, expected_date, expected_time)
-# Every one of these is a verbatim excerpt captured from "CSI ELP 2026" on 2026-08-10.
+# Every one of these is a verbatim excerpt captured from "Client ELP 2026" on 2026-08-10.
 # ─────────────────────────────────────────────────────────────────────────────
 CORPUS_PHRASINGS = [
     ("fulda_plan_set_p9",
@@ -324,9 +324,9 @@ def test_deadline_iso_roundtrip():
 # ─────────────────────────────────────────────────────────────────────────────
 
 CORPUS_ROOTS = [
-    Path("/Users/t/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/"
-         "00_summer 2026/00_CSI_ELP/CSI ELP 2026"),
-    Path("/Users/t/Library/CloudStorage/Box-Box/CSI ELP 2026"),
+    Path("/Users/dev/Library/Mobile Documents/com~apple~CloudDocs/00 MSBA + Coding/"
+         "00_summer 2026/00_Client_ELP/Client ELP 2026"),
+    Path("/Users/dev/Library/CloudStorage/Box-Box/Client ELP 2026"),
 ]
 
 # Measured 2026-08-10: 22 advertisement PDFs, 19 found, 2 genuinely-no-bid-date scanned notes,
@@ -342,7 +342,7 @@ def _corpus_root():
     return None
 
 
-@pytest.mark.skipif(_corpus_root() is None, reason="CSI ELP 2026 corpus not on this machine")
+@pytest.mark.skipif(_corpus_root() is None, reason="Client ELP 2026 corpus not on this machine")
 def test_corpus_layer1_hit_rate_does_not_regress():
     root = _corpus_root()
     ads = [p for p in root.rglob("*.pdf")

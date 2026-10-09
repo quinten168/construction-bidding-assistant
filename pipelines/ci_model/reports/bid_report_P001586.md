@@ -39,7 +39,7 @@ Bid Date: 2025-08-27 | Generated: 2026-07-01 10:35
   EDLING ELECTRIC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### NORTHERN IMPROVEMENT COMPANY
 - **Bid Rate (all locations, all types):** 8% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).

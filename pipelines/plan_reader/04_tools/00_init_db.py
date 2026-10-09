@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-00_init_db.py  —  PHASE 0, STEP 1: create the CSI Plan Reader V2 SQLite store.
+00_init_db.py  —  PHASE 0, STEP 1: create the client Plan Reader V2 SQLite store.
 
 Output: pipelines/plan_reader/csi_v2.db
 
@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS plan_metrics (
   has_structures_work INTEGER,
   has_phasing        INTEGER,
   contract_duration_days INTEGER,
-  messiness_score    REAL,        -- RESERVED; NULL until weights tuned with CSI
+  messiness_score    REAL,        -- RESERVED; NULL until weights tuned with the client
   -- Phase 2 parking lot (stays NULL for now)
   spatial_fragmentation REAL,     -- conversion-gated; Phase 2
   -- gotcha rollup
@@ -292,7 +292,7 @@ def print_row_counts(conn):
 
 # --- main --------------------------------------------------------------------
 def main():
-    print(f"Initializing CSI Plan Reader V2 store at:\n  {DB_PATH}\n")
+    print(f"Initializing the client Plan Reader V2 store at:\n  {DB_PATH}\n")
 
     conn = sqlite3.connect(DB_PATH)
     try:

@@ -9,8 +9,8 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const fraunces = Fraunces({ variable: "--font-serif", subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  title: "CSI Bid Assistant",
-  description: "Central Specialties' estimating copilot — ask the plans, flag the gotchas, cite every figure.",
+  title: "Construction Bidding Assistant",
+  description: "The client's estimating copilot — ask the plans, flag the gotchas, cite every figure.",
 };
 
 // Chat is still the home route ("/"), but the CI-data admin pages (bid results, pit list,

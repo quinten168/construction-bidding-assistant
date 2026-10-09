@@ -14,7 +14,7 @@ field, no field_confidence entry, no citation. `schema.py` now captures those se
 (`base_cy_items`/`shoulder_cy_items`/`mix_sy_depth_items`, each a RAW per-item list — quantity, unit,
 stated depth — with NO arithmetic performed at extraction time; see schema.py's field descriptions
 and `resolve_cy_item()`). This module does the two remaining steps: sum each item's CY (or
-SY*inches) contribution, then apply the CSI-supplied density constant.
+SY*inches) contribution, then apply the client-supplied density constant.
 
 ALL ARITHMETIC IS CODE-ONLY, NEVER THE MODEL'S
 --------------------------------------------------
@@ -29,7 +29,7 @@ every sum, geometric or density, happens here, in auditable, testable Python.
 
 CONSTANT PROVENANCE
 --------------------
-`AGGREGATE_TON_PER_CY` and `MIX_TON_PER_SY_INCH` are CSI-supplied (MnDOT reference conversion
+`AGGREGATE_TON_PER_CY` and `MIX_TON_PER_SY_INCH` are the client-supplied (MnDOT reference conversion
 table), confirmed 2026-08-10. This is a DIFFERENT, more authoritative source than
 `bucket_hierarchy.csv`'s `1.75 Ton/CY`, which every existing reference to it flags as unverified and
 never checked against a plan (`schema.py`'s milling_tons comment, `docs/_spec/2026-08-10-milling-
@@ -49,15 +49,15 @@ from pathlib import Path
 
 import schema
 
-AGGREGATE_TON_PER_CY = 1.55    # CSI-supplied (MnDOT), confirmed 2026-08-10 — distinct from and
+AGGREGATE_TON_PER_CY = 1.55    # the client-supplied (MnDOT), confirmed 2026-08-10 — distinct from and
                                  # supersedes bucket_hierarchy.csv's unverified 1.75 for this use.
-MIX_TON_PER_SY_INCH = 0.0565   # CSI-supplied (MnDOT), confirmed 2026-08-10.
+MIX_TON_PER_SY_INCH = 0.0565   # the client-supplied (MnDOT), confirmed 2026-08-10.
 
 
 # ── The conversion flag: computed at import, NEVER configured ─────────────────
 #
 # Added 2026-08-10 as the integration step for PR #102. The engine above is correct and validated
-# (it reproduces CSI's own hand-computed 3,851.75 / 13.09 / 1,901.34 on plan 9786015 to the cent),
+# (it reproduces the client's own hand-computed 3,851.75 / 13.09 / 1,901.34 on plan 9786015 to the cent),
 # but it is NOT yet allowed to change a number a human reads. Three things are still missing —
 # per-value provenance, the two internal failure/empty collapses, and a reconciled status
 # vocabulary — and until they land, a converted tonnage is indistinguishable from a stated one on
@@ -80,7 +80,7 @@ MIX_TON_PER_SY_INCH = 0.0565   # CSI-supplied (MnDOT), confirmed 2026-08-10.
 #
 # A fresh clone therefore has conversion OFF with no action taken, and `git grep` for a config file
 # to fix will find nothing, because there isn't one. Turning it on takes three deliberate positive
-# acts by three different kinds of authority (CSI, a recorded test run, an operator).
+# acts by three different kinds of authority (the client, a recorded test run, an operator).
 #
 # WITH THE FLAG OFF, `merge_material_tons` returns the native TON extraction and nothing else — the
 # exact pre-#102 numbers. The three items fields are still EXTRACTED and still carried in
@@ -91,19 +91,19 @@ OPERATOR_OPT_IN_ENV = "PLAN_READER_MATERIAL_CONVERSION"
 OPERATOR_OPT_IN_TOKEN = "on"     # the ONE accepted value; compared case-insensitively, stripped
 
 # The factor table. `blessed_by`/`blessed_on` are G1, and they are deliberately empty: no factor in
-# this table has been signed off by CSI in writing. The numbers themselves are the data-validated
-# assumption (they reproduce CSI's own arithmetic exactly, §10.1 of the placed-material spec), which
+# this table has been signed off by the client in writing. The numbers themselves are the data-validated
+# assumption (they reproduce the client's own arithmetic exactly, §10.1 of the placed-material spec), which
 # is why they are recorded here with their basis rather than left blank — but a reproduction is
-# evidence that these are the factors CSI *used*, not that they are the factors CSI *endorses*.
+# evidence that these are the factors the client *used*, not that they are the factors the client *endorses*.
 FACTOR_TABLE = {
     "F1": {"material": "Bituminous mixture, placed (MN Type SP / ND Superpave / SD Asphalt Concrete)",
            "factor": MIX_TON_PER_SY_INCH, "units": "ton per SY per inch of compacted depth",
-           "basis": "113 lb/SY-in / 2000 — MnDOT reference conversion table (CSI-supplied "
+           "basis": "113 lb/SY-in / 2000 — MnDOT reference conversion table (the client-supplied "
                     "2026-08-10); ASSUMPTION, not traced to a printed state spec-book page",
            "blessed_by": "", "blessed_on": ""},
     "F2": {"material": "Class 5 aggregate base / shoulder aggregate, purchased and placed",
            "factor": AGGREGATE_TON_PER_CY, "units": "ton per CY",
-           "basis": "3,100 lb/CY / 2000 — MnDOT reference conversion table (CSI-supplied "
+           "basis": "3,100 lb/CY / 2000 — MnDOT reference conversion table (the client-supplied "
                     "2026-08-10); ASSUMPTION, not traced to a printed state spec-book page",
            "blessed_by": "", "blessed_on": ""},
 }
@@ -263,7 +263,7 @@ def sum_milling_sy_items(record: dict) -> float | None:
     the model's own milling_sy scalar.
 
     Deliberately NOT wired into merge_material_tons/_BUCKETS above: those three buckets convert a
-    DIFFERENT unit into tons using an unverified, CSI-gated density factor (CONVERSION_ENABLED).
+    DIFFERENT unit into tons using an unverified, the client-gated density factor (CONVERSION_ENABLED).
     milling_sy_items needs no conversion and no gate — every entry is already in SY, milling_sy's
     own native unit, so this is plain same-unit addition, not an unverified constant, and ships
     unconditionally regardless of CONVERSION_ENABLED.

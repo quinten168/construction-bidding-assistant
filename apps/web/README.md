@@ -1,7 +1,7 @@
 # BidIntel — frontend sandbox
 
 A glass, seamless, data-rich console for an AI-native **bid intelligence platform** for civil/highway
-contractors. This is a **clean-room frontend prototype** (no CSI code) — the demo that doubles as the YC
+contractors. This is a **clean-room frontend prototype** (no client code) — the demo that doubles as the YC
 artifact and the Anthropic-FDE artifact. Backend is mocked; another track owns the real pipeline.
 
 ## Run

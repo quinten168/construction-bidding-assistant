@@ -1,4 +1,4 @@
-"""Connect to the CSI Supabase database and pull data into data/raw/.
+"""Connect to the client's Supabase database and pull data into data/raw/.
 
 Reads from the `scratch` schema (csi_team's own writable workspace) by default — use --schema
 public to read the read-only plan_reader snapshot instead. See docs/DATA_ACCESS.md and the

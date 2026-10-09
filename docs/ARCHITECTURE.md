@@ -1,4 +1,4 @@
-# CSI Bid Intelligence — System Architecture
+# Construction Bidding Assistant — System Architecture
 
 **Audience:** Mochen (faculty advisor). **Scope:** the whole system, not one branch.
 
@@ -274,7 +274,7 @@ line and a written report file on disk.
 ```
 
 `--project-key` takes a `project_natural_key` (e.g. `MN_STEARNS_CO_MELROSE_2023-08-03`). This flag
-was `--job-id` before 2026-07-28; `job_id` itself (CSI's local CSV row id, renumbered by
+was `--job-id` before 2026-07-28; `job_id` itself (the client's local CSV row id, renumbered by
 row-sort-position on every regeneration, never a stable identifier across pipeline runs) was
 removed entirely on 2026-08-01.
 

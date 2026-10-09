@@ -39,7 +39,7 @@ Bid Date: 2025-08-21 | Generated: 2026-06-30 23:20
   KUECHLE UNDERGROUND INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### DUININCK INC
 - **Bid Rate (all locations, all types):** 17% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).

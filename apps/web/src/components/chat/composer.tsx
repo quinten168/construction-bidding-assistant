@@ -201,7 +201,7 @@ export function Composer({
       </div>
       {hint && (
         <p className="mt-2 text-center text-[11px] text-muted-foreground/70">
-          CSI Bid Assistant cites every figure to its source page · decision support, not final pricing
+          Construction Bidding Assistant cites every figure to its source page · decision support, not final pricing
         </p>
       )}
     </div>

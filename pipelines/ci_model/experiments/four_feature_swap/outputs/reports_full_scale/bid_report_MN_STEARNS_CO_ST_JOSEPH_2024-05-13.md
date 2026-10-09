@@ -41,37 +41,37 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
   JR FERCHE INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### KNIFE RIVER - ST. CLOUD
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 29% (38 wins from 131 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 41% (13 wins from 32 bids in this county).
 
 ### MARK SAND & GRAVEL COMPANY
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 23% (16 wins from 69 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 0% (0 wins from 4 bids in this county).
 
 ### DUININCK INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 15% (19 wins from 125 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 0% (0 wins from 14 bids in this county).
 
 ### Anderson Brothers
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 54% (22 wins from 41 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -79,48 +79,48 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
 
 ### OMG MIDWEST INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 22% (14 wins from 63 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 33% (8 wins from 24 bids in this county).
 
 ### LANDWEHR CONSTRUCTION INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 16% (5 wins from 31 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 17% (2 wins from 12 bids in this county).
 
 ### RL LARSON EXCAVATING
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 21% (6 wins from 28 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 15% (2 wins from 13 bids in this county).
 
 ### C & L EXCAVATING
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 23% (3 wins from 13 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 14% (2 wins from 14 bids in this county).
 
 ### KUECHLE UNDERGROUND INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 30% (3 wins from 10 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 33% (2 wins from 6 bids in this county).
 
 ### JR FERCHE INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 2% (1 win from 40 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** 16% (3 wins from 19 bids in this county).

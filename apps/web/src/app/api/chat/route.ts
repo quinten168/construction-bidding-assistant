@@ -1,5 +1,5 @@
 // ────────────────────────────────────────────────────────────────────────────
-// Chat proxy → the real CSI Bid Assistant backend (FastAPI, bid_assistant/app.py).
+// Chat proxy → the real Construction Bidding Assistant backend (FastAPI, bid_assistant/app.py).
 //
 // The browser POSTs here (same-origin, no CORS); we forward to the FastAPI
 // `/api/chat` endpoint and stream its Server-Sent Events straight back. Keeping

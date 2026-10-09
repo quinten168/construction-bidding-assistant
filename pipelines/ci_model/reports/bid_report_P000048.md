@@ -39,7 +39,7 @@ Bid Date: 2023-10-13 | Generated: 2026-07-14 14:23
   HLEBECHUK CONSTRUCTION
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### GLADEN CONSTRUCTION INC
 - **Bid Rate (all locations, all types):** 20% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
@@ -53,7 +53,7 @@ Bid Date: 2023-10-13 | Generated: 2026-07-14 14:23
 - **Bid Rate (all locations, all types):** 27% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** Fewer than 3 Other bids on record — insufficient data.
 - **Win Rate — RENVILLE CO (all types):** 29% (2 wins from 7 bids in this county).
 
@@ -61,7 +61,7 @@ Bid Date: 2023-10-13 | Generated: 2026-07-14 14:23
 - **Bid Rate (all locations, all types):** 17% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** 50% (5 wins from 10 Other bids).
 - **Win Rate — RENVILLE CO (all types):** 0% (0 wins from 3 bids in this county).
 
@@ -103,7 +103,7 @@ Bid Date: 2023-10-13 | Generated: 2026-07-14 14:23
 - **Bid Rate (all locations, all types):** 15% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** 20% (1 win from 5 Other bids).
 - **Win Rate — RENVILLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 

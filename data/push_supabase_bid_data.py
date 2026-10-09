@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Push CSI bid-tab data (projects.csv / bidder_results.csv / the competitor name registry / the
-MN pit list) to the CSI Supabase database's `scratch` schema (csi_team's own writable workspace).
+"""Push the client bid-tab data (projects.csv / bidder_results.csv / the competitor name registry / the
+MN pit list) to the client's Supabase database's `scratch` schema (csi_team's own writable workspace).
 See docs/DATA_ACCESS_SCRATCH.md.
 
 scratch.bid_projects, scratch.bid_results, scratch.competitor_name_registry, and
@@ -207,7 +207,7 @@ def _typed_value(col: str, value):
 def load_projects(path: str) -> pd.DataFrame:
     df = pd.read_csv(path, dtype=str)
     # bid_year must come from the CSV as-is (source-file provenance -- see build_projects() in
-    # data/build_project_competitor_panel.py), not be recomputed from bid_date here: CSI's fiscal
+    # data/build_project_competitor_panel.py), not be recomputed from bid_date here: the client's fiscal
     # year runs Aug 1-Jul 31, one year ahead of the calendar year for Aug-Dec bids, and plain
     # calendar-year math on bid_date silently mislabeled every Aug-Dec row until this was fixed.
     _require_columns(df, {"project_natural_key", "bid_date", "bid_year", "state", "county"}, path)

@@ -239,7 +239,7 @@ hosted Postgres so the team can query them over a connection string.
 
 ```
 pipelines/plan_reader/csi_v2.db -> ~/Library/Mobile Documents/com~apple~CloudDocs/
-    00 MSBA + Coding/00_summer 2026/00_CSI_ELP/01_Summer_2026/02_modules/plan_reader/csi_v2.db
+    00 MSBA + Coding/00_summer 2026/00_Client_ELP/01_Summer_2026/02_modules/plan_reader/csi_v2.db
 ```
 
 This had never been written down, and it misleads in two specific ways:
@@ -249,7 +249,7 @@ This had never been written down, and it misleads in two specific ways:
 - **It exists on exactly one machine.** A teammate who clones the repo gets a dangling link, not a
   database — which is a different failure from "file not found" and reads as corruption.
 
-The only backup is `/Users/t/Desktop/csi_v2_backup_2026-08-03.db` (117 plans, `integrity_check ok`,
+The only backup is `/Users/dev/Desktop/csi_v2_backup_2026-08-03.db` (117 plans, `integrity_check ok`,
 SHA-256 identical to the iCloud source). **Run audits against the backup, not the symlink.**
 
 ### ⛔ DO NOT DELETE `csi_v2.db`. The runtime repoint did NOT retire it.
@@ -285,7 +285,7 @@ plans would fail again exactly as they did before, and the result would be a non
 A verified gzip of the backup — `csi_v2_2026-08-03.db.gz`, 29.8 MB, decompressed SHA-256 identical
 to source, restores to a database with `integrity_check ok` — is held by Tobias on **external
 media**. It is deliberately **not in any repo, any GitHub Release, or any cloud store**: the
-database is derived from CSI's data and CSI owns it under the current agreement. Do not go looking
+database is derived from the client's data and the client owns it under the current agreement. Do not go looking
 for it in git history, and do not upload it anywhere.
 
 Retiring this file requires publishing `sections` and `section_intelligence`, deciding what to do
@@ -301,12 +301,12 @@ three are corpus-wide reference/lookup tables.
 | table | rows | what it is | grain |
 |---|---:|---|---|
 | `plans` | 117 | one row per plan set: state, county, year, DOT project and contract id, document type, archetype, source paths, convert status | one plan |
-| `materials` | 6,385 | bid-schedule line items: item number, raw description, mapped CSI bucket, spec category, quantity, unit, page, parse confidence | one bid line |
+| `materials` | 6,385 | bid-schedule line items: item number, raw description, mapped material bucket, spec category, quantity, unit, page, parse confidence | one bid line |
 | `plan_metrics` | 100 | per-plan rollup: the seven material buckets, work type, size tier and percentile, bid-item and spec-category counts, gotcha counts, contract duration, extraction cost | one plan |
 | `gotchas` | 1,435 | risk flags with verbatim evidence: flag type, family, decision class (`go_no_go` or `pricing`), evidence excerpt, page list, confidence | one flag occurrence |
 | `location_intelligence` | 511 | empirical map of where each fact type appears in a document, with prevalence and an authoritative-occurrence rank | one target and section pairing |
 | `material_crosswalk` | 2,434 | reference: normalized bid-item description to spec category, per state, with match source and confidence | one description and state pairing |
-| `bucket_hierarchy` | 6 | reference: the CSI material bucket hierarchy, units, and the grading-tonnage conversions | one sub-bucket |
+| `bucket_hierarchy` | 6 | reference: the client's material bucket hierarchy, units, and the grading-tonnage conversions | one sub-bucket |
 | `section_taxonomy` | 18 | reference: document section types with relevance and tier | one section type |
 
 `plan_metrics` has 100 rows against `plans`' 117 because the rollup only covers plans that

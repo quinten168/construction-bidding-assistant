@@ -66,7 +66,7 @@ def load_master_by_cid():
 
 
 def derive_outcome(cid_rows):
-    """Canonical CSI outcome from the row set (see CLAUDE.md): CSI won iff ITS OWN
+    """Canonical the client outcome from the row set (see CLAUDE.md): the client won iff ITS OWN
     bid ranked 1st. Returns (outcome, csi_row_or_None)."""
     csi = next((r for r in cid_rows if r.get("Is_CSI", "").upper() == "TRUE"), None)
     if csi is None:
@@ -98,7 +98,7 @@ def build_row(cid, status, master_by_cid):
         "mill_sy": any_row.get("MILL_SY", ""), "crush_tn": any_row.get("CRUSH_TN", ""),
         "stock_tn": any_row.get("STOCK_TN", ""), "box": any_row.get("BOX", ""),
         "winning_bid_amount": any_row.get("Winner_Amount", ""),
-        # AUTO CSI-specific
+        # AUTO the client-specific
         "bid_outcome": outcome,
         "csi_bid_amount": (csi or {}).get("Bid_Amount", ""),
         "gross_margin": (csi or {}).get("Margin_Pct", ""),

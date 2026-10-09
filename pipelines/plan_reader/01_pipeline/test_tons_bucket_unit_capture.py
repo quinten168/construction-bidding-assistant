@@ -2,7 +2,7 @@
 Coverage test — a tons bucket the bid schedule measured in some OTHER unit must surface the item,
 its value and its unit, with a reason. It must never come back as a bare null.
 
-THE DEFECT THIS GUARDS (CSI live test, plan 9786015 — CSAH 2 / Maryland Ave, Murray Co MN)
+THE DEFECT THIS GUARDS (the client live test, plan 9786015 — CSAH 2 / Maryland Ave, Murray Co MN)
 ------------------------------------------------------------------------------------------
 `hot_mix_tons` / `base_tons` / `shoulder_tons` are TONS by name and by destination column
 (bid_projects.mix_tn / base_tn / shldr_tn). 9786015 measures ALL THREE in something else —
@@ -92,7 +92,7 @@ def test_9786015_cy_base_is_now_surfaced_with_its_value_its_unit_and_a_reason():
 
 
 def test_9786015_hot_mix_and_shoulder_were_dropped_the_same_way_and_are_now_surfaced_too():
-    """The plan CSI tested drops all three tons buckets, not just base. All three are covered."""
+    """The plan the client tested drops all three tons buckets, not just base. All three are covered."""
     green = _load(GREEN)
     cap = green["capture"]
     for bucket in ("hot_mix", "shoulder"):

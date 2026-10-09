@@ -1,4 +1,4 @@
-# CSI Bid Assistant — FastAPI backend serving the Next.js frontend (apps/web)
+# Construction Bidding Assistant — FastAPI backend serving the Next.js frontend (apps/web)
 fastapi>=0.115
 uvicorn[standard]>=0.30
 anthropic>=0.40

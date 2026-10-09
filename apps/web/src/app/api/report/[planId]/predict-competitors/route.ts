@@ -1,5 +1,5 @@
 // ────────────────────────────────────────────────────────────────────────────
-// Report predict-competitors proxy → the real CSI Bid Assistant backend
+// Report predict-competitors proxy → the real Construction Bidding Assistant backend
 // (FastAPI POST /api/report/{plan_id}/predict-competitors).
 //
 // Between the two verify-gate popups: the browser POSTs {extraction, edits} right after the

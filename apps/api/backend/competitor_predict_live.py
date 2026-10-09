@@ -71,14 +71,14 @@ V3_RECURRING_REGIONAL_WEIGHT = 1.5
 # trip it -- this is an anomaly guard, not a normal-operation branch.
 MIN_POOL_SIZE = 10
 
-# CSI's own bid entity, resolved through the registry to this canonical competitor_unit_id -- must
+# The client's own bid entity, resolved through the registry to this canonical competitor_unit_id -- must
 # never be predicted as a competitor to itself. Mirrors pipelines/ci_model/shared/config.py's
 # CLIENT_UNIT_IDS (duplicated, not imported -- apps/ cannot import pipelines/, invariant 1; same
 # convention as this file's V3_* constants above). That offline pipeline excludes it when building
 # the training panel / ranking_predictions.csv, which is why tier 1 (fresh CI-generated reports)
 # has never shown it -- verified live 2026-08-10 against a real corpus project. This live path
 # (tier 3) was NOT excluding it -- an omission from porting the V3 signals on 2026-08-09, found
-# live the same way: CSI itself (606 historical bids, the single most active bidder in the
+# live the same way: the client itself (606 historical bids, the single most active bidder in the
 # dataset -- see CLAUDE.md) was appearing in its own predicted-competitor lists. If the client ever
 # operates under an additional entity, add its resolved comp_name here AND to CLIENT_UNIT_IDS --
 # two places, not shared code, same drift risk as every other apps/pipelines mirror in this file.
@@ -241,7 +241,7 @@ def _candidate_pool(conn, county: str, state: str, project_type: str | None, bef
         if fallback_score >= V3_FALLBACK_SCORE_THRESHOLD:
             pool.add(cid)
 
-    pool -= CLIENT_UNIT_IDS                              # never predict CSI as its own competitor
+    pool -= CLIENT_UNIT_IDS                              # never predict the client as its own competitor
 
     log.info("live candidate pool: %d (default_90d=%d, fallback=%d) for %s/%s before %s",
              len(pool), len(in_default_90d), len(pool) - len(in_default_90d), county, state, before_date)

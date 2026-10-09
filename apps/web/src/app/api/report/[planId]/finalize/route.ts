@@ -1,5 +1,5 @@
 // ────────────────────────────────────────────────────────────────────────────
-// Report finalize proxy → the real CSI Bid Assistant backend
+// Report finalize proxy → the real Construction Bidding Assistant backend
 // (FastAPI POST /api/report/{plan_id}/finalize).
 //
 // Phase ② of the verify gate: the browser POSTs {extraction, edits} (plain JSON — the

@@ -102,7 +102,7 @@ def normalise(text: str) -> str:
     """NBSP/thin-space → space, curly quotes → straight, collapse runs of whitespace.
 
     The corpus is full of \\xa0 (Swift Co's advertisement is entirely NBSP-separated) — the same
-    class of bug that silently bypassed five of CSI's rulings in quantity_crosswalk.py.
+    class of bug that silently bypassed five of the client's rulings in quantity_crosswalk.py.
     """
     text = (text.replace("\xa0", " ").replace(" ", " ").replace(" ", " ")
                 .replace("’", "'").replace("‘", "'")
@@ -422,7 +422,7 @@ def extract_from_pdf(pdf: Path, layer: int = LAYER_ADVERTISEMENT_PDF,
 # Layer 1 — find the standalone advertisement next to a plan set
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Corpus naming, verified 2026-08-10 over "CSI ELP 2026": "8376434 AD.pdf", "AD.pdf",
+# Corpus naming, verified 2026-08-10 over "the client ELP 2026": "8376434 AD.pdf", "AD.pdf",
 # "007-626-019 AD FOR BIDS.pdf", "4130-304_Ad for Bid.pdf", "Advert SAP 061-615-008.pdf",
 # "4_1239_Advertisement for Bids (1).pdf", "3 - AD for BID (1).pdf".
 _AD_NAME = re.compile(r"(?:^|[\s_\-])ad(?:$|[\s_.\-])|advert", re.I)

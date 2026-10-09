@@ -14,7 +14,7 @@ Signals (per the project scope):
 
 ## Interface contract (to define before wiring into the dashboard)
 
-The dashboard's "Ask CSI" page needs a stable function/CSV contract, e.g.:
+The dashboard's "Ask the client" page needs a stable function/CSV contract, e.g.:
 
 ```python
 likely_competitors(contract_id | location) -> list[{competitor, rationale, confidence}]
@@ -22,7 +22,7 @@ likely_competitors(contract_id | location) -> list[{competitor, rationale, confi
 
 ## Reuse from Fall 2025 (do not re-derive)
 
-- `99_archive/fall_2025/99_Fall_2025_CSI_Project/scripts/competitor_bid_quality_analysis.py`
+- `99_archive/fall_2025/99_Fall_2025_Client_Project/scripts/competitor_bid_quality_analysis.py`
   — `NAME_MAPPING` vendor-name normalization + bid-quality bucketing.
 - `.../scripts/peer_group_analysis.py` — competitor ranking methodology (4 methods + consensus).
 

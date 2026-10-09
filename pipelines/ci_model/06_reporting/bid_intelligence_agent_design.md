@@ -1,15 +1,15 @@
-# CSI Bid Intelligence Agent — Architecture & Pipeline Design
+# Bid Intelligence Agent — Architecture & Pipeline Design
 
-> Adapted for CSI Competitor Bid Prediction System | Model: Logistic Regression | Last updated: 2026-06-21
+> Adapted for the client's Competitor Bid Prediction System | Model: Logistic Regression | Last updated: 2026-06-21
 
 ---
 
 ## 1. Goal Hierarchy
 
-| Level | Definition | CSI Application |
+| Level | Definition | Client Application |
 |---|---|---|
-| **Mission** | Open-ended, evolving pursuit | Help CSI understand the competitive landscape before every bid, enabling smarter pricing and go/no-go decisions |
-| **Objectives** | Scoped, measurable milestones | (1) Predict which competitors will bid on a given project, (2) Explain *why* in business language, (3) Generate a readable report for CSI decision-makers |
+| **Mission** | Open-ended, evolving pursuit | Help the client understand the competitive landscape before every bid, enabling smarter pricing and go/no-go decisions |
+| **Objectives** | Scoped, measurable milestones | (1) Predict which competitors will bid on a given project, (2) Explain *why* in business language, (3) Generate a readable report for the client's decision-makers |
 | **Tasks** | Atomic, tool-bound, executable steps | Run LR prediction → Calculate feature contributions → Translate to narrative → Assemble report → Export PDF/Word |
 
 ---
@@ -314,7 +314,7 @@ This matches the **Limit tool exposure** principle (Section 11): each agent has 
 ┌─────────────────────────────────────────────────────────────┐
 │ LAYER 1: Role & Identity (Static — never changes at runtime) │
 ├─────────────────────────────────────────────────────────────┤
-│ "You are a bid intelligence analyst for CSI, a highway      │
+│ "You are a bid intelligence analyst for the client, a       │
 │ construction company. Your job is to analyze competitor      │
 │ bid behavior and explain predictions in clear business       │
 │ language. Never use ML or statistics jargon."               │
@@ -354,7 +354,7 @@ This matches the **Limit tool exposure** principle (Section 11): each agent has 
 ├─────────────────────────────────────────────────────────────┤
 │ Input:  same_county_prior_bid_count=8, paving_match=1,      │
 │         recent_3m_bid_count=4, probability=0.82             │
-│ Output: "Central Specialties has a strong presence in this  │
+│ Output: "This competitor has a strong presence in this      │
 │         county with 8 prior bids. Their paving capability   │
 │         aligns with this project's scope, and recent high   │
 │         activity suggests active pursuit. Threat: HIGH"     │
@@ -406,7 +406,7 @@ Output JSON only:
 
 ## 7. Failure Modes & Guardrails
 
-| Failure Mode | Risk in CSI Agent | Guardrail |
+| Failure Mode | Risk in Bid Intelligence Agent | Guardrail |
 |---|---|---|
 | **Hallucination** | LLM invents competitor history | All narratives must be grounded in actual feature values. LLM only polishes language, never generates facts. |
 | **Cascade Failure** | Bad prediction → bad narrative → bad report | Each tool validates its output before passing downstream. Confidence < 0.4 triggers a LOW flag and stops deep analysis. |
@@ -456,7 +456,7 @@ SECTION 2: THREAT MATRIX
 
 SECTION 3A: PRIORITY COMPETITORS — Deep Dives
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*(Known top competitors tracked by CSI — HIGH and MEDIUM threats)*
+*(Known top competitors tracked by the client — HIGH and MEDIUM threats)*
 
 SECTION 3B: DISCOVERY COMPETITORS — Deep Dives
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -550,5 +550,5 @@ All components are complete as of 2026-06-21. The pipeline has been run end-to-e
 ---
 
 *Document owner: Quinten (Hsin Kuei Chang)*
-*Project: CSI ELP — Bid Intelligence System*
+*Project: Bid Intelligence System*
 *Model: Logistic Regression (model_1_wenyu)*

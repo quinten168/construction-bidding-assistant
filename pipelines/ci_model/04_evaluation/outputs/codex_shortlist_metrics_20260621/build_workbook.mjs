@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
-const base = "/Users/wenyuzhong/Downloads/CSI ELP 2026-selected/csi-bid-intelligence-ci-model/ci_model/model_1_wenyu/04_evaluation/outputs";
+const base = "/Users/dev/Downloads/Client ELP 2026-selected/construction-bidding-assistant-ci-model/ci_model/model_1/04_evaluation/outputs";
 const inputCsv = `${base}/shortlist_metrics_rule_logistic_20260621.csv`;
 const outputDir = `${base}/codex_shortlist_metrics_20260621`;
 const outputXlsx = `${outputDir}/model1_shortlist_metrics_rule_logistic_20260621.xlsx`;

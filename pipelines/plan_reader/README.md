@@ -18,7 +18,7 @@
 > equivalent artifact on the competitor-intelligence side.
 
 Ingest highway-construction RFP/plan PDFs and turn them into structured, searchable
-data: a **whole-document field extractor** for the bid fields CSI tracks, and a
+data: a **whole-document field extractor** for the bid fields the client tracks, and a
 **RAG layer** (ChromaDB + MiniLM + Claude) for grounded, cited Q&A over gotchas and
 comparables that hide in 100–280 page documents. Owners: Jay + T.
 
@@ -268,7 +268,7 @@ P=pipelines/plan_reader
 > full structured JSON + `flags.csv`, use **`run.py inspect <pdf>`** (steps 1–4 above are for inspecting
 > individual pieces).
 
-Corpus today: **11 plans / 4,338 chunks** (MN ×5 · ND ×3 · SD ×3; 2 CSI wins, 4 losses, 5 no-bids),
+Corpus today: **11 plans / 4,338 chunks** (MN ×5 · ND ×3 · SD ×3; 2 client wins, 4 losses, 5 no-bids),
 section-taxonomy v2 ON: vs the 4,923 keep-all baseline, 2,454 boilerplate paragraphs stripped + 328
 DROP-section chunks removed, 912 chunks down-weighted, and **56 boilerplate pages spared from DROP**
 because they carried a real gotcha. Pages by relevance: DECISION 999 · PRICING 453 · BOILERPLATE 713.
@@ -278,7 +278,7 @@ because they carried a real gotcha. Pages by relevance: DECISION 999 · PRICING 
 ## Design decisions (and the lessons behind them)
 
 - **Markdown, not flat text** (Phase 2): pymupdf4llm keeps the bid-schedule quantity tables as real Markdown tables (the old pdfplumber `extract_text` smeared them to number-soup) — 1,160 tables / 10k rows recovered corpus-wide, vs 0. Evidence: `02_outputs/2026-06-10_conversion_quality.md`.
-- **Hybrid conversion**: pymupdf returns *empty* on pure CAD/drawing pages where pdfplumber still recovers fragmented text (Yankton, a CSI win, lost 124/144 pages without the fallback). So `00_convert` back-fills empty pages from pdfplumber. Conversion is cached (~1.2s/page on dense plans — convert once).
+- **Hybrid conversion**: pymupdf returns *empty* on pure CAD/drawing pages where pdfplumber still recovers fragmented text (Yankton, a client win, lost 124/144 pages without the fallback). So `00_convert` back-fills empty pages from pdfplumber. Conversion is cached (~1.2s/page on dense plans — convert once).
 - **Two-axis section taxonomy (encodes Alex's estimator process)**: every section carries a
   `relevance` (DECISION / PRICING / BOILERPLATE — what *Alex* uses to triage) **and** a `tier`
   (KEEP / DOWN_WEIGHT / DROP — what the vector store does). PRICING stays KEEP (the extractor

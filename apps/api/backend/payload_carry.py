@@ -26,7 +26,7 @@ CARRIED_FIELDS: tuple[str, ...] = (
     # The tons buckets' off-unit capture (2026-08-10, eleventh instance of the standing rule).
     # hot_mix_tons/base_tons/shoulder_tons are TONS by name and by destination column, so a bucket
     # the bid schedule measures in CY or SY used to come back as a bare null — indistinguishable
-    # from "this plan has no base at all". CSI hit it on plan 9786015, whose base is 2,485 CY.
+    # from "this plan has no base at all". The client hit it on plan 9786015, whose base is 2,485 CY.
     # Each of these carries the ITEM, its VALUE and its UNIT verbatim, unconverted and unsummed; the
     # REASON it was not counted is the sibling `schema.bucket_unit_status()` on identity, and the
     # `_status` this registry adds keeps "the plan has none" apart from "we never read it".
@@ -35,7 +35,7 @@ CARRIED_FIELDS: tuple[str, ...] = (
     "base_unconverted",
     "shoulder_unconverted",
     # grading's off-unit capture (2026-08-11, twelfth instance of the same rule). grading_quantity
-    # is CUBIC YARDS, and CSI assigned it CLEAN ROCK — which Dunn prices in TONS. The shipped prose
+    # is CUBIC YARDS, and the client assigned it CLEAN ROCK — which Dunn prices in TONS. The shipped prose
     # named the item and then forbade tons-measured items two sentences later, so 758 T was in no
     # bucket on 13 of 13 measured runs with nothing to say so. Same contract as the three above:
     # the ITEM, its VALUE and its UNIT verbatim, unconverted and unsummed; the REASON is the

@@ -2,7 +2,7 @@
 
 The guarantee under test is NOT "the arithmetic is right" — PR #102's own validation already
 proved that (docs/_session/2026-08-10-pr102-validation.md §1: 1,000 deterministic repeats, all
-three of CSI's hand-computed figures reproduced to the cent). The guarantee here is that **the
+three of the client's hand-computed figures reproduced to the cent). The guarantee here is that **the
 engine is dormant by default**, and that being dormant is a state a reader can see rather than a
 null they cannot interpret.
 
@@ -95,7 +95,7 @@ def test_the_default_is_computed_not_configured():
     Checks each gate independently so a future change that satisfies one still leaves the flag off
     for a stated, findable reason rather than by luck."""
     assert material_tons_merge._g1_factors_blessed() is False, \
-        "a factor row acquired a blessed_by/blessed_on — G1 now passes; this is a CSI sign-off " \
+        "a factor row acquired a blessed_by/blessed_on — G1 now passes; this is a client sign-off " \
         "event and the flag's status must be re-decided deliberately, not drift on"
     assert material_tons_merge._g2_acceptance_recorded() is False
     assert not material_tons_merge.ACCEPTANCE_RECORD_PATH.exists(), \
@@ -197,7 +197,7 @@ def test_the_status_never_leaks_the_withheld_tonnage():
 # ── Flag ON: disabled without being broken ────────────────────────────────────
 
 def test_flag_on_still_reproduces_csi_figures(flag_on):
-    """Proves the flag disables the engine rather than damaging it. These three numbers are CSI's
+    """Proves the flag disables the engine rather than damaging it. These three numbers are the client's
     own hand computation for plan 9786015."""
     merged = material_tons_merge.merge_material_tons(murray_9786015_record())
     assert round(merged["base_tons"], 2) == 3851.75
@@ -235,7 +235,7 @@ def test_golden_dataset_untouched_by_this_change():
     assert status.strip() == "", f"git reports the golden as modified: {status!r}"
 
 
-# ── The eleven CSI rulings must have survived the merge ───────────────────────
+# ── The eleven client rulings must have survived the merge ───────────────────────
 
 RULING_TOKENS = [
     "SUPERPAVE",
@@ -253,13 +253,13 @@ RULING_TOKENS = [
 
 def test_csi_ruling_tokens_survived_the_merge():
     """PR #102 inserts three new field descriptions into schema.py's SCALAR_FIELDS. It must not
-    have disturbed the eleven CSI rulings encoded in the seven pre-existing quantity descriptions.
+    have disturbed the eleven client rulings encoded in the seven pre-existing quantity descriptions.
     Checked against the live SCALAR_FIELDS objects, not the file text, so a token that survived in
     a comment but fell out of a prompt would still fail."""
     prompt_text = " ".join(f["desc"].upper()
                            for f in schema.SCALAR_FIELDS if f.get("group") == "quantities")
     missing = [t for t in RULING_TOKENS if t not in prompt_text]
-    assert not missing, f"CSI ruling tokens lost from the extraction prompt: {missing}"
+    assert not missing, f"the client ruling tokens lost from the extraction prompt: {missing}"
 
 
 def test_both_driveway_exclusions_survived_the_merge():

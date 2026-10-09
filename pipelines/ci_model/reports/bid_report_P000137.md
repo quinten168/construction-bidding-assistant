@@ -39,13 +39,13 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
   LEHTOLA BUILDERS INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### DUININCK INC
 - **Bid Rate (all locations, all types):** 17% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** Fewer than 3 Other bids on record — insufficient data.
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -53,7 +53,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 13% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** Fewer than 3 Other bids on record — insufficient data.
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -61,7 +61,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 13% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** 12% (1 win from 8 Other bids).
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -69,7 +69,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 11% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** Fewer than 3 Other bids on record — insufficient data.
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -77,7 +77,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 11% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** 50% (5 wins from 10 Other bids).
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -85,7 +85,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 11% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** 0% (0 wins from 4 Other bids).
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -93,7 +93,7 @@ Bid Date: 2023-12-06 | Generated: 2026-06-30 20:02
 - **Bid Rate (all locations, all types):** 8% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Other, all locations:** Fewer than 3 Other bids on record — insufficient data.
 - **Win Rate — BEADLE CO (all types):** Fewer than 3 bids in this county — insufficient data.
 

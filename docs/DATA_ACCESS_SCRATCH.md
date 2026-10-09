@@ -1,6 +1,6 @@
-# Data access: the CSI bid-tab tables in `scratch`
+# Data access: the client's bid-tab tables in `scratch`
 
-This describes the tables that hold CSI's historical competitor-bid data in Supabase's `scratch`
+This describes the tables that hold the client's historical competitor-bid data in Supabase's `scratch`
 schema — csi_team's own writable workspace, separate from `public` (a read-only snapshot owned by
 the plan_reader pipeline; see `docs/DATA_ACCESS.md`, which this file does not duplicate or
 modify).
@@ -87,7 +87,7 @@ create table scratch.mn_pit_list (
 
 ## Key design: `project_natural_key`
 
-There used to also be a `job_id` column (e.g. `P000123`) — CSI's local CSV row id, regenerated
+There used to also be a `job_id` column (e.g. `P000123`) — the client's local CSV row id, regenerated
 sequentially by date-sort every time `data/build_project_competitor_panel.py` ran, not stable
 across separate runs. Removed entirely (2026-08-01) in favor of `project_natural_key` as the sole
 identifier, to avoid confusion with plan_reader's own, unrelated `job_id` concept.

@@ -1,4 +1,4 @@
-# CSI Model 1 Implementation Summary
+# Model 1 Implementation Summary
 
 **Last Updated**: 2026-06-11  
 **Status**: Pipeline complete with 8 scripts, ready for execution  
@@ -37,7 +37,7 @@ ci_model/
 │
 ├── DOCUMENTATION:
 │   ├── README.md                        ← Full usage guide
-│   ├── csi_model_architecture.md        ← Detailed architecture
+│   ├── model_architecture.md        ← Detailed architecture
 │   └── IMPLEMENTATION_SUMMARY.md        ← THIS FILE
 │
 └── data/                       (auto-created)
@@ -190,7 +190,7 @@ PROBABILITY CALIBRATION:
 - Step 8: Model evaluation (depends on step 7)
 
 ❌ **NOT YET STARTED**:
-- Model 2 (CSI Go/No-Go - uses Model 1 outputs)
+- Model 2 (Go/No-Go - uses Model 1 outputs)
 - Inference script (score new jobs)
 - API/Chatbot integration
 
@@ -208,7 +208,7 @@ PROBABILITY CALIBRATION:
 ### After Model 1 Works
 6. Verify Model 1 beats baseline (ROC-AUC improvement)
 7. Extract pit coordinates for distance features
-8. Build Model 2 (CSI Go/No-Go recommendation)
+8. Build Model 2 (Go/No-Go recommendation)
 9. Create inference script for new jobs
 
 ### Future Enhancements
@@ -275,7 +275,7 @@ cat data/model_vs_baseline.csv        # View model vs baseline
 
 ## Contact / Questions
 
-- Architecture questions: See `csi_model_architecture.md`
+- Architecture questions: See `model_architecture.md`
 - Usage questions: See `README.md`
 - Code questions: Check docstrings in each script
 - Metrics explanation: See "Classification Metrics" section above

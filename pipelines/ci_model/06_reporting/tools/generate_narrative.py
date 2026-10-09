@@ -67,7 +67,7 @@ def _synthesize_bullets(
             recency = f"reduced activity — last bid was {int(days_idle)} days ago"
         bullets.append(f"**Recency:** {recency}.")
     else:
-        bullets.append("**Recency:** No prior bid activity found in CSI data.")
+        bullets.append("**Recency:** No prior bid activity found in the client's data.")
 
     # ── 4. Capacity — season-by-season project wins + tons (all project types) ───
     if True:
@@ -170,7 +170,7 @@ def _synthesize_bullets(
         bullets.append(f"**Experience:** {type_bids} prior bid{'s' if type_bids != 1 else ''} on this exact project type.")
     else:
         bullets.append(
-            "**Experience:** No prior bids on this project type found in CSI data."
+            "**Experience:** No prior bids on this project type found in the client's data."
         )
 
     # ── 7. Win rates (always shown) ───────────────────────────────────────────

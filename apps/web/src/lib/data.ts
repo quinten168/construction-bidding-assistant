@@ -1,6 +1,6 @@
 // ────────────────────────────────────────────────────────────────────────────
 // Mock corpus for the BidIntel console. One source of truth for every dashboard,
-// chart, and map. Grounded in the real CSI domain: MN/ND/SD counties, the
+// chart, and map. Grounded in the real client domain: MN/ND/SD counties, the
 // two-axis archetype model (work-type × messiness × size), and bid outcomes.
 // Deterministic (no Date/random at module load) so SSR + client hydrate identically.
 // ────────────────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ export type Project = {
   lat: number;
   lon: number;
   workType: WorkType;
-  messiness: number; // 1 (clean) .. 10 (messy) — CSI's #1 edge driver
+  messiness: number; // 1 (clean) .. 10 (messy) — the client's #1 edge driver
   sizeTons: number; // native size (placed tons)
   valueUSD: number;
   fit: number; // 0..100 model fit score
@@ -33,7 +33,7 @@ export type Project = {
   deadlineDays?: number; // for open opportunities
 };
 
-// Edge by work-type, per the CSI archetype model (Reconstruct = highest).
+// Edge by work-type, per the client's archetype model (Reconstruct = highest).
 const EDGE: Record<WorkType, "high" | "med" | "low"> = {
   "Reconstruct/Rebuild": "high",
   "Grading/Earthwork": "med",
@@ -107,7 +107,7 @@ export const FUNNEL = [
 export const KPIS = {
   pipelineValueUSD: 31_270_000, // sum of open opportunities (display)
   openOpps: 24,
-  winRate: 0.194, // 117/603 — the canonical CSI figure
+  winRate: 0.194, // 117/603 — the canonical client figure
   avgMarginPct: 0.121,
   leftOnTableUSD: 22_300_000, // Fall 2025 finding
   bidsThisMonth: 22,

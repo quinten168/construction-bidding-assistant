@@ -15,7 +15,7 @@ concern). Provenance is noted per block so we know where each rule came from as 
       Dunn = 39-item result. It is reproduced VERBATIM as SPEC_MAP below; where anything conflicts,
       this map wins.
   PRIORITY 2 — the Fall-2025 `NAME_MAPPING` (130+ rules). INSPECTED and EXCLUDED: it turned out to be
-      VENDOR/competitor name normalization (CSI / Knife River spelling variants), not a
+      VENDOR/competitor name normalization (the client / Knife River spelling variants), not a
       material-description crosswalk — nothing to fold in here. (The context pack referenced it only
       as a structural *pattern*, not as material content.)
   PRIORITY 3 — the 2026-06-12 context-pack crosswalk. It contained no dict, only an illustrative Dunn
@@ -139,8 +139,8 @@ CSI_BUCKETS = ["hot_mix_tons", "base_tons", "grading_quantity", "shoulder_tons",
                "milling_sy", "crushing_tons", "stockpile_tons"]
 
 
-# --- 4. CSI's rulings, 2026-08-07 (the "Alex layer") ------------------------------------------------
-# Provenance: CSI (Alex) returned the marked-up material pre-read on 2026-08-07 with nine rulings.
+# --- 4. the client's rulings, 2026-08-07 (the "Alex layer") ------------------------------------------------
+# Provenance: the client (Alex) returned the marked-up material pre-read on 2026-08-07 with nine rulings.
 # These are the CLIENT'S decisions and they OUTRANK SPEC_MAP above. They are applied first.
 #
 # WHY a separate item-level layer instead of editing SPEC_MAP: the rulings split items that share a
@@ -157,22 +157,22 @@ CROSSWALK_VERSION = 2          # 1 = pre-Alex (everything above). 2 = with the r
 # CATEGORY vs BUCKET — the distinction this layer introduces, and the reason it exists.
 #
 # A bucket name like `base_tons` or `milling_sy` bakes a UNIT into a CATEGORY. That conflation is a
-# real defect, and it produced a real near-miss: CSI ruled that Full Depth Reclamation is BASE work.
+# real defect, and it produced a real near-miss: the client ruled that Full Depth Reclamation is BASE work.
 # Read as a bucket move that ruling says "put 1.2M SQUARE YARDS into a TONS column", the unit guard
 # then drops every row, and FDR silently returns to counting as zero — which is the exact bug the
-# whole mapping exercise was convened to fix. CSI answered a category question; the unit error was
+# whole mapping exercise was convened to fix. the client answered a category question; the unit error was
 # ours, not theirs.
 #
 # So the two are now recorded separately:
-#   csi_category — WHAT KIND of work this is. Unit-independent. This is what CSI rules on.
+#   csi_category — WHAT KIND of work this is. Unit-independent. This is what the client rules on.
 #   csi_bucket   — WHICH TOTAL the quantity is summed into. Still unit-guarded, still safe.
-# For FDR they deliberately DISAGREE: category "base" (CSI's ruling, honoured) with the quantity
+# For FDR they deliberately DISAGREE: category "base" (the client's ruling, honoured) with the quantity
 # still counted in milling_sy (where it is measurable). Both are surfaced. Nothing is converted and
-# nothing is lost. Unit conversion is a LATER layer with a documented, CSI-verified factor table —
+# nothing is lost. Unit conversion is a LATER layer with a documented, the client-verified factor table —
 # it does not belong here. Decision by T, 2026-08-07.
 # ---------------------------------------------------------------------------------------------------
 
-EXCLUDED = "excluded"   # CSI ruled this out ON PURPOSE. Distinct from "other" (not a tracked
+EXCLUDED = "excluded"   # the client ruled this out ON PURPOSE. Distinct from "other" (not a tracked
                         # bucket) and from None (we never matched it) — three different facts that
                         # must not collapse into one, or a report cannot tell "the plan has none of
                         # this" from "we failed to read it".
@@ -182,34 +182,34 @@ EXCLUDED = "excluded"   # CSI ruled this out ON PURPOSE. Distinct from "other" (
 # csi_bucket_override of None means "leave the bucket to the normal (category, unit) bridge".
 CSI_RULINGS_2026_08_07 = [
     # --- NOW EXCLUDED (were mapped) -- driveway rules MUST precede the mainline removal rules -----
-    ("REMOVE CONCRETE DRIVEWAY PAVEMENT", EXCLUDED, EXCLUDED, "CSI 08-07: do not count"),
-    ("REMOVE BITUMINOUS DRIVEWAY PAVEMENT", EXCLUDED, EXCLUDED, "CSI 08-07: do not count"),
-    ("CEMENT STABILIZED SUBGRADE", EXCLUDED, EXCLUDED, "CSI 08-07: do not count"),
-    ("PORTLAND CEMENT", EXCLUDED, EXCLUDED, "CSI 08-07: binder/additive, not aggregate base"),
+    ("REMOVE CONCRETE DRIVEWAY PAVEMENT", EXCLUDED, EXCLUDED, "the client 08-07: do not count"),
+    ("REMOVE BITUMINOUS DRIVEWAY PAVEMENT", EXCLUDED, EXCLUDED, "the client 08-07: do not count"),
+    ("CEMENT STABILIZED SUBGRADE", EXCLUDED, EXCLUDED, "the client 08-07: do not count"),
+    ("PORTLAND CEMENT", EXCLUDED, EXCLUDED, "the client 08-07: binder/additive, not aggregate base"),
 
     # --- MOVES ------------------------------------------------------------------------------------
-    ("REMOVE BITUMINOUS PAVEMENT", "mill", None, "CSI 08-07: grading -> milling"),
-    ("REMOVAL OF BITUMINOUS SURFACING", "mill", None, "CSI 08-07: grading -> milling"),
-    ("GRAVEL SURFACING", "base", None, "CSI 08-07: shoulder -> base"),
-    ("TRAFFIC SERVICE AGGREGATE", "base", None, "CSI 08-07: shoulder -> base"),
+    ("REMOVE BITUMINOUS PAVEMENT", "mill", None, "the client 08-07: grading -> milling"),
+    ("REMOVAL OF BITUMINOUS SURFACING", "mill", None, "the client 08-07: grading -> milling"),
+    ("GRAVEL SURFACING", "base", None, "the client 08-07: shoulder -> base"),
+    ("TRAFFIC SERVICE AGGREGATE", "base", None, "the client 08-07: shoulder -> base"),
     # FDR: category moves to base, quantity DELIBERATELY stays in milling_sy. See the block above.
     # Do not "fix" this into a bucket move — that zeroes 1.2M SY. It is the point of this layer.
     ("FULL DEPTH RECLAMATION", "base", "milling_sy",
-     "CSI 08-07: base WORK; qty stays SY in milling_sy pending a verified conversion factor"),
+     "the client 08-07: base WORK; qty stays SY in milling_sy pending a verified conversion factor"),
 
     # --- PREVIOUSLY UNASSIGNED, resolved ----------------------------------------------------------
-    ("SALVAGE AND REUSE EXISTING AGGREGATE", "grading", None, "CSI 08-07: unassigned -> grading"),
-    ("CLEAN ROCK", "grading", None, "CSI 08-07: unassigned -> grading"),
+    ("SALVAGE AND REUSE EXISTING AGGREGATE", "grading", None, "the client 08-07: unassigned -> grading"),
+    ("CLEAN ROCK", "grading", None, "the client 08-07: unassigned -> grading"),
     # The other two of the four assigned rows on the unassigned table. They were filed in
-    # CSI_DO_NOT_COUNT_2026_08_07 until 2026-08-11, which asserted CSI had ruled them OUT when the
+    # CSI_DO_NOT_COUNT_2026_08_07 until 2026-08-11, which asserted the client had ruled them OUT when the
     # returned .docx ticks a BUCKET for each — worse than a miss, because it launders our
     # transcription error as the client's decision. THE FINGERPRINT that proves it was ours: that
     # list held 13 entries = the 11 genuinely-unassigned rows PLUS these 2, i.e. all 15 unassigned
     # rows were swept into "do not count" and only 2 of the 4 assigned ones were then rescued.
     # Marks decoded from w14:checkbox XML and cross-checked against the visible glyph — two methods,
     # agreeing. docs/_session/2026-08-11-alex-conformance-encoding.md §2, rulings #2 and #3.
-    ("FULL DEPTH BITUMINOUS STREET REPAIR", "mixed", None, "CSI 08-07: unassigned -> Mixed_tons"),
-    ("GRANULAR BEDDING", "grading", None, "CSI 08-07: unassigned -> grading"),
+    ("FULL DEPTH BITUMINOUS STREET REPAIR", "mixed", None, "the client 08-07: unassigned -> Mixed_tons"),
+    ("GRANULAR BEDDING", "grading", None, "the client 08-07: unassigned -> grading"),
 
     # --- REMOVALS: the FDR treatment applied to the same shape (T, 2026-08-07) --------------------
     # Mark's standing rule is that pavement/base removal "is considered grading work". That is a
@@ -220,10 +220,10 @@ CSI_RULINGS_2026_08_07 = [
     # So: record the category, and let the quantity stay where it is counted, which for most of these
     # is NOWHERE. That is deliberate and it is the honest answer. `bucket_gap_reason` below reports it
     # as `no_bucket_for_unit` rather than letting it look like a plan with no removals. Do NOT invent
-    # a conversion here — the 1.75 Ton/CY factor CSI supplied has never been checked against a plan
+    # a conversion here — the 1.75 Ton/CY factor the client supplied has never been checked against a plan
     # and does not distinguish bituminous from aggregate base.
     #
-    # These sit AFTER the driveway exclusions and the two bituminous-removal rulings above, so CSI's
+    # These sit AFTER the driveway exclusions and the two bituminous-removal rulings above, so the client's
     # explicit decisions keep winning over this general rule.
     ("REMOVAL OF AGGREGATE BASE", "grading", None, "T 08-07: removal = grading work (Mark's rule)"),
     ("REMOVE AGGREGATE BASE", "grading", None, "T 08-07: removal = grading work (Mark's rule)"),
@@ -236,7 +236,7 @@ CSI_RULINGS_2026_08_07 = [
 ]
 
 # Ruled "do not count" explicitly. These match nothing in SPEC_MAP today, so they move no number —
-# but recording them converts "we never matched it" into "CSI decided", which is the distinction the
+# but recording them converts "we never matched it" into "the client decided", which is the distinction the
 # report needs in order to show an honest empty bucket.
 CSI_DO_NOT_COUNT_2026_08_07 = [
     "CONCRETE DRIVEWAY PAVEMENT", "PENETRATING WATER REPELLENT TREATMENT", "REINFORCEMENT FABRIC",
@@ -249,11 +249,11 @@ CSI_DO_NOT_COUNT_2026_08_07 = [
     # genuinely-unassigned rows on the form.
 ]
 
-# STILL UNANSWERED by CSI as of 2026-08-07 — flagged, NOT assumed. Do not add rulings for these
+# STILL UNANSWERED by the client as of 2026-08-07 — flagged, NOT assumed. Do not add rulings for these
 # without an answer: (1) the riprap confirmation, (2) whether crushing/stockpile stay excluded.
 CSI_OPEN_QUESTIONS_2026_08_07 = ["riprap classification", "crushing/stockpile exclusion"]
 
-# spec_category (the SPEC_MAP vocabulary) -> csi_category (the CSI-facing vocabulary).
+# spec_category (the SPEC_MAP vocabulary) -> csi_category (the client-facing vocabulary).
 _SPEC_TO_CSI_CATEGORY = {
     "hma": "mixed", "base": "base", "surfacing": "shldr", "grading": "grading",
     "milling": "mill", "crushing": "crushing", "stockpile": "stockpile",
@@ -274,14 +274,14 @@ def normalize_description(text):
     THIS IS A DEFECT FIX, NOT COSMETICS — and it is the second time this exact gap has cost six
     figures. `spec_category` and `_csi_ruling` previously did a bare `.upper()` while the rest of
     the system (the material lookup table, the material map) used a normalizing form. 115 real
-    corpus rows contain a non-breaking space, and the mismatch silently bypassed FIVE of CSI's
+    corpus rows contain a non-breaking space, and the mismatch silently bypassed FIVE of the client's
     2026-08-07 rulings:
 
         'Mill\\xa0Bituminous\\xa0Surfacing\\xa01.5" (P)'  168,834 SY -> read as HOT MIX, not milling
         'REMOVE BITUMINOUS  PAVEMENT'  (double space)      15,067 SY -> read as HOT MIX
-        'REMOVE BITUMINOUS  DRIVEWAY\\xa0PAVEMENT'                   -> not excluded as CSI ruled
+        'REMOVE BITUMINOUS  DRIVEWAY\\xa0PAVEMENT'                   -> not excluded as the client ruled
         'Full\\xa0Depth\\xa0Reclamation (P)'                10,182 SY -> missed the FDR ruling
-        '8"\\xa0Concrete Valley Gutter'                               -> not excluded as CSI ruled
+        '8"\\xa0Concrete Valley Gutter'                               -> not excluded as the client ruled
 
     Same failure class as the Stearns MILL BITUMINOUS bug (a removal/mill item landing in `hma`),
     reintroduced through a text gap instead of a keyword-ordering gap. Found 2026-08-07 by the
@@ -293,25 +293,25 @@ def normalize_description(text):
 
 
 def _csi_ruling(description):
-    """Return (csi_category, bucket_override, note) if CSI ruled on this item, else (None, None, None)."""
+    """Return (csi_category, bucket_override, note) if the client ruled on this item, else (None, None, None)."""
     upper = normalize_description(description)
     for pattern, category, bucket_override, note in CSI_RULINGS_2026_08_07:
         if pattern in upper:
             return category, bucket_override, note
     for pattern in CSI_DO_NOT_COUNT_2026_08_07:
         if pattern in upper:
-            return EXCLUDED, EXCLUDED, "CSI 08-07: do not count"
+            return EXCLUDED, EXCLUDED, "the client 08-07: do not count"
     return None, None, None
 
 
 def spec_category(description):
     """Map a raw bid-item description to its broad work category (first keyword match wins).
 
-    CSI's 2026-08-07 rulings are applied FIRST and outrank the keyword list — they are the client's
+    the client's 2026-08-07 rulings are applied FIRST and outrank the keyword list — they are the client's
     decisions about their own numbers, not another heuristic."""
     csi_cat, _bucket, _note = _csi_ruling(description)
     if csi_cat is not None:
-        # translate the CSI vocabulary back into the SPEC_MAP vocabulary this function returns
+        # translate the client vocabulary back into the SPEC_MAP vocabulary this function returns
         return {"mixed": "hma", "base": "base", "shldr": "surfacing", "grading": "grading",
                 "mill": "milling", EXCLUDED: "other"}[csi_cat]
     upper = normalize_description(description)
@@ -322,10 +322,10 @@ def spec_category(description):
 
 
 def csi_category(description):
-    """The CSI-facing work category — WHAT KIND of work, independent of how it is measured.
+    """The the client-facing work category — WHAT KIND of work, independent of how it is measured.
 
     Returns one of: mixed / base / shldr / grading / mill / crushing / stockpile / excluded / other.
-    `excluded` means CSI ruled it out deliberately; `other` means it is simply not a tracked bucket.
+    `excluded` means the client ruled it out deliberately; `other` means it is simply not a tracked bucket.
     Never returns None, so a caller cannot confuse "no category" with "no answer"."""
     csi_cat, _bucket, _note = _csi_ruling(description)
     if csi_cat is not None:
@@ -356,7 +356,7 @@ def csi_bucket(description, unit):
     """Map a (description, unit) to one of the 7 csi_buckets, or None if the line isn't a tracked
     quantity bucket. Deterministic: category from the keyword map, then the (category, unit) bridge.
 
-    A CSI bucket_override wins over the bridge. That is not a special case bolted on — it is how a
+    A the client bucket_override wins over the bridge. That is not a special case bolted on — it is how a
     ruling like FDR's ("base work, but the quantity is square yards") is expressed without either
     inventing a conversion or dropping the number. Without this branch the bridge would look up
     ("base", "SY"), find nothing, and silently zero 1.2M SY."""
@@ -385,7 +385,7 @@ def ensure_stamp_columns(conn):
 
     WHY this exists: `csi_bucket` is computed at write time and frozen into the row, so when the
     crosswalk changes, old rows keep a stale bucket with nothing recording which mapping produced it.
-    Stamping the version makes pre-CSI-ruling and post-CSI-ruling rows distinguishable IN THE DATA,
+    Stamping the version makes pre-the client-ruling and post-the client-ruling rows distinguishable IN THE DATA,
     not just in git history — which is what you need to answer "why is this number different from
     last week's" without a bisect."""
     have = {r[1] for r in conn.execute("PRAGMA table_info(materials)")}
@@ -400,7 +400,7 @@ def map_line_v2(description, unit):
 
     Returns a dict rather than a tuple because the interesting cases need more than two facts:
     F3's audit export has to show the raw quantity, the bucket it landed in, and WHY — including
-    "CSI excluded this on purpose", which no bucket value can express.
+    "the client excluded this on purpose", which no bucket value can express.
 
     Keys:
       csi_bucket        which total the quantity is summed into (None = no tracked bucket)
@@ -443,7 +443,7 @@ BUCKET_UNIT = {"hot_mix_tons": "TON", "base_tons": "TON", "shoulder_tons": "TON"
 # typo hid for months, because "keyword never matched" and "deliberately not counted" both showed up
 # as an empty cell.
 GAP_NOT_APPLICABLE = None                 # it did land in a bucket
-GAP_EXCLUDED_BY_CSI = "excluded_by_csi"   # CSI ruled it out on purpose
+GAP_EXCLUDED_BY_CSI = "excluded_by_csi"   # the client ruled it out on purpose
 GAP_UNTRACKED_CATEGORY = "untracked_category"   # real work, but not one of the tracked buckets
 GAP_NO_BUCKET_FOR_UNIT = "no_bucket_for_unit"   # we KNOW the category; the unit has nowhere to go
 GAP_NEVER_MATCHED = "never_matched"       # we could not categorise it at all — a READER failure

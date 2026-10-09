@@ -1,6 +1,6 @@
 # Data Files
 
-CSI bidding and project data at various stages of processing.
+The client's bidding and project data at various stages of processing.
 
 ## 📁 Folder Structure
 
@@ -54,7 +54,7 @@ data/
 1. Combined CSI_data_2024.csv + CSI_data_2025.csv
 2. Reformatted DATE to YYYY-MM-DD, TIME to HH:MM 24-hour
 3. Parsed LOCATION into County, City, State
-4. Extracted project IDs (SAP, CONTRACT, CSI JOB, PCN, etc.)
+4. Extracted project IDs (SAP, CONTRACT, internal JOB number, PCN, etc.)
 5. Split LAT/LON from combined LOCATION field
 6. Standardized bidder names (ampersands, spacing)
 7. Converted material quantities to float64

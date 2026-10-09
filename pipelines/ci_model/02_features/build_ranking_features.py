@@ -127,7 +127,7 @@ def build_ranking_features(
     panel["bid_date"] = pd.to_datetime(panel["bid_date"], errors="coerce")
     projects["bid_date"] = pd.to_datetime(projects["bid_date"], errors="coerce")
 
-    # Build date → bid_year lookup from CSI combined data
+    # Build date → bid_year lookup from the client's combined data
     date_to_bid_year: dict = {}
     if combined_data is not None and "bid_year" in combined_data.columns:
         _cd = combined_data.copy()

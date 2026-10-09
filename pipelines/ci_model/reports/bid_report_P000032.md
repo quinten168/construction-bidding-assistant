@@ -53,7 +53,7 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
 - **Bid Rate (all locations, all types):** 23% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 28% (5 wins from 18 Mill & Overlay bids).
 - **Win Rate — BROOKINGS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 

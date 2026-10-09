@@ -50,7 +50,7 @@ def _project_type_from_quantities(
     crush_tons: object = 0,
     stock_tons: object = 0,
 ) -> dict[str, object]:
-    """Assign the CSI archetype primary project type — quantity-driven only. Keyword-matched
+    """Assign the client's archetype primary project type — quantity-driven only. Keyword-matched
     scope flags (has_paving, matched_keywords, etc.) were removed: unconfirmed by the client,
     and dead in the reporting layer (predict_and_explain.py only ever surfaces contributions
     from the trained model's RANKING_FEATURE_COLUMNS, which never included these).
@@ -77,7 +77,7 @@ def _project_type_from_quantities(
     crush_value   = _qty(crush_tons)
     stock_value   = _qty(stock_tons)
 
-    # CSI archetype primary type — mix-share-driven paving gate, then quantity waterfall
+    # the client's archetype primary type — mix-share-driven paving gate, then quantity waterfall
     MIX_SHARE_MIN = 0.15   # mix >= 15% of total tonnage -> paving job
     MIX_ABS_MIN = 1000.0   # or >= 1,000 tons of mix -> paving even if its share is low
     GRADE_CY_MIN = 500.0
@@ -223,7 +223,7 @@ def build_projects(long_bids: pd.DataFrame) -> pd.DataFrame:
             # Source-file provenance (set in run_cleaning_pipeline.py from which CSI_data_<year>.csv
             # a row came from), not calendar-year math on bid_date -- see push_supabase_bid_data.py's
             # load_projects(), which used to recompute this from bid_date and got it wrong for any
-            # bid dated Aug-Dec (CSI's fiscal year runs Aug 1-Jul 31, one year ahead of the calendar
+            # bid dated Aug-Dec (the client's fiscal year runs Aug 1-Jul 31, one year ahead of the calendar
             # year for those months).
             bid_year=("bid_year", "first"),
             bid_time=("TIME", "first"),

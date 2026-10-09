@@ -66,7 +66,7 @@ DEFAULT_TABLE_STRATEGY = "lines_strict"
 # (pure CAD/drawing pages) and back-filled from pdfplumber. Measured need: on image/
 # drawing-heavy SD plans pymupdf4llm returns EMPTY markdown for most pages, while
 # pdfplumber still recovers the (messy but real) title-block / stationing / note text —
-# e.g. Yankton, a CSI win, loses 124/144 pages without this fallback.
+# e.g. Yankton, a client win, loses 124/144 pages without this fallback.
 HYBRID_MIN_CHARS = 100
 
 

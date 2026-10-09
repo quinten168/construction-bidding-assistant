@@ -41,29 +41,29 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
   NORTHDALE CONSTRUCTION COMPANY INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### KNIFE RIVER - ST. CLOUD
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 67% (2 wins from 3 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### MARK SAND & GRAVEL COMPANY
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### DUININCK INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -71,56 +71,56 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
 
 ### OMG MIDWEST INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** 0% (0 wins from 3 Reconstruct/Rebuild bids).
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### RL LARSON EXCAVATING
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### LANDWEHR CONSTRUCTION INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### JR FERCHE INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### C & L EXCAVATING
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### KUECHLE UNDERGROUND INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### NORTHDALE CONSTRUCTION COMPANY INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Reconstruct/Rebuild, all locations:** Fewer than 3 Reconstruct/Rebuild bids on record — insufficient data.
 - **Win Rate — STEARNS CO (all types):** Fewer than 3 bids in this county — insufficient data.

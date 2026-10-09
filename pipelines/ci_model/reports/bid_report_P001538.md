@@ -39,7 +39,7 @@ Bid Date: 2025-07-16 | Generated: 2026-06-30 22:23
   SELLIN BROTHERS INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### NORTHERN IMPROVEMENT COMPANY
 - **Bid Rate (all locations, all types):** 8% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).

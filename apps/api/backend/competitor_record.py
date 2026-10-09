@@ -1,13 +1,13 @@
 """
 Competitor-record tool — a named competitor's bid/win record, filterable by county / state / year.
 
-Answers the class of question the old CSI-centric tool couldn't: "how many times did Midwest
+Answers the class of question the old client-centric tool couldn't: "how many times did Midwest
 Contracting win in Crow Wing County last year", "who wins most in Stearns County", "what's
 Duininck's record in ND". Queries Postgres live (`scratch.bid_results` joined to
 `scratch.bid_projects`) — the same tables the live prediction/stats modules read — instead of the
 local CSV snapshot this used to read, so an admin-UI edit (a new bid result, a corrected quantity)
 is reflected the moment it's saved, not whenever a CSV happened to last be synced. That set covers
-every bidder × project × county, not just the projects CSI also bid on.
+every bidder × project × county, not just the projects the client also bid on.
 
 `competitor_unit_id` doubles as the canonical display name here — `data/build_project_competitor_panel.py`
 sets `canonical_name` to a straight copy of it, so there's no separate registry-resolution step.
@@ -130,7 +130,7 @@ def competitor_record(competitor_name: str, county: str | None = None,
         "by_year": by_year,
         "top_counties": top_counties,
         "note": ("Source: Competitor Intelligence bidder history (bid_results ⨝ bid_projects, live) — "
-                 "the authoritative bidder record, broader than CSI's own shared-bid data. 'wins' = ranked "
+                 "the authoritative bidder record, broader than the client's own shared-bid data. 'wins' = ranked "
                  "1st. If a county/year scope returns 0 bids, the competitor has no recorded bids there."),
     }
 
@@ -143,7 +143,7 @@ TOOL_SCHEMA = {
         "questions like 'how many times did Midwest Contracting win in Crow Wing County last year', "
         "'who wins most in Stearns County', 'what is Duininck's record in North Dakota'. This reads the "
         "Competitor Intelligence team's authoritative bidder history (every bidder on every project, "
-        "not just CSI's shared bids) and resolves loose names to canonical ones. Prefer this over "
+        "not just the client's shared bids) and resolves loose names to canonical ones. Prefer this over "
         "query_competitors when the question names a SPECIFIC competitor or a SPECIFIC county."),
     "input_schema": {
         "type": "object",

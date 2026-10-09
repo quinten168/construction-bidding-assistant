@@ -184,7 +184,7 @@ def _exec_summary_llm(
         f"Competitors analyzed: {len(analyses)}\n"
         f"HIGH threats: {len(high)}, MEDIUM: {len(medium)}, LOW: {len(low)}\n"
         f"Top 3 competitors (by model score): {', '.join(top3_names)}\n\n"
-        "Write a 4–5 sentence executive summary for a CSI decision-maker. Include:\n"
+        "Write a 4–5 sentence executive summary for the client's decision-maker. Include:\n"
         "1. One sentence on project context (type and location).\n"
         "2. One sentence assessing overall competition level with brief rationale.\n"
         "3. Name the top 3 competitors and each one's primary risk signal "
@@ -253,7 +253,7 @@ def _recommendations_llm(
         f"{project_info.get('county', '')} County, {project_info.get('state', '')} | "
         f"{project_info.get('project_type', '')}\n"
         f"High-threat competitors: {', '.join(high_names) if high_names else 'None'}\n"
-        "Provide 2–3 concise strategic recommendations for CSI's bid strategy. "
+        "Provide 2–3 concise strategic recommendations for the client's bid strategy. "
         "Focus on pricing positioning and competitive response. "
         "Use plain business language."
     )
@@ -270,7 +270,7 @@ def _recommendations_llm(
 def _recommendations_static(analyses: list[dict]) -> str:
     top3 = sorted(analyses, key=lambda x: x["bid_probability"], reverse=True)[:3]
     if not top3:
-        return "No competitors identified. CSI may have pricing flexibility on this project."
+        return "No competitors identified. The client may have pricing flexibility on this project."
     return (
         f"Watch closely: {', '.join(a['display_name'] for a in top3)} "
         "are the most likely bidders. Price competitively and confirm scope alignment."

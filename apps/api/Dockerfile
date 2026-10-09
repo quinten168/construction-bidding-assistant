@@ -1,8 +1,8 @@
-# CSI Bid Assistant — container image.
+# Construction Bidding Assistant — container image.
 #
 # IMPORTANT: build from the REPO ROOT (01_Summer_2026/) so the data dependencies are in context:
-#   docker build -f 02_modules/bid_assistant/Dockerfile -t csi-bid-assistant .
-#   docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... csi-bid-assistant
+#   docker build -f 02_modules/bid_assistant/Dockerfile -t bidding-assistant .
+#   docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... bidding-assistant
 #
 # The app reuses the Plan Reader's Chroma store + the master CSV, which live elsewhere in the repo,
 # so we copy those slices in (preserving paths the code expects). The vector store is large; for a

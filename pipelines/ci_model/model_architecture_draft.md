@@ -1,10 +1,10 @@
-# CSI Competitor Intelligence System — Model 1 Architecture Reference
+# Competitor Intelligence System — Model 1 Architecture Reference
 
 ## Current Scope
 
 This draft focuses only on **Model 1: Competitor Participation and Threat Assessment**.
 
-Model 2, CSI multi-factor decision support, is intentionally out of scope for the current build. It should not be implemented until the Model 1 candidate filter, participation ranking, and threat evidence are stable and auditable.
+Model 2, the client's multi-factor decision support, is intentionally out of scope for the current build. It should not be implemented until the Model 1 candidate filter, participation ranking, and threat evidence are stable and auditable.
 
 Model 1 follows this sequence:
 
@@ -29,7 +29,7 @@ The model needs a consistent `job_budget` or `estimated_value` field. Potential 
 
 - Lowest actual bid.
 - Engineer's estimate, where available and reliable.
-- CSI's internal estimate, if available later.
+- the client's internal estimate, if available later.
 - Quantity-based proxy from material quantities.
 
 For historical backtesting, the lowest observed bid can be used as a practical proxy. This must be documented as a historical proxy, not as information that would always be known before a future bid.
@@ -159,7 +159,7 @@ Tied-low bids need a clear rule. For the first backtest:
 did_win = 1 for all tied-low bidders
 ```
 
-If CSI later provides final awarded contractor data, `did_win` can be changed to reflect the awarded contractor instead of all tied-low bidders.
+If the client later provides final awarded contractor data, `did_win` can be changed to reflect the awarded contractor instead of all tied-low bidders.
 
 ---
 
@@ -312,7 +312,7 @@ Historical relevance should not become a pure total-frequency filter. A competit
 
 #### Definition
 
-Temporary priority competitors are operating units that should be reviewed on each project until CSI provides a final priority competitor list.
+Temporary priority competitors are operating units that should be reviewed on each project until the client provides a final priority competitor list.
 
 #### First MVP Rule
 
@@ -345,11 +345,11 @@ Example:
 | Competitor | Predicted Likelihood | Why Shown |
 |---|---:|---|
 | Knife River MN | High | Model Top 5 |
-| Competitor X | Low | CSI priority review |
+| Competitor X | Low | client priority review |
 
 #### Later Refinement
 
-Replace the temporary top-count list with CSI's client-approved priority list when available.
+Replace the temporary top-count list with the client-approved priority list when available.
 
 ### 3. Region-Specific Competitors
 
@@ -395,7 +395,7 @@ Specific thresholds should be selected through backtesting.
 `nearby county` is not yet defined. For the first MVP, use one of:
 
 - Same county only.
-- Fixed CSI market region, if available.
+- Fixed client market region, if available.
 - Client-provided regional competitor designation.
 
 Do not build county adjacency logic until the required geography table is ready.
@@ -408,7 +408,7 @@ Region-specific status should activate candidate inclusion and review. It should
 
 #### Definition
 
-A recently active or emerging competitor is an operating unit that may not have enough long-term history to satisfy historical relevance rules but has shown recent activity or has been identified by CSI as newly relevant.
+A recently active or emerging competitor is an operating unit that may not have enough long-term history to satisfy historical relevance rules but has shown recent activity or has been identified by the client as newly relevant.
 
 #### Initial Signals
 
@@ -606,9 +606,9 @@ Generate rule-based threat evidence for top-ranked competitors
 
 Model 2 should remain out of scope until Model 1 is stable.
 
-Later, Model 2 can use Model 1 outputs to support CSI decision-making:
+Later, Model 2 can use Model 1 outputs to support the client's decision-making:
 
-- CSI competitive position.
+- The client's competitive position.
 - Capacity and operational fit.
 - Risk flags.
 - Recommendation and explanation.
@@ -629,6 +629,6 @@ This applies to:
 - Near-low rates.
 - Win shortage.
 - Workload proxies.
-- CSI historical performance metrics used later by Model 2.
+- The client's historical performance metrics used later by Model 2.
 
 The candidate filter, participation ranking model, and threat assessment should all be backtested point-in-time. The model should never use future bids to decide whether a competitor should have been a candidate for an earlier project.

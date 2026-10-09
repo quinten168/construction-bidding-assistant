@@ -36,7 +36,7 @@ _SEARCH_PLANS_SCHEMA = {
         "liquidated damages, environmental/ESA restrictions, traffic control, quantities, special "
         "provisions, etc. Returns excerpts with citation tags you must cite as [n] with the page. "
         "Note: the corpus also contains state DOT *letting advertisements* (lists of UPCOMING bid "
-        "OPPORTUNITIES) — those are the state's open solicitations, NOT CSI's own bids. Pass plan_id "
+        "OPPORTUNITIES) — those are the state's open solicitations, NOT the client's own bids. Pass plan_id "
         "to restrict the search to a single plan."),
     "input_schema": {
         "type": "object",

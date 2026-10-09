@@ -3,7 +3,7 @@ Planner Agent
 
 Given the full candidate pool for a project, decides which competitors to analyze
 and in what order: a single flat ranking by simple_rule_score descending, capped
-at top_n. No priority/discovery tiering -- a candidate's presence on CSI's tracked
+at top_n. No priority/discovery tiering -- a candidate's presence on the client's tracked
 list never affected this ordering (that field only drove a separate display
 grouping downstream, in reporter.py/apps/api's competitor_report.py), so dropping
 that grouping is a display-only simplification, not a ranking change.

@@ -45,8 +45,8 @@ from backend.ci_db import ConfigError
 log = get_logger("bid_assistant.app")
 
 app = FastAPI(
-    title="CSI Bid Assistant API",
-    description="Conversational RAG + plan analysis over the CSI plan corpus.",
+    title="Construction Bidding Assistant API",
+    description="Conversational RAG + plan analysis over the client's plan corpus.",
     version="0.1.0",
 )
 

@@ -8,7 +8,7 @@ Same exemption the four sibling `test_*.py` files in this directory already take
 
 THE DEFECT THIS GUARDS (Dunn Job 23388, measured 2026-08-11)
 ------------------------------------------------------------
-CSI (Alex) assigned `CLEAN ROCK` to grading. `grading_quantity` named it — and then, two sentences
+the client (Alex) assigned `CLEAN ROCK` to grading. `grading_quantity` named it — and then, two sentences
 later, forbade tons-measured items, because no verified TON->CY factor exists. Dunn prices clean
 rock at `| CLEAN ROCK | TON | 758 |`. Measured at N=13 across two arms the ruling fired **0 times**,
 and the model said exactly why in its own stated reason:

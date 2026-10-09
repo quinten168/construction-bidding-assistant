@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-CSI Bid Intelligence Agent — Orchestrator
+Bid Intelligence Agent — Orchestrator
 
 Sequential pipeline: Planner → Executor → Reflector → Reporter → Export
 
 Identified by project_natural_key (e.g. MN_STEARNS_CO_MELROSE_2023-08-03). There used to also be
-a job_id column (CSI's local CSV row id, renumbered by row-sort-position on every regeneration of
+a job_id column (the client's local CSV row id, renumbered by row-sort-position on every regeneration of
 projects.csv/ranking_predictions.csv, not stable across pipeline runs) -- removed entirely.
 project_natural_key is deterministic (state_county_city_date[_N]) and stays the same across
 regenerations, which is what the live app's report cache (apps/api/backend/competitor_live.py)
@@ -164,7 +164,7 @@ def run_report(
     # ── Load data ─────────────────────────────────────────────────────────────
     if verbose:
         print(f"\n{'='*60}")
-        print(f"  CSI Bid Intelligence Agent")
+        print(f"  Bid Intelligence Agent")
         print(f"  Project: {project_key}")
         print(f"{'='*60}")
 
@@ -301,7 +301,7 @@ def run_report(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="CSI Bid Intelligence Agent — generate a competitor report for a project."
+        description="Bid Intelligence Agent — generate a competitor report for a project."
     )
     parser.add_argument(
         "--project-key", required=True,

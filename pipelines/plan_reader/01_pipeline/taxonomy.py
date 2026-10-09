@@ -1,5 +1,5 @@
 """
-taxonomy.py — the codified CSI gotcha taxonomy (single source of truth).
+taxonomy.py — the codified the client gotcha taxonomy (single source of truth).
 
 A "gotcha" is a plan requirement that raises a contractor's cost or risk and is easy
 to miss on a fast read. Before this file there were THREE un-reconciled gotcha lists:
@@ -145,7 +145,7 @@ GOTCHA_TYPES = {
     "underground_work": {
         "family": "Site & scope risk",
         "definition": "New underground utility installation in scope — storm sewer, sanitary sewer, "
-                      "watermain, or drainage pipe requiring trenching, bedding, or dewatering. (CSI "
+                      "watermain, or drainage pipe requiring trenching, bedding, or dewatering. (the client "
                       "self-performs pipe, so its presence + quantity is a scope/crew driver.)",
         "triggers": ["storm sewer", "sanitary sewer", "watermain", "RCP", "reinforced concrete pipe",
                      "pipe bedding", "trench excavation", "manhole", "catch basin", "storm drainage"],

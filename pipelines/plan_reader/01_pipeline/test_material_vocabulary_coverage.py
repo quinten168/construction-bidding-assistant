@@ -19,7 +19,7 @@ fails.
 The two defects this file was written for (2026-08-10):
   • `AGGREGATE SURFACE COURSE CL 13` (ND, Job 24133, 170 TON) was named by NO field description, so
     7 runs in 10 dropped it out of every bucket — a silent capture failure.
-  • CSI ruling #9 (FDR's quantity is reported in `milling_sy`) did not fire on Stearns 9813645,
+  • the client ruling #9 (FDR's quantity is reported in `milling_sy`) did not fire on Stearns 9813645,
     where the FDR line is printed as `FULL DEPTH RECLAMATION ... 70167` and summarised elsewhere in
     the same document under a DIFFERENT name, `Bituminous Pavement Reclamation 70,167 SY`.
 
@@ -82,7 +82,7 @@ def _matches(corpus_lines, phrase: str):
     2026-08-11 — THIS FUNCTION USED TO UNDER-REPORT, AND A COVERAGE TEST THAT UNDER-REPORTS IS
     WORSE THAN NONE. It joined the words with a tolerant separator of up to 12 non-alphanumeric
     characters and matched against the RAW line. Stearns 9813645 p77 prints 15 characters of
-    converter markup between CONCRETE and DRIVEWAY, so both of CSI's driveway-removal rulings
+    converter markup between CONCRETE and DRIVEWAY, so both of the client's driveway-removal rulings
     matched ZERO lines here and in the conformance inventory that inherited this matcher — while
     both are priced bid items (44 SY and 326 SY). Verified before the fix: 0 hits old, 1 hit new,
     for each of the two phrases.
@@ -120,17 +120,17 @@ def test_aggregate_surface_course_cl13_is_a_real_corpus_row(corpus_lines):
 def test_aggregate_surface_course_is_named_by_the_shoulder_description(corpus_lines):
     """The bucket description must NAME the item, or the model has no way to place it.
 
-    ASSUMPTION, labelled in the description itself: CSI has NOT ruled on aggregate surfacing (the
+    ASSUMPTION, labelled in the description itself: the client has NOT ruled on aggregate surfacing (the
     open questions are riprap and crushing/stockpile). Bucketing to shoulder_tons follows the
     existing `AGGREGATE SURFACING CLASS 1/2/5/SPECIAL` clause, which is itself labelled "pending a
-    CSI ruling". This test asserts the vocabulary exists and is attributed — not that CSI agreed.
+    the client ruling". This test asserts the vocabulary exists and is attributed — not that the client agreed.
     """
     d = _desc("shoulder_tons")
     assert "AGGREGATE SURFACE COURSE" in d.upper(), (
         "shoulder_tons does not name ND's 'AGGREGATE SURFACE COURSE CL __' — the 2026-08-10 CL 13 "
         "capture failure is back")
     assert "ASSUMPTION" in d.upper(), (
-        "the aggregate-surfacing bucketing is an assumption, not a CSI ruling, and the description "
+        "the aggregate-surfacing bucketing is an assumption, not the client ruling, and the description "
         "must say so out loud")
 
 
@@ -177,7 +177,7 @@ def test_reclamation_name_is_a_real_corpus_row(corpus_lines, phrase):
 @needs_md
 @pytest.mark.parametrize("phrase", RECLAMATION_NAMES)
 def test_reclamation_name_is_named_by_the_base_unconverted_description(corpus_lines, phrase):
-    """CSI put FDR's quantity in BASE. base_tons is tons and FDR is square yards, so the field that
+    """the client put FDR's quantity in BASE. base_tons is tons and FDR is square yards, so the field that
     has to name it is the one that carries an off-unit base item verbatim."""
     assert phrase in _desc("base_unconverted").upper(), (
         f"base_unconverted does not name {phrase!r}. Alex ruled FDR's quantity is base, and the "
@@ -275,10 +275,10 @@ def test_driveway_removal_rulings_are_real_priced_corpus_rows(corpus_lines, phra
     """RED BEFORE GREEN, and the red was measured: with the previous raw-line 12-char matcher both
     of these returned 0 hits; with corpus_match.denoise both return 1. They are priced bid items —
     Stearns 9813645 p77 `REMOVE CONCRETE DRIVEWAY PAVEMENT | S Y | 44` and Crow Wing p220
-    `REMOVE BITUMINOUS DRIVEWAY PAVEMENT | S Y | 326` — and CSI ruled both DO NOT COUNT, so a
+    `REMOVE BITUMINOUS DRIVEWAY PAVEMENT | S Y | 326` — and the client ruled both DO NOT COUNT, so a
     matcher that cannot see them cannot check that the exclusions have anything to exclude."""
     hits = _matches(corpus_lines, phrase)
     assert hits, (f"{phrase!r} matches no corpus line — the 12-character-tolerance regression is "
                   f"back; see corpus_match.py")
     assert phrase in _desc("milling_sy").upper(), \
-        f"milling_sy no longer excludes {phrase!r} — CSI ruled it does not count"
+        f"milling_sy no longer excludes {phrase!r} — the client ruled it does not count"

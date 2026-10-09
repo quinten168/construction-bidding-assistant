@@ -39,13 +39,13 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
   CROW RIVER CONSTRUCTION LLC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### GLADEN CONSTRUCTION INC
 - **Bid Rate (all locations, all types):** 27% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 5% (1 win from 21 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 0% (0 wins from 5 bids in this county).
 
@@ -53,7 +53,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 18% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 0% (0 wins from 4 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -61,7 +61,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 29% (4 wins from 14 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 41% (7 wins from 17 bids in this county).
 
@@ -69,7 +69,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 0% (0 wins from 10 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 0% (0 wins from 15 bids in this county).
 
@@ -77,7 +77,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** Fewer than 3 Aggregate/Base bids on record — insufficient data.
 - **Win Rate — DUNN CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -85,7 +85,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 11% (1 win from 9 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 0% (0 wins from 6 bids in this county).
 
@@ -95,7 +95,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 0% (0 wins from 3 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** Fewer than 3 bids in this county — insufficient data.
 
@@ -103,7 +103,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 33% (1 win from 3 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 0% (0 wins from 7 bids in this county).
 
@@ -111,7 +111,7 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** 40% (4 wins from 10 Aggregate/Base bids).
 - **Win Rate — DUNN CO (all types):** 20% (3 wins from 15 bids in this county).
 
@@ -119,6 +119,6 @@ Bid Date: 2023-09-06 | Generated: 2026-06-30 23:28
 - **Bid Rate (all locations, all types):** 9% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Aggregate/Base, all locations:** Fewer than 3 Aggregate/Base bids on record — insufficient data.
 - **Win Rate — DUNN CO (all types):** 0% (0 wins from 3 bids in this county).

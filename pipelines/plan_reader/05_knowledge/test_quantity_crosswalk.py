@@ -6,7 +6,7 @@ silent, six-figure data errors, and 36 passing unit tests caught neither:
   1. `RECLAIM` never matched `FULL DEPTH RECLAMATION` (the substrings diverge at position 6), so
      1,235,282 SY reported as ZERO for months.
   2. `AGGREGATE BASE` matched `REMOVE AGGREGATE BASE`, so 202,031 TON of demolition was reported to
-     CSI as purchased aggregate base.
+     the client as purchased aggregate base.
 
 Both are invisible to per-function unit tests, because the function did exactly what it was written
 to do. They are only visible by asking questions ABOUT THE TABLE as a whole:
@@ -57,7 +57,7 @@ KNOWN_DEAD_KEYWORDS = {
 # Keywords that are dead AND should not be. Kept as an explicit xfail list rather than being
 # silently tolerated, so they stay visible until someone fixes or removes them.
 DEAD_AND_SHOULD_NOT_BE = {
-    "RECLAIM": "does not match FULL DEPTH RECLAMATION — the bug that started this file. The CSI "
+    "RECLAIM": "does not match FULL DEPTH RECLAMATION — the bug that started this file. The the client "
                "ruling layer now matches the item explicitly, so no quantity is lost, but this "
                "keyword is still wrong and would mislead the next reader.",
     "CRUSHING": "the whole `crushing` family is dead, so crushing_tons can never be populated",
@@ -132,7 +132,7 @@ GOLDEN_ITEMS = [
     ("AGGREGATE BASE COURSE CL 5", "TON", "base", "base_tons"),
     ("COMMON EXCAVATION", "CY", "grading", "grading_quantity"),
     ("MILL BITUMINOUS SURFACE (1.5\")", "SY", "mill", "milling_sy"),
-    # --- CSI's 2026-08-07 rulings ------------------------------------------------------------------
+    # --- the client's 2026-08-07 rulings ------------------------------------------------------------------
     ("GRAVEL SURFACING", "TON", "base", "base_tons"),
     ("TRAFFIC SERVICE AGGREGATE", "TON", "base", "base_tons"),
     ("REMOVE BITUMINOUS PAVEMENT", "SY", "mill", "milling_sy"),
@@ -174,7 +174,7 @@ def test_removals_never_count_as_placed_material(desc):
 
 GAP_CASES = [
     ("SUPERPAVE FAA 45", "TON", None),                          # reached a bucket
-    ("PORTLAND CEMENT", "TON", xwalk.GAP_EXCLUDED_BY_CSI),      # CSI ruled it out
+    ("PORTLAND CEMENT", "TON", xwalk.GAP_EXCLUDED_BY_CSI),      # the client ruled it out
     ("TRAFFIC CONTROL", "LS", xwalk.GAP_UNTRACKED_CATEGORY),    # real work, untracked
     ("MILLING PAVEMENT SURFACE", "TON", xwalk.GAP_NO_BUCKET_FOR_UNIT),   # known cat, homeless unit
     ("ZORBLAT FLANGE WIDGET", "EA", xwalk.GAP_NEVER_MATCHED),   # READER FAILURE
@@ -222,7 +222,7 @@ def test_map_line_v2_agrees_with_map_line():
 
 
 # --------------------------------------------------------------------------------------------------
-# 5. TYPOGRAPHY — the gap that silently bypassed five CSI rulings.
+# 5. TYPOGRAPHY — the gap that silently bypassed five the client rulings.
 #    115 real corpus rows contain a non-breaking space. `spec_category`/`_csi_ruling` used a bare
 #    `.upper()` while the lookup table used a normalizing form, so a description with \xa0 or a
 #    double space missed every ruling. Found 2026-08-07; these are the REAL corpus strings.

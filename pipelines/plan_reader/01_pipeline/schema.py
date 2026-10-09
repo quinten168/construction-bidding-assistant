@@ -82,7 +82,7 @@ SCALAR_FIELDS = [
     # directly — 05_knowledge/quantity_crosswalk.py is BATCH ONLY and is never loaded on this path
     # (verified three ways, docs/_session/2026-08-08_live-path-mapping.md §1).
     #
-    # CSI's 2026-08-07 rulings (Alex's 11) were applied here on 2026-08-10. Each clause below cites
+    # the client's 2026-08-07 rulings (Alex's 11) were applied here on 2026-08-10. Each clause below cites
     # the ruling it encodes. Source of truth for the rulings themselves:
     # 05_knowledge/quantity_crosswalk.py::CSI_RULINGS_2026_08_07 (lines 185-202 are Alex's 11;
     # 218-225 are T's 8 — Mark's rule that pavement/base removal is grading work).
@@ -99,7 +99,7 @@ SCALAR_FIELDS = [
        "patching mixtures, including 'FULL DEPTH BITUMINOUS STREET REPAIR'. Do NOT count milling "
        "or removal of existing bituminous — that is milling_sy. Do NOT count aggregate. Do NOT "
        "count asphalt binder or coatings billed as their own pay item — 'PG 58S-34 ASPHALT "
-       "CEMENT', 'PG 58H', 'ASPHALT CEMENT', 'TACK COAT', 'PRIME COAT'. CSI ruled these are "
+       "CEMENT', 'PG 58H', 'ASPHALT CEMENT', 'TACK COAT', 'PRIME COAT'. the client ruled these are "
        "carried as a scope flag only, and the mix tonnage already includes its binder, so adding "
        "them here would double-count it.",
        golden="mix_tn", evalkind="num", group="quantities"),
@@ -146,9 +146,9 @@ SCALAR_FIELDS = [
     _f("base_tons", "num", "extract",
        "Total tons of aggregate/granular base material PURCHASED OR SALVAGED AND PLACED — for "
        "example 'AGGREGATE BASE CLASS 5 / 6 / 13', 'GRAVEL SURFACING', 'TRAFFIC SERVICE "
-       "AGGREGATE'. CSI counts base course that is salvaged from this project and re-laid, so "
+       "AGGREGATE'. the client counts base course that is salvaged from this project and re-laid, so "
        "'SALVAGED BASE COURSE' and 'REMOVE AND RELAY BLENDED BASE COURSE' count here too — but "
-       "'SALVAGE AND REUSE EXISTING AGGREGATE' does NOT: CSI ruled that one is GRADING, and it is "
+       "'SALVAGE AND REUSE EXISTING AGGREGATE' does NOT: the client ruled that one is GRADING, and it is "
        "usually measured in cubic yards. Do NOT count 'REMOVE AGGREGATE BASE' or 'REMOVAL "
        "OF AGGREGATE BASE': that is demolition of existing material being disposed of, which is a "
        "different pay item from salvaging base and placing it back. ND section 302 holds two "
@@ -156,7 +156,7 @@ SCALAR_FIELDS = [
        "'AGGREGATE SURFACE COURSE CL __' is aggregate surfacing and belongs in shoulder_tons. "
        "Do NOT count 'PORTLAND CEMENT' or "
        "'CEMENT STABILIZED SUBGRADE' — binder and additive, not aggregate. 'FULL DEPTH "
-       "RECLAMATION' is base material: CSI ruled its quantity belongs to base. It is measured in "
+       "RECLAMATION' is base material: the client ruled its quantity belongs to base. It is measured in "
        "SQUARE YARDS, and this field is TONS, so do NOT put it here and do NOT convert it — report "
        "the FDR line verbatim in base_unconverted instead.",
        golden="base_tn", evalkind="num", group="quantities"),
@@ -165,7 +165,7 @@ SCALAR_FIELDS = [
     # an SY item whose own description states a thickness. The model reports each item's OWN
     # stated numbers only — no multiplication, no summing, no unit conversion. material_tons_merge.py
     # (code, not the model) resolves each item to a CY contribution and sums them; the density step
-    # (CY -> tons) happens there too, using a CSI-supplied constant. This field used to ask the
+    # (CY -> tons) happens there too, using the client-supplied constant. This field used to ask the
     # model to pre-compute a single CY total; a live test on 2026-08-10 caught the returned value
     # disagreeing with the arithmetic in its own reason text, so that was moved out of the prompt
     # entirely. See docs/_spec/2026-08-10-aggregate-mix-tons-conversion.md.
@@ -210,7 +210,7 @@ SCALAR_FIELDS = [
        "embankment, borrow, and TOPSOIL items ('TOPSOIL', 'COMMON TOPSOIL BORROW', 'PLACING "
        "TOPSOIL', 'TOPSOIL - IMPORTED', 'TOPSOIL - BORROW AREA', 'SALVAGED TOPSOIL'). Also count "
        "'CLEAN ROCK' and 'GRANULAR BEDDING'. Also count 'SALVAGE AND REUSE EXISTING AGGREGATE' — "
-       "CSI ruled that item is GRADING, so count its cubic yards here and do NOT put it in "
+       "the client ruled that item is GRADING, so count its cubic yards here and do NOT put it in "
        "base_tons, even though the words look like salvaged base course. ('SALVAGED BASE COURSE' "
        "and 'REMOVE AND RELAY BLENDED BASE COURSE' are the base items; they are different pay "
        "items and they belong to base.) "
@@ -248,7 +248,7 @@ SCALAR_FIELDS = [
        "ROCK', 'GRANULAR BEDDING', and non-bituminous pavement/base removal such as 'REMOVE "
        "CONCRETE PAVEMENT' or 'REMOVAL OF CONCRETE'. Do NOT list bituminous milling or bituminous "
        "surface removal — those are reported in milling_sy / milling_tons — and do NOT list items "
-       "CSI excluded ('REMOVE CONCRETE DRIVEWAY PAVEMENT', 'REMOVE BITUMINOUS DRIVEWAY PAVEMENT', "
+       "the client excluded ('REMOVE CONCRETE DRIVEWAY PAVEMENT', 'REMOVE BITUMINOUS DRIVEWAY PAVEMENT', "
        "'CEMENT STABILIZED SUBGRADE'). DO NOT convert the quantity to cubic yards, DO NOT add the "
        "lines together, and DO NOT round — report each line as stated. Null if every grading item "
        "is measured in cubic yards, or if there are none.",
@@ -259,7 +259,7 @@ SCALAR_FIELDS = [
     # can see that something was lost. The vocabulary is added here.
     #
     # WHICH BUCKET IS AN ASSUMPTION, AND IT IS LABELLED AS ONE IN THE PROSE ITSELF.
-    # CSI has NOT ruled on aggregate surfacing — the open questions in
+    # the client has NOT ruled on aggregate surfacing — the open questions in
     # 05_knowledge/quantity_crosswalk.py::CSI_OPEN_QUESTIONS_2026_08_07 are riprap and
     # crushing/stockpile, not this. Basis for the assumption, in order of strength:
     #   1. NDDOT's own distinction: §302 covers BOTH `Aggregate Base Course Cl__` and `Aggregate
@@ -267,21 +267,21 @@ SCALAR_FIELDS = [
     #      of 05_knowledge/2026-08-10-spec_item_lookup.csv, ND pdf p.205). The state calls this item
     #      SURFACE course, so it is surfacing.
     #   2. This field's existing surfacing clause — `AGGREGATE SURFACING CLASS 1/2/5/SPECIAL` is
-    #      already counted here "pending a CSI ruling". Putting ND surfacing anywhere else would
+    #      already counted here "pending the client ruling". Putting ND surfacing anywhere else would
     #      mean two different answers to one question in one file.
     # KNOWN DIVERGENCE, recorded rather than hidden: the BATCH crosswalk sends this item to
     # base_tons, because quantity_crosswalk.py:88's ("CL 13", "base") keyword fires on the class
     # number before the surfacing keyword can. That file is batch-only and out of scope here; the
-    # two paths disagree on this item until CSI rules. See docs/_session/2026-08-10-ruling9-and-cl13.md.
+    # two paths disagree on this item until the client rules. See docs/_session/2026-08-10-ruling9-and-cl13.md.
     _f("shoulder_tons", "num", "extract",
        "Total tons of shoulder aggregate, e.g. 'AGGREGATE SHOULDERING'. 'GRAVEL SURFACING' and "
-       "'TRAFFIC SERVICE AGGREGATE' were moved to base_tons by CSI — do not count them here. "
+       "'TRAFFIC SERVICE AGGREGATE' were moved to base_tons by the client — do not count them here. "
        "Aggregate SURFACING counts here under either state's name for it: MN 'AGGREGATE SURFACING "
        "CLASS 1 / 2 / 5 / SPECIAL' and ND 'AGGREGATE SURFACE COURSE CL __' (e.g. 'AGGREGATE SURFACE "
        "COURSE CL 13', NDDOT section 302). ND section 302 also contains 'AGGREGATE BASE COURSE "
        "CL __', which is base and belongs in base_tons instead — Surface versus Base is the only "
        "difference between those two names, and the class number does not tell you which is which. "
-       "ASSUMPTION, not a CSI ruling: CSI has not ruled where aggregate surfacing belongs; it is "
+       "ASSUMPTION, not the client ruling: the client has not ruled where aggregate surfacing belongs; it is "
        "counted here to match the state's own 'surface course' naming.",
        golden="shldr_tn", evalkind="num", group="quantities"),
     # shoulder_cy_items — same shape and rationale as base_cy_items above, scoped to the shoulder
@@ -331,7 +331,7 @@ SCALAR_FIELDS = [
     # "per the milling_sy definition, 'REMOVE BITUMINOUS PAVEMENT' qualifies" and folded the
     # shoulder-specific line in without this field ever naming it), which means the majority of a
     # real Mill total was riding on inference, not a stated rule. App owner confirmed Mill (not
-    # Shoulder) is the correct bucket for this item — this is that confirmation, not a CSI ruling.
+    # Shoulder) is the correct bucket for this item — this is that confirmation, not the client ruling.
     # NOTE: the batch/CI-corpus crosswalk (05_knowledge/quantity_crosswalk.py, used only to build
     # pipelines/ci_model's training corpus, never the live path) still has no rule for this exact
     # item name and would currently fall through SPEC_MAP's bare "BITUMINOUS" keyword to "hma" —
@@ -348,7 +348,7 @@ SCALAR_FIELDS = [
        "add those, and do not add a summary-page quantity that restates a line you already counted. "
        "Do NOT count FULL DEPTH RECLAMATION here, under any of its names ('FULL DEPTH "
        "RECLAMATION', 'FDR', 'STABILIZED FULL DEPTH RECLAMATION', 'BITUMINOUS PAVEMENT "
-       "RECLAMATION', MnDOT item 2215.504): CSI ruled reclamation is BASE, and its square yards "
+       "RECLAMATION', MnDOT item 2215.504): the client ruled reclamation is BASE, and its square yards "
        "are reported in base_unconverted, not here. Reclaiming a pavement in place is not milling "
        "it off. "
        "Do NOT count 'REMOVE CONCRETE DRIVEWAY PAVEMENT' or 'REMOVE BITUMINOUS "
@@ -401,7 +401,7 @@ SCALAR_FIELDS = [
        "TON-measured lines from BOTH kinds of pay item and ADD THEM TOGETHER: the milling items "
        "(e.g. 'MILLING PAVEMENT SURFACE') AND the removal-of-existing-bituminous items (e.g. "
        "'REMOVAL OF BITUMINOUS SURFACING', 'REMOVE BITUMINOUS PAVEMENT', 'REMOVE BITUMINOUS "
-       "SHOULDER PAVEMENT') — CSI classes both as the "
+       "SHOULDER PAVEMENT') — the client classes both as the "
        "same work, and the two often sit in different sections of the schedule (a removal item in "
        "the 200-series section, a milling item in the 400-series). Sum only items whose unit is TON. "
        "Any pay item named in the milling_sy definition belongs HERE instead whenever its unit is "
@@ -426,7 +426,7 @@ SCALAR_FIELDS = [
        "by the ton answers 'TON', not 'SY+TON'. 'NONE' is the answer for 'there is no "
        "such item' — do not use null for that.",
        golden=None, evalkind=None, group="quantities"),
-    # crushing_tons / stockpile_tons DELIBERATELY UNCHANGED. CSI has not answered whether crushing
+    # crushing_tons / stockpile_tons DELIBERATELY UNCHANGED. the client has not answered whether crushing
     # and stockpile stay excluded (quantity_crosswalk.py::CSI_OPEN_QUESTIONS_2026_08_07). Writing a
     # clause here would be inventing a ruling. Left as-is and recorded as open.
     # ── The tons-only buckets' off-unit capture — SURFACE THE ITEM, NEVER CONVERT IT ─────────────
@@ -434,7 +434,7 @@ SCALAR_FIELDS = [
     # column (bid_projects.mix_tn / base_tn / shldr_tn). When a bid schedule measures one of those
     # materials in some other unit the field has nowhere to put it and returned a BARE NULL — so a
     # material that was found but could not be expressed in tons was indistinguishable from a
-    # material that is genuinely absent. CSI hit this live on plan 9786015 (CSAH 2 / Maryland Ave,
+    # material that is genuinely absent. the client hit this live on plan 9786015 (CSAH 2 / Maryland Ave,
     # Murray Co MN), whose base is stated as 2,485 CY.
     #
     # Eleventh instance of the standing rule (milling was the tenth), so it gets the SAME shape and
@@ -446,7 +446,7 @@ SCALAR_FIELDS = [
     # TON+SY / TON+GAL, surfacing CY+SY / TON+LF). A single off-unit subtotal would add cubic yards
     # to square yards — the same conflation this fix exists to prevent, one layer further in.
     #
-    # NOTHING HERE IS CONVERTED. CY->TON / SY->TON needs a CSI-verified factor table (task 2b,
+    # NOTHING HERE IS CONVERTED. CY->TON / SY->TON needs the client-verified factor table (task 2b,
     # awaiting Alex). bucket_hierarchy.csv's 1.75 Ton/CY is unverified and SDDOT's 1.50 tons/CY is
     # salvaged granular material — a different material and state. Neither is used.
     # Design: docs/_spec/2026-08-10-tons-bucket-unit-capture.md.
@@ -488,7 +488,7 @@ SCALAR_FIELDS = [
        "tells you to exclude ('REMOVE AGGREGATE BASE', 'PORTLAND CEMENT', 'CEMENT STABILIZED "
        "SUBGRADE', 'SALVAGE AND REUSE EXISTING AGGREGATE' — that last one is grading, not base). "
        "ALWAYS list every 'FULL DEPTH RECLAMATION' line here, with its SQUARE YARDS exactly as "
-       "printed — e.g. 'FULL DEPTH RECLAMATION | 408216 | SY'. CSI ruled FDR's quantity belongs to "
+       "printed — e.g. 'FULL DEPTH RECLAMATION | 408216 | SY'. the client ruled FDR's quantity belongs to "
        "base, and square yards cannot go into a tons total, so this field is where it is reported. "
        "The corpus writes that same pay item under several names and ALL of them belong here: "
        "'FULL DEPTH RECLAMATION', 'FDR', 'STABILIZED FULL DEPTH RECLAMATION', 'BITUMINOUS PAVEMENT "
@@ -513,7 +513,7 @@ SCALAR_FIELDS = [
        "line, exactly as printed, in the form 'DESCRIPTION | QUANTITY | UNIT' — for example "
        "'AGGREGATE SHOULDERING | 1420 | CY'. List only items that WOULD have counted toward "
        "shoulder_tons if they had been measured in tons; do not list 'GRAVEL SURFACING' or "
-       "'TRAFFIC SERVICE AGGREGATE', which CSI moved to base_tons. DO NOT convert the quantity to "
+       "'TRAFFIC SERVICE AGGREGATE', which the client moved to base_tons. DO NOT convert the quantity to "
        "tons, DO NOT add the lines together, and DO NOT round — report each line as stated. Null if "
        "every shoulder item is measured in tons, or if there are none.",
        golden=None, evalkind=None, group="quantities"),
@@ -697,7 +697,7 @@ def resolve_sy_depth_product(item: dict):
     """One raw mix_sy_depth_items entry -> its SY*inches product, or None if unconvertible.
     Deliberately NOT resolve_cy_item: mix skips the /36 CY-volume step entirely — its density
     constant (MIX_TON_PER_SY_INCH) already operates on the raw SY*inches product, per the
-    CSI-supplied formula. Using resolve_cy_item here was a real bug caught in testing: it silently
+    the client-supplied formula. Using resolve_cy_item here was a real bug caught in testing: it silently
     divided the mix product by 36, undercounting mix tons by 36x. Kept as its own function, not a
     branch inside resolve_cy_item, so the two can never be conflated again."""
     if not isinstance(item, dict):
@@ -790,7 +790,7 @@ def mix_unit_status(record) -> str:
 # ── Tons-bucket unit status (derived — no model call, no conversion) ───────────
 # The ELEVENTH instance of the same standing rule, for hot_mix_tons / base_tons / shoulder_tons.
 # Before this, `base_tons = null` meant all three of "the base is measured in cubic yards", "this
-# plan has no base item" and "extraction produced no answer". CSI hit it on plan 9786015, whose base
+# plan has no base item" and "extraction produced no answer". the client hit it on plan 9786015, whose base
 # is 2,485 CY. Spec: docs/_spec/2026-08-10-tons-bucket-unit-capture.md.
 #
 # WHY THIS IS A SECOND FUNCTION AND NOT A GENERALISATION OF milling_unit_status:

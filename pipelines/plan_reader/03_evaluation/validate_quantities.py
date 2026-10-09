@@ -3,7 +3,7 @@
 validate_quantities.py — VALIDATION HARNESS for extracted bid quantities.
 
 Scores what the pipeline extracted (plan_metrics buckets in csi_v2.db) against GROUND TRUTH
-(golden_dataset.csv — CSI's review schema). Per field: extracted vs golden, % diff, match within
+(golden_dataset.csv — the client's review schema). Per field: extracted vs golden, % diff, match within
 tolerance. Turns "looks right" into an accuracy number. READ-ONLY. No API.
 
 Run:

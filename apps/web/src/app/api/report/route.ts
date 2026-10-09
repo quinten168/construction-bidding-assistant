@@ -1,5 +1,5 @@
 // ────────────────────────────────────────────────────────────────────────────
-// Report proxy → the real CSI Bid Assistant backend (FastAPI /api/report).
+// Report proxy → the real Construction Bidding Assistant backend (FastAPI /api/report).
 //
 // The browser POSTs a multipart form (the dropped plan PDF) here, same-origin;
 // we stream it through to FastAPI, which runs the Plan Reader pipeline and

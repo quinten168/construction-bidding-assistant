@@ -38,7 +38,7 @@ export type FinalGotcha = {
 };
 // ── Competitive landscape (§④) — mirrors backend/competitor_report.py::parse_report (v3 schema).
 // The Competitor Intel team's model output, matched to this plan on county+state+date. As of v3
-// this is a single flat top-N ranking (no Priority/Discovery tiers — CSI's tracked-list membership
+// this is a single flat top-N ranking (no Priority/Discovery tiers — the client's tracked-list membership
 // never drove the ranking, only a display grouping that's now gone) + structured per-competitor
 // attributes — NO numeric threat scores. An estimator can also type in names they personally expect
 // to bid (the verify-competitors popup); genuinely new ones are appended to the same flat list and
@@ -364,7 +364,7 @@ ${lines}
 - **Money left on the table: ~$22.3M** — mostly overbidding on jobs you *did* win, where a sharper number still wins and keeps more.
 
 Where you're strongest: **Reconstruct/Rebuild** sets (GRADE + MIX) — your highest-margin work type. Where you bleed: commodity **Mill & Overlay**, where you're one of eight bidders and price is the only lever. The pattern says chase messy reconstructs, pass on clean resurfaces.`,
-      citations: [{ label: "CSI bid history 2023–24", page: 1 }],
+      citations: [{ label: "Client bid history 2023–24", page: 1 }],
     };
   }
 
@@ -378,7 +378,7 @@ Where you're strongest: **Reconstruct/Rebuild** sets (GRADE + MIX) — your high
 | HMA Type SP 12.5 Non-wear | 4,118 | TON |
 | Aggregate Base Class 5 | 9,840 | TON |
 
-The bid schedule governs over any quantity referenced elsewhere in the plan. Confidence on the HMA figure is 98% — it landed within ~1% of CSI's hand-keyed value in the validation harness.`,
+The bid schedule governs over any quantity referenced elsewhere in the plan. Confidence on the HMA figure is 98% — it landed within ~1% of the client's hand-keyed value in the validation harness.`,
       citations: [{ label: "Bid schedule §2360.509", page: 12 }],
     };
   }

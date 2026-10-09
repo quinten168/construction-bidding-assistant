@@ -527,7 +527,7 @@ function GotchaGroup({
 }
 
 // ── Competitive landscape (§④) — CI team's v3 schema ────────────────────────
-// A single flat top-N ranking (no Priority/Discovery tiers — CSI's tracked-list membership never
+// A single flat top-N ranking (no Priority/Discovery tiers — the client's tracked-list membership never
 // drove the ranking, only a display grouping that's now gone). Selection/ranking is still the
 // planner's simple_rule_score model; every competitor's shown figures (win rate, bid rate,
 // capacity, pit access) come entirely from the live SQL retrieval in competitor_stats_live.py

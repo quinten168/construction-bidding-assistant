@@ -1,10 +1,10 @@
-# CSI Competitor Intelligence System — Model 1 Architecture Reference
+# Competitor Intelligence System — Model 1 Architecture Reference
 
 ## Current Scope
 
 This draft focuses only on **Model 1: Competitor Participation and Threat Assessment**.
 
-Model 2, CSI multi-factor decision support, is intentionally out of scope for the current build. It should not be implemented until the Model 1 candidate filter, participation ranking, and threat evidence are stable and auditable.
+Model 2, the client's multi-factor decision support, is intentionally out of scope for the current build. It should not be implemented until the Model 1 candidate filter, participation ranking, and threat evidence are stable and auditable.
 
 Model 1 follows this sequence:
 
@@ -31,7 +31,7 @@ The model needs a consistent `job_budget` or `estimated_value` field, but the cu
 
 - Lowest actual bid.
 - Engineer's estimate, where available and reliable.
-- CSI's internal estimate, if available later.
+- the client's internal estimate, if available later.
 - Project size proxy based on material quantities.
 
 For the MVP, `estimated_value` can use the lowest observed bid in historical data as a practical proxy for completed bid events. This should be documented as a historical training proxy, not as information that would always be known before a future bid.
@@ -102,7 +102,7 @@ The final configuration may show, for example, that 90 days is too short, 24 mon
 
 ### Pit Future Refinement
 
-Pit and material-access features should be treated as future refinements, not MVP dependencies. The system should run without pit data. Once CSI provides a reliable pit / plant / access table, the model can add:
+Pit and material-access features should be treated as future refinements, not MVP dependencies. The system should run without pit data. Once the client provides a reliable pit / plant / access table, the model can add:
 
 Future pit features may include:
 
@@ -116,12 +116,12 @@ Future pit features may include:
 
 ## Overview
 
-The system should be framed as **decision support**, not a pure binary classifier. The goal is to help CSI understand:
+The system should be framed as **decision support**, not a pure binary classifier. The goal is to help the client understand:
 
 - Which competitors are likely to bid.
 - Why those competitors are likely to bid.
 - Which competitors may be aggressive or threatening.
-- How CSI's own position, capacity, risk, and operational fit affect the bid decision.
+- How the client's own position, capacity, risk, and operational fit affect the bid decision.
 
 The recommended structure is a **two-model pipeline**:
 
@@ -129,8 +129,8 @@ The recommended structure is a **two-model pipeline**:
   - Candidate filtering.
   - Likely bidder ranking.
   - Competitor threat / aggressiveness assessment.
-- **Model 2: CSI Multi-Factor Decision Support**
-  - CSI competitive position.
+- **Model 2: Multi-Factor Decision Support**
+  - The client's competitive position.
   - Capacity and operational fit.
   - Risks.
   - Recommendation and explanation.
@@ -165,8 +165,8 @@ Model 1: Competitor Participation and Threat Assessment
   3. Competitor threat / aggressiveness output
        |
        v
-Model 2: CSI Multi-Factor Decision Support
-  1. CSI competitive position
+Model 2: Multi-Factor Decision Support
+  1. The client's competitive position
   2. Capacity and operational fit
   3. Risks and uncertainty
   4. Recommendation and explanation
@@ -252,7 +252,7 @@ Tied-low bids need a clear rule. For the first backtest:
 did_win = 1 for all tied-low bidders
 ```
 
-If CSI later provides final awarded contractor data, `did_win` can be changed to reflect the awarded contractor instead of all tied-low bidders.
+If the client later provides final awarded contractor data, `did_win` can be changed to reflect the awarded contractor instead of all tied-low bidders.
 
 ---
 
@@ -405,7 +405,7 @@ Historical relevance should not become a pure frequency filter. A competitor wit
 
 **Definition**
 
-Temporary priority competitors are operating units that should be reviewed on each project until CSI provides a final priority competitor list.
+Temporary priority competitors are operating units that should be reviewed on each project until the client provides a final priority competitor list.
 
 **First MVP Rule**
 
@@ -423,7 +423,7 @@ Priority status should **not** directly increase the model's predicted participa
 
 **Later Refinement**
 
-Replace the temporary top-count list with CSI's client-approved priority competitor list once available.
+Replace the temporary top-count list with the client-approved priority competitor list once available.
 
 and:
 
@@ -436,11 +436,11 @@ Example:
 | Competitor | Predicted Likelihood | Why Shown |
 |---|---:|---|
 | Knife River MN | High | Model Top 5 |
-| Competitor X | Low | CSI priority review |
+| Competitor X | Low | client priority review |
 
 #### Later Refinement
 
-Replace the temporary top-count list with CSI's client-approved priority list when available.
+Replace the temporary top-count list with the client-approved priority list when available.
 
 ### 3. Region-Specific Competitors
 
@@ -464,7 +464,7 @@ Regional definitions can be refined using:
 
 - County clusters.
 - State DOT districts.
-- CSI-defined market areas.
+- Client-defined market areas.
 - Distance bands from project location.
 - Region-specific project-type patterns.
 
@@ -476,7 +476,7 @@ Region-specific status should activate review and candidate inclusion. It should
 
 **Definition**
 
-A recently active or emerging competitor is an operating unit that may not have enough long-term history to satisfy the historical-relevance rules but has shown recent activity or has been identified by CSI as newly relevant.
+A recently active or emerging competitor is an operating unit that may not have enough long-term history to satisfy the historical-relevance rules but has shown recent activity or has been identified by the client as newly relevant.
 
 **Initial Signals**
 
@@ -613,21 +613,21 @@ Model 1 should output two separate concepts:
 win_probability -> GO / NO-GO
 ```
 
-Win probability is useful, but it is not the same as bid attractiveness. CSI may bid a lower-probability job for strategic reasons, or decline a high-probability job due to margin, schedule, capacity, risk, or operational fit.
+Win probability is useful, but it is not the same as bid attractiveness. The client may bid a lower-probability job for strategic reasons, or decline a high-probability job due to margin, schedule, capacity, risk, or operational fit.
 
-### CSI Competitive Position
+### Competitive Position
 
-Model 2 should summarize CSI's position relative to the expected competitor field:
+Model 2 should summarize the client's position relative to the expected competitor field:
 
 - Expected number of bidders.
 - Number of strong competitors.
 - Most threatening competitors.
-- CSI's historical performance on similar projects.
-- CSI's relative position by geography, project type, size, and work profile.
+- The client's historical performance on similar projects.
+- The client's relative position by geography, project type, size, and work profile.
 
 ### Capacity and Operational Fit
 
-Capacity should be treated as a workload proxy unless CSI provides verified physical capacity denominators.
+Capacity should be treated as a workload proxy unless the client provides verified physical capacity denominators.
 
 Initial workload logic:
 
@@ -735,7 +735,7 @@ Generate rule-based threat evidence for top-ranked competitors
 
 Model 2 should remain out of scope until Model 1 is stable.
 
-Later, Model 2 can use Model 1 outputs to support CSI decision-making:
+Later, Model 2 can use Model 1 outputs to support the client's decision-making:
 
 - `distance_to_nearest_eligible_accessible_pit`
 - `pit_access_status`
@@ -761,7 +761,7 @@ This applies to:
 - Near-low rates.
 - Win shortage.
 - Workload proxies.
-- CSI historical performance metrics used later by Model 2.
+- The client's historical performance metrics used later by Model 2.
 
 The candidate filter, ranking model, and threat assessment should all be backtested point-in-time. The model should never use future bids to decide whether a competitor should have been a candidate for an earlier project.
 
@@ -778,7 +778,7 @@ Current build order:
 5. Build point-in-time historical features.
 6. Train / compare ranking baselines and simple models.
 7. Add competitor threat assessment.
-8. Add CSI multi-factor decision-support output.
+8. Add multi-factor decision-support output.
 9. Add pit and material-access features as future refinement.
 
 The architecture should remain modular so the candidate-filter logic, window experiments, workload proxies, and pit features can be revised independently.

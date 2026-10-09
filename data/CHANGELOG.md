@@ -1,4 +1,4 @@
-# CSI Data Change Log
+# the client Data Change Log
 
 All changes made to the raw source data are recorded here for client transparency.
 
@@ -114,9 +114,9 @@ All changes made to the raw source data are recorded here for client transparenc
 ---
 
 8. **Extracted `csi_job_id` and `state_project_id` from `PROJECT` column**
-   - `csi_job_id`: CSI's internal 5-digit job number, extracted from `JOB XXXXX` pattern. Found in 95 rows.
+   - `csi_job_id`: the client's internal 5-digit job number, extracted from `JOB XXXXX` pattern. Found in 95 rows.
    - `state_project_id`: Primary state/federal project identifier extracted in priority order: SAP → CONTRACT ID → SP → IM → NH → BRJ → BW → ER → ARP → PCN. Found in 477 rows.
-   - 31 rows have both identifiers (CSI job number and a state project ID in the same project name).
+   - 31 rows have both identifiers (the client job number and a state project ID in the same project name).
    - 1,120 rows have no identifier in either column — these are typically city/municipal or local projects not assigned a state/federal project number. For these rows, the composite key `DATE + LOCATION + PROJECT` should be used for identification.
 
 ---
@@ -157,7 +157,7 @@ All changes made to the raw source data are recorded here for client transparenc
    - Extraction priority is: `CSI_JOB` → `STATE_FEDERAL` → `CONTRACT_ID` → `PCN` → `COUNTY_PROJECT` → `AIP` → `IOWA_CALL` → `LOCAL_OWNER_CODE`.
 
 2. **Added regex coverage for previously missed ID formats**
-   - Added support for CSI job IDs with optional hash marks, e.g. `JOB #23347`.
+   - Added support for the client job IDs with optional hash marks, e.g. `JOB #23347`.
    - Added abbreviated contract IDs, e.g. `CONT ID #240081` and `CONT NO 05R24`.
    - Added spaced and variant state/federal IDs, e.g. `SP 4310- 95`, `SAP'S 047-602-014`, `BRO-B 8006(56)`, `BRF 6293(12)`, `NH-TA0037(157)`, `IM-EM 0908(97)362`, and `PH 0044(238)172`.
    - Added PCN IDs, e.g. `PCN 08N8` and `PCN X06L`.
@@ -539,23 +539,23 @@ Updated `CSI_data_long_format.csv` to reflect standardized bidder names from Cle
 1. **Added `access_type` column** — categorical encoding of who can access each pit:
    - `open` (433): Access = "Everyone" — all competitors may use this pit.
    - `unknown` (1,524): Access is blank — treated as open for model purposes (excluding 63% of pits would gut the distance feature).
-   - `client` (83): Access = "CSI" or variant — client's own pits. Excluded from competitor distance calculation; available as input to future CSI bid-decision model.
+   - `client` (83): Access = "CSI" or variant — client's own pits. Excluded from competitor distance calculation; available as input to future client bid-decision model.
    - `competitor` (258): Access = a named competitor — only that company may use this pit.
    - `knife_river_pending` (95): Access = "Knife River" — disambiguation pending between "KNIFE RIVER CORPORATION D/B/A KNIFE RIVER MIDWEST" and "NORTHSTAR MATERIALS INC DBA KNIFE RIVER MATERIALS". Kept separate until resolved.
    - `closed` (5): Access = "Closed up / old pit" or variant — excluded from model.
 
 2. **Added `access_company` column** — canonical bidder name for `competitor`-type pits.
    - Method: fuzzy matched all 41 unique competitor Access names against 819 canonical bidder names using `token_sort_ratio`, then confirmed matches using Claude Code analysis.
-   - 22 names mapped to canonical bidder names; 19 marked `NOT_IN_BIDDER_LIST` (private pit owners who do not appear as bidders in the CSI dataset).
+   - 22 names mapped to canonical bidder names; 19 marked `NOT_IN_BIDDER_LIST` (private pit owners who do not appear as bidders in the client dataset).
    - Lookup table saved to: `data/cleaning_review/access_standardization.csv`.
    - Key mappings: Duinicks → DUININCK INC, Anderson Bros. → ANDERSON BROTHERS COMPANY, Mathowitz → THE MATHIOWETZ CONSTRUCTION COMPANY, Ferguson → FERGUSON BROTHERS EXCAVATING (most active Ferguson entity, 28 bids), Northern Imp. → NORTHERN IMPROVEMENT COMPANY - FARGO.
 
-3. **Did not split CSI pits into a separate file** — kept in main dataset with `access_type = "client"` so they are available as a feature for the future CSI bid-decision model without requiring a file merge.
+3. **Did not split the client pits into a separate file** — kept in main dataset with `access_type = "client"` so they are available as a feature for the future client bid-decision model without requiring a file merge.
 
 ### Data Integrity Notes
 - Raw `Access` field preserved as-is for audit trail.
 - Knife River pits (95 rows, `access_type = "knife_river_pending"`) require disambiguation before use in modeling.
-- `NOT_IN_BIDDER_LIST` competitors (87 pits) own pits but do not appear as bidders in CSI's historical data — they will not match any competitor in the scoring model.
+- `NOT_IN_BIDDER_LIST` competitors (87 pits) own pits but do not appear as bidders in the client's historical data — they will not match any competitor in the scoring model.
 - Name disambiguation for multi-entity companies (Ferguson: 4 entities, Northern Improvement: 2 locations) is a modeling decision; recommend treating all variants of the same family as one group during distance calculation.
 
 ---

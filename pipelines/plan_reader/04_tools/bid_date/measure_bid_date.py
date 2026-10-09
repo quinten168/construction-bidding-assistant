@@ -3,7 +3,7 @@ measure_bid_date.py — coverage measurement for the layer-1/layer-2 bid-date pa
 
 A parser that "works" on one file is not evidence. This walks a corpus root, finds every
 standalone advertisement PDF, runs layer 1 on each, and reports a HIT RATE with the failures
-characterised — and, where the containing folder is named `MM.DD.YY <COUNTY> ...` (CSI's
+characterised — and, where the containing folder is named `MM.DD.YY <COUNTY> ...` (the client's
 consistent convention across three bid years), checks the parsed date against it.
 
     python pipelines/plan_reader/04_tools/bid_date/measure_bid_date.py <corpus-root> \
@@ -26,7 +26,7 @@ FOLDER_DATE = re.compile(r"^(\d{2})\.(\d{2})\.(\d{2})\b")
 
 
 def folder_date(p: Path):
-    """CSI names every project folder `MM.DD.YY <COUNTY> <STATE> - ...`. Walk up to find it."""
+    """the client names every project folder `MM.DD.YY <COUNTY> <STATE> - ...`. Walk up to find it."""
     for parent in [p.parent, *p.parents]:
         m = FOLDER_DATE.match(parent.name)
         if m:

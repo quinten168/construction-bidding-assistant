@@ -1,4 +1,4 @@
-# CSI Competitor Prediction Pipeline
+# Competitor Prediction Pipeline
 
 End-to-end reference. Edit this file to propose or track changes to each stage.
 
@@ -180,7 +180,7 @@ registry's `Top Competitors Tag` column, resolved to `competitor_unit_id` via `b
 ## Stage 7 — Reporting Agent (`06_reporting/agent/`)
 
 **Entry point**: `orchestrator.py --project-key <PROJECT_NATURAL_KEY>` (e.g.
-`MN_STEARNS_CO_MELROSE_2023-08-03`; was `--job-id <JOB_ID>` before 2026-07-28 — job_id is CSI's
+`MN_STEARNS_CO_MELROSE_2023-08-03`; was `--job-id <JOB_ID>` before 2026-07-28 — job_id is the client's
 local CSV row id, renumbered on every regeneration, so it isn't stable across pipeline runs)
 
 **Inputs**: `ranking_predictions.csv`, `logistic_baseline_model.json`, `competitor_name_registry.csv`, `bidder_results.csv`

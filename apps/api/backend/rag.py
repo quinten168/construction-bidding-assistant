@@ -3,7 +3,7 @@ Agentic bid-intelligence assistant — the answer loop.
 
 Claude is given a set of tools (see `tools.py`) and decides which to use per question:
   • search_plans       → plan CONTENTS (wages, phasing, gotchas, quantities…), cited by page
-  • query_bid_history  → CSI's bidding RECORD (how many bid/won, win rates) from the master data
+  • query_bid_history  → the client's bidding RECORD (how many bid/won, win rates) from the master data
   • find_projects      → resolve a SPECIFIC named/located project, then drill into the others
 
 The loop streams the answer token-by-token, runs any requested tools (off the event loop, so the
@@ -29,21 +29,21 @@ _client = AsyncAnthropic(api_key=settings.anthropic_api_key, max_retries=3, time
 _MAX_STEPS = 4  # safety bound on tool-call rounds per question
 
 _SYSTEM = (
-    "You are Central Specialties' (CSI) bid-intelligence assistant for highway construction. You "
+    "You are the client's bid-intelligence assistant for highway construction. You "
     "answer three kinds of questions and must pick the right tool:\n"
     "1. PLAN CONTENT (what a plan requires/contains) → call search_plans, then answer and cite "
     "each fact as [n] with its page.\n"
-    "2. CSI's BIDDING RECORD (how many CSI bid/won, win rates, by state/year) → call "
+    "2. THE CLIENT's BIDDING RECORD (how many bid/won, win rates, by state/year) → call "
     "query_bid_history and report the actual numbers it returns.\n"
     "3. A SPECIFIC NAMED/LOCATED PROJECT ('the Stearns CP-073 job', 'the Highway 23 project') → "
     "call find_projects to resolve it first. If several match, list them and ask which one. Once "
     "resolved, you can call search_plans (if it has a plan document) or query_bid_history for more.\n"
-    "4. CSI's COMPETITORS (who CSI bids against, who beats CSI, by state) → call query_competitors.\n\n"
+    "4. THE CLIENT's COMPETITORS (who the client bids against, who beats the client, by state) → call query_competitors.\n\n"
     "Rules:\n"
     "- Answer the question directly first, in a sentence or two; add detail only as needed. Keep it "
     "tight — do NOT dump large tables of raw DOT codes unless the user explicitly asks for a list.\n"
     "- Distinguish the STATE's open bid opportunities (letting advertisements in the plan corpus) "
-    "from CSI's OWN bids (the bid-history data). If asked about CSI's bids, use query_bid_history.\n"
+    "from the client's OWN bids (the bid-history data). If asked about the client's bids, use query_bid_history.\n"
     "- If a tool returns nothing relevant, say so plainly. Never invent facts, numbers, or pages.\n"
     "- Explain DOT jargon in plain terms when you use it."
 )

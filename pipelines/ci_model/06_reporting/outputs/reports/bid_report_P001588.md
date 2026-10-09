@@ -39,7 +39,7 @@ Bid Date: 2025-08-28 | Generated: 2026-06-30 11:50
   NORTHDALE CONSTRUCTION COMPANY INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### KNIFE RIVER - ST. CLOUD
 - **Bid Rate (all locations, all types):** 17% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).

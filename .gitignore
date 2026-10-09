@@ -7,19 +7,10 @@ __pycache__/
 data/processed/.scratch_sync_state.json
 
 # Large generated data files (reproduce by running the pipeline)
-ci_model/data/
 **/data/feature_store.csv
 **/data/training_data.csv
 **/data/model1_cv_results.csv
 **/data/model1.pkl
-outputs/model1/ranking_predictions.csv
-ci_model/model_1_wenyu/outputs/model1/ranking_predictions.csv
-ci_model/model_1_wenyu/outputs/model1/missed_actual_bidders.csv
-ci_model/model_1_wenyu/outputs/model1/top_k_recall.csv
-ci_model/model_1_wenyu/03_training/outputs/ranking_predictions.csv
-ci_model/competitor_prediction_model/03_training/outputs/ranking_predictions.csv
-ci_model/competitor_prediction_model/03_training/outputs/*.csv
-ci_model/03_training/outputs/ranking_predictions.csv
 
 # ==================================================================================
 # Added by t/live-stack — rules for the Plan Reader / Bid Assistant / frontend stack
@@ -101,16 +92,6 @@ venv/
 .ruff_cache/
 .mypy_cache/
 
-# --- research/sweet_spot ---
-# Exported notebook renders (4 files, 4.5 MB). Regenerable from the .ipynb/.Rmd
-# sources, which ARE tracked, and nothing references them.
-# Scoped to this directory deliberately: a bare `*.html` rule is occurrence 1 in
-# docs/ARCHITECTURE.md section 7 -- a pattern that stopped matching what it was
-# written for. Everything else under research/sweet_spot/, including all of
-# outputs/, is TRACKED on purpose. Do not add a blanket outputs/ ignore here.
-research/sweet_spot/notebooks/*.html
-research/sweet_spot/notebooks/*_files/
-
 # Spec books (2026-08-10): ~25 MB of state DOT PDFs, reference only, never needed to RUN.
 # Kept on disk, excluded from the repo. The derived lookup (2026-08-10-spec_item_lookup.csv) IS tracked.
 pipelines/plan_reader/05_knowledge/*.pdf
@@ -119,6 +100,8 @@ pipelines/plan_reader/05_knowledge/*.pdf
 # local artifacts, same class as the cache itself, which is already ignored above.
 **/00_input/_report_payload_cache_backup_*/
 
-# Handoff cleanup 2026-08-17 — archived-out material, retained locally only
-20260817_handoff_archive/
 .claude/
+
+# Client deliverables — never belongs in a public repo
+Final Deliverables/
+docs/KTD_ProjectE.qmd

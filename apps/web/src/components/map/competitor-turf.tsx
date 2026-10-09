@@ -4,7 +4,7 @@ import { Glass, Chip } from "@/components/kit";
 import { COMPETITORS, STATE_NAMES, fmtUSD, fmtPct, type StateCode } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-// Translate a 0..1 capacity-used figure into CSI's plain-language label.
+// Translate a 0..1 capacity-used figure into the client's plain-language label.
 // <0.55 = hungry (sage), >0.8 = at capacity (rose), else steady.
 function capacityLabel(used: number): { text: string; tone: "positive" | "negative" | "neutral"; bar: string } {
   if (used < 0.55) return { text: "hungry", tone: "positive", bar: "var(--positive)" };

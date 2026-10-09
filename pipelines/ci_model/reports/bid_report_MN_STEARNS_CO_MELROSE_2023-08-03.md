@@ -36,40 +36,40 @@ _paving = mix share ≥ 15% of total tonnage, or mix ≥ 1,000 tons regardless o
 
 ### ANDERSON WESTERN INC
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 20% (2 wins from 10 Mill & Overlay bids).
 - **Win Rate — — (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### Anderson Brothers
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 30% (3 wins from 10 Mill & Overlay bids).
 - **Win Rate — — (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### THE MATHIOWETZ CONST CO
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 67% (4 wins from 6 Mill & Overlay bids).
 - **Win Rate — — (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### STRATA CORPORATION
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 38% (10 wins from 26 Mill & Overlay bids).
 - **Win Rate — — (all types):** Fewer than 3 bids in this county — insufficient data.
 
 ### RJ ZAVORAL & SONS
 - **Bid Rate (all locations, all types):** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type found in CSI data.
+- **Experience:** No prior bids on this project type found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 17% (5 wins from 30 Mill & Overlay bids).
 - **Win Rate — — (all types):** Fewer than 3 bids in this county — insufficient data.

@@ -800,7 +800,7 @@ def fill_city_from_county_seat(df):
 # ===========================================================================
 def main():
     print("=" * 70)
-    print("CSI Full Cleaning Pipeline")
+    print("Full Cleaning Pipeline")
     print("=" * 70)
 
     # Always rebuild from raw source files so the pipeline is fully reproducible

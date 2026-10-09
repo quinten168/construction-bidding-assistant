@@ -39,7 +39,7 @@ Bid Date: 2023-12-08 | Generated: 2026-07-01 08:56
   SELLIN BROTHERS INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### NORTHERN IMPROVEMENT COMPANY
 - **Bid Rate (all locations, all types):** 11% historically — highly selective (bids on fewer than 1 in 7 available projects — very targeted, does not pursue most opportunities).
@@ -101,7 +101,7 @@ Bid Date: 2023-12-08 | Generated: 2026-07-01 08:56
 - **Bid Rate (all locations, all types):** 17% historically — selective (bids on fewer than 1 in 3 available projects — does not chase every contract; focuses on preferred jobs).
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity (all project types):** Historical season baseline not available — insufficient prior bidding seasons on record.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Win Rate — Mill & Overlay, all locations:** 17% (13 wins from 76 Mill & Overlay bids).
 - **Win Rate — WALSH CO (all types):** Fewer than 3 bids in this county — insufficient data.
 

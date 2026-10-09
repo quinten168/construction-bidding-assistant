@@ -1,7 +1,7 @@
-# CSI Bid Intelligence — one-shot Windows setup.
+# Construction Bidding Assistant — one-shot Windows setup.
 #
 # Run from PowerShell, from inside the cloned repo folder (i.e. after
-# `git clone ...` and `cd csi-bid-intelligence` — this script can't do that
+# `git clone ...` and `cd construction-bidding-assistant` — this script can't do that
 # part, since it lives inside the repo it's setting up).
 #
 #   .\scripts\setup-windows.ps1
@@ -26,7 +26,7 @@ function Write-Warn($msg) { Write-Host "  $msg" -ForegroundColor Yellow }
 # --- confirm we're actually inside the repo, not just any folder ---------------------------------
 if (-not (Test-Path ".\apps\api\requirements.txt")) {
     Write-Host "This doesn't look like the repo root (apps\api\requirements.txt not found)." -ForegroundColor Red
-    Write-Host "cd into the csi-bid-intelligence folder first, then re-run this script." -ForegroundColor Red
+    Write-Host "cd into the construction-bidding-assistant folder first, then re-run this script." -ForegroundColor Red
     exit 1
 }
 

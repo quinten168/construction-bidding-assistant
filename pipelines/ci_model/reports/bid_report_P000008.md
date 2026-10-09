@@ -31,23 +31,23 @@ Bid Date: 2023-08-25 | Generated: 2026-06-28 00:06
   HJERPE CONTRACTING INC
 
 ## PRIORITY COMPETITORS — Deep Dives
-*(Known top competitors tracked by CSI)*
+*(Known top competitors tracked by the client)*
 
 ### DUININCK INC
 - **Bid Rate:** No historical bid rate data for this competitor.
-- **Recency:** No prior bid activity found in CSI data.
+- **Recency:** No prior bid activity found in the client's data.
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** 15% (2 wins from 13 bids in this county).
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 15% (26 wins from 168 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 15% (26 wins from 168 Reconstruct/Rebuild bids across the client's data).
 
 ### GLADEN CONSTRUCTION INC
 - **Bid Rate:** 29% historically — selective bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 28% (11 wins from 39 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 28% (11 wins from 39 Reconstruct/Rebuild bids across the client's data).
 
 ## DISCOVERY COMPETITORS — Deep Dives
 
@@ -55,62 +55,62 @@ Bid Date: 2023-08-25 | Generated: 2026-06-28 00:06
 - **Bid Rate:** 43% historically — moderately active bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 17% (4 wins from 23 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 17% (4 wins from 23 Reconstruct/Rebuild bids across the client's data).
 
 ### KUECHLE UNDERGROUND INC
 - **Bid Rate:** 43% historically — moderately active bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 21% (3 wins from 14 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 21% (3 wins from 14 Reconstruct/Rebuild bids across the client's data).
 
 ### RL LARSON EXCAVATING
 - **Bid Rate:** 43% historically — moderately active bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 21% (7 wins from 33 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 21% (7 wins from 33 Reconstruct/Rebuild bids across the client's data).
 
 ### NORTHDALE CONSTRUCTION COMPANY INC
 - **Bid Rate:** 43% historically — moderately active bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 0% (0 wins from 13 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 0% (0 wins from 13 Reconstruct/Rebuild bids across the client's data).
 
 ### C & L EXCAVATING
 - **Bid Rate:** 43% historically — moderately active bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 23% (3 wins from 13 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 23% (3 wins from 13 Reconstruct/Rebuild bids across the client's data).
 
 ### LANDWEHR CONSTRUCTION INC
 - **Bid Rate:** 29% historically — selective bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 14% (5 wins from 35 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 14% (5 wins from 35 Reconstruct/Rebuild bids across the client's data).
 
 ### JR FERCHE INC
 - **Bid Rate:** 29% historically — selective bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 2% (1 win from 42 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 2% (1 win from 42 Reconstruct/Rebuild bids across the client's data).
 
 ### HJERPE CONTRACTING INC
 - **Bid Rate:** 29% historically — selective bidder.
 - **Recency:** actively bidding (last bid within 30 days).
 - **Capacity:** No historical paving tonnage data available for this competitor.
-- **Experience:** No prior bids on this project type or related families found in CSI data.
+- **Experience:** No prior bids on this project type or related families found in the client's data.
 - **Local Win Rate (LYON CO, all types):** Fewer than 3 bids in this county — insufficient data.
-- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 0% (0 wins from 8 Reconstruct/Rebuild bids across CSI data).
+- **Project Type Win Rate (Reconstruct/Rebuild, all locations):** 0% (0 wins from 8 Reconstruct/Rebuild bids across the client's data).

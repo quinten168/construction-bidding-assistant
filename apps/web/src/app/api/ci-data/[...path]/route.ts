@@ -1,5 +1,5 @@
 // ────────────────────────────────────────────────────────────────────────────
-// CI-data admin proxy → the real CSI Bid Assistant backend (FastAPI /api/ci-data/*).
+// CI-data admin proxy → the real Construction Bidding Assistant backend (FastAPI /api/ci-data/*).
 //
 // One catch-all route forwards every verb for the 3 admin features (bid results,
 // pit list, competitor registry) to FastAPI, same buffered-JSON shape as
